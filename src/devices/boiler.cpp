@@ -628,18 +628,18 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
 
     has_update(telegram->read_value(maintenanceType_, 0));
 
-    if (maintenanceType_ == 1) {
-        // time only, single byte * 100
-        telegram->read_value(maintenanceTime_, 1, 1);
-        maintenanceTime_ = maintenanceTime_ * 100;
-    } else if (maintenanceType_ == 2) {
-        // date only
-        uint8_t day   = telegram->message_data[2];
-        uint8_t month = telegram->message_data[3];
-        uint8_t year  = telegram->message_data[4];
-        if (day > 0 && month > 0) {
-            snprintf_P(maintenanceDate_, sizeof(maintenanceDate_), PSTR("%02d.%02d.%04d"), day, month, year + 2000);
-        }
+    uint8_t time = (maintenanceTime_ == EMS_VALUE_USHORT_NOTSET) ? EMS_VALUE_UINT_NOTSET : maintenanceTime_ / 100;
+    has_update(telegram->read_value(time, 1));
+    maintenanceTime_ = (time == EMS_VALUE_UINT_NOTSET) ? EMS_VALUE_USHORT_NOTSET : time * 100;
+    // telegram->read_value(maintenanceTime_, 1, 1);
+    // maintenanceTime_ = maintenanceTime * 100;
+
+    // date only
+    uint8_t day   = telegram->message_data[2];
+    uint8_t month = telegram->message_data[3];
+    uint8_t year  = telegram->message_data[4];
+    if (day > 0 && month > 0) {
+        snprintf_P(maintenanceDate_, sizeof(maintenanceDate_), PSTR("%02d.%02d.%04d"), day, month, year + 2000);
     }
 }
 

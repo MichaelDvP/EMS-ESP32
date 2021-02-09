@@ -546,7 +546,7 @@ void System::show_system(uuid::console::Shell & shell) {
 #ifndef EMSESP_STANDALONE
     shell.printfln(F("SDK version:   %s"), ESP.getSdkVersion());
     shell.printfln(F("CPU frequency: %u MHz"), ESP.getCpuFreqMHz());
-    shell.printfln(F("Free heap:                %lu bytes"), (uint32_t)ESP.getFreeHeap());
+    shell.printfln(F("Free heap:     %lu bytes"), (uint32_t)ESP.getFreeHeap());
     shell.println();
 
     switch (WiFi.status()) {

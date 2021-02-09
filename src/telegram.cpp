@@ -285,15 +285,9 @@ void TxService::send() {
     }
     delayed_send_ = 0;
 
-    // auto telegram = tx_telegrams_.pop();    // get the Telegram, also removes from queue
-
-    // if we're in read-only mode (tx_mode 0) forget the Tx call
-    if (tx_mode() != 0) {
-        // send_telegram(telegram);
+    if (tx_mode()) {
         send_telegram(tx_telegrams_.front());
     }
-
-    // auto telegram = tx_telegrams_.pop();
     tx_telegrams_.pop_front(); // remove the telegram from the queue
 }
 
@@ -389,6 +383,7 @@ void TxService::send_telegram(const QueuedTxTelegram & tx_telegram) {
     tx_state(telegram->operation); // tx now in a wait state
 }
 
+/*
 // send an array of bytes as a telegram
 // we need to calculate the CRC and append it before sending
 // this function is fire-and-forget. there are no checks or post-send validations
@@ -410,6 +405,7 @@ void TxService::send_telegram(const uint8_t * data, const uint8_t length) {
         increment_telegram_fail_count(); // another Tx fail
     }
 }
+*/
 
 void TxService::add(const uint8_t  operation,
                     const uint8_t  dest,

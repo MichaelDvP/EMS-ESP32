@@ -621,7 +621,7 @@ void EMSESP::process_UBADevices(std::shared_ptr<const Telegram> telegram) {
                     // when the version info is received, it will automagically add the device
                     // always skip modem device 0x0D, it does not reply to version request
                     // see https://github.com/proddy/EMS-ESP/issues/460#issuecomment-709553012
-                    if ((device_id != EMSbus::ems_bus_id()) && !(EMSESP::device_exists(device_id)) && (device_id != 0x0D) && (device_id != 0x0C)) {
+                    if ((device_id != EMSbus::ems_bus_id()) && !(EMSESP::device_exists(device_id)) && (device_id != 0x0A) && (device_id != 0x0B) && (device_id != 0x0C) && (device_id != 0x0D) && (device_id != 0x0F)) {
                         LOG_DEBUG(F("New EMS device detected with ID 0x%02X. Requesting version information."), device_id);
                         send_read_request(EMSdevice::EMS_TYPE_VERSION, device_id);
                     }
