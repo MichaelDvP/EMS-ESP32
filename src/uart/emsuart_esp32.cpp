@@ -60,10 +60,15 @@ void IRAM_ATTR EMSuart::emsuart_rx_intr_handler(void * para) {
         while (EMS_UART.status.rxfifo_cnt) {
             uint8_t rx = EMS_UART.fifo.rw_byte; // read all bytes from fifo
             if (length < EMS_MAXBUFFERSIZE) {
-                rxbuf[length++] = rx;
+                if (length || rx) { // skip leading zero
+                    rxbuf[length++] = rx;
+                }
             } else {
                 drop_next_rx_ = true; // we have a overflow
             }
+        }
+        if (rxbuf[length - 1]) { // check if last byte is break
+            length++;
         }
         if ((!drop_next_rx_) && ((length == 2) || (length > 4))) {
             int baseType = 0;

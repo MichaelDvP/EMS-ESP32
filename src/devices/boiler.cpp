@@ -38,22 +38,23 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_telegram_type(0x16, F("UBAParameters"), true, [&](std::shared_ptr<const Telegram> t) { process_UBAParameters(t); });
     register_telegram_type(0x18, F("UBAMonitorFast"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorFast(t); });
     register_telegram_type(0x19, F("UBAMonitorSlow"), true, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorSlow(t); });
-    register_telegram_type(0x1A, F("UBASetPoints"), false, [&](std::shared_ptr<const Telegram> t) { process_UBASetPoints(t); });
     register_telegram_type(0x1C, F("UBAMaintenanceStatus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMaintenanceStatus(t); });
-    register_telegram_type(0x2A, F("MC10Status"), false, [&](std::shared_ptr<const Telegram> t) { process_MC10Status(t); });
     register_telegram_type(0x33, F("UBAParameterWW"), true, [&](std::shared_ptr<const Telegram> t) { process_UBAParameterWW(t); });
     register_telegram_type(0x34, F("UBAMonitorWW"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorWW(t); });
-    register_telegram_type(0x35, F("UBAFlags"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAFlags(t); });
-    register_telegram_type(0xD1, F("UBAOutdoorTemp"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAOutdoorTemp(t); });
-    register_telegram_type(0xE3, F("UBAMonitorSlowPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorSlowPlus2(t); });
-    register_telegram_type(0xE4, F("UBAMonitorFastPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorFastPlus(t); });
-    register_telegram_type(0xE5, F("UBAMonitorSlowPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorSlowPlus(t); });
-    register_telegram_type(0xE6, F("UBAParametersPlus"), true, [&](std::shared_ptr<const Telegram> t) { process_UBAParametersPlus(t); });
-    register_telegram_type(0xE9, F("UBADHWStatus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBADHWStatus(t); });
-    register_telegram_type(0xEA, F("UBAParameterWWPlus"), true, [&](std::shared_ptr<const Telegram> t) { process_UBAParameterWWPlus(t); });
-    register_telegram_type(0x494, F("UBAEnergySupplied"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAEnergySupplied(t); });
-    register_telegram_type(0x495, F("UBAInformation"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAInformation(t); });
-
+    if ((flags & 0x0F) != EMSdevice::EMS_DEVICE_FLAG_EMS) {
+        register_telegram_type(0x1A, F("UBASetPoints"), false, [&](std::shared_ptr<const Telegram> t) { process_UBASetPoints(t); });
+        register_telegram_type(0x2A, F("MC10Status"), false, [&](std::shared_ptr<const Telegram> t) { process_MC10Status(t); });
+        register_telegram_type(0x35, F("UBAFlags"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAFlags(t); });
+        register_telegram_type(0xD1, F("UBAOutdoorTemp"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAOutdoorTemp(t); });
+        register_telegram_type(0xE3, F("UBAMonitorSlowPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorSlowPlus2(t); });
+        register_telegram_type(0xE4, F("UBAMonitorFastPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorFastPlus(t); });
+        register_telegram_type(0xE5, F("UBAMonitorSlowPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorSlowPlus(t); });
+        register_telegram_type(0xE6, F("UBAParametersPlus"), true, [&](std::shared_ptr<const Telegram> t) { process_UBAParametersPlus(t); });
+        register_telegram_type(0xE9, F("UBADHWStatus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBADHWStatus(t); });
+        register_telegram_type(0xEA, F("UBAParameterWWPlus"), true, [&](std::shared_ptr<const Telegram> t) { process_UBAParameterWWPlus(t); });
+        register_telegram_type(0x494, F("UBAEnergySupplied"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAEnergySupplied(t); });
+        register_telegram_type(0x495, F("UBAInformation"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAInformation(t); });
+    }
     EMSESP::send_read_request(0x10,
                               device_id); // read last errorcode on start (only published on errors)
     EMSESP::send_read_request(0x11,
@@ -471,10 +472,9 @@ void Boiler::process_UBAParametersPlus(std::shared_ptr<const Telegram> telegram)
 
 // 0xEA
 void Boiler::process_UBAParameterWWPlus(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(wWActivated_, 5)); // 0x01 means on
-    has_update(telegram->read_value(wWCircPump_, 10)); // 0x01 means yes
-    has_update(telegram->read_value(wWCircPumpMode_,
-                                    11)); // 1=1x3min... 6=6x3min, 7=continuous
+    has_update(telegram->read_value(wWActivated_, 5));     // 0x01 means on
+    has_update(telegram->read_value(wWCircPump_, 10));     // 0x01 means yes
+    has_update(telegram->read_value(wWCircPumpMode_, 11)); // 1=1x3min... 6=6x3min, 7=continuous
     // has_update(telegram->read_value(wWDisinfectTemp_, 12)); // settings, status in E9
     // has_update(telegram->read_value(wWSelTemp_, 6));        // settings, status in E9
 }
@@ -494,7 +494,7 @@ void Boiler::process_UBADHWStatus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_bitvalue(wWCharging_, 12, 4));
     has_update(telegram->read_bitvalue(wWRecharging_, 13, 4));
     has_update(telegram->read_bitvalue(wWTempOK_, 13, 5));
-    has_update(telegram->read_bitvalue(wWCircPump_, 13, 2));
+    has_update(telegram->read_bitvalue(wWCirc_, 13, 2)); // also read in E5
 
     // has_update(telegram->read_value(wWActivated_, 20)); // Activated is in 0xEA, this is something other 0/100%
     has_update(telegram->read_value(wWSelTemp_, 10));
@@ -1018,15 +1018,19 @@ bool Boiler::set_warmwater_circulation_mode(const char * value, const int8_t id)
         return false;
     }
 
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWW)) {
-        if (v < 7) {
-            LOG_INFO(F("Setting warm water circulation mode %dx3min"), v);
-        } else if (v == 7) {
-            LOG_INFO(F("Setting warm water circulation mode continuos"));
-        } else {
-            return false;
-        }
-        write_command(EMS_TYPE_UBAParameterWW, 6, v, EMS_TYPE_UBAParameterWW);
+    if (v < 7) {
+        LOG_INFO(F("Setting warm water circulation mode %dx3min"), v);
+    } else if (v == 7) {
+        LOG_INFO(F("Setting warm water circulation mode continuos"));
+    } else {
+        LOG_WARNING(F("Set warm water circulation mode: Invalid value"));
+        return false;
+    }
+
+    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+        write_command(EMS_TYPE_UBAParameterWWPlus, 11, v, EMS_TYPE_UBAParameterWWPlus);
+    } else {
+        write_command(EMS_TYPE_UBAParameterWW, 7, v, EMS_TYPE_UBAParameterWW);
     }
 
     return true;

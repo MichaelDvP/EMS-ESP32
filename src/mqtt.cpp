@@ -396,7 +396,7 @@ void Mqtt::start() {
     });
 
     // create space for command buffer, to avoid heap memory fragmentation
-    mqtt_subfunctions_.reserve(10);
+    mqtt_subfunctions_.reserve(50);
 }
 
 void Mqtt::set_publish_time_boiler(uint16_t publish_time) {
@@ -474,11 +474,15 @@ void Mqtt::on_connect() {
         dallas_format_           = mqttSettings.dallas_format;
     });
 
-    // first time to connect
-    if (connectcount_ == 1) {
         // send info topic appended with the version information as JSON
         StaticJsonDocument<EMSESP_JSON_SIZE_SMALL> doc;
+    // first time to connect
+    if (connectcount_ == 1) {
         doc["event"]   = FJSON("start");
+    } else {
+        doc["event"]   = FJSON("reconnect");
+    }
+
         doc["version"] = EMSESP_APP_VERSION;
 #ifndef EMSESP_STANDALONE
         doc["ip"] = WiFi.localIP().toString();
@@ -494,7 +498,8 @@ void Mqtt::on_connect() {
         EMSESP::shower_.send_mqtt_stat(false); // Send shower_activated as false
         EMSESP::system_.send_heartbeat();      // send heatbeat
 
-    } else {
+    // } else {
+    if (connectcount_ > 1) {
         // we doing a re-connect from a TCP break
         // only re-subscribe again to all MQTT topics
         resubscribe();

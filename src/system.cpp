@@ -377,11 +377,7 @@ void System::send_heartbeat() {
         return;
     }
 
-#if defined(ESP8266)
-    uint8_t frag_memory = ESP.getHeapFragmentation();
-#endif
-
-    StaticJsonDocument<EMSESP_JSON_SIZE_SMALL> doc;
+    StaticJsonDocument<EMSESP_JSON_SIZE_SMALL1> doc;
 
     uint8_t ems_status = EMSESP::bus_status();
     if (ems_status == EMSESP::BUS_STATUS_TX_ERRORS) {
@@ -393,7 +389,7 @@ void System::send_heartbeat() {
     }
 
     doc["rssi"]        = rssi;
-    doc["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3);
+    doc["uptime"]      = uuid::log::format_timestamp_s(uuid::get_uptime_ms(), 3);
     doc["uptime_sec"]  = uuid::get_uptime_sec();
     doc["mqttfails"]   = Mqtt::publish_fails();
     doc["rxsent"]      = EMSESP::rxservice_.telegram_count();
@@ -403,13 +399,17 @@ void System::send_heartbeat() {
     doc["txfails"]     = EMSESP::txservice_.telegram_fail_count();
     doc["dallasfails"] = EMSESP::sensor_fails();
 #ifndef EMSESP_STANDALONE
-    doc["freemem"] = ESP.getFreeHeap();
-#endif
-#if defined(ESP8266)
-    doc["fragmem"] = frag_memory;
+    doc["freemem"] = (uint8_t)(100 * ESP.getFreeHeap() / heap_start_);
 #endif
     if (analog_enabled_) {
         doc["adc"] = analog_;
+        doc["io16"]  = digitalRead(16);
+        doc["io17"]  = digitalRead(17);
+        doc["io18"]  = digitalRead(18);
+        doc["io19"]  = digitalRead(19);
+        doc["io21"]  = digitalRead(21);
+        doc["io22"]  = digitalRead(22);
+        doc["io26"]  = digitalRead(26);
     }
 
     Mqtt::publish(F("heartbeat"), doc.as<JsonObject>()); // send to MQTT with retain off. This will add to MQTT queue.
@@ -422,7 +422,7 @@ void System::measure_analog() {
     if (!measure_last_ || (uint32_t)(uuid::get_uptime() - measure_last_) >= SYSTEM_MEASURE_ANALOG_INTERVAL) {
         measure_last_ = uuid::get_uptime();
 #if defined(ESP8266)
-        uint16_t a = analogRead(A0);
+        uint16_t a = ((analogRead(A0) * 27) / 8); // scale to esp32 result in mV
 #elif defined(ESP32)
         uint16_t a = analogRead(36);
 #else
