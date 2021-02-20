@@ -323,7 +323,7 @@ class TxService : public EMSbus {
         if (telegram_fail_count_ == 0) {
             return 100; // all good, 100%
         }
-        return (100 - (((float)telegram_fail_count_ / telegram_read_count_ * 100)));
+        return (100 - (uint8_t)(((float)telegram_fail_count_ / telegram_read_count_ * 100)));
     }
 
     void increment_telegram_fail_count() {
