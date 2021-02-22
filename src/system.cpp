@@ -378,6 +378,9 @@ void System::send_heartbeat() {
     if (rssi == -1) {
         return;
     }
+    if (!Mqtt::is_connecting()) {
+        return;
+    }
 
     StaticJsonDocument<EMSESP_JSON_SIZE_SMALL1> doc;
 
