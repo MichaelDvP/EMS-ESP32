@@ -373,12 +373,13 @@ void System::show_mem(const char * note) {
 
 // send periodic MQTT message with system information
 void System::send_heartbeat() {
-    // don't send heartbeat if WiFi is not connected
-    int8_t rssi = wifi_quality();
-    if (rssi == -1) {
+    // don't send heartbeat if WiFi or MQTT is not connected
+    if (!Mqtt::connected()) {
         return;
     }
-    if (!Mqtt::is_connecting()) {
+
+    int8_t rssi = wifi_quality();
+    if (rssi == -1) {
         return;
     }
 
