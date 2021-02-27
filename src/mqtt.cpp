@@ -132,36 +132,45 @@ void Mqtt::loop() {
 
     uint32_t currentMillis = uuid::get_uptime();
 
-    // create publish messages for each of the EMS device values, adding to queue
-    if (publish_time_boiler_ && (currentMillis - last_publish_boiler_ > publish_time_boiler_)) {
-        last_publish_boiler_ = currentMillis;
-        EMSESP::publish_device_values(EMSdevice::DeviceType::BOILER);
-    }
-
-    if (publish_time_thermostat_ && (currentMillis - last_publish_thermostat_ > publish_time_thermostat_)) {
-        last_publish_thermostat_ = currentMillis;
-        EMSESP::publish_device_values(EMSdevice::DeviceType::THERMOSTAT);
-    }
-
-    if (publish_time_solar_ && (currentMillis - last_publish_solar_ > publish_time_solar_)) {
-        last_publish_solar_ = currentMillis;
-        EMSESP::publish_device_values(EMSdevice::DeviceType::SOLAR);
-    }
-
-    if (publish_time_mixer_ && (currentMillis - last_publish_mixer_ > publish_time_mixer_)) {
-        last_publish_mixer_ = currentMillis;
-        EMSESP::publish_device_values(EMSdevice::DeviceType::MIXER);
-    }
-
-    if (currentMillis - last_publish_sensor_ > publish_time_sensor_) {
-        last_publish_sensor_ = currentMillis;
-        EMSESP::publish_sensor_values(publish_time_sensor_ != 0);
-    }
-
     // publish top item from MQTT queue to stop flooding
     if ((uint32_t)(currentMillis - last_mqtt_poll_) > MQTT_PUBLISH_WAIT) {
         last_mqtt_poll_ = currentMillis;
         process_queue();
+    }
+
+    if (!mqtt_messages_.empty()) {
+        return;
+    }
+
+    // create publish messages for each of the EMS device values, adding to queue, only one device per loop
+    if (publish_time_boiler_ && (currentMillis - last_publish_boiler_ > publish_time_boiler_)) {
+        last_publish_boiler_ = (currentMillis / publish_time_boiler_) * publish_time_boiler_;
+        EMSESP::publish_device_values(EMSdevice::DeviceType::BOILER);
+    } else
+
+    if (publish_time_thermostat_ && (currentMillis - last_publish_thermostat_ > publish_time_thermostat_)) {
+        last_publish_thermostat_ = (currentMillis / publish_time_thermostat_) * publish_time_thermostat_;
+        EMSESP::publish_device_values(EMSdevice::DeviceType::THERMOSTAT);
+    } else
+
+    if (publish_time_solar_ && (currentMillis - last_publish_solar_ > publish_time_solar_)) {
+        last_publish_solar_ = (currentMillis / publish_time_solar_) * publish_time_solar_;
+        EMSESP::publish_device_values(EMSdevice::DeviceType::SOLAR);
+    } else
+
+    if (publish_time_mixer_ && (currentMillis - last_publish_mixer_ > publish_time_mixer_)) {
+        last_publish_mixer_ = (currentMillis / publish_time_mixer_) * publish_time_mixer_;
+        EMSESP::publish_device_values(EMSdevice::DeviceType::MIXER);
+    } else
+
+    if (publish_time_other_ && (currentMillis - last_publish_other_ > publish_time_other_)) {
+        last_publish_other_ = (currentMillis / publish_time_other_) * publish_time_other_;
+        EMSESP::publish_other_values();
+    } else
+
+    if (currentMillis - last_publish_sensor_ > publish_time_sensor_) {
+        last_publish_sensor_ = (currentMillis / publish_time_sensor_) * publish_time_sensor_;
+        EMSESP::publish_sensor_values(publish_time_sensor_ != 0);
     }
 }
 

@@ -60,16 +60,23 @@ class EMSESPStatusForm extends Component<EMSESPStatusFormProps> {
               <TableBody>
                 <TableRow>
                   <TableCell>
-                    # Telegrams Received
+                    # Telegrams Received / Failed (Quality)
                   </TableCell>
-                  <TableCell align="right">{formatNumber(data.rx_received)}&nbsp;({data.rx_quality}%)
+                  <TableCell align="right">{formatNumber(data.rx_received)}&nbsp;/&nbsp;{formatNumber(data.rx_fails)}&nbsp;({data.rx_quality}%)
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell >
-                    # Telegrams Sent
+                    # Telegrams Sent / Failed (Quality)
                   </TableCell >
-                  <TableCell align="right">{formatNumber(data.tx_sent)}&nbsp;({data.tx_quality}%)
+                  <TableCell align="right">{formatNumber(data.tx_sent)}&nbsp;/&nbsp;{formatNumber(data.tx_fails)}&nbsp;({data.tx_quality}%)
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell >
+                    # Dallas Fails
+                  </TableCell >
+                  <TableCell align="right">{formatNumber(data.dallas_fails)}
                   </TableCell>
                 </TableRow>
               </TableBody>

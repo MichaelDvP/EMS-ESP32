@@ -519,7 +519,6 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
 
             // handle ENUMs
             else if ((dv.type == DeviceValueType::ENUM) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
-                // if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                 if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                     data.add(dv.options[*(uint8_t *)(dv.value_p)]);
                 }
@@ -669,7 +668,6 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
 
             // handle ENUMs
             else if ((dv.type == DeviceValueType::ENUM) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
-                // if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                 if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                     if (Helpers::bool_format() == BOOL_FORMAT_NUMBERS) {
                         json[name] = (uint8_t)(*(uint8_t *)(dv.value_p));

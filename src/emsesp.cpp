@@ -450,7 +450,7 @@ void EMSESP::publish_device_values(uint8_t device_type) {
     if (!has_value) {
         return;
     }
-
+    doc.shrinkToFit();
     // publish it under a single topic
     char topic[20];
     snprintf_P(topic, sizeof(topic), PSTR("%s_data"), EMSdevice::device_type_2_device_name(device_type).c_str());

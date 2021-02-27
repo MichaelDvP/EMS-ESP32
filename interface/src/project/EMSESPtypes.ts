@@ -33,6 +33,9 @@ export interface EMSESPStatus {
   tx_sent: number;
   rx_quality: number;
   tx_quality: number;
+  tx_fails: number;
+  rx_fails: number;
+  dallas_fails: number;
 }
 
 export interface Device {

@@ -152,11 +152,7 @@ void Shower::publish_values() {
 
     // only publish shower duration if there is a value
     if (duration_ > SHOWER_MIN_DURATION) {
-        char buffer[16] = {0};
-        strlcpy(s, Helpers::itoa(buffer, (uint8_t)((duration_ / (1000 * 60)) % 60), 10), 50);
-        strlcat(s, " minutes and ", 50);
-        strlcat(s, Helpers::itoa(buffer, (uint8_t)((duration_ / 1000) % 60), 10), 50);
-        strlcat(s, " seconds", 50);
+        snprintf_P(s, 50, PSTR("%d minutes and %d seconds"), (uint8_t)(duration_ / 60000), (uint8_t)((duration_ / 1000) % 60));
         doc["duration"] = s;
     }
 
