@@ -63,12 +63,12 @@ void EMSESPShell::stopped() {
 // this is one of the first functions called when the shell is started
 void EMSESPShell::display_banner() {
     println();
-    printfln(F("┌──────────────────────────────────────────┐"));
-    printfln(F("│ %sEMS-ESP version %-10s%s               │"), COLOR_BOLD_ON, EMSESP_APP_VERSION, COLOR_BOLD_OFF);
-    printfln(F("│ %s%shttps://github.com/proddy/EMS-ESP%s        │"), COLOR_BRIGHT_GREEN, COLOR_UNDERLINE, COLOR_RESET);
-    printfln(F("│                                          │"));
-    printfln(F("│ type %shelp%s to show available commands     │"), COLOR_UNDERLINE, COLOR_RESET);
-    printfln(F("└──────────────────────────────────────────┘"));
+    printfln(F("┌──────────────────────────────────────┐"));
+    printfln(F("│ %sEMS-ESP version %-10s%s           │"), COLOR_BOLD_ON, EMSESP_APP_VERSION, COLOR_BOLD_OFF);
+    printfln(F("│ %s%shttps://github.com/proddy/EMS-ESP%s    │"), COLOR_BRIGHT_GREEN, COLOR_UNDERLINE, COLOR_RESET);
+    printfln(F("│                                      │"));
+    printfln(F("│ type %shelp%s to show available commands │"), COLOR_UNDERLINE, COLOR_RESET);
+    printfln(F("└──────────────────────────────────────┘"));
     println();
 
     // set console name
@@ -444,13 +444,17 @@ void Console::enter_custom_context(Shell & shell, unsigned int context) {
 // each custom context has the common commands like log, help, exit, su etc
 void Console::load_standard_commands(unsigned int context) {
 #if defined(EMSESP_TEST)
-    EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F_(test)}, flash_string_vector{F_(name_optional)}, [](Shell & shell, const std::vector<std::string> & arguments) {
+    EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F("test")}, flash_string_vector{F_(name_optional)}, [](Shell & shell, const std::vector<std::string> & arguments) {
         if (arguments.size() == 0) {
             Test::run_test(shell, "default");
         } else {
             Test::run_test(shell, arguments.front());
         }
     });
+#endif
+
+#if defined(EMSESP_STANDALONE)
+    EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F("t")}, [](Shell & shell, const std::vector<std::string> & arguments) { Test::run_test(shell, "default"); });
 #endif
 
 #if defined(EMSESP_DEBUG)
