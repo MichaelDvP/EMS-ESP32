@@ -58,7 +58,7 @@ Mixer::Mixer(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         register_device_value(tag, &flowSetTemp_, DeviceValueType::UINT, nullptr, F("flowSetTemp"), F("Setpoint flow temperature"), DeviceValueUOM::DEGREES);
         register_device_value(tag, &flowTemp_, DeviceValueType::USHORT, FL_(div10), F("flowTemp"), F("Current flow temperature"), DeviceValueUOM::DEGREES);
         register_device_value(tag, &pumpStatus_, DeviceValueType::BOOL, nullptr, F("pumpStatus"), F("Pump status"), DeviceValueUOM::NONE);
-        register_device_value(tag, &status_, DeviceValueType::INT, nullptr, F("status"), F("Valve status"), DeviceValueUOM::PERCENT);
+        register_device_value(tag, &status_, DeviceValueType::INT, nullptr, F("valveStatus"), F("Valve status"), DeviceValueUOM::PERCENT);
     } else {
         type_       = Type::WWC;
         hc_         = device_id - 0x28 + 1;

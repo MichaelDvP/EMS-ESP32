@@ -561,6 +561,9 @@ std::string Thermostat::mode_tostring(uint8_t mode) {
     case HeatingCircuit::Mode::ROOMINFLUENCE:
         return read_flash_string(F("roominfluence"));
         break;
+    case HeatingCircuit::Mode::FLOWOFFSET:
+        return read_flash_string(F("flowtempoffset"));
+        break;
     default:
     case HeatingCircuit::Mode::UNKNOWN:
         return read_flash_string(F("unknown"));
@@ -1605,58 +1608,6 @@ bool Thermostat::set_program(const char * value, const int8_t id) {
     }
     LOG_INFO(F("Setting program to %d for heating circuit %d"), set, hc->hc_num());
     return true;
-}
-
-// sets the thermostat temp, where mode is a string
-bool Thermostat::set_temperature(const float temperature, const std::string & mode, const uint8_t hc_num) {
-    if (mode_tostring(HeatingCircuit::Mode::MANUAL) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::MANUAL, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::AUTO) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::AUTO, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::DAY) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::DAY, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::NIGHT) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::NIGHT, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::COMFORT) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::COMFORT, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::HEAT) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::HEAT, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::ECO) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::ECO, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::NOFROST) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::NOFROST, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::SUMMER) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::SUMMER, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::HOLIDAY) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::HOLIDAY, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::OFFSET) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::OFFSET, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::DESIGN) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::DESIGN, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::MINFLOW) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::MINFLOW, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::MAXFLOW) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::MAXFLOW, hc_num);
-    }
-    if (mode_tostring(HeatingCircuit::Mode::ROOMINFLUENCE) == mode) {
-        return set_temperature(temperature, HeatingCircuit::Mode::ROOMINFLUENCE, hc_num);
-    }
-
-    LOG_WARNING(F("Set temperature: Invalid mode"));
-    return false;
 }
 
 // Set the temperature of the thermostat

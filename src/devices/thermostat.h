@@ -286,7 +286,6 @@ class Thermostat : public EMSdevice {
     bool set_mode_n(const uint8_t mode, const uint8_t hc_num);
 
     bool set_temperature_value(const char * value, const int8_t id, const uint8_t mode);
-    bool set_temperature(const float temperature, const std::string & mode, const uint8_t hc_num);
     bool set_temperature(const float temperature, const uint8_t mode, const uint8_t hc_num);
 
     // set functions - these use the id/hc
