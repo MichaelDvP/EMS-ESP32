@@ -15,6 +15,7 @@ export interface MqttStatus {
   client_id: string;
   disconnect_reason: MqttDisconnectReason;
   mqtt_fails: number;
+  mqtt_count: string;
 }
 
 export interface MqttSettings {

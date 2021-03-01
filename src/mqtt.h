@@ -142,6 +142,13 @@ class Mqtt {
         return mqtt_publish_fails_;
     }
 
+    static uint16_t publish_queue() {
+        return mqtt_messages_.size();
+    }
+
+    static uint16_t publish_count() {
+        return mqtt_message_id_;
+    }
     static void reset_mqtt();
 
     static uint8_t ha_climate_format() {

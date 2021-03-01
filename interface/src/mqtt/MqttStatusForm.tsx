@@ -35,8 +35,8 @@ class MqttStatusForm extends Component<MqttStatusFormProps> {
             </HighlightAvatar>
           </ListItemAvatar>
           <ListItemText
-            primary="MQTT Publish Errors"
-            secondary={data.mqtt_fails}
+            primary="MQTT Publish Count / Queued / Errors"
+            secondary={data.mqtt_count} 
           />
         </ListItem>
         </Fragment>
