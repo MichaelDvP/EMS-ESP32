@@ -371,10 +371,11 @@ void Mqtt::start() {
 
     mqttClient_->onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
         if (!connecting_) {
-            mqttClient_->connect();
+            // mqttClient_->connect();
             return;
         }
         connecting_ = false;
+        mqtt_messages_.clear();
         if (reason == AsyncMqttClientDisconnectReason::TCP_DISCONNECTED) {
             LOG_INFO(F("MQTT disconnected: TCP"));
         }
