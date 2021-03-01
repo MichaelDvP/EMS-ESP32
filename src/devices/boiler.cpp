@@ -28,7 +28,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     : EMSdevice(device_type, device_id, product_id, version, name, flags, brand) {
     LOG_DEBUG(F("Adding new Boiler with device ID 0x%02X"), device_id);
 
-    reserve_telgram_functions(25); // reserve some space for the telegram registries, to avoid memory fragmentation
+    // reserve_telgram_functions(25); // reserve some space for the telegram registries, to avoid memory fragmentation
 
     // the telegram handlers...
     register_telegram_type(0x10, F("UBAErrorMessage1"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAErrorMessage(t); });
@@ -658,9 +658,9 @@ bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
     if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 6, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
+        write_command(EMS_TYPE_UBAFlags, 3, v); // for i9000, see #397
         write_command(EMS_TYPE_UBAParameterWW, 2, v,
                       EMS_TYPE_UBAParameterWW);       // read seltemp back
-        write_command(EMS_TYPE_UBAFlags, 3, v, 0x34); // for i9000, see #397, read setTemp
     }
 
     return true;
