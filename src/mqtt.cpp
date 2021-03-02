@@ -225,9 +225,11 @@ void Mqtt::incoming(const char * topic, const char * payload) {
 // received an MQTT message that we subscribed too
 void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) {
     if (len == 0) {
+        LOG_DEBUG(F("Received empty message %s"), fulltopic);
         return; // ignore empty payloads
     }
     if (strncmp(fulltopic, mqtt_base_.c_str(), strlen(mqtt_base_.c_str())) != 0) {
+        LOG_DEBUG(F("Received unknown message %s - %s"), fulltopic, payload);
         return; // not for us
     }
     char topic[100];
@@ -320,6 +322,7 @@ void Mqtt::show_topic_handlers(uuid::console::Shell & shell, const uint8_t devic
 void Mqtt::on_publish(uint16_t packetId) {
     // find the MQTT message in the queue and remove it
     if (mqtt_messages_.empty()) {
+        LOG_DEBUG(F("No message stored for this ACK"));
         return;
     }
 
@@ -327,6 +330,7 @@ void Mqtt::on_publish(uint16_t packetId) {
 
     // if the last published failed, don't bother checking it. wait for the next retry
     if (mqtt_message.packet_id_ == 0) {
+        LOG_DEBUG(F("ACK for failed message"));
         return;
     }
 
@@ -717,6 +721,7 @@ void Mqtt::process_queue() {
     // if this has already been published and we're waiting for an ACK, don't publish again
     // it will have a real packet ID
     if (mqtt_message.packet_id_ > 0) {
+        LOG_DEBUG(F("Waitig for QOS-ACK"));
         return;
     }
 

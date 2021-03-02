@@ -14,6 +14,10 @@ import { MqttStatus } from './types';
 
 type MqttStatusFormProps = RestFormProps<MqttStatus> & WithTheme;
 
+function formatNumber(num: number) {
+  return new Intl.NumberFormat().format(num);
+}
+
 class MqttStatusForm extends Component<MqttStatusFormProps> {
 
   renderConnectionStatus() {
@@ -36,7 +40,7 @@ class MqttStatusForm extends Component<MqttStatusFormProps> {
           </ListItemAvatar>
           <ListItemText
             primary="MQTT Publish Count / Queued / Errors"
-            secondary={data.mqtt_count}
+            secondary={formatNumber(data.mqtt_count) +' / ' + formatNumber(data.mqtt_queue) + ' / ' + formatNumber(data.mqtt_fails)}
           />
         </ListItem>
         </Fragment>

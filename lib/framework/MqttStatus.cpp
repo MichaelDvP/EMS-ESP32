@@ -17,9 +17,8 @@ void MqttStatus::mqttStatus(AsyncWebServerRequest * request) {
     root["disconnect_reason"] = (uint8_t)_mqttSettingsService->getDisconnectReason();
 
     root["mqtt_fails"] = emsesp::Mqtt::publish_fails(); // proddy added
-    char s[40];
-    snprintf_P(s, 40, PSTR("%d / %d / %d"), emsesp::Mqtt::publish_count(), emsesp::Mqtt::publish_queue(),emsesp::Mqtt::publish_fails());
-    root["mqtt_count"] = s; // Michael added
+    root["mqtt_count"] = emsesp::Mqtt::publish_count(); // Michael added
+    root["mqtt_queue"] = emsesp::Mqtt::publish_queue(); // Michael added
 
     response->setLength();
     request->send(response);
