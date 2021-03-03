@@ -658,7 +658,7 @@ bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
     if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 6, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
-        write_command(EMS_TYPE_UBAFlags, 3, v); // for i9000, see #397
+        write_command(EMS_TYPE_UBAFlags, 3, v, 0x34); // for i9000, see #397
         write_command(EMS_TYPE_UBAParameterWW, 2, v,
                       EMS_TYPE_UBAParameterWW);       // read seltemp back
     }

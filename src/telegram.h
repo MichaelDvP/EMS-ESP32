@@ -271,8 +271,8 @@ class TxService : public EMSbus {
 
     void     start();
     void     send();
-    void     add(const uint8_t operation, const uint8_t dest, const uint16_t type_id, const uint8_t offset, uint8_t * message_data, const uint8_t message_length, const bool front = false);
-    void     add(const uint8_t operation, const uint8_t * data, const uint8_t length, const bool front = false);
+    void     add(const uint8_t operation, const uint8_t dest, const uint16_t type_id, const uint8_t offset,  uint8_t * message_data, const uint8_t message_length, const uint16_t validateid, const bool front = false);
+    void     add(const uint8_t operation, const uint8_t * data, const uint8_t length, const uint16_t validateid, const bool front = false);
     void     read_request(const uint16_t type_id, const uint8_t dest, const uint8_t offset = 0);
     void     send_raw(const char * telegram_data);
     void     send_poll();
@@ -344,12 +344,14 @@ class TxService : public EMSbus {
         const uint16_t                        id_;
         const std::shared_ptr<const Telegram> telegram_;
         const bool                            retry_; // true if its a retry
+        const uint16_t                        validateid_;
 
         ~QueuedTxTelegram() = default;
-        QueuedTxTelegram(uint16_t id, std::shared_ptr<Telegram> && telegram, bool retry)
+        QueuedTxTelegram(uint16_t id, std::shared_ptr<Telegram> && telegram, bool retry, uint16_t validateid)
             : id_(id)
             , telegram_(std::move(telegram))
-            , retry_(retry) {
+            , retry_(retry)
+            , validateid_(validateid) {
         }
     };
 

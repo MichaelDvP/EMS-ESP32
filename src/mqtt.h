@@ -187,6 +187,10 @@ class Mqtt {
         mqtt_retain_ = mqtt_retain;
     }
 
+    static bool is_empty() {
+         return mqtt_messages_.empty();
+    }
+
     /*
     struct QueuedMqttMessage {
         uint16_t                           id_;
