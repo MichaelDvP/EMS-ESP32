@@ -52,14 +52,8 @@ bool PButton::init(uint8_t pin, bool pullMode) {
     pin_      = pin;
     pullMode_ = pullMode; // 1=HIGH (pullup) 0=LOW (pulldown)
 
-#if defined(ESP8266)
-    pinMode(pin_, pullMode ? INPUT_PULLUP : INPUT_PULLDOWN);
-    enabled_ = (digitalRead(pin_) != pullMode); // see if a button is connected
-#else
-    // ESP32
-    pinMode(pin_, INPUT);
+    pinMode(pin_, pullMode ? INPUT_PULLUP : INPUT);
     enabled_ = (digitalRead(pin_) == pullMode); // see if a button is connected
-#endif
 
     return enabled_;
 }
@@ -144,6 +138,13 @@ bool PButton::check(void) {
         longPressHappened_ = false;
     }
 
+    // added code: raise OnLongPress event when only when the button is released
+    if (state_ == pullMode_ && vLongPressHappened_) {
+        resultEvent        = 4;
+        vLongPressHappened_ = false;
+        longPressHappened_  = false;
+    }
+
     // Test for hold
     if (state_ != pullMode_ && (millisRes - downTime_) >= LongPressDelay_) {
         // Trigger "normal" hold
@@ -159,9 +160,9 @@ bool PButton::check(void) {
         // Trigger "long" hold
         if ((millisRes - downTime_) >= VLongPressDelay_) {
             if (vLongPressHappened_ == false) {
-                resultEvent         = 4;
+                // resultEvent         = 4;
                 vLongPressHappened_ = true;
-                // _longPressHappened = false;
+                // longPressHappened_ = false;
             }
         }
     }

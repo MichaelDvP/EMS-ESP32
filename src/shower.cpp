@@ -108,7 +108,7 @@ void Shower::send_mqtt_stat(bool state) {
         StaticJsonDocument<EMSESP_JSON_SIZE_HA_CONFIG> doc;
         doc["name"]    = FJSON("Shower Active");
         doc["uniq_id"] = FJSON("shower_active");
-        doc["~"]       = EMSESP::system_.hostname(); // default ems-esp
+        doc["~"]       = Mqtt::base(); // default ems-esp
         doc["stat_t"]  = FJSON("~/shower_active");
         JsonObject dev = doc.createNestedObject("dev");
         JsonArray  ids = dev.createNestedArray("ids");

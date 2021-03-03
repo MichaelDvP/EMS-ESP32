@@ -192,10 +192,10 @@ void System::start(uint32_t heap_start) {
     get_settings();
 
     commands_init();    // console & api commands
-    button_init(false); // the special button
     led_init(false);    // init LED
-    syslog_init(false); // init SysLog
     adc_init(false);    // analog ADC
+    syslog_init(false); // init SysLog
+    button_init(false); // the special button
     network_init();     // network
     EMSESP::init_tx();  // start UART
 }
@@ -263,7 +263,7 @@ void System::button_init(bool refresh) {
         get_settings();
     }
 
-    if (pbutton_gpio_) {
+    // if (pbutton_gpio_) {
         if (!myPButton_.init(pbutton_gpio_, HIGH)) {
             LOG_INFO(F("External multi-functional button not detected"));
         } else {
@@ -275,7 +275,7 @@ void System::button_init(bool refresh) {
         myPButton_.onDblClick(BUTTON_DblClickDelay, button_OnDblClick);
         myPButton_.onLongPress(BUTTON_LongPressDelay, button_OnLongPress);
         myPButton_.onVLongPress(BUTTON_VLongPressDelay, button_OnVLongPress);
-    }
+    // }
 }
 
 // set the LED to on or off when in normal operating mode

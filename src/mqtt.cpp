@@ -322,7 +322,9 @@ void Mqtt::show_topic_handlers(uuid::console::Shell & shell, const uint8_t devic
 void Mqtt::on_publish(uint16_t packetId) {
     // find the MQTT message in the queue and remove it
     if (mqtt_messages_.empty()) {
-        LOG_DEBUG(F("No message stored for this ACK"));
+#if defined(EMSESP_DEBUG)
+        LOG_DEBUG(F("[DEBUG] No message stored for ACK pid %d"), packetId);
+#endif
         return;
     }
 
@@ -330,7 +332,9 @@ void Mqtt::on_publish(uint16_t packetId) {
 
     // if the last published failed, don't bother checking it. wait for the next retry
     if (mqtt_message.packet_id_ == 0) {
-        LOG_DEBUG(F("ACK for failed message"));
+#if defined(EMSESP_DEBUG)
+        LOG_DEBUG(F("[DEBUG] ACK for failed message pid 0"));
+#endif
         return;
     }
 
@@ -338,6 +342,10 @@ void Mqtt::on_publish(uint16_t packetId) {
         LOG_ERROR(F("Mismatch, expecting PID %d, got %d"), mqtt_message.packet_id_, packetId);
         mqtt_publish_fails_++; // increment error count
     }
+
+#if defined(EMSESP_DEBUG)
+    LOG_DEBUG(F("[DEBUG] ACK pid %d"), packetId);
+#endif
 
     mqtt_messages_.pop_front(); // always remove from queue, regardless if there was a successful ACK
 }
@@ -375,11 +383,9 @@ void Mqtt::start() {
 
     mqttClient_->onDisconnect([this](AsyncMqttClientDisconnectReason reason) {
         if (!connecting_) {
-            // mqttClient_->connect();
             return;
         }
         connecting_ = false;
-        mqtt_messages_.clear();
         if (reason == AsyncMqttClientDisconnectReason::TCP_DISCONNECTED) {
             LOG_INFO(F("MQTT disconnected: TCP"));
         }
@@ -395,6 +401,14 @@ void Mqtt::start() {
         if (reason == AsyncMqttClientDisconnectReason::MQTT_NOT_AUTHORIZED) {
             LOG_INFO(F("MQTT disconnected: Not authorized"));
         }
+        // remove message with pending ack
+        if (!mqtt_messages_.empty()) {
+            auto mqtt_message = mqtt_messages_.front();
+            if (mqtt_message.packet_id_ != 0) {
+                mqtt_messages_.pop_front(); 
+            }
+        }
+        // mqtt_messages_.clear();
     });
 
     // create will_topic with the base prefixed. It has to be static because asyncmqttclient destroys the reference
@@ -721,7 +735,9 @@ void Mqtt::process_queue() {
     // if this has already been published and we're waiting for an ACK, don't publish again
     // it will have a real packet ID
     if (mqtt_message.packet_id_ > 0) {
-        LOG_DEBUG(F("Waitig for QOS-ACK"));
+#if defined(EMSESP_DEBUG)
+        LOG_DEBUG(F("[DEBUG] Waitig for QOS-ACK"));
+#endif
         return;
     }
 
