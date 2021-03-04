@@ -56,7 +56,7 @@ static const __FlashStringHelper * const DeviceValueTAG_s[] PROGMEM = {
 };
 
 const std::string EMSdevice::uom_to_string(uint8_t uom) {
-    if (uom == DeviceValueUOM::NONE) {
+    if (uom == DeviceValueUOM::NONE || uom >= DeviceValueUOM::PUMP) {
         return std::string{};
     }
     return uuid::read_flash_string(DeviceValueUOM_s[uom - 1]); // offset by 1 to account for NONE

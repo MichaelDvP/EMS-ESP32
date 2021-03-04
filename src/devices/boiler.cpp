@@ -71,7 +71,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_mqtt_cmd(F("wwcirculation"), [&](const char * value, const int8_t id) { return set_warmwater_circulation(value, id); });
     register_mqtt_cmd(F("wwcircmode"), [&](const char * value, const int8_t id) { return set_warmwater_circulation_mode(value, id); });
     register_mqtt_cmd(F("flowtemp"), [&](const char * value, const int8_t id) { return set_flow_temp(value, id); });
-    register_mqtt_cmd(F("wwtemp"), [&](const char * value, const int8_t id) { return set_warmwater_temp(value, id); });
+    register_mqtt_cmd(F("wwsettemp"), [&](const char * value, const int8_t id) { return set_warmwater_temp(value, id); });
     register_mqtt_cmd(F("heatingactivated"), [&](const char * value, const int8_t id) { return set_heating_activated(value, id); });
     register_mqtt_cmd(F("heatingtemp"), [&](const char * value, const int8_t id) { return set_heating_temp(value, id); });
     register_mqtt_cmd(F("burnmaxpower"), [&](const char * value, const int8_t id) { return set_max_power(value, id); });
@@ -97,8 +97,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
 
     register_device_value(TAG_BOILER_DATA, &selFlowTemp_, DeviceValueType::UINT, nullptr, F("selFlowTemp"), F("Selected flow temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA, &selBurnPow_, DeviceValueType::UINT, nullptr, F("selBurnPow"), F("Burner selected max power"), DeviceValueUOM::PERCENT);
-    register_device_value(TAG_BOILER_DATA, &pumpMod_, DeviceValueType::UINT, nullptr, F("pumpMod"), F("Pump modulation"), DeviceValueUOM::PERCENT);
-    register_device_value(TAG_BOILER_DATA, &pumpMod2_, DeviceValueType::UINT, nullptr, F("pumpMod2"), F("Heat pump modulation"), DeviceValueUOM::PERCENT);
+    register_device_value(TAG_BOILER_DATA, &heatingPumpMod_, DeviceValueType::UINT, nullptr, F("heatingPumpMod"), F("Heating pump modulation"), DeviceValueUOM::PERCENT);
+    register_device_value(TAG_BOILER_DATA, &heatingPump2Mod_, DeviceValueType::UINT, nullptr, F("heatingPump2Mod"), F("Heating pump 2 modulation"), DeviceValueUOM::PERCENT);
 
     register_device_value(TAG_BOILER_DATA, &outdoorTemp_, DeviceValueType::SHORT, FL_(div10), F("outdoorTemp"), F("Outside temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA, &curFlowTemp_, DeviceValueType::USHORT, FL_(div10), F("curFlowTemp"), F("Current flow temperature"), DeviceValueUOM::DEGREES);
@@ -110,7 +110,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
 
     register_device_value(TAG_BOILER_DATA, &burnGas_, DeviceValueType::BOOL, nullptr, F("burnGas"), F("Gas"));
     register_device_value(TAG_BOILER_DATA, &flameCurr_, DeviceValueType::USHORT, FL_(div10), F("flameCurr"), F("Flame current"), DeviceValueUOM::UA);
-    register_device_value(TAG_BOILER_DATA, &heatPump_, DeviceValueType::BOOL, nullptr, F("heatPump"), F("Heat pump"));
+    register_device_value(TAG_BOILER_DATA, &heatingPump_, DeviceValueType::BOOL, nullptr, F("heatingPump"), F("Heating pump"), DeviceValueUOM::PUMP);
     register_device_value(TAG_BOILER_DATA, &fanWork_, DeviceValueType::BOOL, nullptr, F("fanWork"), F("Fan"));
     register_device_value(TAG_BOILER_DATA, &ignWork_, DeviceValueType::BOOL, nullptr, F("ignWork"), F("Ignition"));
     register_device_value(TAG_BOILER_DATA, &heatingActivated_, DeviceValueType::BOOL, nullptr, F("heatingActivated"), F("Heating activated"));
@@ -290,7 +290,7 @@ void Boiler::process_UBAMonitorFast(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_bitvalue(burnGas_, 7, 0));
     has_update(telegram->read_bitvalue(fanWork_, 7, 2));
     has_update(telegram->read_bitvalue(ignWork_, 7, 3));
-    has_update(telegram->read_bitvalue(heatPump_, 7, 5));
+    has_update(telegram->read_bitvalue(heatingPump_, 7, 5));
     has_update(telegram->read_bitvalue(wWHeat_, 7, 6));
     has_update(telegram->read_bitvalue(wWCirc_, 7, 7));
 
@@ -377,7 +377,7 @@ void Boiler::process_UBAMonitorWW(std::shared_ptr<const Telegram> telegram) {
 void Boiler::process_UBAMonitorFastPlus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(selFlowTemp_, 6));
     has_update(telegram->read_bitvalue(burnGas_, 11, 0));
-    // has_update(telegram->read_bitvalue(heatPump_, 11, 1)); // heating active? see SlowPlus
+    // has_update(telegram->read_bitvalue(heatingPump_, 11, 1)); // heating active? see SlowPlus
     has_update(telegram->read_bitvalue(wWHeat_, 11, 2));
     has_update(telegram->read_value(curBurnPow_, 10));
     has_update(telegram->read_value(selBurnPow_, 9));
@@ -425,7 +425,7 @@ void Boiler::process_UBAMonitorSlow(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(exhaustTemp_, 4));
     has_update(telegram->read_value(switchTemp_,
                                     25)); // only if there is a mixer module present
-    has_update(telegram->read_value(pumpMod_, 9));
+    has_update(telegram->read_value(heatingPumpMod_, 9));
     has_update(telegram->read_value(burnStarts_, 10, 3));  // force to 3 bytes
     has_update(telegram->read_value(burnWorkMin_, 13, 3)); // force to 3 bytes
     has_update(telegram->read_value(heatWorkMin_, 19, 3)); // force to 3 bytes
@@ -436,7 +436,7 @@ void Boiler::process_UBAMonitorSlow(std::shared_ptr<const Telegram> telegram) {
  * 88 00 E3 00 04 00 00 00 00 01 00 00 00 00 00 02 22 2B 64 46 01 00 00 61
  */
 void Boiler::process_UBAMonitorSlowPlus2(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(pumpMod2_, 13)); // Heat Pump Modulation
+    has_update(telegram->read_value(heatingPump2Mod_, 13)); // Heat Pump Modulation
 }
 
 /*
@@ -447,13 +447,13 @@ void Boiler::process_UBAMonitorSlowPlus2(std::shared_ptr<const Telegram> telegra
 void Boiler::process_UBAMonitorSlowPlus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_bitvalue(fanWork_, 2, 2));
     has_update(telegram->read_bitvalue(ignWork_, 2, 3));
-    has_update(telegram->read_bitvalue(heatPump_, 2, 5));
+    has_update(telegram->read_bitvalue(heatingPump_, 2, 5));
     has_update(telegram->read_bitvalue(wWCirc_, 2, 7));
     has_update(telegram->read_value(exhaustTemp_, 6));
     has_update(telegram->read_value(burnStarts_, 10, 3));  // force to 3 bytes
     has_update(telegram->read_value(burnWorkMin_, 13, 3)); // force to 3 bytes
     has_update(telegram->read_value(heatWorkMin_, 19, 3)); // force to 3 bytes
-    has_update(telegram->read_value(pumpMod_, 25));
+    has_update(telegram->read_value(heatingPumpMod_, 25));
     // temperature measurements at 4, see #620
 }
 

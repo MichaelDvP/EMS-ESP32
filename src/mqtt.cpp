@@ -137,13 +137,13 @@ void Mqtt::loop() {
         process_queue();
     }
 
-    if (!mqtt_messages_.empty()) {
-        return;
-    }
-
     // dallas publish on change
     if (!publish_time_sensor_) {
         EMSESP::publish_sensor_values(false);
+    }
+
+    if (!mqtt_messages_.empty()) {
+        return;
     }
 
     // create publish messages for each of the EMS device values, adding to queue, only one device per loop
@@ -867,7 +867,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
         snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/%s/config"), mqtt_base_.c_str(), uniq.c_str()); // topic
 
         // unit of measure and map the HA icon
-        if (uom != DeviceValueUOM::NONE) {
+        if (uom != DeviceValueUOM::NONE && uom != DeviceValueUOM::PUMP) {
             doc["unit_of_meas"] = EMSdevice::uom_to_string(uom);
         }
         switch (uom) {
@@ -876,6 +876,9 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
             break;
         case DeviceValueUOM::PERCENT:
             doc["ic"] = F_(iconpercent);
+            break;
+        case DeviceValueUOM::PUMP:
+            doc["ic"] = F_(iconpump);
             break;
         case DeviceValueUOM::NONE:
         default:

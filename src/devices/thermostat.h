@@ -159,8 +159,8 @@ class Thermostat : public EMSdevice {
     uint8_t wwMode_;
     uint8_t wwCircPump_;
     uint8_t wwCircMode_;
-    uint8_t wwTemp_;
-    uint8_t wwTempLow_;
+    uint8_t wwSetTemp_;
+    uint8_t wwSetTempLow_;
 
     std::vector<std::shared_ptr<HeatingCircuit>> heating_circuits_; // each thermostat can have multiple heating circuits
 

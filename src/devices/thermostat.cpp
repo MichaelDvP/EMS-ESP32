@@ -813,8 +813,8 @@ void Thermostat::process_RC300Curve(std::shared_ptr<const Telegram> telegram) {
 
 // types 0x31B (and 0x31C?)
 void Thermostat::process_RC300WWtemp(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(wwTemp_, 0));
-    has_update(telegram->read_value(wwTempLow_, 1));
+    has_update(telegram->read_value(wwSetTemp_, 0));
+    has_update(telegram->read_value(wwSetTempLow_, 1));
 }
 
 // type 02F5
@@ -1963,8 +1963,8 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(F("summermode"), [&](const char * value, const int8_t id) { return set_summermode(value, id); });
         register_mqtt_cmd(F("summertemp"), [&](const char * value, const int8_t id) { return set_summertemp(value, id); });
         register_mqtt_cmd(F("wwmode"), [&](const char * value, const int8_t id) { return set_wwmode(value, id); });
-        register_mqtt_cmd(F("wwtemp"), [&](const char * value, const int8_t id) { return set_wwtemp(value, id); });
-        register_mqtt_cmd(F("wwtemplow"), [&](const char * value, const int8_t id) { return set_wwtemplow(value, id); });
+        register_mqtt_cmd(F("wwsettemp"), [&](const char * value, const int8_t id) { return set_wwtemp(value, id); });
+        register_mqtt_cmd(F("wwsettemplow"), [&](const char * value, const int8_t id) { return set_wwtemplow(value, id); });
         register_mqtt_cmd(F("wwonetime"), [&](const char * value, const int8_t id) { return set_wwonetime(value, id); });
         register_mqtt_cmd(F("wwcircmode"), [&](const char * value, const int8_t id) { return set_wwcircmode(value, id); });
         register_mqtt_cmd(F("building"), [&](const char * value, const int8_t id) { return set_building(value, id); });
@@ -2036,23 +2036,23 @@ void Thermostat::register_device_values() {
 
     // RC30 only
     if (model == EMSdevice::EMS_DEVICE_FLAG_RC30_1) {
-        register_device_value(TAG_NONE, &ibaMainDisplay_, DeviceValueType::ENUM, FL_(enum_ibaMainDisplay), F("ibaMainDisplay"), F("Display"));
-        register_device_value(TAG_NONE, &ibaLanguage_, DeviceValueType::ENUM, FL_(enum_ibaLanguage), F("ibaLanguage"), F("Language"));
-        register_device_value(TAG_NONE, &ibaClockOffset_, DeviceValueType::UINT, nullptr, F("ibaClockOffset"), F("Clock offset")); // offset (in sec) to clock, 0xff=-1s, 0x02=2s
+        register_device_value(TAG_NONE, &ibaMainDisplay_, DeviceValueType::ENUM, FL_(enum_ibaMainDisplay), F("display"), F("Display"));
+        register_device_value(TAG_NONE, &ibaLanguage_, DeviceValueType::ENUM, FL_(enum_ibaLanguage), F("language"), F("Language"));
+        register_device_value(TAG_NONE, &ibaClockOffset_, DeviceValueType::UINT, nullptr, F("offsetclock"), F("Clock offset")); // offset (in sec) to clock, 0xff=-1s, 0x02=2s
     }
 
     // RC300 and RC100
     if (model == EMS_DEVICE_FLAG_RC300 || model == EMS_DEVICE_FLAG_RC100) {
         register_device_value(TAG_NONE, &floordrystatus_, DeviceValueType::ENUM, FL_(enum_floordrystatus), F("floordry"), F("Floor drying"));
-        register_device_value(TAG_NONE, &dampedoutdoortemp2_, DeviceValueType::SHORT, FL_(div10), F("dampedtemp"), F("Damped outdoor temperature"), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_NONE, &dampedoutdoortemp2_, DeviceValueType::SHORT, FL_(div10), F("dampedoutdoortemp"), F("Damped outdoor temperature"), DeviceValueUOM::DEGREES);
         register_device_value(TAG_NONE, &floordrytemp_, DeviceValueType::UINT, nullptr, F("floordrytemp"), F("Floor drying temperature"), DeviceValueUOM::DEGREES);
         register_device_value(TAG_NONE, &ibaBuildingType_, DeviceValueType::ENUM, FL_(enum_ibaBuildingType), F("building"), F("Building"));
-        register_device_value(TAG_NONE, &wwTemp_, DeviceValueType::UINT, nullptr, F("wwTemp"), F("Warm water high temperature"), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_NONE, &wwSetTemp_, DeviceValueType::UINT, nullptr, F("wwsettemp"), F("Warm water set temperature"), DeviceValueUOM::DEGREES);
         register_device_value(TAG_NONE, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode), F("wwmode"), F("Warm water mode"));
-        register_device_value(TAG_NONE, &wwTempLow_, DeviceValueType::UINT, nullptr, F("wwTempLow"), F("Warm water low temperature"), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_NONE, &wwSetTempLow_, DeviceValueType::UINT, nullptr, F("wwsettemplow"), F("Warm water set temperature low"), DeviceValueUOM::DEGREES);
         register_device_value(TAG_NONE, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), F("wwcircmode"), F("Warm water circulation mode"));
-        register_device_value(TAG_NONE, &wwExtra1_, DeviceValueType::UINT, nullptr, F("wwExtra1"), F("Warm water circuit 1 extra"), DeviceValueUOM::DEGREES);
-        register_device_value(TAG_NONE, &wwExtra2_, DeviceValueType::UINT, nullptr, F("wwExtra2"), F("Warm water circuit 2 extra"), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_NONE, &wwExtra1_, DeviceValueType::UINT, nullptr, F("wwextra1"), F("Warm water circuit 1 extra"), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_NONE, &wwExtra2_, DeviceValueType::UINT, nullptr, F("wwextra2"), F("Warm water circuit 2 extra"), DeviceValueUOM::DEGREES);
     }
 
     // RC30 and RC35
