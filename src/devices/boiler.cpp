@@ -61,6 +61,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
                               device_id); // read last errorcode on start (only published on errors)
     EMSESP::send_read_request(0x15,
                               device_id); // read maintenace data on start (only published on change)
+    EMSESP::send_read_request(0x1C,
+                              device_id); // read maintenace status on start (only published on change)
 
     // MQTT commands for boiler topic
     register_mqtt_cmd(F("comfort"), [&](const char * value, const int8_t id) { return set_warmwater_mode(value, id); });
@@ -489,8 +491,8 @@ void Boiler::process_UBADHWStatus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(wWCurTemp_, 1));
     has_update(telegram->read_value(wWCurTemp2_, 3));
 
-    has_update(telegram->read_value(wWWorkM_, 17, 3));  // force to 3 bytes
-    has_update(telegram->read_value(wWStarts_, 14, 3)); // force to 3 bytes
+    has_update(telegram->read_value(wWWorkM_, 14, 3));  // force to 3 bytes
+    has_update(telegram->read_value(wWStarts_, 17, 3)); // force to 3 bytes
 
     has_update(telegram->read_bitvalue(wWOneTime_, 12, 2));
     has_update(telegram->read_bitvalue(wWDisinfecting_, 12, 3));

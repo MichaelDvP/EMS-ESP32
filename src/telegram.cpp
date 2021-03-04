@@ -486,7 +486,6 @@ void TxService::add(uint8_t operation, const uint8_t * data, const uint8_t lengt
         } else {
             operation = Telegram::Operation::TX_WRITE;
             validate_id = type_id;
-            // set_post_send_query(type_id);
         }
         EMSESP::set_read_id(type_id);
     }

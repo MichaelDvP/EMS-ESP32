@@ -263,13 +263,13 @@ void System::button_init(bool refresh) {
         get_settings();
     }
 
+    // Allow 0 for Boot-button on NodeMCU-32s?
     // if (pbutton_gpio_) {
         if (!myPButton_.init(pbutton_gpio_, HIGH)) {
             LOG_INFO(F("External multi-functional button not detected"));
         } else {
             LOG_INFO(F("External multi-functional button enabled"));
         }
-
 
         myPButton_.onClick(BUTTON_Debounce, button_OnClick);
         myPButton_.onDblClick(BUTTON_DblClickDelay, button_OnDblClick);
