@@ -52,7 +52,7 @@ class EMSESPStatusForm extends Component<EMSESPStatusFormProps> {
               <DeviceHubIcon />
             </HighlightAvatar>
           </ListItemAvatar>
-          <ListItemText primary="Connection Status" secondary={busStatus(data)} />
+          <ListItemText primary="Connection Status" secondary={busStatus(data) + ', Tx-mode: ' + formatNumber(data.tx_mode)} />
         </ListItem>
         {isConnected(data) && (
           <TableContainer>
