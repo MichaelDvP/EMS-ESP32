@@ -93,7 +93,7 @@ void Shower::loop() {
 }
 
 // send status of shower to MQTT
-void Shower::send_mqtt_stat(bool state) {
+void Shower::send_mqtt_stat(bool state, bool forceHA) {
     if (!shower_timer_ && !shower_alert_) {
         return;
     }
@@ -102,7 +102,7 @@ void Shower::send_mqtt_stat(bool state) {
     Mqtt::publish(F("shower_active"), Helpers::render_boolean(s, state)); // https://github.com/proddy/EMS-ESP/issues/369
 
     // if we're in HA mode make sure we've first sent out the HA MQTT Discovery config topic
-    if ((Mqtt::ha_enabled()) && (!ha_configdone_)) {
+    if ((Mqtt::ha_enabled()) && (!ha_configdone_ || forceHA)) {
         ha_configdone_ = true;
 
         StaticJsonDocument<EMSESP_JSON_SIZE_HA_CONFIG> doc;

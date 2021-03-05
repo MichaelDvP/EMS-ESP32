@@ -532,8 +532,8 @@ void Mqtt::on_connect() {
         }
 
         // send initial MQTT messages for some of our services
-        EMSESP::shower_.send_mqtt_stat(false); // Send shower_activated as false
-        EMSESP::system_.send_heartbeat();      // send heatbeat
+        EMSESP::shower_.send_mqtt_stat(false, true); // Send shower_activated as false
+        EMSESP::system_.send_heartbeat();            // send heatbeat
 
     // } else {
     if (connectcount_ > 1) {
