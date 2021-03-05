@@ -378,7 +378,9 @@ void System::send_heartbeat() {
     doc["txfails"]     = EMSESP::txservice_.telegram_fail_count();
     doc["dallasfails"] = EMSESP::sensor_fails();
 #ifndef EMSESP_STANDALONE
-    doc["freemem"] = (uint8_t)(100 * ESP.getFreeHeap() / heap_start_);
+    doc["freemem"] = ESP.getFreeHeap();
+    // doc["freemem"] = (uint8_t)(100 * ESP.getFreeHeap() / heap_start_);
+    doc["max_alloc_heap"] = ESP.getMaxAllocHeap();
 #endif
     if (analog_enabled_) {
         doc["adc"] = analog_;
@@ -583,54 +585,55 @@ void System::show_users(uuid::console::Shell & shell) {
 }
 
 void System::show_system(uuid::console::Shell & shell) {
-    shell.printfln(F("Uptime:        %s"), uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).c_str());
+    shell.printfln(F("Uptime:          %s"), uuid::log::format_timestamp_s(uuid::get_uptime_ms(), 3).c_str());
 
 #ifndef EMSESP_STANDALONE
-    shell.printfln(F("SDK version:   %s"), ESP.getSdkVersion());
-    shell.printfln(F("CPU frequency: %u MHz"), ESP.getCpuFreqMHz());
-    shell.printfln(F("Free heap:     %lu bytes"), (uint32_t)ESP.getFreeHeap());
+    shell.printfln(F("SDK version:     %s"), ESP.getSdkVersion());
+    shell.printfln(F("CPU frequency:   %lu MHz"), ESP.getCpuFreqMHz());
+    shell.printfln(F("Free heap:       %lu bytes"), ESP.getFreeHeap());
+    shell.printfln(F("Free block:      %lu bytes"), ESP.getMaxAllocHeap());
     shell.println();
 
     switch (WiFi.status()) {
     case WL_IDLE_STATUS:
-        shell.printfln(F("WiFi: Idle"));
+        shell.printfln(F("WiFi:            Idle"));
         break;
 
     case WL_NO_SSID_AVAIL:
-        shell.printfln(F("WiFi: Network not found"));
+        shell.printfln(F("WiFi:            Network not found"));
         break;
 
     case WL_SCAN_COMPLETED:
-        shell.printfln(F("WiFi: Network scan complete"));
+        shell.printfln(F("WiFi:            Network scan complete"));
         break;
 
-    case WL_CONNECTED: {
-        shell.printfln(F("WiFi: Connected"));
-        shell.printfln(F("SSID: %s"), WiFi.SSID().c_str());
-        shell.printfln(F("BSSID: %s"), WiFi.BSSIDstr().c_str());
-        shell.printfln(F("RSSI: %d dBm (%d %%)"), WiFi.RSSI(), wifi_quality());
-        shell.printfln(F("MAC address: %s"), WiFi.macAddress().c_str());
-        shell.printfln(F("Hostname: %s"), WiFi.getHostname());
-        shell.printfln(F("IPv4 address: %s/%s"), uuid::printable_to_string(WiFi.localIP()).c_str(), uuid::printable_to_string(WiFi.subnetMask()).c_str());
-        shell.printfln(F("IPv4 gateway: %s"), uuid::printable_to_string(WiFi.gatewayIP()).c_str());
+    case WL_CONNECTED:
+        shell.printfln(F("WiFi:            Connected"));
+        shell.printfln(F("SSID:            %s"), WiFi.SSID().c_str());
+        shell.printfln(F("BSSID:           %s"), WiFi.BSSIDstr().c_str());
+        shell.printfln(F("RSSI:            %d dBm (%d %%)"), WiFi.RSSI(), wifi_quality());
+        shell.printfln(F("MAC address:     %s"), WiFi.macAddress().c_str());
+        shell.printfln(F("Hostname:        %s"), WiFi.getHostname());
+        shell.printfln(F("IPv4 address:    %s/%s"), uuid::printable_to_string(WiFi.localIP()).c_str(), uuid::printable_to_string(WiFi.subnetMask()).c_str());
+        shell.printfln(F("IPv4 gateway:    %s"), uuid::printable_to_string(WiFi.gatewayIP()).c_str());
         shell.printfln(F("IPv4 nameserver: %s"), uuid::printable_to_string(WiFi.dnsIP()).c_str());
-    } break;
+        break;
 
     case WL_CONNECT_FAILED:
-        shell.printfln(F("WiFi: Connection failed"));
+        shell.printfln(F("WiFi:            Connection failed"));
         break;
 
     case WL_CONNECTION_LOST:
-        shell.printfln(F("WiFi: Connection lost"));
+        shell.printfln(F("WiFi:            Connection lost"));
         break;
 
     case WL_DISCONNECTED:
-        shell.printfln(F("WiFi: Disconnected"));
+        shell.printfln(F("WiFi:            Disconnected"));
         break;
 
     case WL_NO_SHIELD:
     default:
-        shell.printfln(F("WiFi: Unknown"));
+        shell.printfln(F("WiFi:            Unknown"));
         break;
     }
 
@@ -638,27 +641,24 @@ void System::show_system(uuid::console::Shell & shell) {
 
     // show Ethernet
     if (ethernet_connected_) {
-        shell.printfln(F("Ethernet: Connected"));
-        shell.printfln(F("MAC address: %s"), ETH.macAddress().c_str());
-        shell.printfln(F("Hostname: %s"), ETH.getHostname());
-        shell.printfln(F("IPv4 address: %s/%s"), uuid::printable_to_string(ETH.localIP()).c_str(), uuid::printable_to_string(ETH.subnetMask()).c_str());
-        shell.printfln(F("IPv4 gateway: %s"), uuid::printable_to_string(ETH.gatewayIP()).c_str());
+        shell.printfln(F("Ethernet:        Connected"));
+        shell.printfln(F("MAC address:     %s"), ETH.macAddress().c_str());
+        shell.printfln(F("Hostname:        %s"), ETH.getHostname());
+        shell.printfln(F("IPv4 address:    %s/%s"), uuid::printable_to_string(ETH.localIP()).c_str(), uuid::printable_to_string(ETH.subnetMask()).c_str());
+        shell.printfln(F("IPv4 gateway:    %s"), uuid::printable_to_string(ETH.gatewayIP()).c_str());
         shell.printfln(F("IPv4 nameserver: %s"), uuid::printable_to_string(ETH.dnsIP()).c_str());
     } else {
-        shell.printfln(F("Ethernet: disconnected"));
+        shell.printfln(F("Ethernet:        disconnected"));
     }
 
     shell.println();
     if (!syslog_enabled_) {
-        shell.printfln(F("Syslog: disabled"));
+        shell.printfln(F("Syslog:          disabled"));
     } else {
         shell.printfln(F("Syslog:"));
-        shell.print(F(" "));
-        shell.printfln(F_(host_fmt), !syslog_host_.isEmpty() ? syslog_host_.c_str() : uuid::read_flash_string(F_(unset)).c_str());
-        shell.print(F(" "));
-        shell.printfln(F_(log_level_fmt), uuid::log::format_level_lowercase(static_cast<uuid::log::Level>(syslog_level_)));
-        shell.print(F(" "));
-        shell.printfln(F_(mark_interval_fmt), syslog_mark_interval_);
+        shell.printfln(F(" Hostname:       %s"), !syslog_host_.isEmpty() ? syslog_host_.c_str() : uuid::read_flash_string(F_(unset)).c_str());
+        shell.printfln(F(" Log level:      %s"), uuid::log::format_level_lowercase(static_cast<uuid::log::Level>(syslog_level_)));
+        shell.printfln(F(" Mark interval:  %lu"), syslog_mark_interval_);
     }
 
 #endif
