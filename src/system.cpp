@@ -383,14 +383,14 @@ void System::send_heartbeat() {
     doc["max_alloc_heap"] = ESP.getMaxAllocHeap();
 #endif
     if (analog_enabled_) {
-        doc["adc"] = analog_;
-        doc["io16"]  = digitalRead(16);
-        doc["io17"]  = digitalRead(17);
-        doc["io18"]  = digitalRead(18);
-        doc["io19"]  = digitalRead(19);
-        doc["io21"]  = digitalRead(21);
-        doc["io22"]  = digitalRead(22);
-        doc["io26"]  = digitalRead(26);
+        doc["adc"]  = analog_;
+        doc["io16"] = digitalRead(16) != 0;
+        doc["io17"] = digitalRead(17) != 0;
+        doc["io18"] = digitalRead(18) != 0;
+        doc["io19"] = digitalRead(19) != 0;
+        doc["io21"] = digitalRead(21) != 0;
+        doc["io22"] = digitalRead(22) != 0;
+        doc["io26"] = digitalRead(26) != 0;
     }
 
     Mqtt::publish(F("heartbeat"), doc.as<JsonObject>()); // send to MQTT with retain off. This will add to MQTT queue.

@@ -588,12 +588,24 @@ void Mqtt::ha_status() {
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("Uptime"), EMSdevice::DeviceType::SYSTEM, F("uptime"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("Uptime (sec)"), EMSdevice::DeviceType::SYSTEM, F("uptime_sec"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("Free heap memory"), EMSdevice::DeviceType::SYSTEM, F("freemem"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("Max alloc heap"), EMSdevice::DeviceType::SYSTEM, F("max_alloc_heap"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("# Failed MQTT publishes"), EMSdevice::DeviceType::SYSTEM, F("mqttfails"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("# Rx Sent"), EMSdevice::DeviceType::SYSTEM, F("rxsent"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("# Rx Fails"), EMSdevice::DeviceType::SYSTEM, F("rxfails"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("# Tx Reads"), EMSdevice::DeviceType::SYSTEM, F("txread"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("# Tx Writes"), EMSdevice::DeviceType::SYSTEM, F("txwrite"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("# Tx Fails"), EMSdevice::DeviceType::SYSTEM, F("txfails"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("# Dallas Fails"), EMSdevice::DeviceType::SYSTEM, F("dallasfails"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_NONE, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"));
+
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_NONE, F("GPIO 16"), EMSdevice::DeviceType::SYSTEM, F("io16"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_NONE, F("GPIO 17"), EMSdevice::DeviceType::SYSTEM, F("io17"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_NONE, F("GPIO 18"), EMSdevice::DeviceType::SYSTEM, F("io18"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_NONE, F("GPIO 19"), EMSdevice::DeviceType::SYSTEM, F("io19"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_NONE, F("GPIO 21"), EMSdevice::DeviceType::SYSTEM, F("io21"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_NONE, F("GPIO 22"), EMSdevice::DeviceType::SYSTEM, F("io22"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_NONE, F("GPIO 26"), EMSdevice::DeviceType::SYSTEM, F("io26"));
+
 }
 
 // add sub or pub task to the queue.
@@ -893,6 +905,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     snprintf_P(ha_device, sizeof(ha_device), PSTR("ems-esp-%s"), device_name);
     ids.add(ha_device);
 
+    doc.shrinkToFit();
     publish_ha(topic, doc.as<JsonObject>());
 }
 
