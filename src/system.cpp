@@ -236,24 +236,15 @@ void System::button_OnLongPress(PButton & b) {
 // button indefinite press
 void System::button_OnVLongPress(PButton & b) {
     LOG_DEBUG(F("Button pressed - very long press"));
+#ifndef EMSESP_STANDALONE
     LOG_WARNING(F("Performing factory reset..."));
     EMSESP::console_.loop();
 
-#ifndef EMSESP_STANDALONE
-    // remove all files under config
-    File root = LITTLEFS.open(FS_CONFIG_DIRECTORY);
-    File file;
-    Serial.printf("Removing files: ", file.name());
-    while (file = root.openNextFile()) {
-        Serial.printf("%s ", file.name());
-        LITTLEFS.remove(file.name());
-    }
-    Serial.println();
+#ifdef EMSESP_TEST
+    Test::listDir(LITTLEFS, FS_CONFIG_DIRECTORY, 3);
+#endif
 
-    // restart
-    WiFi.disconnect(true);
-    delay(500);
-    ESP.restart();
+    EMSESP::esp8266React.factoryReset();
 #endif
 }
 

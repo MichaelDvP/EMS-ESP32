@@ -142,7 +142,7 @@ bool PButton::check(void) {
         longPressHappened_ = false;
     }
 
-    // added code: raise OnVLongPress event when the button is released
+    // added code: raise OnVLongPress event when the button is released, only for pin 0
     if (state_ == pullMode_ && vLongPressHappened_) {
         resultEvent        = 4;
         vLongPressHappened_ = false;
