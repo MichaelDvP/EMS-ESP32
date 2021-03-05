@@ -285,9 +285,14 @@ void TxService::send() {
     }
     delayed_send_ = 0;
 
-    if (tx_mode()) {
-        send_telegram(tx_telegrams_.front());
-    }
+    // auto telegram = tx_telegrams_.pop();    // get the Telegram, also removes from queue
+    // if we're in read-only mode (tx_mode 0) forget the Tx call
+    if (tx_mode() != 0) {
+        // send_telegram(telegram);
+         send_telegram(tx_telegrams_.front());
+     }
+
+    // auto telegram = tx_telegrams_.pop();
     tx_telegrams_.pop_front(); // remove the telegram from the queue
 }
 
