@@ -349,6 +349,7 @@ void EMSESP::show_sensor_values(uuid::console::Shell & shell) {
 void EMSESP::publish_all(bool force) {
     if (force) {
         publish_all_idx_ = 1;
+        reset_mqtt_ha();
         return;
     }
     if (Mqtt::connected()) {
@@ -388,7 +389,7 @@ void EMSESP::publish_all_loop() {
         publish_other_values();
         break;
     case 6:
-        publish_sensor_values(true);
+        publish_sensor_values(true, true);
         break;
     case 7:
         system_.send_heartbeat();
@@ -462,9 +463,9 @@ void EMSESP::publish_other_values() {
     publish_device_values(EMSdevice::DeviceType::HEATPUMP);
 }
 
-void EMSESP::publish_sensor_values(const bool time, const bool force) {
-    if (dallassensor_.updated_values() || time || force) {
-        dallassensor_.publish_values(force);
+void EMSESP::publish_sensor_values(const bool now, const bool forceHA) {
+    if (dallassensor_.updated_values() || now || forceHA) {
+        dallassensor_.publish_values(forceHA);
     }
 }
 
