@@ -371,7 +371,7 @@ void System::send_heartbeat() {
     doc["uptime"]      = uuid::log::format_timestamp_s(uuid::get_uptime_ms(), 3);
     doc["uptime_sec"]  = uuid::get_uptime_sec();
     doc["mqttfails"]   = Mqtt::publish_fails();
-    doc["rxsent"]      = EMSESP::rxservice_.telegram_count();
+    doc["rxreceived"]  = EMSESP::rxservice_.telegram_count();
     doc["rxfails"]     = EMSESP::rxservice_.telegram_error_count();
     doc["txread"]      = EMSESP::txservice_.telegram_read_count();
     doc["txwrite"]     = EMSESP::txservice_.telegram_write_count();

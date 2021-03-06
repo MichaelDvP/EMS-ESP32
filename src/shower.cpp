@@ -115,8 +115,24 @@ void Shower::send_mqtt_stat(bool state, bool forceHA) {
         ids.add("ems-esp");
 
         char topic[100];
-        snprintf_P(topic, sizeof(topic), PSTR("homeassistant/binary_sensor/%s/shower_active/config"), EMSESP::system_.hostname().c_str());
+        snprintf_P(topic, sizeof(topic), PSTR("homeassistant/binary_sensor/%s/shower_active/config"), Mqtt::base().c_str());
         Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
+
+        doc.clear();
+        doc["name"]        = FJSON("Shower Duration");
+        doc["uniq_id"]     = FJSON("shower_duration");
+        doc["~"]           = Mqtt::base();
+        doc["json_attr_t"] = FJSON("~/shower_data");
+        doc["stat_t"]      = FJSON("~/shower_data");
+        doc["val_tpl"]     = FJSON("{{value_json.duration}}");
+        doc["ic"]          = FJSON("mdi:shower");
+        JsonObject dev     = doc.createNestedObject("dev");
+        JsonArray ids      = dev.createNestedArray("ids");
+        ids.add("ems-esp-shower");
+
+        snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/shower_data/config"), Mqtt::base().c_str());
+        Mqtt::publish_ha(topic, doc.as<JsonObject>());
+
     }
 }
 
@@ -146,14 +162,26 @@ void Shower::shower_alert_start() {
 void Shower::publish_values() {
     StaticJsonDocument<EMSESP_JSON_SIZE_SMALL> doc;
 
-    char s[50];
-    doc["shower_timer"] = Helpers::render_boolean(s, shower_timer_);
-    doc["shower_alert"] = Helpers::render_boolean(s, shower_alert_);
+    if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF) {
+        doc["shower_timer"] = shower_timer_ ? "on" : "off";
+        doc["shower_alert"] = shower_alert_ ? "on" : "off";
+    } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
+        doc["shower_timer"] = shower_timer_ ? "ON" : "OFF";
+        doc["shower_alert"] = shower_alert_ ? "ON" : "OFF";
+    } else if (Mqtt::bool_format() == BOOL_FORMAT_TRUEFALSE) {
+        doc["shower_timer"] = shower_timer_;
+        doc["shower_alert"] = shower_alert_;
+    } else {
+        doc["shower_timer"] = shower_timer_ ? 1 : 0;
+        doc["shower_alert"] = shower_alert_ ? 1 : 0;
+    }
 
     // only publish shower duration if there is a value
     if (duration_ > SHOWER_MIN_DURATION) {
-        snprintf_P(s, 50, PSTR("%d minutes and %d seconds"), (uint8_t)(duration_ / 60000), (uint8_t)((duration_ / 1000) % 60));
-        doc["duration"] = s;
+        // char s[40];
+        // snprintf_P(s, 40, PSTR("%d minutes and %d seconds"), (uint8_t)(duration_ / 60000), (uint8_t)((duration_ / 1000) % 60));
+        // doc["durationtxt"] = s;
+        doc["duration"] = duration_ / 1000;
     }
 
     Mqtt::publish(F("shower_data"), doc.as<JsonObject>());
