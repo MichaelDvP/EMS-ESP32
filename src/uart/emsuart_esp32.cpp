@@ -28,10 +28,10 @@
 
 namespace emsesp {
 
-static RingbufHandle_t buf_handle_   = NULL;
-portMUX_TYPE           mux_          = portMUX_INITIALIZER_UNLOCKED;
-bool                   drop_next_rx_ = true;
-uint8_t                tx_mode_      = 0xFF;
+RingbufHandle_t buf_handle_   = NULL;
+portMUX_TYPE    mux_          = portMUX_INITIALIZER_UNLOCKED;
+bool            drop_next_rx_ = true;
+uint8_t         tx_mode_      = 0xFF;
 
 /*
 * Task to handle the incoming data
@@ -103,9 +103,9 @@ void EMSuart::start(const uint8_t tx_mode, const uint8_t rx_gpio, const uint8_t 
     EMS_UART.int_ena.val             = 0;          // disable all intr.
     EMS_UART.int_clr.val             = 0xFFFFFFFF; // clear all intr. flags
     EMS_UART.idle_conf.tx_brk_num    = 10;         // breaklength 10 bit
+    drop_next_rx_                    = true;
     // EMS_UART.idle_conf.rx_idle_thrhd = 256;
     // EMS_UART.auto_baud.glitch_filt   = 192;
-    drop_next_rx_                    = true;
 #if (EMSUART_UART != UART_NUM_2)
     EMS_UART.conf0.rxfifo_rst = 1; // flush fifos, remove for UART2
     EMS_UART.conf0.txfifo_rst = 1;
@@ -122,8 +122,7 @@ void EMSuart::start(const uint8_t tx_mode, const uint8_t rx_gpio, const uint8_t 
  */
 void EMSuart::stop() {
     portENTER_CRITICAL(&mux_);
-    EMS_UART.int_ena.val   = 0; // disable all intr.
-    EMS_UART.conf0.txd_inv = 0; // stop break
+    EMS_UART.int_ena.val = 0; // disable all intr.
     portEXIT_CRITICAL(&mux_);
 };
 
@@ -137,7 +136,7 @@ void EMSuart::restart() {
         drop_next_rx_            = true; // and drop first frame
     }
     EMS_UART.int_ena.brk_det = 1; // activate only break
-    EMS_UART.conf0.txd_brk = (tx_mode_ == EMS_TXMODE_NEW) ? 1 : 0;
+    EMS_UART.conf0.txd_brk   = (tx_mode_ == EMS_TXMODE_HW) ? 1 : 0;
     portEXIT_CRITICAL(&mux_);
 
 }
@@ -163,7 +162,7 @@ uint16_t EMSuart::transmit(const uint8_t * buf, const uint8_t len) {
         return EMS_TX_STATUS_OK;
     }
 
-    if (tx_mode_ == EMS_TXMODE_NEW) { // hardware controlled mode
+    if (tx_mode_ == EMS_TXMODE_HW) { // hardware controlled mode
         for (uint8_t i = 0; i < len; i++) {
             EMS_UART.fifo.rw_byte = buf[i];
         }
