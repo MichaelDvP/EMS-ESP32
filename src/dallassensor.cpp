@@ -283,6 +283,12 @@ std::string DallasSensor::Sensor::to_string() const {
     return str;
 }
 
+std::string DallasSensor::Sensor::code() const {
+    std::string str(20, '\0');
+    snprintf_P(&str[0], str.capacity() + 1, PSTR("%02X%04X%04X%04X"), (unsigned int)(id_ >> 48) & 0xFF, (unsigned int)(id_ >> 32) & 0xFFFF, (unsigned int)(id_ >> 16) & 0xFFFF, (unsigned int)(id_)&0xFFFF);
+    return str;
+}
+
 // check to see if values have been updated
 bool DallasSensor::updated_values() {
     if (changed_) {
@@ -375,7 +381,7 @@ void DallasSensor::publish_values(const bool force) {
                 }
                 config["name"] = str;
 
-                snprintf_P(str, sizeof(str), PSTR("dallas_%s"), sensor.to_string().c_str());
+                snprintf_P(str, sizeof(str), PSTR("dallas_%s"), sensor.code().c_str());
                 config["uniq_id"] = str;
 
                 JsonObject dev = config.createNestedObject("dev");
@@ -384,7 +390,7 @@ void DallasSensor::publish_values(const bool force) {
 
                 char topic[100];
                 // use sensor number as HA doesn't like '-' in the topic name
-                snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%d/config"), Mqtt::base().c_str(), sensor_no);
+                snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_%s/config"), Mqtt::base().c_str(), sensor.code().c_str);
                 Mqtt::publish_ha(topic, config.as<JsonObject>());
 
                 registered_ha_[sensor_no - 1] = true;

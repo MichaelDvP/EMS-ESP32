@@ -126,13 +126,10 @@ void Shower::send_mqtt_stat(bool state, bool force) {
         doc["stat_t"]      = FJSON("~/shower_data");
         doc["val_tpl"]     = FJSON("{{value_json.duration}}");
         doc["ic"]          = FJSON("mdi:shower");
-        JsonObject dev     = doc.createNestedObject("dev");
-        JsonArray ids      = dev.createNestedArray("ids");
         ids.add("ems-esp-shower");
 
         snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/shower_data/config"), Mqtt::base().c_str());
         Mqtt::publish_ha(topic, doc.as<JsonObject>());
-
     }
 }
 
