@@ -11,6 +11,7 @@ See https://github.com/proddy/EMS-ESP/issues/632
 - extra MQTT boolean option for "ON" and "OFF"
 - Support for chunked MQTT payloads to allow large data sets > 2kb
 - External Button support (#708) for resetting to factory defaults and other actions
+- new console set command in `system`, `set ethernet <profile>` for quickly enabling cabled ethernet connections without using the captive wifi portal
 
 ### Fixed
 - telegrams matched to masterthermostat 0x18
@@ -18,6 +19,7 @@ See https://github.com/proddy/EMS-ESP/issues/632
 - readback after write with delay (give ems-devices time to set the value)
 - Thermostat ES72/RC20 device 66 to command-set RC20_2
 - MQTT payloads not adding to queue when MQTT is re-connecting (fixes #369)
+- fix for HA topics with invalid command formats - #728
 
 ### Changed
 - split `show values` in smaller packages (edited)
