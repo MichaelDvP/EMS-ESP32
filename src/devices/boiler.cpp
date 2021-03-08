@@ -78,7 +78,6 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_mqtt_cmd(F("heatingtemp"), [&](const char * value, const int8_t id) { return set_heating_temp(value, id); });
     register_mqtt_cmd(F("burnmaxpower"), [&](const char * value, const int8_t id) { return set_max_power(value, id); });
     register_mqtt_cmd(F("burnminpower"), [&](const char * value, const int8_t id) { return set_min_power(value, id); });
-    register_mqtt_cmd(F("burnselpower"), [&](const char * value, const int8_t id) { return set_sel_power(value, id); });
     register_mqtt_cmd(F("boilhyston"), [&](const char * value, const int8_t id) { return set_hyst_on(value, id); });
     register_mqtt_cmd(F("boilhystoff"), [&](const char * value, const int8_t id) { return set_hyst_off(value, id); });
     register_mqtt_cmd(F("burnperiod"), [&](const char * value, const int8_t id) { return set_burn_period(value, id); });
@@ -99,7 +98,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA, &tapwaterActive_, DeviceValueType::BOOL, nullptr, F("tapwaterActive"), F("Warm water/DHW active"));
 
     register_device_value(TAG_BOILER_DATA, &selFlowTemp_, DeviceValueType::UINT, nullptr, F("selFlowTemp"), F("Selected flow temperature"), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_BOILER_DATA, &selBurnPow_, DeviceValueType::UINT, nullptr, F("selBurnPow"), F("Burner selected max power"), DeviceValueUOM::PERCENT);
+    register_device_value(TAG_BOILER_DATA, &selBurnPow_, DeviceValueType::UINT, nullptr, F("selBurnPow"), F("Burner selected power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &heatingPumpMod_, DeviceValueType::UINT, nullptr, F("heatingPumpMod"), F("Heating pump modulation"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &heatingPump2Mod_, DeviceValueType::UINT, nullptr, F("heatingPump2Mod"), F("Heating pump 2 modulation"), DeviceValueUOM::PERCENT);
 
@@ -124,7 +123,6 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA, &burnMinCycleTime_, DeviceValueType::UINT, nullptr, F("burnMinCycleTime"), F("Burner min cycle time"), DeviceValueUOM::MINUTES);
     register_device_value(TAG_BOILER_DATA, &burnMinPower_, DeviceValueType::UINT, nullptr, F("burnMinPower"), F("Burner min power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &burnMaxPower_, DeviceValueType::UINT, nullptr, F("burnMaxPower"), F("Burner max power"), DeviceValueUOM::PERCENT);
-    register_device_value(TAG_BOILER_DATA, &burnSelPower_, DeviceValueType::UINT, nullptr, F("burnSelPower"), F("Burner select power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &boilHystOn_, DeviceValueType::INT, nullptr, F("boilHystOn"), F("Hysteresis on temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA, &boilHystOff_, DeviceValueType::INT, nullptr, F("boilHystOff"), F("Hysteresis off temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA, &setFlowTemp_, DeviceValueType::UINT, nullptr, F("setFlowTemp"), F("Set flow temperature"), DeviceValueUOM::DEGREES);
@@ -757,25 +755,6 @@ bool Boiler::set_max_power(const char * value, const int8_t id) {
         write_command(EMS_TYPE_UBAParameters, 2, v, EMS_TYPE_UBAParameters);
     }
 
-    return true;
-}
-
-// set select burner power
-bool Boiler::set_sel_power(const char * value, const int8_t id) {
-    int v = 0;
-    if (!Helpers::value2number(value, v)) {
-        LOG_WARNING(F("Set boiler sel power: Invalid value"));
-        return false;
-    }
-
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
-        write_command(EMS_TYPE_UBAParametersPlus, 4, v, EMS_TYPE_UBAParametersPlus);
-    } else {
-        LOG_WARNING(F("Set boiler sel power: not supported"));
-        return false;
-    }
-
-    LOG_INFO(F("Setting boiler sel power to %d %%"), v);
     return true;
 }
 
