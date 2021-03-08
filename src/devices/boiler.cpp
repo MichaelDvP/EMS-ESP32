@@ -78,6 +78,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_mqtt_cmd(F("heatingtemp"), [&](const char * value, const int8_t id) { return set_heating_temp(value, id); });
     register_mqtt_cmd(F("burnmaxpower"), [&](const char * value, const int8_t id) { return set_max_power(value, id); });
     register_mqtt_cmd(F("burnminpower"), [&](const char * value, const int8_t id) { return set_min_power(value, id); });
+    register_mqtt_cmd(F("burnselpower"), [&](const char * value, const int8_t id) { return set_sel_power(value, id); });
     register_mqtt_cmd(F("boilhyston"), [&](const char * value, const int8_t id) { return set_hyst_on(value, id); });
     register_mqtt_cmd(F("boilhystoff"), [&](const char * value, const int8_t id) { return set_hyst_off(value, id); });
     register_mqtt_cmd(F("burnperiod"), [&](const char * value, const int8_t id) { return set_burn_period(value, id); });
@@ -120,9 +121,10 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA, &pumpModMax_, DeviceValueType::UINT, nullptr, F("pumpModMax"), F("Burner pump max power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &pumpModMin_, DeviceValueType::UINT, nullptr, F("pumpModMin"), F("Burner pump min power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &pumpDelay_, DeviceValueType::UINT, nullptr, F("pumpDelay"), F("Pump delay"), DeviceValueUOM::MINUTES);
-    register_device_value(TAG_BOILER_DATA, &burnMinPeriod_, DeviceValueType::UINT, nullptr, F("burnMinPeriod"), F("Burner min period"), DeviceValueUOM::MINUTES);
+    register_device_value(TAG_BOILER_DATA, &burnMinCycleTime_, DeviceValueType::UINT, nullptr, F("burnMinCycleTime"), F("Burner min cycle time"), DeviceValueUOM::MINUTES);
     register_device_value(TAG_BOILER_DATA, &burnMinPower_, DeviceValueType::UINT, nullptr, F("burnMinPower"), F("Burner min power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &burnMaxPower_, DeviceValueType::UINT, nullptr, F("burnMaxPower"), F("Burner max power"), DeviceValueUOM::PERCENT);
+    register_device_value(TAG_BOILER_DATA, &burnSelPower_, DeviceValueType::UINT, nullptr, F("burnSelPower"), F("Burner select power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &boilHystOn_, DeviceValueType::INT, nullptr, F("boilHystOn"), F("Hysteresis on temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA, &boilHystOff_, DeviceValueType::INT, nullptr, F("boilHystOff"), F("Hysteresis off temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA, &setFlowTemp_, DeviceValueType::UINT, nullptr, F("setFlowTemp"), F("Set flow temperature"), DeviceValueUOM::DEGREES);
@@ -340,7 +342,7 @@ void Boiler::process_UBAParameters(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(burnMinPower_, 3));
     has_update(telegram->read_value(boilHystOff_, 4));
     has_update(telegram->read_value(boilHystOn_, 5));
-    has_update(telegram->read_value(burnMinPeriod_, 6));
+    has_update(telegram->read_value(burnMinCycleTime_, 6));
     has_update(telegram->read_value(pumpDelay_, 8));
     has_update(telegram->read_value(pumpModMax_, 9));
     has_update(telegram->read_value(pumpModMin_, 10));
@@ -466,11 +468,12 @@ void Boiler::process_UBAMonitorSlowPlus(std::shared_ptr<const Telegram> telegram
 void Boiler::process_UBAParametersPlus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(heatingActivated_, 0));
     has_update(telegram->read_value(heatingTemp_, 1));
-    has_update(telegram->read_value(burnMaxPower_, 6));
-    has_update(telegram->read_value(burnMinPower_, 7));
+    // has_update(telegram->read_value(burnSelPower_, 4));
+    has_update(telegram->read_value(burnMaxPower_, 4)); // was 6
+    has_update(telegram->read_value(burnMinPower_, 5)); // was 7
     has_update(telegram->read_value(boilHystOff_, 8));
     has_update(telegram->read_value(boilHystOn_, 9));
-    has_update(telegram->read_value(burnMinPeriod_, 10));
+    has_update(telegram->read_value(burnMinCycleTime_, 10));
     // changed_ |= telegram->read_value(pumpModMax_, 13); // guess
     // changed_ |= telegram->read_value(pumpModMin_, 14); // guess
 }
@@ -731,7 +734,7 @@ bool Boiler::set_min_power(const char * value, const int8_t id) {
 
     LOG_INFO(F("Setting boiler min power to %d %%"), v);
     if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
-        write_command(EMS_TYPE_UBAParametersPlus, 7, v, EMS_TYPE_UBAParametersPlus);
+        write_command(EMS_TYPE_UBAParametersPlus, 5, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 3, v, EMS_TYPE_UBAParameters);
     }
@@ -739,7 +742,7 @@ bool Boiler::set_min_power(const char * value, const int8_t id) {
     return true;
 }
 
-// set max temp
+// set max burner power
 bool Boiler::set_max_power(const char * value, const int8_t id) {
     int v = 0;
     if (!Helpers::value2number(value, v)) {
@@ -749,11 +752,30 @@ bool Boiler::set_max_power(const char * value, const int8_t id) {
 
     LOG_INFO(F("Setting boiler max power to %d %%"), v);
     if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
-        write_command(EMS_TYPE_UBAParametersPlus, 6, v, EMS_TYPE_UBAParametersPlus);
+        write_command(EMS_TYPE_UBAParametersPlus, 4, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 2, v, EMS_TYPE_UBAParameters);
     }
 
+    return true;
+}
+
+// set select burner power
+bool Boiler::set_sel_power(const char * value, const int8_t id) {
+    int v = 0;
+    if (!Helpers::value2number(value, v)) {
+        LOG_WARNING(F("Set boiler sel power: Invalid value"));
+        return false;
+    }
+
+    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+        write_command(EMS_TYPE_UBAParametersPlus, 4, v, EMS_TYPE_UBAParametersPlus);
+    } else {
+        LOG_WARNING(F("Set boiler sel power: not supported"));
+        return false;
+    }
+
+    LOG_INFO(F("Setting boiler sel power to %d %%"), v);
     return true;
 }
 

@@ -390,7 +390,7 @@ void DallasSensor::publish_values(const bool force) {
 
                 char topic[100];
                 // use sensor number as HA doesn't like '-' in the topic name
-                snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_%s/config"), Mqtt::base().c_str(), sensor.code().c_str);
+                snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_%s/config"), Mqtt::base().c_str(), sensor.code().c_str());
                 Mqtt::publish_ha(topic, config.as<JsonObject>());
 
                 registered_ha_[sensor_no - 1] = true;
