@@ -174,12 +174,6 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
     for (uint8_t i = 0; i < monitor_typeids.size(); i++) {
         EMSESP::send_read_request(monitor_typeids[i], device_id);
     }
-    // HA will report an error in the climate component if it doesn't have the setpoint temp, current temperatures and the mode (e.g. auto)
-    // The mode always comes later (1 minute) so we force a read request to suppress HA errors.
-    // I remember having this in before, but we removed it and can't remember why?
-    for (uint8_t i = 0; i < set_typeids.size(); i++) {
-        EMSESP::send_read_request(set_typeids[i], device_id);
-    }
     EMSESP::send_read_request(0x12, device_id); // read last error (only published on errors)
 }
 
