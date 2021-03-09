@@ -332,6 +332,7 @@ void Boiler::process_UBATotalUptime(std::shared_ptr<const Telegram> telegram) {
 
 /*
  * UBAParameters - type 0x16
+ * data: FF 5A 64 00 0A FA 0F 02 06 64 64 02 08 F8 0F 0F 0F 0F 1E 05 04 09 09 00 28 00 3C
  */
 void Boiler::process_UBAParameters(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(heatingActivated_, 0));
@@ -341,6 +342,7 @@ void Boiler::process_UBAParameters(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(boilHystOff_, 4));
     has_update(telegram->read_value(boilHystOn_, 5));
     has_update(telegram->read_value(burnMinCycleTime_, 6));
+    // has_update(telegram->read_value(pumpType_, 7)); // 0=off, 02=?
     has_update(telegram->read_value(pumpDelay_, 8));
     has_update(telegram->read_value(pumpModMax_, 9));
     has_update(telegram->read_value(pumpModMin_, 10));
@@ -461,19 +463,24 @@ void Boiler::process_UBAMonitorSlowPlus(std::shared_ptr<const Telegram> telegram
 
 /*
  * UBAParametersPlus - type 0xe6
+ * parameters originaly taken from
+ * https://github.com/Th3M3/buderus_ems-wiki/blob/master/Einstellungen%20des%20Regelger%C3%A4ts%20MC110.md
  * 88 0B E6 00 01 46 00 00 46 0A 00 01 06 FA 0A 01 02 64 01 00 00 1E 00 3C 01 00 00 00 01 00 9A
+ * from: issue #732
+ *       data: 01 50 1E 5A 46 12 64 00 06 FA 3C 03 05 64 00 00 00 28 00 41 03 00 00 00 00 00 00 00 00 00
  */
 void Boiler::process_UBAParametersPlus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(heatingActivated_, 0));
     has_update(telegram->read_value(heatingTemp_, 1));
-    // has_update(telegram->read_value(burnSelPower_, 4));
     has_update(telegram->read_value(burnMaxPower_, 4)); // was 6
     has_update(telegram->read_value(burnMinPower_, 5)); // was 7
     has_update(telegram->read_value(boilHystOff_, 8));
     has_update(telegram->read_value(boilHystOn_, 9));
     has_update(telegram->read_value(burnMinCycleTime_, 10));
-    // changed_ |= telegram->read_value(pumpModMax_, 13); // guess
-    // changed_ |= telegram->read_value(pumpModMin_, 14); // guess
+    // has_update(telegram->read_value(pumpType_, 11));   // guess, RC300 manual: powercontroled, pressurcontrolled 1-4? 
+    // has_update(telegram->read_value(pumpDelay_, 12));  // guess
+    // has_update(telegram->read_value(pumpModMax_, 13)); // guess
+    // has_update(telegram->read_value(pumpModMin_, 14)); // guess
 }
 
 // 0xEA

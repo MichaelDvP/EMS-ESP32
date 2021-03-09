@@ -174,6 +174,9 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
     for (uint8_t i = 0; i < monitor_typeids.size(); i++) {
         EMSESP::send_read_request(monitor_typeids[i], device_id);
     }
+    for (uint8_t i = 0; i < set_typeids.size(); i++) {
+        EMSESP::send_read_request(set_typeids[i], device_id);
+    }
     EMSESP::send_read_request(0x12, device_id); // read last error (only published on errors)
 }
 
@@ -298,7 +301,10 @@ std::shared_ptr<Thermostat::HeatingCircuit> Thermostat::heating_circuit(std::sha
             return heating_circuit;
         }
     }
-
+    // register new heatingcircuits only on active monitor telegrams
+    if (!toggle_) {
+        return nullptr;
+    }
     /*
      * at this point we have discovered a new heating circuit
      */
