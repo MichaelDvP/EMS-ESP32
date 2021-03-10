@@ -13,6 +13,7 @@
 - Support for chunked MQTT payloads to allow large data sets > 2kb
 - External Button support (#708) for resetting to factory defaults and other actions
 - new console set command in `system`, `set ethernet <profile>` for quickly enabling cabled ethernet connections without using the captive wifi portal
+- Boiler GB172i (210) (3.0.0b5)
 
 ### Fixed
 - telegrams matched to masterthermostat 0x18
@@ -21,6 +22,7 @@
 - Thermostat ES72/RC20 device 66 to command-set RC20_2
 - MQTT payloads not adding to queue when MQTT is re-connecting (fixes #369)
 - fix for HA topics with invalid command formats (#728)
+- fix ems+ values #723, #732 (3.0.0b5)
 
 ### Changed
 - changed how telegram parameters are rendered for mqtt, console and web (#632)
@@ -29,12 +31,12 @@
 - check flowsensor for `tap_water_active`
 - mqtt prefixed with `Base`
 - count Dallas sensor fails
-- switch from SPIFFS to LITTLEFS
+- switch from SPIFFS to LITTLEFS (3.0.0.b3)
 - Added ID to MQTT payloads which is the Device's product ID and used in HA to identify a unique HA device
 - Increased MQTT buffer and reduced wait time between publishes
 - Updated to the latest ArduinoJson library
-- some names of mqtt-tags like in v2.2.1
-- new ESP32 partition side to allow for smoother OTA and fallback
+- some names of mqtt-tags like in v2.2.1 (3.0.0b4)
+- new ESP32 partition side to allow for smoother OTA and fallback (3.0.0b4)
 
 ### Removed
 
