@@ -165,6 +165,7 @@ class Boiler : public EMSdevice {
     void process_UBADHWStatus(std::shared_ptr<const Telegram> telegram);
     void process_UBAInformation(std::shared_ptr<const Telegram> telegram);
     void process_UBAEnergySupplied(std::shared_ptr<const Telegram> telegram);
+    void process_CascadeMessage(std::shared_ptr<const Telegram> telegram);
 
     // commands - none of these use the additional id parameter
     bool set_warmwater_mode(const char * value, const int8_t id);

@@ -554,7 +554,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
             char name[80];
             if (console) {
                 // prefix the tag in brackets, unless it's Boiler because we're naughty and use tag for the MQTT topic
-                if (have_tag) {
+                if (have_tag && !DeviceType::BOILER) {
                     snprintf_P(name, 80, "(%s) %s", tag_to_string(dv.tag).c_str(), uuid::read_flash_string(dv.full_name).c_str());
                 } else {
                     strcpy(name, uuid::read_flash_string(dv.full_name).c_str()); // use full name

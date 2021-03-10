@@ -69,9 +69,9 @@ MAKE_PSTR(lmin, "l/min")
 enum DeviceValueUOM : uint8_t { NONE = 0, DEGREES, PERCENT, LMIN, KWH, WH, HOURS, MINUTES, UA, BAR, PUMP };
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
-MAKE_PSTR(tag_boiler_data, "boiler")
-MAKE_PSTR(tag_boiler_data_ww, "warm water")
-MAKE_PSTR(tag_boiler_data_info, "info")
+MAKE_PSTR(tag_boiler_data, "data")
+MAKE_PSTR(tag_boiler_data_ww, "data_ww")
+MAKE_PSTR(tag_boiler_data_info, "data_info")
 MAKE_PSTR(tag_hc1, "hc1")
 MAKE_PSTR(tag_hc2, "hc2")
 MAKE_PSTR(tag_hc3, "hc3")
@@ -276,7 +276,9 @@ class EMSdevice {
     };
 
     // static device IDs
-    static constexpr uint8_t EMS_DEVICE_ID_BOILER = 0x08; // fixed device_id for Master Boiler/UBA
+    static constexpr uint8_t EMS_DEVICE_ID_BOILER   = 0x08; // fixed device_id for Master Boiler/UBA
+    static constexpr uint8_t EMS_DEVICE_ID_BOILER_1 = 0x70; // fixed device_id for 1st. Cascade Boiler/UBA
+    static constexpr uint8_t EMS_DEVICE_ID_BOILER_F = 0x7F; // fixed device_id for last Cascade Boiler/UBA
 
     // generic type IDs
     static constexpr uint16_t EMS_TYPE_VERSION    = 0x02; // type ID for Version information. Generic across all EMS devices.

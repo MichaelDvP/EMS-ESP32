@@ -845,11 +845,13 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     // if its a boiler we use the tag
     char stat_t[MQTT_TOPIC_MAX_SIZE];
     if (device_type == EMSdevice::DeviceType::BOILER) {
-        snprintf_P(stat_t, sizeof(stat_t), PSTR("~/%s"), EMSdevice::tag_to_string(tag).c_str());
+        snprintf_P(stat_t, sizeof(stat_t), PSTR("~/boiler_%s"), EMSdevice::tag_to_string(tag).c_str());
     } else if (device_type == EMSdevice::DeviceType::SYSTEM) {
         snprintf_P(stat_t, sizeof(stat_t), PSTR("~/heartbeat"));
-    } else {
+    } else if (nested_format_ || !have_prefix) {
         snprintf_P(stat_t, sizeof(stat_t), PSTR("~/%s_data"), device_name);
+    } else {
+        snprintf_P(stat_t, sizeof(stat_t), PSTR("~/%s_data_%s"), device_name, EMSdevice::tag_to_string(tag).c_str());
     }
     doc["stat_t"] = stat_t;
 
@@ -865,7 +867,11 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
 
     // value template
     char val_tpl[50];
-    snprintf_P(val_tpl, sizeof(val_tpl), PSTR("{{value_json.%s}}"), new_entity);
+    if (nested_format_) {
+        snprintf_P(val_tpl, sizeof(val_tpl), PSTR("{{value_json.%s}}"), new_entity);
+    } else {
+        snprintf_P(val_tpl, sizeof(val_tpl), PSTR("{{value_json.%s}}"), uuid::read_flash_string(entity).c_str());
+    }
     doc["val_tpl"] = val_tpl;
 
     char topic[MQTT_TOPIC_MAX_SIZE]; // reserved for topic

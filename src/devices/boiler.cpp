@@ -28,6 +28,12 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     : EMSdevice(device_type, device_id, product_id, version, name, flags, brand) {
     LOG_DEBUG(F("Adding new Boiler with device ID 0x%02X"), device_id);
 
+    // register values only for master boiler/cascade module
+    if (device_id != EMSdevice::EMS_DEVICE_ID_BOILER) {
+        register_telegram_type(0x6DC + device_id - EMSdevice::EMS_DEVICE_ID_BOILER_1, F("CascadeMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_CascadeMessage(t); });
+        // register_telegram_type(0xD2, F("CascadePowerMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_CascadePowerMessage(t); });
+        return;
+    }
     // reserve_telgram_functions(25); // reserve some space for the telegram registries, to avoid memory fragmentation
 
     // the telegram handlers...
@@ -580,6 +586,12 @@ void Boiler::process_UBASetPoints(std::shared_ptr<const Telegram> telegram) {
                                     0));                  // boiler set temp from thermostat
     has_update(telegram->read_value(setBurnPow_, 1));     // max json power in %
     has_update(telegram->read_value(wWSetPumpPower_, 2)); // ww pump speed/power?
+}
+
+void Boiler::process_CascadeMessage(std::shared_ptr<const Telegram> telegram) {
+    uint8_t device = telegram->dest - EMSdevice::EMS_DEVICE_ID_BOILER_1;
+    uint8_t x[16];
+    has_update(telegram->read_value(x[device], 0));
 }
 
 #pragma GCC diagnostic push
