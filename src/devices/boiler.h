@@ -104,7 +104,7 @@ class Boiler : public EMSdevice {
     uint8_t  pumpModMax_;       // Boiler circuit pump modulation max. power %
     uint8_t  pumpModMin_;       // Boiler circuit pump modulation min. power
     uint8_t  pumpDelay_;
-    uint8_t  burnMinCycleTime_;
+    uint8_t  burnMinPeriod_;
     uint8_t  burnMinPower_;
     uint8_t  burnMaxPower_;
     int8_t   boilHystOn_;

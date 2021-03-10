@@ -56,18 +56,18 @@ Mixer::Mixer(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         hc_         = device_id - 0x20 + 1;
         uint8_t tag = TAG_HC1 + hc_ - 1;
         register_device_value(tag, &id_, DeviceValueType::UINT, nullptr, F("id"), nullptr); // empty full name to prevent being shown in web or console
-        register_device_value(tag, &flowSetTemp_, DeviceValueType::UINT, nullptr, F("flowSetTemp"), F("Setpoint flow temperature"), DeviceValueUOM::DEGREES);
-        register_device_value(tag, &flowTempHc_, DeviceValueType::USHORT, FL_(div10), F("flowTempHc"), F("Flow temperature in assigned hc (TC1)"), DeviceValueUOM::DEGREES);
-        register_device_value(tag, &pumpStatus_, DeviceValueType::BOOL, nullptr, F("pumpStatus"), F("Pump status in assigned hc (PC1)"), DeviceValueUOM::PUMP);
-        register_device_value(tag, &status_, DeviceValueType::INT, nullptr, F("valveStatus"), F("Mixing valve actuator in assigned hc (VC1)"), DeviceValueUOM::PERCENT);
+        register_device_value(tag, &flowSetTemp_, DeviceValueType::UINT, nullptr, F("flowSetTemp"), F("setpoint flow temperature"), DeviceValueUOM::DEGREES);
+        register_device_value(tag, &flowTempHc_, DeviceValueType::USHORT, FL_(div10), F("flowTempHc"), F("flow temperature in assigned hc (TC1)"), DeviceValueUOM::DEGREES);
+        register_device_value(tag, &pumpStatus_, DeviceValueType::BOOL, nullptr, F("pumpStatus"), F("pump status in assigned hc (PC1)"), DeviceValueUOM::PUMP);
+        register_device_value(tag, &status_, DeviceValueType::INT, nullptr, F("valveStatus"), F("mixing valve actuator in assigned hc (VC1)"), DeviceValueUOM::PERCENT);
     } else {
         type_       = Type::WWC;
         hc_         = device_id - 0x28 + 1;
         uint8_t tag = TAG_WWC1 + hc_ - 1;
         register_device_value(tag, &id_, DeviceValueType::UINT, nullptr, F("id"), nullptr); // empty full name to prevent being shown in web or console
-        register_device_value(tag, &flowTempHc_, DeviceValueType::USHORT, FL_(div10), F("wwTemp"), F("Current warm water temperature"), DeviceValueUOM::DEGREES);
-        register_device_value(tag, &pumpStatus_, DeviceValueType::BOOL, nullptr, F("pumpStatus"), F("Pump status in assigned hc (PC1)"), DeviceValueUOM::PUMP);
-        register_device_value(tag, &status_, DeviceValueType::INT, nullptr, F("tempStatus"), F("Temperature switch in assigned hc (MC1)"));
+        register_device_value(tag, &flowTempHc_, DeviceValueType::USHORT, FL_(div10), F("wwTemp"), F("current warm water temperature"), DeviceValueUOM::DEGREES);
+        register_device_value(tag, &pumpStatus_, DeviceValueType::BOOL, nullptr, F("pumpStatus"), F("pump status in assigned hc (PC1)"), DeviceValueUOM::PUMP);
+        register_device_value(tag, &status_, DeviceValueType::INT, nullptr, F("tempStatus"), F("temperature switch in assigned hc (MC1)"));
     }
 
     id_ = product_id;
@@ -149,7 +149,7 @@ void Mixer::process_IPMStatusMessage(std::shared_ptr<const Telegram> telegram) {
     // do we have a mixed circuit
     if (ismixed == 2) {
         has_update(telegram->read_value(flowTempHc_, 3)); // is * 10
-        has_update(telegram->read_value(status_, 2));   // valve status
+        has_update(telegram->read_value(status_, 2));     // valve status
     }
 
     has_update(telegram->read_bitvalue(pumpStatus_, 1, 0)); // pump is also in unmixed circuits
@@ -164,7 +164,7 @@ void Mixer::process_MMStatusMessage(std::shared_ptr<const Telegram> telegram) {
     // 0x21 is position 2. 0x20 is typically reserved for the WM10 switch module
     // see https://github.com/proddy/EMS-ESP/issues/270 and https://github.com/proddy/EMS-ESP/issues/386#issuecomment-629610918
 
-    has_update(telegram->read_value(flowTempHc_, 1));         // is * 10
+    has_update(telegram->read_value(flowTempHc_, 1));       // is * 10
     has_update(telegram->read_bitvalue(pumpStatus_, 3, 2)); // is 0 or 0x64 (100%), check only bit 2
     has_update(telegram->read_value(flowSetTemp_, 0));
     has_update(telegram->read_value(status_, 4)); // valve status -100 to 100
