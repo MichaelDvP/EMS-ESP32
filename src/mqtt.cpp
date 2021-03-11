@@ -536,11 +536,10 @@ void Mqtt::on_connect() {
         ha_status();
     }
 
-        // send initial MQTT messages for some of our services
-        EMSESP::shower_.send_mqtt_stat(false, true); // Send shower_activated as false
-        EMSESP::system_.send_heartbeat();            // send heatbeat
+    // send initial MQTT messages for some of our services
+    EMSESP::shower_.send_mqtt_stat(false, true); // Send shower_activated as false
+    EMSESP::system_.send_heartbeat();            // send heatbeat
 
-    // } else {
     if (connectcount_ > 1) {
         // we doing a re-connect from a TCP break
         // only re-subscribe again to all MQTT topics
@@ -845,7 +844,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     // if its a boiler we use the tag
     char stat_t[MQTT_TOPIC_MAX_SIZE];
     if (device_type == EMSdevice::DeviceType::BOILER) {
-        if (tag == DeviceValueTAG::TAG_NONE) {
+        if (tag == DeviceValueTAG::TAG_BOILER_DATA) {
             snprintf_P(stat_t, sizeof(stat_t), PSTR("~/boiler_data"));
         } else if (tag == DeviceValueTAG::TAG_BOILER_DATA_WW) {
             snprintf_P(stat_t, sizeof(stat_t), PSTR("~/boiler_data_ww"));

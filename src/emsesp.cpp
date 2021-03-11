@@ -434,7 +434,7 @@ void EMSESP::publish_device_values(uint8_t device_type) {
 
             // if its a boiler, generate json for each group and publish it directly
             if (device_type == DeviceType::BOILER) {
-                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, false); // not nested
+                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_BOILER_DATA, false); // not nested
                 Mqtt::publish("boiler_data", json);
                 json.clear();
                 emsdevice->generate_values_json(json, DeviceValueTAG::TAG_BOILER_DATA_WW, false); // not nested
@@ -452,7 +452,7 @@ void EMSESP::publish_device_values(uint8_t device_type) {
                     if (nested) {
                         need_publish |= emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, true); // nested
                     } else {
-                        emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, false); // not nested
+                        emsdevice->generate_values_json(json, DeviceValueTAG::TAG_THERMOSTAT_DATA, false); // not nested
                         Mqtt::publish("thermostat_data", json);
                         json.clear();
 
@@ -504,9 +504,9 @@ void EMSESP::publish_other_values() {
     publish_device_values(EMSdevice::DeviceType::HEATPUMP);
 }
 
-void EMSESP::publish_sensor_values(const bool now, const bool forceHA) {
-    if (dallassensor_.updated_values() || now || forceHA) {
-        dallassensor_.publish_values(forceHA);
+void EMSESP::publish_sensor_values(const bool time, const bool force) {
+    if (dallassensor_.updated_values() || time || force) {
+        dallassensor_.publish_values(force);
     }
 }
 
