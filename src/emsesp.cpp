@@ -434,7 +434,7 @@ void EMSESP::publish_device_values(uint8_t device_type) {
 
             // if its a boiler, generate json for each group and publish it directly
             if (device_type == DeviceType::BOILER) {
-                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_BOILER_DATA, false); // not nested
+                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, false); // not nested
                 Mqtt::publish("boiler_data", json);
                 json.clear();
                 emsdevice->generate_values_json(json, DeviceValueTAG::TAG_BOILER_DATA_WW, false); // not nested
@@ -933,7 +933,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
 
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice && (emsdevice->device_type() == device_type) && ((device_type != DeviceType::THERMOSTAT) || (emsdevice->device_id() == EMSESP::actual_master_thermostat()))) {
-            has_value |= emsdevice->generate_values_json(json, tag, (id == -1), true); // console & nested
+            has_value |= emsdevice->generate_values_json(json, tag, true, (id == -1)); // nested, console as default
         }
     }
 

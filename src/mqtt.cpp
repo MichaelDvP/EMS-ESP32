@@ -845,7 +845,13 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     // if its a boiler we use the tag
     char stat_t[MQTT_TOPIC_MAX_SIZE];
     if (device_type == EMSdevice::DeviceType::BOILER) {
-        snprintf_P(stat_t, sizeof(stat_t), PSTR("~/boiler_%s"), EMSdevice::tag_to_string(tag).c_str());
+        if (tag == DeviceValueTAG::TAG_NONE) {
+            snprintf_P(stat_t, sizeof(stat_t), PSTR("~/boiler_data"));
+        } else if (tag == DeviceValueTAG::TAG_BOILER_DATA_WW) {
+            snprintf_P(stat_t, sizeof(stat_t), PSTR("~/boiler_data_ww"));
+        } else {
+            snprintf_P(stat_t, sizeof(stat_t), PSTR("~/boiler_data_info"));
+        }
     } else if (device_type == EMSdevice::DeviceType::SYSTEM) {
         snprintf_P(stat_t, sizeof(stat_t), PSTR("~/heartbeat"));
     } else if (nested_format_ || !have_prefix) {

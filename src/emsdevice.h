@@ -69,9 +69,9 @@ MAKE_PSTR(lmin, "l/min")
 enum DeviceValueUOM : uint8_t { NONE = 0, DEGREES, PERCENT, LMIN, KWH, WH, HOURS, MINUTES, UA, BAR, PUMP };
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
-MAKE_PSTR(tag_boiler_data, "data")
-MAKE_PSTR(tag_boiler_data_ww, "data_ww")
-MAKE_PSTR(tag_boiler_data_info, "data_info")
+MAKE_PSTR(tag_boiler_data, "boiler")
+MAKE_PSTR(tag_boiler_data_ww, "warm water")
+MAKE_PSTR(tag_boiler_data_info, "info")
 MAKE_PSTR(tag_hc1, "hc1")
 MAKE_PSTR(tag_hc2, "hc2")
 MAKE_PSTR(tag_hc3, "hc3")

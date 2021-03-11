@@ -519,7 +519,8 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
 
                 // add name, prefixing the tag if it exists
                 // if we're a boiler, ignore the tag
-                if ((dv.tag == DeviceValueTAG::TAG_NONE) || (device_type_ == DeviceType::BOILER)) {
+                // if ((dv.tag == DeviceValueTAG::TAG_NONE) || (device_type_ == DeviceType::BOILER)) {
+                if (dv.tag == DeviceValueTAG::TAG_NONE) {
                     data.add(dv.full_name);
                 } else {
                     char name[50];
@@ -554,7 +555,8 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
             char name[80];
             if (console) {
                 // prefix the tag in brackets, unless it's Boiler because we're naughty and use tag for the MQTT topic
-                if (have_tag && !DeviceType::BOILER) {
+                // if (have_tag && !DeviceType::BOILER) {
+                if (have_tag) {
                     snprintf_P(name, 80, "(%s) %s", tag_to_string(dv.tag).c_str(), uuid::read_flash_string(dv.full_name).c_str());
                 } else {
                     strcpy(name, uuid::read_flash_string(dv.full_name).c_str()); // use full name
@@ -565,7 +567,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
                 // if we have a tag, and its different to the last one create a nested object
                 if (dv.tag != old_tag) {
                     old_tag = dv.tag;
-                    if (nested && have_tag) {
+                    if (nested && have_tag && tag_filter == DeviceValueTAG::TAG_NONE) {
                         json = root.createNestedObject(tag_to_string(dv.tag));
                     }
                 }
