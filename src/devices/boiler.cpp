@@ -30,18 +30,18 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
 
     // cascaded heatingsources, add some values with new tags later
     if (device_id != EMSdevice::EMS_DEVICE_ID_BOILER) {
-        // uint8_t hs = device_id - EMSdevice::EMS_DEVICE_ID_BOILER_1; // heating source number
+        uint8_t hs = device_id - EMSdevice::EMS_DEVICE_ID_BOILER_1; // heating source number
         // Runtime of each heatingsource in 6DC, ff
-        // register_telegram_type(0x6DC + hs, F("CascadeMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_CascadeMessage(t); });
+        register_telegram_type(0x6DC + hs, F("CascadeMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_CascadeMessage(t); });
+        register_device_value(TAG_HS1 + hs, &burnWorkMin_, DeviceValueType::TIME, nullptr, F("burnWorkMin"), F("total burner operating time"), DeviceValueUOM::MINUTES);
         // selBurnpower in D2 and E4
         // register_telegram_type(0xD2, F("CascadePowerMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_CascadePowerMessage(t); });
         // idividual Flowtemps and powervalues for each heatingsource in E4
-        // register_telegram_type(0xE4, F("UBAMonitorFastPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorFastPlus(t); });
-
-        // register_device_value(TAG_HS1 + hs, &selFlowTemp_, DeviceValueType::UINT, nullptr, F("selFlowTemp"), F("selected flow temperature"), DeviceValueUOM::DEGREES);
-        // register_device_value(TAG_HS1 + hs, &selBurnPow_, DeviceValueType::UINT, nullptr, F("selBurnPow"), F("burner selected max power"), DeviceValueUOM::PERCENT);
-        // register_device_value(TAG_HS1 + hs, &curFlowTemp_, DeviceValueType::USHORT, FL_(div10), F("curFlowTemp"), F("current flow temperature"), DeviceValueUOM::DEGREES);
-        // register_device_value(TAG_HS1 + hs, &curBurnPow_, DeviceValueType::UINT, nullptr, F("curBurnPow"), F("burner current power"), DeviceValueUOM::PERCENT);
+        register_telegram_type(0xE4, F("UBAMonitorFastPlus"), false, [&](std::shared_ptr<const Telegram> t) { process_UBAMonitorFastPlus(t); });
+        register_device_value(TAG_HS1 + hs, &selFlowTemp_, DeviceValueType::UINT, nullptr, F("selFlowTemp"), F("selected flow temperature"), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_HS1 + hs, &selBurnPow_, DeviceValueType::UINT, nullptr, F("selBurnPow"), F("burner selected max power"), DeviceValueUOM::PERCENT);
+        register_device_value(TAG_HS1 + hs, &curFlowTemp_, DeviceValueType::USHORT, FL_(div10), F("curFlowTemp"), F("current flow temperature"), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_HS1 + hs, &curBurnPow_, DeviceValueType::UINT, nullptr, F("curBurnPow"), F("burner current power"), DeviceValueUOM::PERCENT);
         return;
     }
     // register values for master boiler/cascade module
@@ -614,18 +614,17 @@ void Boiler::process_UBASetPoints(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(wWSetPumpPower_, 2)); // ww pump speed/power?
 }
 
+// 0x6DC, ff for cascaded heatsources (hs)
+void Boiler::process_CascadeMessage(std::shared_ptr<const Telegram> telegram) {
+    // uint8_t  hsActivated;
+    // has_update(telegram->read_value(hsActivated, 0));
+    telegram->read_value(burnWorkMin_, 3); // this is in seconds
+    burnWorkMin_ /= 60;
+}
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-// 0x6DC, ff for cascaded heatsources (hs)
-// not implemented yet, see #739
-void Boiler::process_CascadeMessage(std::shared_ptr<const Telegram> telegram) {
-    uint8_t hs = telegram->dest - EMSdevice::EMS_DEVICE_ID_BOILER_1;
-    // uint8_t  hsActivated;
-    // uint32_t hsRuntime;
-    // has_update(telegram->read_value(hsActivated, 0));
-    // has_update(telegram->read_value(hsRuntime, 3));
-}
 
 // 0x35 - not yet implemented
 void Boiler::process_UBAFlags(std::shared_ptr<const Telegram> telegram) {

@@ -563,9 +563,10 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
                 strcpy(name, uuid::read_flash_string(dv.short_name).c_str()); // use short name
 
                 // if we have a tag, and its different to the last one create a nested object
+                // nests only for heating and ww circuits
                 if (dv.tag != old_tag) {
                     old_tag = dv.tag;
-                    if (nested && have_tag) {
+                    if (nested && have_tag && dv.tag >= DeviceValueTAG::TAG_HC1) {
                         json = root.createNestedObject(tag_to_string(dv.tag));
                     }
                 }

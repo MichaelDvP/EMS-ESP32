@@ -74,7 +74,7 @@ MAKE_PSTR(tag_none, "")  // use empty string if want to suppress showing tags
 // MAKE_PSTR(tag_boiler_data_ww, "warm water")
 // MAKE_PSTR(tag_boiler_data_info, "info")
 MAKE_PSTR(tag_boiler_data, "")
-MAKE_PSTR(tag_boiler_data_ww, "")
+MAKE_PSTR(tag_boiler_data_ww, "warm water")
 MAKE_PSTR(tag_boiler_data_info, "")
 MAKE_PSTR(tag_thermostat_data, "") // use empty string if want to suppress showing tags
 MAKE_PSTR(tag_hc1, "hc1")
@@ -85,6 +85,22 @@ MAKE_PSTR(tag_wwc1, "wwc1")
 MAKE_PSTR(tag_wwc2, "wwc2")
 MAKE_PSTR(tag_wwc3, "wwc3")
 MAKE_PSTR(tag_wwc4, "wwc4")
+MAKE_PSTR(tag_hs1, "hs1")
+MAKE_PSTR(tag_hs2, "hs2")
+MAKE_PSTR(tag_hs3, "hs3")
+MAKE_PSTR(tag_hs4, "hs4")
+MAKE_PSTR(tag_hs5, "hs5")
+MAKE_PSTR(tag_hs6, "hs6")
+MAKE_PSTR(tag_hs7, "hs7")
+MAKE_PSTR(tag_hs8, "hs8")
+MAKE_PSTR(tag_hs9, "hs9")
+MAKE_PSTR(tag_hs10, "hs10")
+MAKE_PSTR(tag_hs11, "hs11")
+MAKE_PSTR(tag_hs12, "hs12")
+MAKE_PSTR(tag_hs13, "hs13")
+MAKE_PSTR(tag_hs14, "hs14")
+MAKE_PSTR(tag_hs15, "hs15")
+MAKE_PSTR(tag_hs16, "hs16")
 enum DeviceValueTAG : uint8_t {
     TAG_NONE = 0, // wild card
     TAG_BOILER_DATA,
@@ -98,7 +114,23 @@ enum DeviceValueTAG : uint8_t {
     TAG_WWC1,
     TAG_WWC2,
     TAG_WWC3,
-    TAG_WWC4
+    TAG_WWC4,
+    TAG_HS1,
+    TAG_HS2,
+    TAG_HS3,
+    TAG_HS4,
+    TAG_HS5,
+    TAG_HS6,
+    TAG_HS7,
+    TAG_HS8,
+    TAG_HS9,
+    TAG_HS10,
+    TAG_HS11,
+    TAG_HS12,
+    TAG_HS13,
+    TAG_HS14,
+    TAG_HS15,
+    TAG_HS16
 
 };
 

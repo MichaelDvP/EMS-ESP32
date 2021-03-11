@@ -375,7 +375,8 @@ void DallasSensor::publish_values(const bool force) {
                 }
                 config["name"] = str;
 
-                snprintf_P(str, sizeof(str), PSTR("dallas_%s"), sensor.to_string().c_str());
+                snprintf_P(str, sizeof(str), PSTR("dallas_%" PRIx64), sensor.id());
+                // snprintf_P(str, sizeof(str), PSTR("dallas_%s"), sensor.to_string().c_str());
                 config["uniq_id"] = str;
 
                 JsonObject dev = config.createNestedObject("dev");
@@ -387,6 +388,7 @@ void DallasSensor::publish_values(const bool force) {
                     // use '_' as HA doesn't like '-' in the topic name
                     std::string topicname =  sensor.to_string();
                     std::replace(topicname.begin(), topicname.end(), '-', '_');
+                    // Helpers::toLower(topicname);
                     snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%s/config"), Mqtt::base().c_str(), topicname);
                 } else {
                     snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%d/config"), Mqtt::base().c_str(), sensor_no);
