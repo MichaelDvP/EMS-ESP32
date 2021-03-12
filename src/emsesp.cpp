@@ -926,7 +926,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
 
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice && (emsdevice->device_type() == device_type) && ((device_type != DeviceType::THERMOSTAT) || (emsdevice->device_id() == EMSESP::actual_master_thermostat()))) {
-            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), (id == -1)); // console & nested
+            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), (id == -1)); // nested for id -1,0 & console for id -1
         }
     }
 
@@ -1125,7 +1125,7 @@ void EMSESP::loop() {
     rxservice_.loop();    // process any incoming Rx telegrams
     shower_.loop();       // check for shower on/off
     dallassensor_.loop(); // read dallas sensor temperatures
-    publish_all_loop();   // for HA messages in parts to avoid flooding the mqtt queue
+    publish_all_loop();   // with HA messages in parts to avoid flooding the mqtt queue
     mqtt_.loop();         // sends out anything in the MQTT queue
     console_.loop();      // telnet/serial console
 

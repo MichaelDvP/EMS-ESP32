@@ -1729,8 +1729,9 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
                 offset = 0x0A; // manual offset
             } else {
                 offset = 0x08; // auto offset
-                if (temperature == -1) { // special case, see #737, #746
-                    factor = 0xFF;
+                // special case to reactivate auto temperature, see #737, #746
+                if (temperature == -1) {
+                    factor = 0xFF; // use factor as value
                 }
             }
             validate_typeid = monitor_typeids[hc->hc_num() - 1]; // get setpoint roomtemp back

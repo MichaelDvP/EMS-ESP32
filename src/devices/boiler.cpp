@@ -180,6 +180,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA_WW, &wWSetTemp_, DeviceValueType::UINT, nullptr, F("wWSetTemp"), F("set temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA_WW, &wWType_, DeviceValueType::ENUM, FL_(enum_flow), F("wWType"), F("type"));
     register_device_value(TAG_BOILER_DATA_WW, &wWComfort_, DeviceValueType::ENUM, FL_(enum_comfort), F("wWComfort"), F("comfort"));
+    register_device_value(TAG_BOILER_DATA_WW, &wWFlowTempOffset_, DeviceValueType::UINT, nullptr, F("wWFlowTempOffset"), F("flow offset temperature"));
+    register_device_value(TAG_BOILER_DATA_WW, &wWMaxPower_, DeviceValueType::UINT, nullptr, F("wWMaxPower"), F("max power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA_WW, &wWCircPump_, DeviceValueType::BOOL, nullptr, F("wWCircPump"), F("circulation pump available"));
     register_device_value(TAG_BOILER_DATA_WW, &wWChargeType_, DeviceValueType::BOOL, FL_(enum_charge), F("wWChargeType"), F("charging type"));
     register_device_value(TAG_BOILER_DATA_WW, &wWDisinfectionTemp_, DeviceValueType::UINT, nullptr, F("wWDisinfectionTemp"), F("disinfection temperature"), DeviceValueUOM::DEGREES);
@@ -201,8 +203,6 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA_WW, &wWSetPumpPower_, DeviceValueType::UINT, nullptr, F("wWSetPumpPower"), F("pump set power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA_WW, &mixerTemp_, DeviceValueType::USHORT, FL_(div10), F("mixerTemp"), F("mixer temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA_WW, &tankMiddleTemp_, DeviceValueType::USHORT, FL_(div10), F("tankMiddleTemp"), F("tank middle temperature (TS3)"), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_BOILER_DATA_WW, &wWFlowTempOffset_, DeviceValueType::UINT, nullptr, F("wWFlowTempOffset"), F("flow offset temperature"));
-    register_device_value(TAG_BOILER_DATA_WW, &wWMaxPower_, DeviceValueType::UINT, nullptr, F("wWMaxPower"), F("max power"), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA_WW, &wWStarts_, DeviceValueType::ULONG, nullptr, F("wWStarts"), F("# starts"));
     register_device_value(TAG_BOILER_DATA_WW, &wWStarts2_, DeviceValueType::ULONG, nullptr, F("wWStarts2"), F("# control starts"));
     register_device_value(TAG_BOILER_DATA_WW, &wWWorkM_, DeviceValueType::TIME, nullptr, F("wWWorkM"), F("active time"), DeviceValueUOM::MINUTES);
