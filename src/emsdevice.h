@@ -71,7 +71,7 @@ enum DeviceValueUOM : uint8_t { NONE = 0, DEGREES, PERCENT, LMIN, KWH, WH, HOURS
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 // use empty string if want to suppress showing tags
 MAKE_PSTR(tag_none, "")
-MAKE_PSTR(tag_system_data, "")
+MAKE_PSTR(tag_heartbeat, "")
 MAKE_PSTR(tag_boiler_data, "")
 MAKE_PSTR(tag_boiler_data_ww, "warm water")
 MAKE_PSTR(tag_thermostat_data, "")
@@ -101,13 +101,13 @@ MAKE_PSTR(tag_hs15, "hs15")
 MAKE_PSTR(tag_hs16, "hs16")
 
 // MQTT topic names
-MAKE_PSTR(tag_system_data_mqtt, "heartbeat")
+MAKE_PSTR(tag_heartbeat_mqtt, "heartbeat")
 MAKE_PSTR(tag_boiler_data_mqtt, "")
 MAKE_PSTR(tag_boiler_data_ww_mqtt, "ww")
 
 enum DeviceValueTAG : uint8_t {
     TAG_NONE = 0, // wild card
-    TAG_SYSTEM_DATA,
+    TAG_HEARTBEAT,
     TAG_BOILER_DATA,
     TAG_BOILER_DATA_WW,
     TAG_THERMOSTAT_DATA,

@@ -598,27 +598,27 @@ void Mqtt::ha_status() {
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
 
     // create the sensors
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("Wifi strength"), EMSdevice::DeviceType::SYSTEM, F("rssi"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("Uptime"), EMSdevice::DeviceType::SYSTEM, F("uptime"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("Uptime (sec)"), EMSdevice::DeviceType::SYSTEM, F("uptime_sec"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("Free heap memory"), EMSdevice::DeviceType::SYSTEM, F("freemem"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("Max alloc heap"), EMSdevice::DeviceType::SYSTEM, F("max_alloc_heap"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("# Failed MQTT publishes"), EMSdevice::DeviceType::SYSTEM, F("mqttfails"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("# Rx Sent"), EMSdevice::DeviceType::SYSTEM, F("rxsent"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("# Rx Fails"), EMSdevice::DeviceType::SYSTEM, F("rxfails"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("# Tx Reads"), EMSdevice::DeviceType::SYSTEM, F("txread"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("# Tx Writes"), EMSdevice::DeviceType::SYSTEM, F("txwrite"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("# Tx Fails"), EMSdevice::DeviceType::SYSTEM, F("txfails"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("# Dallas Fails"), EMSdevice::DeviceType::SYSTEM, F("dallasfails"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_SYSTEM_DATA, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("Wifi strength"), EMSdevice::DeviceType::SYSTEM, F("rssi"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("Uptime"), EMSdevice::DeviceType::SYSTEM, F("uptime"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("Uptime (sec)"), EMSdevice::DeviceType::SYSTEM, F("uptime_sec"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("Free heap memory"), EMSdevice::DeviceType::SYSTEM, F("freemem"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("Max alloc heap"), EMSdevice::DeviceType::SYSTEM, F("max_alloc_heap"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Failed MQTT publishes"), EMSdevice::DeviceType::SYSTEM, F("mqttfails"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Rx Sent"), EMSdevice::DeviceType::SYSTEM, F("rxsent"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Rx Fails"), EMSdevice::DeviceType::SYSTEM, F("rxfails"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx Reads"), EMSdevice::DeviceType::SYSTEM, F("txread"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx Writes"), EMSdevice::DeviceType::SYSTEM, F("txwrite"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx Fails"), EMSdevice::DeviceType::SYSTEM, F("txfails"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Dallas Fails"), EMSdevice::DeviceType::SYSTEM, F("dallasfails"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"));
 
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_SYSTEM_DATA, F("GPIO 16"), EMSdevice::DeviceType::SYSTEM, F("io16"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_SYSTEM_DATA, F("GPIO 17"), EMSdevice::DeviceType::SYSTEM, F("io17"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_SYSTEM_DATA, F("GPIO 18"), EMSdevice::DeviceType::SYSTEM, F("io18"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_SYSTEM_DATA, F("GPIO 19"), EMSdevice::DeviceType::SYSTEM, F("io19"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_SYSTEM_DATA, F("GPIO 21"), EMSdevice::DeviceType::SYSTEM, F("io21"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_SYSTEM_DATA, F("GPIO 22"), EMSdevice::DeviceType::SYSTEM, F("io22"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_SYSTEM_DATA, F("GPIO 26"), EMSdevice::DeviceType::SYSTEM, F("io26"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 16"), EMSdevice::DeviceType::SYSTEM, F("io16"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 17"), EMSdevice::DeviceType::SYSTEM, F("io17"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 18"), EMSdevice::DeviceType::SYSTEM, F("io18"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 19"), EMSdevice::DeviceType::SYSTEM, F("io19"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 21"), EMSdevice::DeviceType::SYSTEM, F("io21"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 22"), EMSdevice::DeviceType::SYSTEM, F("io22"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 26"), EMSdevice::DeviceType::SYSTEM, F("io26"));
 
 }
 
@@ -928,6 +928,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
 // differs based on whether MQTT nested is enabled
 // tag = EMSdevice::DeviceValueTAG
 const std::string Mqtt::tag_to_topic(uint8_t device_type, uint8_t tag) {
+    // the system device is treated differently. The topic is 'heartbeat' and doesn't follow the usual convention
     if (device_type == EMSdevice::DeviceType::SYSTEM) {
         return EMSdevice::tag_to_mqtt(tag);
     }
