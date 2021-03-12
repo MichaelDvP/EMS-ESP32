@@ -1729,6 +1729,9 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
                 offset = 0x0A; // manual offset
             } else {
                 offset = 0x08; // auto offset
+                if (temperature == -1) { // special case, see #737, #746
+                    factor = 0xFF;
+                }
             }
             validate_typeid = monitor_typeids[hc->hc_num() - 1]; // get setpoint roomtemp back
             break;
@@ -1885,7 +1888,11 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
 
         // add the write command to the Tx queue. value is *2
         // post validate is the corresponding monitor or set type IDs as they can differ per model
-        write_command(set_typeid, offset, (uint8_t)((float)temperature * (float)factor), validate_typeid);
+        if (factor == 0xFF) {
+            write_command(set_typeid, offset, factor, validate_typeid);
+        } else {
+            write_command(set_typeid, offset, (uint8_t)((float)temperature * (float)factor), validate_typeid);
+        }
         return true;
     }
 

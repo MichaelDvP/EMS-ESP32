@@ -926,7 +926,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
 
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice && (emsdevice->device_type() == device_type) && ((device_type != DeviceType::THERMOSTAT) || (emsdevice->device_id() == EMSESP::actual_master_thermostat()))) {
-            has_value |= emsdevice->generate_values_json(json, tag, true, (id == -1)); // console & nested
+            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), (id == -1)); // console & nested
         }
     }
 

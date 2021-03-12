@@ -364,7 +364,8 @@ void Boiler::process_UBAParameters(std::shared_ptr<const Telegram> telegram) {
 }
 
 /*
- * UBASettingsWW - type 0x26 - max power on offset 7
+ * UBASettingsWW - type 0x26 - max power on offset 7, #740
+ * Boiler(0x08) -> Me(0x0B), ?(0x26), data: 01 05 00 0F 00 1E 58 5A
  */
 void Boiler::process_UBASettingsWW(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(wWMaxPower_, 7));
