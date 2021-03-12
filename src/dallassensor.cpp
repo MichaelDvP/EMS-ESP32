@@ -386,10 +386,10 @@ void DallasSensor::publish_values(const bool force) {
                 char topic[100];
                 if (dallas_format == Mqtt::Dallas_Format::SENSORID) {
                     // use '_' as HA doesn't like '-' in the topic name
-                    std::string topicname =  sensor.to_string();
+                    std::string topicname = sensor.to_string();
                     std::replace(topicname.begin(), topicname.end(), '-', '_');
-                    // Helpers::toLower(topicname);
-                    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%s/config"), Mqtt::base().c_str(), topicname);
+                    // Helpers::toLower(topic);
+                    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%s/config"), Mqtt::base().c_str(), topicname.c_str());
                 } else {
                     snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%d/config"), Mqtt::base().c_str(), sensor_no);
                 }

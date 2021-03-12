@@ -76,7 +76,7 @@ class Boiler : public EMSdevice {
     uint8_t  wWFlowTempOffset_;   // Boiler offset for ww heating
     uint8_t  wWMaxPower_;         // Warm Water maximum power
     uint32_t wWStarts_;           // Warm Water # starts
-    uint32_t wWStarts2_;          // Warm water starts (control)
+    uint32_t wWStarts2_;          // Warm water control starts
     uint32_t wWWorkM_;            // Warm Water # minutes
 
     uint16_t mixerTemp_;      // mixing temperature
@@ -128,8 +128,8 @@ class Boiler : public EMSdevice {
     uint32_t upTimeCompHeating_;         // Operating time compressor heating
     uint32_t upTimeCompCooling_;         // Operating time compressor cooling
     uint32_t upTimeCompWw_;              // Operating time compressor warm water
-    uint32_t heatingStarts_;             // Heating starts (control)
-    uint32_t coolingStarts_;             // Cooling  starts (control)
+    uint32_t heatingStarts_;             // Heating control starts
+    uint32_t coolingStarts_;             // Cooling control starts
     uint32_t nrgConsTotal_;              // Energy consumption total
     uint32_t nrgConsCompTotal_;          // Energy consumption compressor total
     uint32_t nrgConsCompHeating_;        // Energy consumption compressor heating
