@@ -43,10 +43,10 @@ A Pull Request (PR) is the process where code modifications are managed in GitHu
 The process is straight-forward.
 
  - Read [How to get faster PR reviews](https://github.com/kubernetes/community/blob/master/contributors/guide/pull-requests.md#best-practices-for-faster-reviews) by Kubernetes (but skip step 0)
- - Fork the EMS-ESP Repository [git repository](https://github.com/proddy/EMS-ESP).
+ - Fork the EMS-ESP Repository [git repository](https://github.com/emsesp/EMS-ESP32).
  - Write/Change the code in your Fork for a new feature, bug fix, new sensor, optimization, etc.
  - Ensure tests work.
- - Create a Pull Request against the [**dev**](https://github.com/proddy/EMS-ESP/tree/dev) branch of EMS-ESP.
+ - Create a Pull Request against the [**dev**](https://github.com/emsesp/EMS-ESP32/tree/dev) branch of EMS-ESP.
 
 1. All pull requests must be done against the dev branch.
 2. Make sure code is formatting per the `.clang-format`
@@ -59,6 +59,40 @@ The process is straight-forward.
 9. If a PR is accepted, then it should undergo review and updated based on the feedback provided, then merged.
 10. By submitting a PR, it is needed to use the provided PR template and check all boxes, performing the required tasks and accepting the CLA.
 11. Pull requests that don't meet the above will be denied and closed.
+
+
+## Semantic Commit Messages
+
+See how a minor change to your commit message style can make you a better programmer.
+
+Format: `<type>(<scope>): <subject>`
+
+`<scope>` is optional
+
+## Example
+
+```
+feat: add hat wobble
+^--^  ^------------^
+|     |
+|     +-> Summary in present tense.
+|
++-------> Type: chore, docs, feat, fix, refactor, style, or test.
+```
+
+More Examples:
+
+- `feat`: (new feature for the user, not a new feature for build script)
+- `fix`: (bug fix for the user, not a fix to a build script)
+- `docs`: (changes to the documentation)
+- `style`: (formatting, missing semi colons, etc; no production code change)
+- `refactor`: (refactoring production code, eg. renaming a variable)
+- `test`: (adding missing tests, refactoring tests; no production code change)
+- `chore`: (updating grunt tasks etc; no production code change)
+
+References:
+
+- https://www.conventionalcommits.org/
 
 --------------------------------------
 
