@@ -1392,6 +1392,7 @@ bool Thermostat::set_datetime(const char * value, const int8_t id) {
         data[5] = (dt[6] - '0') * 10 + (dt[7] - '0');                          // sec
         data[6] = (dt[20] - '0');                                              // day of week
         data[7] = (dt[22] - '0') + 2;                                          // DST and flag
+        LOG_INFO(F("Date and time: %02d.%02d.2%03d-%02d:%02d:%02d"),data[3], data[1], data[0], data[2], data[4], data[5]);
     }
 
     LOG_INFO(F("Setting date and time"));
