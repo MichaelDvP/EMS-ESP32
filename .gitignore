@@ -1,5 +1,7 @@
 # vscode
 .vscode
+.directory
+workspace.code-workspace
 
 # build
 build/
