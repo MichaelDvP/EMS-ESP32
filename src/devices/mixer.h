@@ -38,6 +38,7 @@ class Mixer : public EMSdevice {
     void process_MMStatusMessage(std::shared_ptr<const Telegram> telegram);
     void process_MMConfigMessage(std::shared_ptr<const Telegram> telegram);
     void process_MMSetMessage(std::shared_ptr<const Telegram> telegram);
+    void process_IPMSetMessage(std::shared_ptr<const Telegram> telegram);
 
     enum class Type {
         NONE,

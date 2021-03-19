@@ -40,14 +40,15 @@ Mixer::Mixer(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
 
     // EMS 1.0
     if (flags == EMSdevice::EMS_DEVICE_FLAG_MM10) {
-        register_telegram_type(0x00AA, F("MMConfigMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_MMConfigMessage(t); });
+        // register_telegram_type(0x00AA, F("MMConfigMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_MMConfigMessage(t); });
         register_telegram_type(0x00AB, F("MMStatusMessage"), true, [&](std::shared_ptr<const Telegram> t) { process_MMStatusMessage(t); });
-        register_telegram_type(0x00AC, F("MMSetMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_MMSetMessage(t); });
+        // register_telegram_type(0x00AC, F("MMSetMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_MMSetMessage(t); });
     }
 
     // HT3
     if (flags == EMSdevice::EMS_DEVICE_FLAG_IPM) {
         register_telegram_type(0x010C, F("IPMSetMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMStatusMessage(t); });
+        // register_telegram_type(0x0023, F("IPMSetMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMSetMessage(t); });
     }
 
     // register the device values and set hc_ and type_
@@ -186,6 +187,13 @@ void Mixer::process_MMSetMessage(std::shared_ptr<const Telegram> telegram) {
     // pos 0: flowtemp setpoint 1E = 30°C
     // pos 1: position in %
 }
+
+// Thermostat(0x10) -> Mixer(0x21), ?(0x23), data: 1A 64 00 90 21 23 00 1A 64 00 89
+void Mixer::process_IPMSetMessage(std::shared_ptr<const Telegram> telegram) {
+    // pos 0: flowtemp setpoint 1A = 26°C
+    // pos 1: position in %?
+}
+
 
 #pragma GCC diagnostic pop
 
