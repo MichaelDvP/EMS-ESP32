@@ -39,18 +39,33 @@ PButton  System::myPButton_;
 // value: true = HIGH, false = LOW
 // e.g. http://ems-esp/api?device=system&cmd=pin&data=1&id=2
 bool System::command_pin(const char * value, const int8_t id) {
-    if (id < 0) {
+    if (id < 0 || id > 40) {
+        LOG_INFO(F("invalid GPIO number"));
         return false;
     }
 
-    bool v = false;
-    if (Helpers::value2bool(value, v)) {
+    bool        v  = false;
+    std::string v1 = {7, '\0'};
+    int v2 = 0;
+    if (id == 25 && Helpers::value2number(value, v2)) {
+        if (v2 >= 0 && v2 <= 255) {
+            dacWrite(id, v2);
+            return true;
+        }
+    } else if (Helpers::value2bool(value, v)) {
         pinMode(id, OUTPUT);
         digitalWrite(id, v);
         LOG_INFO(F("GPIO %d set to %s"), id, v ? "HIGH" : "LOW");
         return true;
+    } else if (Helpers::value2string(value, v1)) {
+        if (v1 == "input" || v1 == "in" || v1 == "-1") {
+            pinMode(id, INPUT);
+            v = digitalRead(id);
+            LOG_INFO(F("GPIO %d set input, state %s"), id, v ? "HIGH" : "LOW");
+            return true;
+        }
     }
-
+    LOG_INFO(F("GPIO %d: invalid value"), id);
     return false;
 }
 

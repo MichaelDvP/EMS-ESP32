@@ -1607,47 +1607,45 @@ bool Thermostat::set_controlmode(const char * value, const int8_t id) {
     return false;
 }
 
-// sets a single switchpoint in the thermostat program for RC35
+// sets a single switchtime in the thermostat program for RC35
 // format 01:0,1,15:30
-bool Thermostat::set_switchpoint(const char * value, const int8_t id) {
+bool Thermostat::set_switchtime(const char * value, const int8_t id) {
     uint8_t                                     hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
     std::shared_ptr<Thermostat::HeatingCircuit> hc     = heating_circuit(hc_num);
     if (hc == nullptr) {
-        LOG_WARNING(F("Setting switchpoint: Heating Circuit %d not found or activated"), hc_num);
+        LOG_WARNING(F("Setting switchtime: Heating Circuit %d not found or activated"), hc_num);
         return false;
     }
     if (strlen(value) != 12) {
-        LOG_WARNING(F("Setting switchpoint: Invalid data"));
+        LOG_WARNING(F("Setting switchtime: Invalid data"));
         return false;
     }
-    uint8_t no   = (value[0] - '0') * 10 + (value[1] - '0');
-    uint8_t day  = value[3] - '0';
-    uint8_t on   = value[5] - '0';
-    uint8_t time = 6 * ((value[7] - '0') * 10 + (value[8] - '0')) + (value[10] - '0');
-    uint8_t data[2];
-    data[0] = (day << 5) + on;
-    data[1] = time;
+    uint8_t no      = (value[0] - '0') * 10 + (value[1] - '0');
+    uint8_t day     = value[3] - '0';
+    uint8_t on      = value[5] - '0';
+    uint8_t time    = 6 * ((value[7] - '0') * 10 + (value[8] - '0')) + (value[10] - '0');
+    uint8_t data[2] = {0xE7, 0x90}; // unset switchtime
 
-    if (day == 7 || on == 7) {
-        data[0] = 0xE7; 
-        data[1] = 0x90;
+    if (day != 7 && on != 7) {
+        data[0] = (day << 5) + on;
+        data[1] = time;
     }
 
     if (no > 41 || day > 7 || (on > 1 && on != 7) || time > 0x90) {
-        LOG_WARNING(F("Setting switchpoint: Invalid data"));
+        LOG_WARNING(F("Setting switchtime: Invalid data"));
         return false;
     }
 
     if ((model() == EMS_DEVICE_FLAG_RC35 || model() == EMS_DEVICE_FLAG_RC30_1)) {
         write_command(timer_typeids[hc->hc_num() - 1], no * 2, (uint8_t *)&data, 2, timer_typeids[hc->hc_num() - 1]);
     } else {
-        LOG_WARNING(F("Setting switchpoint: thermostat not supported"));
+        LOG_WARNING(F("Setting switchtime: thermostat not supported"));
         return false;
     }
     if (data[0] == 0xE7) {
-        LOG_INFO(F("Setting switchpoint no %d for heating circuit %d undefined"), no, hc->hc_num());
+        LOG_INFO(F("Setting switchtime no %d for heating circuit %d undefined"), no, hc->hc_num());
     } else {
-        LOG_INFO(F("Setting switchpoint no %d for heating circuit %d to day %d, %s, %02d:%d0"), no, hc->hc_num(), day, (on == 1) ? "on" : "off", time / 6, time % 6);
+        LOG_INFO(F("Setting switchtime no %d for heating circuit %d to day %d, %s, %02d:%d0"), no, hc->hc_num(), day, (on == 1) ? "on" : "off", time / 6, time % 6);
     }
     return true;
 }
@@ -2092,7 +2090,7 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(F("maxflowtemp"), [&](const char * value, const int8_t id) { return set_maxflowtemp(value, id); });
         register_mqtt_cmd(F("reducemode"), [&](const char * value, const int8_t id) { return set_reducemode(value, id); });
         register_mqtt_cmd(F("program"), [&](const char * value, const int8_t id) { return set_program(value, id); });
-        register_mqtt_cmd(F("switchpoint"), [&](const char * value, const int8_t id) { return set_switchpoint(value, id); });
+        register_mqtt_cmd(F("switchpoint"), [&](const char * value, const int8_t id) { return set_switchtime(value, id); });
         register_mqtt_cmd(F("controlmode"), [&](const char * value, const int8_t id) { return set_controlmode(value, id); });
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
