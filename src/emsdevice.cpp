@@ -156,7 +156,7 @@ std::string EMSdevice::brand_to_string() const {
     return std::string{};
 }
 
-// returns the name of the MQTT topic to use for a specific device
+// returns the name of the MQTT topic to use for a specific device, without the base
 std::string EMSdevice::device_type_2_device_name(const uint8_t device_type) {
     switch (device_type) {
     case DeviceType::SYSTEM:
@@ -340,6 +340,7 @@ bool EMSdevice::get_toggle_fetch(uint16_t telegram_id) {
 }
 
 // list device values, only for EMSESP_DEBUG mode
+#if defined(EMSESP_DEBUG)
 void EMSdevice::show_device_values_debug(uuid::console::Shell & shell) {
     size_t  total_s = 0;
     uint8_t count   = 0;
@@ -356,7 +357,7 @@ void EMSdevice::show_device_values_debug(uuid::console::Shell & shell) {
     shell.printfln("Total size of %d elements: %d", count, total_s);
     shell.println();
 }
-
+#endif
 
 // list all the telegram type IDs for this device
 void EMSdevice::show_telegram_handlers(uuid::console::Shell & shell) {
