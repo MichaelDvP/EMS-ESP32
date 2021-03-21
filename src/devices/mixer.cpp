@@ -48,7 +48,7 @@ Mixer::Mixer(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
     // HT3
     if (flags == EMSdevice::EMS_DEVICE_FLAG_IPM) {
         register_telegram_type(0x010C, F("IPMStatusMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMStatusMessage(t); });
-        register_telegram_type(0x001E, F("IPMTempMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMSTempMessage(t); });
+        register_telegram_type(0x001E, F("IPMTempMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMTempMessage(t); });
         // register_telegram_type(0x0023, F("IPMSetMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMSetMessage(t); });
     }
 
