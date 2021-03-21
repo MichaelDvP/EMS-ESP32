@@ -35,10 +35,11 @@ class Mixer : public EMSdevice {
     void process_MMPLUSStatusMessage_HC(std::shared_ptr<const Telegram> telegram);
     void process_MMPLUSStatusMessage_WWC(std::shared_ptr<const Telegram> telegram);
     void process_IPMStatusMessage(std::shared_ptr<const Telegram> telegram);
+    void process_IPMTempMessage(std::shared_ptr<const Telegram> telegram);
+    void process_IPMSetMessage(std::shared_ptr<const Telegram> telegram);
     void process_MMStatusMessage(std::shared_ptr<const Telegram> telegram);
     void process_MMConfigMessage(std::shared_ptr<const Telegram> telegram);
     void process_MMSetMessage(std::shared_ptr<const Telegram> telegram);
-    void process_IPMSetMessage(std::shared_ptr<const Telegram> telegram);
 
     enum class Type {
         NONE,
@@ -48,6 +49,7 @@ class Mixer : public EMSdevice {
 
   private:
     uint16_t flowTempHc_;
+    uint16_t flowTempVf_;
     uint8_t  pumpStatus_;
     int8_t   status_;
     uint8_t  flowSetTemp_;
