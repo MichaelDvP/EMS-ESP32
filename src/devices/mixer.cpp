@@ -31,25 +31,25 @@ Mixer::Mixer(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
     if (flags == EMSdevice::EMS_DEVICE_FLAG_MMPLUS) {
         if (device_id <= 0x27) {
             // telegram handlers 0x20 - 0x27 for HC
-            register_telegram_type(device_id - 0x20 + 0x02D7, F("MMPLUSStatusMessage_HC"), true, [&](std::shared_ptr<const Telegram> t) { process_MMPLUSStatusMessage_HC(t); });
+            register_telegram_type(device_id - 0x20 + 0x02D7, F("MMPLUSStatusMessage_HC"), true, MAKE_PF_CB(process_MMPLUSStatusMessage_HC));
         } else {
             // telegram handlers for warm water/DHW 0x28, 0x29
-            register_telegram_type(device_id - 0x28 + 0x0331, F("MMPLUSStatusMessage_WWC"), true, [&](std::shared_ptr<const Telegram> t) { process_MMPLUSStatusMessage_WWC(t); });
+            register_telegram_type(device_id - 0x28 + 0x0331, F("MMPLUSStatusMessage_WWC"), true, MAKE_PF_CB(process_MMPLUSStatusMessage_WWC));
         }
     }
 
     // EMS 1.0
     if (flags == EMSdevice::EMS_DEVICE_FLAG_MM10) {
-        // register_telegram_type(0x00AA, F("MMConfigMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_MMConfigMessage(t); });
-        register_telegram_type(0x00AB, F("MMStatusMessage"), true, [&](std::shared_ptr<const Telegram> t) { process_MMStatusMessage(t); });
-        // register_telegram_type(0x00AC, F("MMSetMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_MMSetMessage(t); });
+        register_telegram_type(0x00AA, F("MMConfigMessage"), false, MAKE_PF_CB(process_MMConfigMessage));
+        register_telegram_type(0x00AB, F("MMStatusMessage"), true, MAKE_PF_CB(process_MMStatusMessage));
+        register_telegram_type(0x00AC, F("MMSetMessage"), false, MAKE_PF_CB(process_MMSetMessage));
     }
 
     // HT3
     if (flags == EMSdevice::EMS_DEVICE_FLAG_IPM) {
-        register_telegram_type(0x010C, F("IPMStatusMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMStatusMessage(t); });
-        register_telegram_type(0x001E, F("IPMTempMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMTempMessage(t); });
-        // register_telegram_type(0x0023, F("IPMSetMessage"), false, [&](std::shared_ptr<const Telegram> t) { process_IPMSetMessage(t); });
+        register_telegram_type(0x010C, F("IPMStatusMessage"), false, MAKE_PF_CB(process_IPMStatusMessage));
+        register_telegram_type(0x001E, F("IPMTempMessage"), false, MAKE_PF_CB(process_IPMTempMessage));
+        // register_telegram_type(0x0023, F("IPMSetMessage"), false, MAKE_PF_CB(process_IPMSetMessage));
     }
 
     // register the device values and set hc_ and type_
