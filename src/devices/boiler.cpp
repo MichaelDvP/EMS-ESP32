@@ -30,8 +30,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
 
     // cascaded heatingsources, only some values per individual heatsource (hs)
     if (device_id != EMSdevice::EMS_DEVICE_ID_BOILER) {
-        uint8_t hs = device_id - EMSdevice::EMS_DEVICE_ID_BOILER_1; // heating source number
-        // Runtime of each heatingsource in 6DC, ff
+        uint8_t hs = device_id - EMSdevice::EMS_DEVICE_ID_BOILER_1; // heating source id, count from 0
+        // Runtime of each heatingsource in 0x06DC, ff
         register_telegram_type(0x6DC + hs, F("CascadeMessage"), false, MAKE_PF_CB(process_CascadeMessage));
         register_device_value(TAG_HS1 + hs, &burnWorkMin_, DeviceValueType::TIME, nullptr, F("burnWorkMin"), F("total burner operating time"), DeviceValueUOM::MINUTES);
         // selBurnpower in D2 and E4

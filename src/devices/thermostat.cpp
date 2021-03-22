@@ -2028,33 +2028,33 @@ void Thermostat::add_commands() {
     }
 
     // common to all thermostats
-    register_mqtt_cmd(F("temp"), MAKE_CF_CB(set_temp));
-    register_mqtt_cmd(F("mode"), MAKE_CF_CB(set_mode));
+    register_mqtt_cmd(F("temp"), MAKE_CF_CB(set_temp), FLAG_HC);
+    register_mqtt_cmd(F("mode"), MAKE_CF_CB(set_mode), FLAG_HC);
     register_mqtt_cmd(F("datetime"), MAKE_CF_CB(set_datetime));
 
     switch (model()) {
     case EMS_DEVICE_FLAG_RC100:
     case EMS_DEVICE_FLAG_RC300:
-        register_mqtt_cmd(F("manualtemp"), MAKE_CF_CB(set_manualtemp));
-        register_mqtt_cmd(F("ecotemp"), MAKE_CF_CB(set_ecotemp));
-        register_mqtt_cmd(F("comforttemp"), MAKE_CF_CB(set_comforttemp));
-        register_mqtt_cmd(F("summermode"), MAKE_CF_CB(set_summermode));
-        register_mqtt_cmd(F("summertemp"), MAKE_CF_CB(set_summertemp));
+        register_mqtt_cmd(F("manualtemp"), MAKE_CF_CB(set_manualtemp), FLAG_HC);
+        register_mqtt_cmd(F("ecotemp"), MAKE_CF_CB(set_ecotemp), FLAG_HC);
+        register_mqtt_cmd(F("comforttemp"), MAKE_CF_CB(set_comforttemp), FLAG_HC);
+        register_mqtt_cmd(F("summermode"), MAKE_CF_CB(set_summermode), FLAG_HC);
+        register_mqtt_cmd(F("summertemp"), MAKE_CF_CB(set_summertemp), FLAG_HC);
         register_mqtt_cmd(F("wwmode"), MAKE_CF_CB(set_wwmode));
         register_mqtt_cmd(F("wwsettemp"), MAKE_CF_CB(set_wwtemp));
         register_mqtt_cmd(F("wwsettemplow"), MAKE_CF_CB(set_wwtemplow));
         register_mqtt_cmd(F("wwonetime"), MAKE_CF_CB(set_wwonetime));
         register_mqtt_cmd(F("wwcircmode"), MAKE_CF_CB(set_wwcircmode));
         register_mqtt_cmd(F("building"), MAKE_CF_CB(set_building));
-        register_mqtt_cmd(F("nofrosttemp"), MAKE_CF_CB(set_nofrosttemp));
-        register_mqtt_cmd(F("designtemp"), MAKE_CF_CB(set_designtemp));
-        register_mqtt_cmd(F("offsettemp"), MAKE_CF_CB(set_offsettemp));
-        register_mqtt_cmd(F("minflowtemp"), MAKE_CF_CB(set_minflowtemp));
-        register_mqtt_cmd(F("maxflowtemp"), MAKE_CF_CB(set_maxflowtemp));
+        register_mqtt_cmd(F("nofrosttemp"), MAKE_CF_CB(set_nofrosttemp), FLAG_HC);
+        register_mqtt_cmd(F("designtemp"), MAKE_CF_CB(set_designtemp), FLAG_HC);
+        register_mqtt_cmd(F("offsettemp"), MAKE_CF_CB(set_offsettemp), FLAG_HC);
+        register_mqtt_cmd(F("minflowtemp"), MAKE_CF_CB(set_minflowtemp), FLAG_HC);
+        register_mqtt_cmd(F("maxflowtemp"), MAKE_CF_CB(set_maxflowtemp), FLAG_HC);
         register_mqtt_cmd(F("minexttemp"), MAKE_CF_CB(set_minexttemp));
-        register_mqtt_cmd(F("roominfluence"), MAKE_CF_CB(set_roominfluence));
-        register_mqtt_cmd(F("program"), MAKE_CF_CB(set_program));
-        register_mqtt_cmd(F("controlmode"), MAKE_CF_CB(set_controlmode));
+        register_mqtt_cmd(F("roominfluence"), MAKE_CF_CB(set_roominfluence), FLAG_HC);
+        register_mqtt_cmd(F("program"), MAKE_CF_CB(set_program), FLAG_HC);
+        register_mqtt_cmd(F("controlmode"), MAKE_CF_CB(set_controlmode), FLAG_HC);
         break;
     case EMS_DEVICE_FLAG_RC20_2:
         register_mqtt_cmd(F("nighttemp"), MAKE_CF_CB(set_nighttemp));
@@ -2067,36 +2067,36 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(F("display"), MAKE_CF_CB(set_display));
         break;
     case EMS_DEVICE_FLAG_RC35: // RC30 and RC35
-        register_mqtt_cmd(F("nighttemp"), MAKE_CF_CB(set_nighttemp));
-        register_mqtt_cmd(F("daytemp"), MAKE_CF_CB(set_daytemp));
-        register_mqtt_cmd(F("nofrosttemp"), MAKE_CF_CB(set_nofrosttemp));
-        register_mqtt_cmd(F("remotetemp"), MAKE_CF_CB(set_remotetemp));
+        register_mqtt_cmd(F("nighttemp"), MAKE_CF_CB(set_nighttemp), FLAG_HC);
+        register_mqtt_cmd(F("daytemp"), MAKE_CF_CB(set_daytemp), FLAG_HC);
+        register_mqtt_cmd(F("nofrosttemp"), MAKE_CF_CB(set_nofrosttemp), FLAG_HC);
+        register_mqtt_cmd(F("remotetemp"), MAKE_CF_CB(set_remotetemp), FLAG_HC);
         register_mqtt_cmd(F("minexttemp"), MAKE_CF_CB(set_minexttemp));
         register_mqtt_cmd(F("calinttemp"), MAKE_CF_CB(set_calinttemp));
         register_mqtt_cmd(F("building"), MAKE_CF_CB(set_building));
-        register_mqtt_cmd(F("control"), MAKE_CF_CB(set_control));
-        register_mqtt_cmd(F("pause"), MAKE_CF_CB(set_pause));
-        register_mqtt_cmd(F("party"), MAKE_CF_CB(set_party));
-        register_mqtt_cmd(F("holiday"), MAKE_CF_CB(set_holiday));
-        register_mqtt_cmd(F("summertemp"), MAKE_CF_CB(set_summertemp));
-        register_mqtt_cmd(F("designtemp"), MAKE_CF_CB(set_designtemp));
-        register_mqtt_cmd(F("offsettemp"), MAKE_CF_CB(set_offsettemp));
-        register_mqtt_cmd(F("holidaytemp"), MAKE_CF_CB(set_holidaytemp));
+        register_mqtt_cmd(F("control"), MAKE_CF_CB(set_control), FLAG_HC);
+        register_mqtt_cmd(F("pause"), MAKE_CF_CB(set_pause), FLAG_HC);
+        register_mqtt_cmd(F("party"), MAKE_CF_CB(set_party), FLAG_HC);
+        register_mqtt_cmd(F("holiday"), MAKE_CF_CB(set_holiday), FLAG_HC);
+        register_mqtt_cmd(F("summertemp"), MAKE_CF_CB(set_summertemp), FLAG_HC);
+        register_mqtt_cmd(F("designtemp"), MAKE_CF_CB(set_designtemp), FLAG_HC);
+        register_mqtt_cmd(F("offsettemp"), MAKE_CF_CB(set_offsettemp), FLAG_HC);
+        register_mqtt_cmd(F("holidaytemp"), MAKE_CF_CB(set_holidaytemp), FLAG_HC);
         register_mqtt_cmd(F("wwmode"), MAKE_CF_CB(set_wwmode));
         register_mqtt_cmd(F("wwcircmode"), MAKE_CF_CB(set_wwcircmode));
-        register_mqtt_cmd(F("roominfluence"), MAKE_CF_CB(set_roominfluence));
-        register_mqtt_cmd(F("flowtempoffset"), MAKE_CF_CB(set_flowtempoffset));
-        register_mqtt_cmd(F("minflowtemp"), MAKE_CF_CB(set_minflowtemp));
-        register_mqtt_cmd(F("maxflowtemp"), MAKE_CF_CB(set_maxflowtemp));
-        register_mqtt_cmd(F("reducemode"), MAKE_CF_CB(set_reducemode));
-        register_mqtt_cmd(F("program"), MAKE_CF_CB(set_program));
-        register_mqtt_cmd(F("switchtime"), MAKE_CF_CB(set_switchtime));
-        register_mqtt_cmd(F("controlmode"), MAKE_CF_CB(set_controlmode));
+        register_mqtt_cmd(F("roominfluence"), MAKE_CF_CB(set_roominfluence), FLAG_HC);
+        register_mqtt_cmd(F("flowtempoffset"), MAKE_CF_CB(set_flowtempoffset), FLAG_HC);
+        register_mqtt_cmd(F("minflowtemp"), MAKE_CF_CB(set_minflowtemp), FLAG_HC);
+        register_mqtt_cmd(F("maxflowtemp"), MAKE_CF_CB(set_maxflowtemp), FLAG_HC);
+        register_mqtt_cmd(F("reducemode"), MAKE_CF_CB(set_reducemode), FLAG_HC);
+        register_mqtt_cmd(F("program"), MAKE_CF_CB(set_program), FLAG_HC);
+        register_mqtt_cmd(F("switchtime"), MAKE_CF_CB(set_switchtime), FLAG_HC);
+        register_mqtt_cmd(F("controlmode"), MAKE_CF_CB(set_controlmode), FLAG_HC);
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
-        register_mqtt_cmd(F("nofrosttemp"), MAKE_CF_CB(set_nofrosttemp));
-        register_mqtt_cmd(F("ecotemp"), MAKE_CF_CB(set_ecotemp));
-        register_mqtt_cmd(F("heattemp"), MAKE_CF_CB(set_heattemp));
+        register_mqtt_cmd(F("nofrosttemp"), MAKE_CF_CB(set_nofrosttemp), FLAG_HC);
+        register_mqtt_cmd(F("ecotemp"), MAKE_CF_CB(set_ecotemp), FLAG_HC);
+        register_mqtt_cmd(F("heattemp"), MAKE_CF_CB(set_heattemp), FLAG_HC);
         break;
     default:
         break;

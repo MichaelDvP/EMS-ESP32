@@ -138,6 +138,14 @@ enum DeviceValueTAG : uint8_t {
 
 };
 
+// mqtt flags for command subscriptions
+enum MqttSubFlag : uint8_t {
+    FLAG_NONE = 0,
+    FLAG_HC,
+    FLAG_WWC
+};
+
+
 class EMSdevice {
   public:
     virtual ~EMSdevice() = default; // destructor of base class must always be virtual because it's a polymorphic class
@@ -274,7 +282,7 @@ class EMSdevice {
     void read_command(const uint16_t type_id);
 
     void register_mqtt_topic(const std::string & topic, mqtt_subfunction_p f);
-    void register_mqtt_cmd(const __FlashStringHelper * cmd, cmdfunction_p f);
+    void register_mqtt_cmd(const __FlashStringHelper * cmd, cmdfunction_p f, uint8_t flag = 0);
 
     void publish_mqtt_ha_sensor();
 
