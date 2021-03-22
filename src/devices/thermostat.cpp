@@ -375,7 +375,7 @@ void Thermostat::register_mqtt_ha_config_hc(uint8_t hc_num) {
     doc["temp_cmd_t"] = str3;
     doc["~"]          = Mqtt::base(); // ems-esp
 
-    char topic_t[80];
+    char topic_t[Mqtt::MQTT_TOPIC_MAX_SIZE];
     if (Mqtt::nested_format()) {
         snprintf_P(topic_t, sizeof(topic_t), PSTR("~/%s"), Mqtt::tag_to_topic(EMSdevice::DeviceType::THERMOSTAT, DeviceValueTAG::TAG_NONE).c_str());
 
@@ -426,7 +426,7 @@ void Thermostat::register_mqtt_ha_config_hc(uint8_t hc_num) {
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
 
     // enable the a special "thermostat_hc<n>" topic to take both mode strings and floats for each of the heating circuits
-    std::string topic2(100, '\0');
+    std::string topic2(Mqtt::MQTT_TOPIC_MAX_SIZE, '\0');
     snprintf_P(&topic2[0], topic2.capacity() + 1, PSTR("thermostat_hc%d"), hc_num);
     register_mqtt_topic(topic2, [=](const char * m) { return thermostat_ha_cmd(m, hc_num); });
 
@@ -1608,7 +1608,7 @@ bool Thermostat::set_controlmode(const char * value, const int8_t id) {
 }
 
 // sets a single switchtime in the thermostat program for RC35
-// format 01:0,1,15:30
+// format "01:0,1,15:30" Number, day, on, time
 bool Thermostat::set_switchtime(const char * value, const int8_t id) {
     uint8_t                                     hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
     std::shared_ptr<Thermostat::HeatingCircuit> hc     = heating_circuit(hc_num);

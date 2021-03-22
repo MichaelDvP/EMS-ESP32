@@ -103,6 +103,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_mqtt_cmd(F("maintenance"), MAKE_CF_CB(set_maintenance));
     register_mqtt_cmd(F("pumpmodmax"), MAKE_CF_CB(set_max_pump));
     register_mqtt_cmd(F("pumpmodmin"), MAKE_CF_CB(set_min_pump));
+    register_mqtt_cmd(F("reset"), MAKE_CF_CB(set_reset));
 
     // add values
     reserve_device_values(50);
@@ -184,7 +185,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA_WW, &wWCircPump_, DeviceValueType::BOOL, nullptr, F("wWCircPump"), F("circulation pump available"));
     register_device_value(TAG_BOILER_DATA_WW, &wWChargeType_, DeviceValueType::BOOL, FL_(enum_charge), F("wWChargeType"), F("charging type"));
     register_device_value(TAG_BOILER_DATA_WW, &wWDisinfectionTemp_, DeviceValueType::UINT, nullptr, F("wWDisinfectionTemp"), F("disinfection temperature"), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_BOILER_DATA_WW, &wWCircPumpMode_, DeviceValueType::ENUM, FL_(enum_freq), F("wWCircMode"), F("circulation pump freq"));
+    register_device_value(TAG_BOILER_DATA_WW, &wWCircMode_, DeviceValueType::ENUM, FL_(enum_freq), F("wWCircMode"), F("circulation pump freq"));
     register_device_value(TAG_BOILER_DATA_WW, &wWCirc_, DeviceValueType::BOOL, nullptr, F("wWCirc"), F("circulation active"));
     register_device_value(TAG_BOILER_DATA_WW, &wWCurTemp_, DeviceValueType::USHORT, FL_(div10), F("wWCurTemp"), F("current intern temperature"), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA_WW, &wWCurTemp2_, DeviceValueType::USHORT, FL_(div10), F("wWCurTemp2"), F("current extern temperature"), DeviceValueUOM::DEGREES);
@@ -283,7 +284,7 @@ void Boiler::check_active(const bool force) {
 void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(wWActivated_, 1));    // 0xFF means on
     has_update(telegram->read_value(wWCircPump_, 6));     // 0xFF means on
-    has_update(telegram->read_value(wWCircPumpMode_, 7)); // 1=1x3min 6=6x3min 7=continuous
+    has_update(telegram->read_value(wWCircMode_, 7));     // 1=1x3min 6=6x3min 7=continuous
     has_update(telegram->read_value(wWChargeType_, 10));  // 0 = charge pump, 0xff = 3-way valve
     has_update(telegram->read_value(wWSelTemp_, 2));
     has_update(telegram->read_value(wWDisinfectionTemp_, 8));
@@ -513,7 +514,7 @@ void Boiler::process_UBAParametersPlus(std::shared_ptr<const Telegram> telegram)
 void Boiler::process_UBAParameterWWPlus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(wWActivated_, 5));     // 0x01 means on
     has_update(telegram->read_value(wWCircPump_, 10));     // 0x01 means yes
-    has_update(telegram->read_value(wWCircPumpMode_, 11)); // 1=1x3min... 6=6x3min, 7=continuous
+    has_update(telegram->read_value(wWCircMode_, 11));     // 1=1x3min... 6=6x3min, 7=continuous
     // has_update(telegram->read_value(wWDisinfectTemp_, 12)); // settings, status in E9
     // has_update(telegram->read_value(wWSelTemp_, 6));        // settings, status in E9
 }
@@ -1108,6 +1109,7 @@ bool Boiler::set_warmwater_circulation_mode(const char * value, const int8_t id)
 
     return true;
 }
+
 // Reset command
 // 0 & 1        Reset-Mode (Manuel, others)
 // 8            reset maintenance message Hxx

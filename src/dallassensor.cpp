@@ -386,7 +386,7 @@ void DallasSensor::publish_values(const bool force) {
                 JsonArray  ids = dev.createNestedArray("ids");
                 ids.add("ems-esp-dallas");                              // Different ids as the other portions of the EMS-ESP
 
-                char topic[128];
+                char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
                 if (dallas_format == Mqtt::Dallas_Format::SENSORID) {
                     // use '_' as HA doesn't like '-' in the topic name
                     // std::string topicname = sensor.to_string();

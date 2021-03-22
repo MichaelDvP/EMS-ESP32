@@ -107,30 +107,26 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
         LOG_DEBUG(F("Registering MQTT cmd %s with topic %s"), uuid::read_flash_string(cmd).c_str(), EMSdevice::device_type_2_device_name(device_type).c_str());
     }
 
+    // only general device topics
     if (subscribes_ == 0) {
         return;
     }
     // register the individual commands too (e.g. ems-esp/boiler/wwonetime)
     // https://github.com/emsesp/EMS-ESP32/issues/31
-    if (device_type == EMSdevice::DeviceType::BOILER || device_type == EMSdevice::DeviceType::THERMOSTAT) {
+    if (device_type != EMSdevice::DeviceType::SYSTEM) {
         std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
         if (subscribes_ == 2 && flag == MqttSubFlag::FLAG_HC) {
             topic = cmd_topic + "/hc1/" + uuid::read_flash_string(cmd);
             queue_subscribe_message(topic);
-            // Mqtt::subscribe(device_type, topic, nullptr);
             topic = cmd_topic + "/hc2/" + uuid::read_flash_string(cmd);
             queue_subscribe_message(topic);
-            // Mqtt::subscribe(device_type, topic, nullptr);
             topic = cmd_topic + "/hc3/" + uuid::read_flash_string(cmd);
             queue_subscribe_message(topic);
-            // Mqtt::subscribe(device_type, topic, nullptr);
             topic = cmd_topic + "/hc4/" + uuid::read_flash_string(cmd);
             queue_subscribe_message(topic);
-            // Mqtt::subscribe(device_type, topic, nullptr);
         } else {
             topic = cmd_topic + "/" + uuid::read_flash_string(cmd);
             queue_subscribe_message(topic);
-            // Mqtt::subscribe(device_type, topic, nullptr);
         }
     }
 }
@@ -311,6 +307,7 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
                 }
                 cmd_only++; // skip the /
                 int8_t id = -1;
+                // check for hcx/ prefix
                 if (cmd_only[0] == 'h' && cmd_only[1] == 'c' && cmd_only[3] == '/') {
                     id = cmd_only[2] - '0';
                     cmd_only += 4;

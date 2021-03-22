@@ -362,9 +362,9 @@ double Helpers::round2(double value, const uint8_t divider) {
 
     if (value >= 0) {
         return (int)((value / div) * 100 + 0.5) / 100.0;
-    } else {
-        return (int)((value / div) * 100 - 0.5) / 100.0;
     }
+
+    return (int)((value / div) * 100 - 0.5) / 100.0; // negative values
 }
 
 // abs of a signed 32-bit integer

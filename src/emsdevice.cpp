@@ -384,7 +384,6 @@ char * EMSdevice::show_telegram_handlers(char * result) {
 
     char    str[10];
     uint8_t i = 0;
-    // for (const auto & tf : *telegram_functions_) {
     for (const auto & tf : telegram_functions_) {
         snprintf_P(str, sizeof(str), PSTR("0x%02X"), tf.telegram_type_id_);
         strlcat(result, str, 200);
