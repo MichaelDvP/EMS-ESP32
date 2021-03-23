@@ -239,6 +239,19 @@ void Mqtt::show_mqtt(uuid::console::Shell & shell) {
     for (const auto & mqtt_subfunction : mqtt_subfunctions_) {
         shell.printfln(F(" %s/%s (%s)"), mqtt_base_.c_str(), mqtt_subfunction.topic_.c_str(), EMSdevice::device_type_2_device_name(mqtt_subfunction.device_type_).c_str());
     }
+    for (const auto & cf : Command::commands()) {
+        if (cf.device_type_ != EMSdevice::DeviceType::SYSTEM) {
+            std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
+            if (subscribes_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
+                shell.printfln(F(" %s/%s/hc1/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_), uuid::read_flash_string(cf.cmd_));
+                shell.printfln(F(" %s/%s/hc2/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_), uuid::read_flash_string(cf.cmd_));
+                shell.printfln(F(" %s/%s/hc3/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_), uuid::read_flash_string(cf.cmd_));
+                shell.printfln(F(" %s/%s/hc4/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_), uuid::read_flash_string(cf.cmd_));
+            } else if (subscribes_) {
+                shell.printfln(F(" %s/%s/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_), uuid::read_flash_string(cf.cmd_));
+            }
+        }
+    }
     shell.println();
 
     // show queues
@@ -311,7 +324,7 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
     // see if we have this topic in our subscription list, then call its callback handler
     for (const auto & mf : mqtt_subfunctions_) {
         if (strcmp(topic, mf.topic_.c_str()) == 0) {
-            // if we have call back function then call it
+            // if we have callback function then call it
             // otherwise proceed as process as a command
             if (mf.mqtt_subfunction_) {
                 if (!(mf.mqtt_subfunction_)(message)) {
@@ -539,7 +552,7 @@ void Mqtt::start() {
     });
 
     // create space for command buffer, to avoid heap memory fragmentation
-    mqtt_subfunctions_.reserve(50);
+    // mqtt_subfunctions_.reserve(3);
 }
 
 void Mqtt::set_publish_time_boiler(uint16_t publish_time) {
