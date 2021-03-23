@@ -41,7 +41,7 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
         || ((master_thermostat == EMSESP_DEFAULT_MASTER_THERMOSTAT) && (device_id < 0x19) && ((actual_master_thermostat == EMSESP_DEFAULT_MASTER_THERMOSTAT) || (device_id < actual_master_thermostat)))) {
         EMSESP::actual_master_thermostat(device_id);
         actual_master_thermostat = device_id;
-        // reserve_telgram_functions(25); // reserve some space for the telegram registries, to avoid memory fragmentation
+        // reserve_telgram_functions(20); // reserve some space for the telegram registries, to avoid memory fragmentation
 
         // common telegram handlers
         register_telegram_type(EMS_TYPE_RCOutdoorTemp, F("RCOutdoorTemp"), false, MAKE_PF_CB(process_RCOutdoorTemp));
@@ -152,7 +152,7 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
     }
 
     // reserve some memory for the heating circuits (max 4 to start with)
-    heating_circuits_.reserve(4);
+    // heating_circuits_.reserve(4);
 
     if (actual_master_thermostat != device_id) {
         LOG_DEBUG(F("Adding new thermostat with device ID 0x%02X"), device_id);
@@ -2030,11 +2030,14 @@ void Thermostat::add_commands() {
     // common to all thermostats
     register_mqtt_cmd(F("temp"), MAKE_CF_CB(set_temp), FLAG_HC);
     register_mqtt_cmd(F("mode"), MAKE_CF_CB(set_mode), FLAG_HC);
-    register_mqtt_cmd(F("datetime"), MAKE_CF_CB(set_datetime));
+    if (model() == EMS_DEVICE_FLAG_RC35) {
+        register_mqtt_cmd(F("datetime"), MAKE_CF_CB(set_datetime));
+    }
 
     switch (model()) {
     case EMS_DEVICE_FLAG_RC100:
     case EMS_DEVICE_FLAG_RC300:
+        register_mqtt_cmd(F("datetime"), MAKE_CF_CB(set_datetime));
         register_mqtt_cmd(F("manualtemp"), MAKE_CF_CB(set_manualtemp), FLAG_HC);
         register_mqtt_cmd(F("ecotemp"), MAKE_CF_CB(set_ecotemp), FLAG_HC);
         register_mqtt_cmd(F("comforttemp"), MAKE_CF_CB(set_comforttemp), FLAG_HC);
@@ -2065,7 +2068,6 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(F("clockoffset"), MAKE_CF_CB(set_clockoffset));
         register_mqtt_cmd(F("language"), MAKE_CF_CB(set_language));
         register_mqtt_cmd(F("display"), MAKE_CF_CB(set_display));
-        break;
     case EMS_DEVICE_FLAG_RC35: // RC30 and RC35
         register_mqtt_cmd(F("nighttemp"), MAKE_CF_CB(set_nighttemp), FLAG_HC);
         register_mqtt_cmd(F("daytemp"), MAKE_CF_CB(set_daytemp), FLAG_HC);
@@ -2094,6 +2096,7 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(F("controlmode"), MAKE_CF_CB(set_controlmode), FLAG_HC);
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
+        register_mqtt_cmd(F("datetime"), MAKE_CF_CB(set_datetime));
         register_mqtt_cmd(F("nofrosttemp"), MAKE_CF_CB(set_nofrosttemp), FLAG_HC);
         register_mqtt_cmd(F("ecotemp"), MAKE_CF_CB(set_ecotemp), FLAG_HC);
         register_mqtt_cmd(F("heattemp"), MAKE_CF_CB(set_heattemp), FLAG_HC);

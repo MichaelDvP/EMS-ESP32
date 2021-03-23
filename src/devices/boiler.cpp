@@ -45,8 +45,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         return;
     }
     // register values for master boiler/cascade module
-
-    // reserve_telgram_functions(25); // reserve some space for the telegram registries, to avoid memory fragmentation
+    //reserve_telgram_functions(11); // reserve some space for the telegram registries, to avoid memory fragmentation
 
     // the telegram handlers...
     register_telegram_type(0x10, F("UBAErrorMessage1"), false, MAKE_PF_CB(process_UBAErrorMessage));
@@ -75,10 +74,6 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_telegram_type(0x494, F("UBAEnergySupplied"), false, MAKE_PF_CB(process_UBAEnergySupplied));
         register_telegram_type(0x495, F("UBAInformation"), false, MAKE_PF_CB(process_UBAInformation));
     }
-    EMSESP::send_read_request(0x10, device_id); // read last errorcode on start (only published on errors)
-    EMSESP::send_read_request(0x11, device_id); // read last errorcode on start (only published on errors)
-    EMSESP::send_read_request(0x15, device_id); // read maintenace data on start (only published on change)
-    EMSESP::send_read_request(0x1C, device_id); // read maintenace status on start (only published on change)
 
     // MQTT commands for boiler topic
     register_mqtt_cmd(F("comfort"), MAKE_CF_CB(set_warmwater_mode));
@@ -106,7 +101,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_mqtt_cmd(F("reset"), MAKE_CF_CB(set_reset));
 
     // add values
-    reserve_device_values(50);
+    // reserve_device_values(90);
 
     // main - boiler_data topic
     register_device_value(TAG_BOILER_DATA, &id_, DeviceValueType::UINT, nullptr, F("id"), nullptr); // empty full name to prevent being shown in web or console

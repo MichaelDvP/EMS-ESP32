@@ -107,27 +107,21 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
         LOG_DEBUG(F("Registering MQTT cmd %s with topic %s"), uuid::read_flash_string(cmd).c_str(), EMSdevice::device_type_2_device_name(device_type).c_str());
     }
 
-    // only general device topics
-    if (subscribes_ == 0) {
-        return;
-    }
     // register the individual commands too (e.g. ems-esp/boiler/wwonetime)
     // https://github.com/emsesp/EMS-ESP32/issues/31
-    if (device_type != EMSdevice::DeviceType::SYSTEM) {
-        std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
-        if (subscribes_ == 2 && flag == MqttSubFlag::FLAG_HC) {
-            topic = cmd_topic + "/hc1/" + uuid::read_flash_string(cmd);
-            queue_subscribe_message(topic);
-            topic = cmd_topic + "/hc2/" + uuid::read_flash_string(cmd);
-            queue_subscribe_message(topic);
-            topic = cmd_topic + "/hc3/" + uuid::read_flash_string(cmd);
-            queue_subscribe_message(topic);
-            topic = cmd_topic + "/hc4/" + uuid::read_flash_string(cmd);
-            queue_subscribe_message(topic);
-        } else {
-            topic = cmd_topic + "/" + uuid::read_flash_string(cmd);
-            queue_subscribe_message(topic);
-        }
+    std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
+    if (subscribes_ == 2 && flag == MqttSubFlag::FLAG_HC) {
+        topic = cmd_topic + "/hc1/" + uuid::read_flash_string(cmd);
+        queue_subscribe_message(topic);
+        topic = cmd_topic + "/hc2/" + uuid::read_flash_string(cmd);
+        queue_subscribe_message(topic);
+        topic = cmd_topic + "/hc3/" + uuid::read_flash_string(cmd);
+        queue_subscribe_message(topic);
+        topic = cmd_topic + "/hc4/" + uuid::read_flash_string(cmd);
+        queue_subscribe_message(topic);
+    } else if (subscribes_ && flag != MqttSubFlag::FLAG_NOSUB) {
+        topic = cmd_topic + "/" + uuid::read_flash_string(cmd);
+        queue_subscribe_message(topic);
     }
 }
 
@@ -147,26 +141,20 @@ void Mqtt::resubscribe() {
         queue_subscribe_message(mqtt_subfunction.topic_);
     }
 
-    // only general device topics
-    if (subscribes_ == 0) {
-        return;
-    }
     for (const auto & cf : Command::commands()) {
-        if (cf.device_type_ != EMSdevice::DeviceType::SYSTEM) {
-            std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
-            if (subscribes_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
-                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc1/" +  uuid::read_flash_string(cf.cmd_);
-                queue_subscribe_message(topic);
-                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc2/" +  uuid::read_flash_string(cf.cmd_);
-                queue_subscribe_message(topic);
-                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc3/" +  uuid::read_flash_string(cf.cmd_);
-                queue_subscribe_message(topic);
-                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc4/" +  uuid::read_flash_string(cf.cmd_);
-                queue_subscribe_message(topic);
-            } else {
-                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/" + uuid::read_flash_string(cf.cmd_);
-                queue_subscribe_message(topic);
-            }
+        std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
+        if (subscribes_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
+            topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc1/" +  uuid::read_flash_string(cf.cmd_);
+            queue_subscribe_message(topic);
+            topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc2/" +  uuid::read_flash_string(cf.cmd_);
+            queue_subscribe_message(topic);
+            topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc3/" +  uuid::read_flash_string(cf.cmd_);
+            queue_subscribe_message(topic);
+            topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc4/" +  uuid::read_flash_string(cf.cmd_);
+            queue_subscribe_message(topic);
+        } else if (subscribes_ && cf.flag_ != MqttSubFlag::FLAG_NOSUB) {
+            topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/" + uuid::read_flash_string(cf.cmd_);
+            queue_subscribe_message(topic);
         }
     }
 }
@@ -237,18 +225,16 @@ void Mqtt::show_mqtt(uuid::console::Shell & shell) {
     // show subscriptions
     shell.printfln(F("MQTT topic subscriptions:"));
     for (const auto & mqtt_subfunction : mqtt_subfunctions_) {
-        shell.printfln(F(" %s/%s (%s)"), mqtt_base_.c_str(), mqtt_subfunction.topic_.c_str(), EMSdevice::device_type_2_device_name(mqtt_subfunction.device_type_).c_str());
+        shell.printfln(F(" %s/%s"), mqtt_base_.c_str(), mqtt_subfunction.topic_.c_str());
     }
     for (const auto & cf : Command::commands()) {
-        if (cf.device_type_ != EMSdevice::DeviceType::SYSTEM) {
-            if (subscribes_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
-                shell.printfln(F(" %s/%s/hc1/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
-                shell.printfln(F(" %s/%s/hc2/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
-                shell.printfln(F(" %s/%s/hc3/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
-                shell.printfln(F(" %s/%s/hc4/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
-            } else if (subscribes_) {
-                shell.printfln(F(" %s/%s/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
-            }
+        if (subscribes_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
+            shell.printfln(F(" %s/%s/hc1/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
+            shell.printfln(F(" %s/%s/hc2/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
+            shell.printfln(F(" %s/%s/hc3/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
+            shell.printfln(F(" %s/%s/hc4/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
+        } else if (subscribes_ && cf.flag_ != MqttSubFlag::FLAG_NOSUB) {
+            shell.printfln(F(" %s/%s/%s"), mqtt_base_.c_str(), EMSdevice::device_type_2_device_name(cf.device_type_).c_str(), uuid::read_flash_string(cf.cmd_).c_str());
         }
     }
     shell.println();
@@ -701,13 +687,16 @@ void Mqtt::ha_status() {
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Dallas Fails"), EMSdevice::DeviceType::SYSTEM, F("dallasfails"));
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"));
 
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 16"), EMSdevice::DeviceType::SYSTEM, F("io16"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 17"), EMSdevice::DeviceType::SYSTEM, F("io17"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 18"), EMSdevice::DeviceType::SYSTEM, F("io18"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 19"), EMSdevice::DeviceType::SYSTEM, F("io19"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 21"), EMSdevice::DeviceType::SYSTEM, F("io21"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 22"), EMSdevice::DeviceType::SYSTEM, F("io22"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 26"), EMSdevice::DeviceType::SYSTEM, F("io26"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 27"), EMSdevice::DeviceType::SYSTEM, F("io27"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 32"), EMSdevice::DeviceType::SYSTEM, F("io32"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 33"), EMSdevice::DeviceType::SYSTEM, F("io33"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 34"), EMSdevice::DeviceType::SYSTEM, F("io34"));
+    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 35"), EMSdevice::DeviceType::SYSTEM, F("io35"));
 
 }
 

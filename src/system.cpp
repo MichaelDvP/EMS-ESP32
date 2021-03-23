@@ -400,7 +400,7 @@ void System::send_heartbeat() {
         return;
     }
 
-    StaticJsonDocument<EMSESP_JSON_SIZE_SMALL1> doc;
+    StaticJsonDocument<EMSESP_JSON_SIZE_MEDIUM> doc;
 
     uint8_t ems_status = EMSESP::bus_status();
     if (ems_status == EMSESP::BUS_STATUS_TX_ERRORS) {
@@ -580,7 +580,7 @@ void System::system_check() {
 // commands - takes static function pointers
 // these commands respond to the topic "system" and take a payload like {cmd:"", data:"", id:""}
 void System::commands_init() {
-    Command::add(EMSdevice::DeviceType::SYSTEM, F_(pin), System::command_pin);
+    Command::add(EMSdevice::DeviceType::SYSTEM, F_(pin), System::command_pin, MqttSubFlag::FLAG_NOSUB);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(send), System::command_send);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(publish), System::command_publish);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(fetch), System::command_fetch);
