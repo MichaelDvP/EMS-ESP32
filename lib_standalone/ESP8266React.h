@@ -37,6 +37,7 @@ class DummySettings {
     uint8_t     ha_climate_format = 1;
     bool        ha_enabled        = true;
     std::string base              = "ems-esp";
+    uint8_t     subscribes        = 0;
 
     String   hostname                = "ems-esp";
     String   jwtSecret               = "ems-esp";
@@ -48,7 +49,7 @@ class DummySettings {
     String   staticIPConfig          = "";
     String   dnsIP1                  = "";
     String   dnsIP2                  = "";
-    uint8_t  ethernet_profile        = 0;
+    uint8_t  board_profile           = 0;
     uint16_t publish_time_boiler     = 10;
     uint16_t publish_time_thermostat = 10;
     uint16_t publish_time_solar      = 10;

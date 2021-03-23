@@ -620,7 +620,6 @@ void Boiler::process_CascadeMessage(std::shared_ptr<const Telegram> telegram) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-
 // 0x35 - not yet implemented
 void Boiler::process_UBAFlags(std::shared_ptr<const Telegram> telegram) {
 }

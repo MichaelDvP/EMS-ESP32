@@ -145,7 +145,6 @@ enum MqttSubFlag : uint8_t {
     FLAG_WWC
 };
 
-
 class EMSdevice {
   public:
     virtual ~EMSdevice() = default; // destructor of base class must always be virtual because it's a polymorphic class

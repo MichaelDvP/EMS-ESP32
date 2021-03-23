@@ -168,13 +168,13 @@ void System::syslog_init(bool refresh) {
 // read all the settings from the config files and store locally
 void System::get_settings() {
     EMSESP::webSettingsService.read([&](WebSettings & settings) {
-        // BUTTON
+        // Button
         pbutton_gpio_ = settings.pbutton_gpio;
 
         // ADC
         analog_enabled_ = settings.analog_enabled;
 
-        // SYSLOG
+        // Syslog
         syslog_enabled_       = settings.syslog_enabled;
         syslog_level_         = settings.syslog_level;
         syslog_mark_interval_ = settings.syslog_mark_interval;
@@ -184,12 +184,14 @@ void System::get_settings() {
         // LED
         hide_led_ = settings.hide_led;
         led_gpio_ = settings.led_gpio;
+
+        // Board profile
+        board_profile_ = settings.board_profile;
     });
 
     EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
         hostname(networkSettings.hostname.c_str());
         LOG_INFO(F("System %s booted (EMS-ESP version %s)"), networkSettings.hostname.c_str(), EMSESP_APP_VERSION); // print boot message
-        ethernet_profile_ = networkSettings.ethernet_profile;
     });
 }
 
@@ -299,7 +301,6 @@ void System::button_init(bool refresh) {
     }
 
     // Allow 0 for Boot-button on NodeMCU-32s?
-    // if (pbutton_gpio_) {
     if (!myPButton_.init(pbutton_gpio_, HIGH)) {
         LOG_INFO(F("External multi-functional button not detected"));
     } else {
@@ -310,7 +311,6 @@ void System::button_init(bool refresh) {
     myPButton_.onDblClick(BUTTON_DblClickDelay, button_OnDblClick);
     myPButton_.onLongPress(BUTTON_LongPressDelay, button_OnLongPress);
     myPButton_.onVLongPress(BUTTON_VLongPressDelay, button_OnVLongPress);
-    // }
 }
 
 // set the LED to on or off when in normal operating mode
@@ -428,13 +428,16 @@ void System::send_heartbeat() {
 #endif
     if (analog_enabled_) {
         doc["adc"]  = analog_;
-        doc["io16"] = digitalRead(16) != 0;
-        doc["io17"] = digitalRead(17) != 0;
-        doc["io18"] = digitalRead(18) != 0;
-        doc["io19"] = digitalRead(19) != 0;
-        doc["io21"] = digitalRead(21) != 0;
-        doc["io22"] = digitalRead(22) != 0;
-        doc["io26"] = digitalRead(26) != 0;
+        doc["io17"] = digitalRead(17);
+        doc["io19"] = digitalRead(19);
+        doc["io21"] = digitalRead(21);
+        doc["io22"] = digitalRead(22);
+        doc["io26"] = digitalRead(26);
+        doc["io27"] = digitalRead(27);
+        doc["io32"] = digitalRead(32);
+        doc["io33"] = digitalRead(33);
+        doc["io34"] = digitalRead(34);
+        doc["io35"] = digitalRead(35);
     }
 
     Mqtt::publish(F("heartbeat"), doc.as<JsonObject>()); // send to MQTT with retain off. This will add to MQTT queue.
@@ -475,9 +478,12 @@ void System::network_init(bool refresh) {
         get_settings();
     }
 
-    // check ethernet profile
+    last_system_check_ = 0; // force the LED to go from fast flash to pulse
+    send_heartbeat();
+
+    // check board profile for those which use ethernet (id > 10)
     // ethernet uses lots of additional memory so we only start it when it's explicitly set in the config
-    if (ethernet_profile_ == 0) {
+    if (board_profile_ < 10) {
         return;
     }
 
@@ -488,27 +494,39 @@ void System::network_init(bool refresh) {
     eth_phy_type_t   type;       // Type of the Ethernet PHY (LAN8720 or TLK110)
     eth_clock_mode_t clock_mode; // ETH_CLOCK_GPIO0_IN or ETH_CLOCK_GPIO0_OUT, ETH_CLOCK_GPIO16_OUT, ETH_CLOCK_GPIO17_OUT for 50Hz inverted clock
 
-    if (ethernet_profile_ == 1) {
-        // LAN8720
+    if (board_profile_ == 10) {
+        // Gateway E32 (LAN8720)
+        phy_addr   = 1;
+        power      = 16;
+        mdc        = 23;
+        mdio       = 18;
+        type       = ETH_PHY_LAN8720;
+        clock_mode = ETH_CLOCK_GPIO0_IN;
+    } else if (board_profile_ == 11) {
+        // Olimex ESP32-EVB-EA (LAN8720)
         phy_addr   = 0;
         power      = -1;
         mdc        = 23;
         mdio       = 18;
         type       = ETH_PHY_LAN8720;
         clock_mode = ETH_CLOCK_GPIO0_IN;
-    } else if (ethernet_profile_ == 2) {
-        // TLK110
+    } else if (board_profile_ == 12) {
+        // Ethernet (TLK110)
         phy_addr   = 31;
         power      = -1;
         mdc        = 23;
         mdio       = 18;
         type       = ETH_PHY_TLK110;
         clock_mode = ETH_CLOCK_GPIO0_IN;
+    } else {
+        return; // invalid combi
     }
 
+    bool have_ethernet = ETH.begin(phy_addr, power, mdc, mdio, type, clock_mode);
+
+    // disable ssid and AP when using Ethernet
+    if (have_ethernet) {
 #ifndef EMSESP_STANDALONE
-    if (ETH.begin(phy_addr, power, mdc, mdio, type, clock_mode)) {
-        // disable ssid and AP when using Ethernet
         EMSESP::esp8266React.getNetworkSettingsService()->update(
             [&](NetworkSettings & settings) {
                 settings.ssid == ""; // remove SSID
@@ -522,11 +540,8 @@ void System::network_init(bool refresh) {
                 return StateUpdateResult::CHANGED;
             },
             "local");
-    }
 #endif
-
-    last_system_check_ = 0; // force the LED to go from fast flash to pulse
-    send_heartbeat();
+    }
 }
 
 // check health of system, done every few seconds
@@ -823,10 +838,10 @@ void System::console_commands(Shell & shell, unsigned int context) {
         [](Shell & shell, const std::vector<std::string> & arguments) {
             uint8_t n = Helpers::hextoint(arguments.front().c_str());
             if (n <= 2) {
-                EMSESP::esp8266React.getNetworkSettingsService()->update(
-                    [&](NetworkSettings & networkSettings) {
-                        networkSettings.ethernet_profile = n;
-                        shell.printfln(F_(ethernet_option_fmt), networkSettings.ethernet_profile);
+                EMSESP::webSettingsService.update(
+                    [&](WebSettings & settings) {
+                        settings.board_profile = n;
+                        shell.printfln(F_(ethernet_option_fmt), n);
                         return StateUpdateResult::CHANGED;
                     },
                     "local");
@@ -847,8 +862,6 @@ void System::console_commands(Shell & shell, unsigned int context) {
             shell.printfln(F_(wifi_ssid_fmt), networkSettings.ssid.isEmpty() ? uuid::read_flash_string(F_(unset)).c_str() : networkSettings.ssid.c_str());
             shell.print(F(" "));
             shell.printfln(F_(wifi_password_fmt), networkSettings.ssid.isEmpty() ? F_(unset) : F_(asterisks));
-            shell.print(F(" "));
-            shell.printfln(F_(ethernet_option_fmt), networkSettings.ethernet_profile);
         });
     });
 

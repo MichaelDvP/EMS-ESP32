@@ -233,6 +233,7 @@ StateUpdateResult MqttSettings::update(JsonObject & root, MqttSettings & setting
     if (newSettings.subscribes != settings.subscribes) {
         changed = true;
     }
+ 
     if (newSettings.ha_climate_format != settings.ha_climate_format) {
         emsesp::EMSESP::mqtt_.ha_climate_format(newSettings.ha_climate_format);
         changed = true;
