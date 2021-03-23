@@ -146,6 +146,29 @@ void Mqtt::resubscribe() {
     for (const auto & mqtt_subfunction : mqtt_subfunctions_) {
         queue_subscribe_message(mqtt_subfunction.topic_);
     }
+
+    // only general device topics
+    if (subscribes_ == 0) {
+        return;
+    }
+    for (const auto & cf : Command::commands()) {
+        if (cf.device_type_ != EMSdevice::DeviceType::SYSTEM) {
+            std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
+            if (subscribes_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
+                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc1/" +  uuid::read_flash_string(cf.cmd_);
+                queue_subscribe_message(topic);
+                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc2/" +  uuid::read_flash_string(cf.cmd_);
+                queue_subscribe_message(topic);
+                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc3/" +  uuid::read_flash_string(cf.cmd_);
+                queue_subscribe_message(topic);
+                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc4/" +  uuid::read_flash_string(cf.cmd_);
+                queue_subscribe_message(topic);
+            } else {
+                topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/" + uuid::read_flash_string(cf.cmd_);
+                queue_subscribe_message(topic);
+            }
+        }
+    }
 }
 
 // Main MQTT loop - sends out top item on publish queue
