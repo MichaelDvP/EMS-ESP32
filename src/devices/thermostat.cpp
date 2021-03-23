@@ -2030,7 +2030,7 @@ void Thermostat::add_commands() {
     // common to all thermostats
     register_mqtt_cmd(F("temp"), MAKE_CF_CB(set_temp), FLAG_HC);
     register_mqtt_cmd(F("mode"), MAKE_CF_CB(set_mode), FLAG_HC);
-    if (model() == EMS_DEVICE_FLAG_RC35) {
+    if (model() == EMS_DEVICE_FLAG_RC35) { // section is together with RC30
         register_mqtt_cmd(F("datetime"), MAKE_CF_CB(set_datetime));
     }
 

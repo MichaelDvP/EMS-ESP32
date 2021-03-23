@@ -579,7 +579,8 @@ void System::system_check() {
 
 // commands - takes static function pointers
 // these commands respond to the topic "system" and take a payload like {cmd:"", data:"", id:""}
-void System::commands_init() {
+// no individual subsribe for pin command because id is needed
+ void System::commands_init() {
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(pin), System::command_pin, MqttSubFlag::FLAG_NOSUB);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(send), System::command_send);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(publish), System::command_publish);
