@@ -51,28 +51,6 @@ std::string format_timestamp_ms(uint64_t timestamp_ms, unsigned int days_width) 
 
     return text.data();
 }
-std::string format_timestamp_s(uint64_t timestamp_ms, unsigned int days_width) {
-    unsigned long days;
-    unsigned int  hours, minutes, seconds;
-
-    days = timestamp_ms / 86400000UL;
-    timestamp_ms %= 86400000UL;
-
-    hours = timestamp_ms / 3600000UL;
-    timestamp_ms %= 3600000UL;
-
-    minutes = timestamp_ms / 60000UL;
-    timestamp_ms %= 60000UL;
-
-    seconds = timestamp_ms / 1000UL;
-    timestamp_ms %= 1000UL;
-
-    static std::vector<char> text(10 + 1 /* days */ + 2 + 1 /* hours */ + 2 + 1 /* minutes */ + 2 + 1 /* seconds */ );
-
-    snprintf_P(text.data(), text.size(), PSTR("%0*lu+%02u:%02u:%02u"), std::min(days_width, 10U), days, hours, minutes, seconds);
-
-    return text.data();
-}
 
 } // namespace log
 

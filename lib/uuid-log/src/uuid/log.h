@@ -132,7 +132,6 @@ enum Facility : uint8_t {
  * @since 1.0.0
  */
 std::string format_timestamp_ms(uint64_t timestamp_ms, unsigned int days_width = 1);
-std::string format_timestamp_s(uint64_t timestamp_ms, unsigned int days_width = 1);
 
 /**
  * Get all log levels.

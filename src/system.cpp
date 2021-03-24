@@ -426,8 +426,12 @@ void System::send_heartbeat() {
         doc["status"] = FJSON("disconnected");
     }
 
+    char timest[30];
+    strncpy(timest, uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).c_str(), 30);
+    char * t = strrchr(timest, '.');
+    t[0] = '\0';
     doc["rssi"]        = rssi;
-    doc["uptime"]      = uuid::log::format_timestamp_s(uuid::get_uptime_ms(), 3);
+    doc["uptime"]      = timest;
     doc["uptime_sec"]  = uuid::get_uptime_sec();
     doc["mqttfails"]   = Mqtt::publish_fails();
     doc["rxreceived"]  = EMSESP::rxservice_.telegram_count();
@@ -663,7 +667,7 @@ void System::show_users(uuid::console::Shell & shell) {
 }
 
 void System::show_system(uuid::console::Shell & shell) {
-    shell.printfln(F("Uptime:          %s"), uuid::log::format_timestamp_s(uuid::get_uptime_ms(), 3).c_str());
+    shell.printfln(F("Uptime:          %s"), uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).c_str());
 
 #ifndef EMSESP_STANDALONE
     shell.printfln(F("SDK version:     %s"), ESP.getSdkVersion());
