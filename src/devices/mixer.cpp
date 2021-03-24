@@ -203,7 +203,6 @@ void Mixer::process_IPMSetMessage(std::shared_ptr<const Telegram> telegram) {
     // pos 1: position in %?
 }
 
-
 #pragma GCC diagnostic pop
 
 } // namespace emsesp

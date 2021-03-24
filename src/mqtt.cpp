@@ -140,7 +140,6 @@ void Mqtt::resubscribe() {
     for (const auto & mqtt_subfunction : mqtt_subfunctions_) {
         queue_subscribe_message(mqtt_subfunction.topic_);
     }
-
     for (const auto & cf : Command::commands()) {
         std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
         if (subscribes_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
@@ -537,7 +536,7 @@ void Mqtt::start() {
     });
 
     // create space for command buffer, to avoid heap memory fragmentation
-    // mqtt_subfunctions_.reserve(3);
+    mqtt_subfunctions_.reserve(5);
 }
 
 void Mqtt::set_publish_time_boiler(uint16_t publish_time) {
@@ -695,8 +694,6 @@ void Mqtt::ha_status() {
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 27"), EMSdevice::DeviceType::SYSTEM, F("io27"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 32"), EMSdevice::DeviceType::SYSTEM, F("io32"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 33"), EMSdevice::DeviceType::SYSTEM, F("io33"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 34"), EMSdevice::DeviceType::SYSTEM, F("io34"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 35"), EMSdevice::DeviceType::SYSTEM, F("io35"));
 
 }
 

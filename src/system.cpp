@@ -39,7 +39,7 @@ PButton  System::myPButton_;
 // value: true = HIGH, false = LOW
 // e.g. http://ems-esp/api?device=system&cmd=pin&data=1&id=2
 bool System::command_pin(const char * value, const int8_t id) {
-    if (id < 0 || id > 40) {
+    if (!is_valid_gpio(id)) {
         LOG_INFO(F("invalid GPIO number"));
         return false;
     }
@@ -188,11 +188,6 @@ void System::get_settings() {
         // Board profile
         board_profile_ = settings.board_profile;
     });
-
-    EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
-        hostname(networkSettings.hostname.c_str());
-        LOG_INFO(F("System %s booted (EMS-ESP version %s)"), networkSettings.hostname.c_str(), EMSESP_APP_VERSION); // print boot message
-    });
 }
 
 // adjust WiFi settings
@@ -218,8 +213,20 @@ void System::wifi_tweak() {
     bool         s1 = WiFi.getSleep();
     WiFi.setSleep(false); // turn off sleep - WIFI_PS_NONE
     bool s2 = WiFi.getSleep();
-    LOG_INFO(F("Adjusting Wifi - Tx power %d->%d, Sleep %d->%d"), p1, p2, s1, s2);
+    LOG_DEBUG(F("Adjusting WiFi - Tx power %d->%d, Sleep %d->%d"), p1, p2, s1, s2);
 #endif
+}
+
+// check for valid ESP32 pins. This is very dependent on which ESP32 board is being used.
+// Typically you can't use 1, 6-11 (SPI flash), 12, 14 & 15, 20, 24 and 28-31
+// we allow 0 as it has a special function on the NodeMCU apparently
+// See https://diyprojects.io/esp32-how-to-use-gpio-digital-io-arduino-code/#.YFpVEq9KhjG
+// and https://nodemcu.readthedocs.io/en/dev-esp32/modules/gpio/
+bool System::is_valid_gpio(uint8_t pin) {
+    if ((pin == 1) || (pin >= 6 && pin <= 12) || (pin >= 14 && pin <= 15) || (pin == 20) || (pin == 24) || (pin >= 28 && pin <= 31)) {
+        return false; // bad pin
+    }
+    return true;
 }
 
 // first call. Sets memory and starts up the UART Serial bridge
@@ -236,6 +243,11 @@ void System::start(uint32_t heap_start) {
     // load in all the settings first
     get_settings();
 
+    EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
+        hostname(networkSettings.hostname.c_str());
+        LOG_INFO(F("System %s booted (EMS-ESP version %s)"), networkSettings.hostname.c_str(), EMSESP_APP_VERSION); // print boot message
+    });
+
     commands_init();     // console & api commands
     led_init(false);     // init LED
     adc_init(false);     // analog ADC
@@ -243,7 +255,7 @@ void System::start(uint32_t heap_start) {
     button_init(false);  // the special button
     network_init(false); // network
 
-    EMSESP::init_tx(); // start UART
+    EMSESP::init_uart(); // start UART
 }
 
 // adc and bluetooth
@@ -300,11 +312,14 @@ void System::button_init(bool refresh) {
         get_settings();
     }
 
-    // Allow 0 for Boot-button on NodeMCU-32s?
-    if (!myPButton_.init(pbutton_gpio_, HIGH)) {
-        LOG_INFO(F("External multi-functional button not detected"));
+    if (is_valid_gpio(pbutton_gpio_)) {
+        if (!myPButton_.init(pbutton_gpio_, HIGH)) {
+            LOG_INFO(F("External multi-functional button not detected"));
+        } else {
+            LOG_INFO(F("External multi-functional button enabled"));
+        }
     } else {
-        LOG_INFO(F("External multi-functional button enabled"));
+        LOG_WARNING(F("Invalid button GPIO. Check config."));
     }
 
     myPButton_.onClick(BUTTON_Debounce, button_OnClick);
@@ -319,9 +334,9 @@ void System::led_init(bool refresh) {
         get_settings();
     }
 
-    if (led_gpio_) {
+    if ((led_gpio_ != 0) && is_valid_gpio(led_gpio_)) {
         pinMode(led_gpio_, OUTPUT);                            // 0 means disabled
-        digitalWrite(led_gpio_, hide_led_ ? !LED_ON : LED_ON); // LED on, for ever
+        digitalWrite(led_gpio_, hide_led_ ? !LED_ON : LED_ON); // LED on, forever
     }
 }
 
@@ -436,8 +451,6 @@ void System::send_heartbeat() {
         doc["io27"] = digitalRead(27);
         doc["io32"] = digitalRead(32);
         doc["io33"] = digitalRead(33);
-        doc["io34"] = digitalRead(34);
-        doc["io35"] = digitalRead(35);
     }
 
     Mqtt::publish(F("heartbeat"), doc.as<JsonObject>()); // send to MQTT with retain off. This will add to MQTT queue.
@@ -580,7 +593,7 @@ void System::system_check() {
 // commands - takes static function pointers
 // these commands respond to the topic "system" and take a payload like {cmd:"", data:"", id:""}
 // no individual subsribe for pin command because id is needed
- void System::commands_init() {
+void System::commands_init() {
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(pin), System::command_pin, MqttSubFlag::FLAG_NOSUB);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(send), System::command_send);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(publish), System::command_publish);
