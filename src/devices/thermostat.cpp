@@ -1278,30 +1278,35 @@ bool Thermostat::set_wwcircmode(const char * value, const int8_t id) {
 
 // set the holiday as string dd.mm.yyyy-dd.mm.yyyy
 bool Thermostat::set_holiday(const char * value, const int8_t id) {
-    std::string hd(30, '\0');
-    if (!Helpers::value2string(value, hd)) {
-        LOG_WARNING(F("Set holiday: Invalid value"));
-        return false;
-    }
     uint8_t                                     hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
     std::shared_ptr<Thermostat::HeatingCircuit> hc     = heating_circuit(hc_num);
     if (hc == nullptr) {
         LOG_WARNING(F("Set holiday: Heating Circuit %d not found or activated for device ID 0x%02X"), hc_num, device_id());
         return false;
     }
+    if (value == nullptr || value[0] == '-') {
+        read_command(timer_typeids[hc->hc_num() - 1], 87, 6);
+        return true;
+    } else if (strlen(value) == 1 && value[0] == '+') {
+        read_command(timer_typeids[hc->hc_num() - 1], 93, 6);
+        return true;
+    } else if (strlen(value) != 21) {
+        LOG_WARNING(F("Set holiday: Invalid value"));
+        return false;
+    }
 
     uint8_t data[6];
-    data[0] = (hd[0] - '0') * 10 + (hd[1] - '0');
-    data[1] = (hd[3] - '0') * 10 + (hd[4] - '0');
-    data[2] = (hd[7] - '0') * 100 + (hd[8] - '0') * 10 + (hd[9] - '0');
-    data[3] = (hd[11] - '0') * 10 + (hd[12] - '0');
-    data[4] = (hd[14] - '0') * 10 + (hd[15] - '0');
-    data[5] = (hd[18] - '0') * 100 + (hd[19] - '0') * 10 + (hd[20] - '0');
+    data[0] = (value[0] - '0') * 10 + (value[1] - '0');
+    data[1] = (value[3] - '0') * 10 + (value[4] - '0');
+    data[2] = (value[7] - '0') * 100 + (value[8] - '0') * 10 + (value[9] - '0');
+    data[3] = (value[11] - '0') * 10 + (value[12] - '0');
+    data[4] = (value[14] - '0') * 10 + (value[15] - '0');
+    data[5] = (value[18] - '0') * 100 + (value[19] - '0') * 10 + (value[20] - '0');
 
-    if (hd[10] == '-') {
+    if (value[10] == '-') {
         LOG_INFO(F("Setting holiday away from home for hc %d"), hc->hc_num());
         write_command(timer_typeids[hc->hc_num() - 1], 87, data, 6, 0);
-    } else if (hd[10] == '+') {
+    } else if (value[10] == '+') {
         LOG_INFO(F("Setting holiday at home for hc %d"), hc->hc_num());
         write_command(timer_typeids[hc->hc_num() - 1], 93, data, 6, 0);
     } else {
@@ -1314,16 +1319,19 @@ bool Thermostat::set_holiday(const char * value, const int8_t id) {
 
 // set pause in hours
 bool Thermostat::set_pause(const char * value, const int8_t id) {
-    int hrs = 0;
-    if (!Helpers::value2number(value, hrs)) {
-        LOG_WARNING(F("Set pause: Invalid value"));
-        return false;
-    }
-
     uint8_t                                     hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
     std::shared_ptr<Thermostat::HeatingCircuit> hc     = heating_circuit(hc_num);
     if (hc == nullptr) {
         LOG_WARNING(F("Set pause: Heating Circuit %d not found or activated for device ID 0x%02X"), hc_num, device_id());
+        return false;
+    }
+    if (value == nullptr) {
+        read_command(timer_typeids[hc->hc_num() - 1], 85, 1);
+        return true;
+    }
+    int hrs = 0;
+    if (!Helpers::value2number(value, hrs)) {
+        LOG_WARNING(F("Set pause: Invalid value"));
         return false;
     }
 
@@ -1335,16 +1343,19 @@ bool Thermostat::set_pause(const char * value, const int8_t id) {
 
 // set partymode in hours
 bool Thermostat::set_party(const char * value, const int8_t id) {
-    int hrs = 0;
-    if (!Helpers::value2number(value, hrs)) {
-        LOG_WARNING(F("Set party: Invalid value"));
-        return false;
-    }
     uint8_t hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
-
     std::shared_ptr<Thermostat::HeatingCircuit> hc = heating_circuit(hc_num);
     if (hc == nullptr) {
         LOG_WARNING(F("Set party: Heating Circuit %d not found or activated for device ID 0x%02X"), hc_num, device_id());
+        return false;
+    }
+    if (value == nullptr) {
+        read_command(timer_typeids[hc->hc_num() - 1], 85, 1);
+        return true;
+    }
+    int hrs = 0;
+    if (!Helpers::value2number(value, hrs)) {
+        LOG_WARNING(F("Set party: Invalid value"));
         return false;
     }
     LOG_INFO(F("Setting party: %d hours, hc: %d"), hrs, hc->hc_num());
@@ -1616,7 +1627,17 @@ bool Thermostat::set_switchtime(const char * value, const int8_t id) {
         LOG_WARNING(F("Setting switchtime: Heating Circuit %d not found or activated"), hc_num);
         return false;
     }
-    if (strlen(value) != 12) {
+    if (value == nullptr) {
+        return false;
+    } else if (strlen(value) == 2) { // query point 01?
+        uint8_t no = (value[0] - '0') * 10 + (value[1] - '0');
+        if (no < 42) {
+            read_command(timer_typeids[hc->hc_num() - 1], 2 * no, 2);
+            return true;
+        }
+        return false;
+
+    } else if (strlen(value) != 12) {
         LOG_WARNING(F("Setting switchtime: Invalid data"));
         return false;
     }

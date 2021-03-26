@@ -485,11 +485,14 @@ void TxService::add(uint8_t operation, const uint8_t * data, const uint8_t lengt
 }
 
 // send a Tx telegram to request data from an EMS device
-void TxService::read_request(const uint16_t type_id, const uint8_t dest, const uint8_t offset) {
+void TxService::read_request(const uint16_t type_id, const uint8_t dest, const uint8_t offset, const uint8_t length) {
     LOG_DEBUG(F("Tx read request to device 0x%02X for type ID 0x%02X"), dest, type_id);
 
     uint8_t message_data[1] = {EMS_MAX_TELEGRAM_LENGTH}; // request all data, 32 bytes
-    add(Telegram::Operation::TX_READ, dest, type_id, offset, message_data, 1, 0);
+    if (length) {
+        message_data[0] = length;
+    }
+    add(Telegram::Operation::TX_READ, dest, type_id, offset, message_data, 1, 0, length != 0);
 }
 
 // Send a raw telegram to the bus, telegram is a text string of hex values

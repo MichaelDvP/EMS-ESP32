@@ -943,8 +943,8 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
 }
 
 // send a read request, passing it into to the Tx Service, with offset
-void EMSESP::send_read_request(const uint16_t type_id, const uint8_t dest, const uint8_t offset) {
-    txservice_.read_request(type_id, dest, offset);
+void EMSESP::send_read_request(const uint16_t type_id, const uint8_t dest, const uint8_t offset, const uint8_t length) {
+    txservice_.read_request(type_id, dest, offset, length);
 }
 
 // send a read request, passing it into to the Tx Service, with no offset

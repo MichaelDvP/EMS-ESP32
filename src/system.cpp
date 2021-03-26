@@ -84,11 +84,29 @@ bool System::command_fetch(const char * value, const int8_t id) {
 
 // mqtt publish
 bool System::command_publish(const char * value, const int8_t id) {
-    std::string ha(10, '\0');
+    std::string ha(14, '\0');
     if (Helpers::value2string(value, ha)) {
         if (ha == "ha") {
             EMSESP::publish_all(true); // includes HA
             LOG_INFO(F("Publishing all data to MQTT, including HA configs"));
+            return true;
+        } else if (ha == "boiler") {
+            EMSESP::publish_device_values(EMSdevice::DeviceType::BOILER);
+            return true;
+        } else if (ha == "thermostat") {
+            EMSESP::publish_device_values(EMSdevice::DeviceType::THERMOSTAT);
+            return true;
+        } else if (ha == "solar") {
+            EMSESP::publish_device_values(EMSdevice::DeviceType::SOLAR);
+            return true;
+        } else if (ha == "mixer") {
+            EMSESP::publish_device_values(EMSdevice::DeviceType::MIXER);
+            return true;
+        } else if (ha == "other") {
+            EMSESP::publish_other_values();
+            return true;
+        } else if (ha == "dallassensor") {
+            EMSESP::publish_sensor_values(true);
             return true;
         }
     }
@@ -426,12 +444,8 @@ void System::send_heartbeat() {
         doc["status"] = FJSON("disconnected");
     }
 
-    char timest[30];
-    strncpy(timest, uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).c_str(), 30);
-    char * t = strrchr(timest, '.');
-    t[0] = '\0';
     doc["rssi"]        = rssi;
-    doc["uptime"]      = timest;
+    doc["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3);
     doc["uptime_sec"]  = uuid::get_uptime_sec();
     doc["mqttfails"]   = Mqtt::publish_fails();
     doc["rxreceived"]  = EMSESP::rxservice_.telegram_count();
