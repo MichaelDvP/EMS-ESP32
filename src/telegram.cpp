@@ -419,7 +419,7 @@ void TxService::add(uint8_t operation, const uint8_t * data, const uint8_t lengt
     }
 
     // build header. src, dest and offset have fixed positions
-    uint8_t src    = data[0];
+    uint8_t src    = ems_bus_id(); // data[0]; we can only send data with own bus_id.
     uint8_t dest   = data[1];
     uint8_t offset = data[3];
 

@@ -69,7 +69,7 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     std::vector<uint8_t> data; // led, dallas, rx, tx, button
     if (!System::load_board_profile(data, settings.board_profile.c_str())) {
         // invalid board configuration, override the default in case it has been misspelled
-        settings.board_profile = "S32";
+        // settings.board_profile = "S32";
     }
     uint8_t default_led_gpio     = data[0];
     uint8_t default_dallas_gpio  = data[1];
