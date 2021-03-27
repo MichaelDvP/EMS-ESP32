@@ -218,8 +218,13 @@ class RxService : public EMSbus {
         if (telegram_error_count_ == 0) {
             return 100; // all good, 100%
         }
-        uint8_t q = ((float)telegram_error_count_ / telegram_count_ * 100);
-        return (q <= EMS_BUS_QUALITY_RX_THRESHOLD ? 100 : 100 - q);
+        if (telegram_error_count_ >= telegram_count_) {
+            return 100;
+        }
+        // uint8_t q = (100 * telegram_error_count_) / telegram_count_s;
+
+        // return (q <= EMS_BUS_QUALITY_RX_THRESHOLD ? 100 : 100 - q);
+        return (100 - (uint8_t)((100 * telegram_error_count_) / telegram_count_));
     }
 
     struct QueuedRxTelegram {
@@ -308,7 +313,10 @@ class TxService : public EMSbus {
         if (telegram_fail_count_ == 0) {
             return 100; // all good, 100%
         }
-        return (100 - (uint8_t)(((float)telegram_fail_count_ / telegram_read_count_ * 100)));
+        if (telegram_fail_count_ >= telegram_read_count_) {
+            return 100;
+        }
+        return (100 - (uint8_t)((telegram_fail_count_ * 100) / telegram_read_count_));
     }
 
     void increment_telegram_fail_count() {
