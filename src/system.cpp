@@ -263,10 +263,8 @@ void System::start(uint32_t heap_start) {
 
     EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
         hostname(networkSettings.hostname.c_str());
-        LOG_INFO(F("System %s booted (EMS-ESP version %s)"), networkSettings.hostname.c_str(), EMSESP_APP_VERSION); // print boot message
+        LOG_INFO(F("System %s booted (EMS-ESP version %s) "), networkSettings.hostname.c_str(), EMSESP_APP_VERSION); // print boot message
     });
-
-    LOG_INFO("Loaded Board profile: %s", board_profile_.c_str());
 
     commands_init();     // console & api commands
     led_init(false);     // init LED
@@ -355,7 +353,7 @@ void System::led_init(bool refresh) {
     }
 
     if ((led_gpio_ != 0) && is_valid_gpio(led_gpio_)) {
-        pinMode(led_gpio_, OUTPUT);                            // 0 means disabled
+        pinMode(led_gpio_, OUTPUT); // 0 means disabled
         digitalWrite(led_gpio_, hide_led_ ? !LED_ON : LED_ON);
     }
 }
@@ -872,14 +870,12 @@ void System::console_commands(Shell & shell, unsigned int context) {
                                        flash_string_vector{F_(set), F_(board_profile)},
                                        flash_string_vector{F_(name_mandatory)},
                                        [](Shell & shell, const std::vector<std::string> & arguments) {
-                                           // check for valid profile
                                            std::vector<uint8_t> data; // led, dallas, rx, tx, button
                                            std::string          board_profile = Helpers::toUpper(arguments.front());
                                            if (!load_board_profile(data, board_profile)) {
                                                shell.println(F("Invalid board profile"));
                                                return;
                                            }
-                                           shell.printfln("Loaded board profile %s with %d,%d,%d,%d,%d", board_profile.c_str(), data[0], data[1], data[2], data[3], data[4]);
                                            EMSESP::webSettingsService.update(
                                                [&](WebSettings & settings) {
                                                    settings.board_profile = board_profile.c_str();
@@ -1078,7 +1074,8 @@ bool System::command_test(const char * value, const int8_t id) {
 #endif
 
 // takes a board profile and populates a data array with GPIO configurations
-// led, dallas, rx, tx, button
+// data = led, dallas, rx, tx, button
+// returns false if profile is not found, and uses default
 bool System::load_board_profile(std::vector<uint8_t> & data, const std::string & board_profile) {
     if (board_profile == "S32") {
         data = {2, 3, 23, 5, 0}; // Gateway S32
@@ -1093,6 +1090,7 @@ bool System::load_board_profile(std::vector<uint8_t> & data, const std::string &
     } else if (board_profile == "TLK110") {
         data = {2, 4, 5, 17, 33}; // Ethernet (TLK110)
     } else {
+        data = {EMSESP_DEFAULT_LED_GPIO, EMSESP_DEFAULT_DALLAS_GPIO, EMSESP_DEFAULT_RX_GPIO, EMSESP_DEFAULT_TX_GPIO, EMSESP_DEFAULT_PBUTTON_GPIO};
         return false;
     }
 
