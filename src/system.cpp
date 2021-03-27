@@ -691,7 +691,7 @@ void System::show_system(uuid::console::Shell & shell) {
         shell.printfln(F("BSSID: %s"), WiFi.BSSIDstr().c_str());
         shell.printfln(F("RSSI: %d dBm (%d %%)"), WiFi.RSSI(), wifi_quality());
         shell.printfln(F("MAC address: %s"), WiFi.macAddress().c_str());
-        shell.printfln(F("Hostname: %s"), WiFi.getHostname());
+        shell.printfln(F_(hostname_fmt), WiFi.getHostname());
         shell.printfln(F("IPv4 address: %s/%s"), uuid::printable_to_string(WiFi.localIP()).c_str(), uuid::printable_to_string(WiFi.subnetMask()).c_str());
         shell.printfln(F("IPv4 gateway: %s"), uuid::printable_to_string(WiFi.gatewayIP()).c_str());
         shell.printfln(F("IPv4 nameserver: %s"), uuid::printable_to_string(WiFi.dnsIP()).c_str());
@@ -734,10 +734,10 @@ void System::show_system(uuid::console::Shell & shell) {
         shell.printfln(F("Syslog: disabled"));
     } else {
         shell.printfln(F("Syslog:"));
-        shell.printfln(F(" Hostname: %s"), !syslog_host_.isEmpty() ? syslog_host_.c_str() : uuid::read_flash_string(F_(unset)).c_str());
-        shell.printfln(F(" Port: %d"), syslog_port_);
-        shell.printfln(F(" Log level: %s"), uuid::log::format_level_lowercase(static_cast<uuid::log::Level>(syslog_level_)));
-        shell.printfln(F(" Mark interval: %lu"), syslog_mark_interval_);
+        shell.printfln(F_(host_fmt), !syslog_host_.isEmpty() ? syslog_host_.c_str() : uuid::read_flash_string(F_(unset)).c_str());
+        shell.printfln(F_(port_fmt), syslog_port_);
+        shell.printfln(F_(log_level_fmt), uuid::log::format_level_lowercase(static_cast<uuid::log::Level>(syslog_level_)));
+        shell.printfln(F_(mark_interval_fmt), syslog_mark_interval_);
     }
 
 #endif
@@ -1024,7 +1024,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["#read requests sent"]   = EMSESP::txservice_.telegram_read_count();
         node["#write requests sent"]  = EMSESP::txservice_.telegram_write_count();
         node["#incomplete telegrams"] = EMSESP::rxservice_.telegram_error_count();
-        node["#tx fails"]             = TxService::MAXIMUM_TX_RETRIES, EMSESP::txservice_.telegram_fail_count();
+        node["#tx fails"]             = EMSESP::txservice_.telegram_fail_count();
         node["rx line quality"]       = EMSESP::rxservice_.quality();
         node["tx line quality"]       = EMSESP::txservice_.quality();
         node["#MQTT publish fails"]   = Mqtt::publish_fails();
