@@ -276,14 +276,18 @@ void Boiler::check_active(const bool force) {
 }
 
 // 0x33
+//  Boiler(0x08) -> Me(0x0B), UBAParameterWW(0x33), data: 08 FF 30 FB FF 28 FF 07 46 00 00
 void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(wWActivated_, 1));    // 0xFF means on
-    has_update(telegram->read_value(wWCircPump_, 6));     // 0xFF means on
-    has_update(telegram->read_value(wWCircMode_, 7));     // 1=1x3min 6=6x3min 7=continuous
-    has_update(telegram->read_value(wWChargeType_, 10));  // 0 = charge pump, 0xff = 3-way valve
+    // has_update(telegram->read_bitvalue(wwEquipt_,0,3));  //  8=boiler has ww
+    has_update(telegram->read_value(wWActivated_, 1));      // 0xFF means on
     has_update(telegram->read_value(wWSelTemp_, 2));
+    // has_update(telegram->read_value(wW?_, 3));           // Hyst on (default -5)
+    // has_update(telegram->read_value(wW?_, 4));           // (0xFF) Maybe: Hyst off -1?
+    has_update(telegram->read_value(wWFlowTempOffset_, 5)); // default 40
+    has_update(telegram->read_value(wWCircPump_, 6));       // 0xFF means on
+    has_update(telegram->read_value(wWCircMode_, 7));       // 1=1x3min 6=6x3min 7=continuous
     has_update(telegram->read_value(wWDisinfectionTemp_, 8));
-    has_update(telegram->read_value(wWFlowTempOffset_, 5));
+    has_update(telegram->read_value(wWChargeType_, 10));    // 0 = charge pump, 0xff = 3-way valve
 
     telegram->read_value(wWComfort_, 9);
     if (wWComfort_ == 0x00) {
@@ -374,14 +378,15 @@ void Boiler::process_UBASettingsWW(std::shared_ptr<const Telegram> telegram) {
 /*
  * UBAMonitorWW - type 0x34 - warm water monitor. 19 bytes long
  * received every 10 seconds
- */
+ * Boiler(0x08) -> Me(0x0B), UBAMonitorWW(0x34), data: 30 01 BA 7D 00 21 00 00 03 00 01 22 2B 00 19 5B
+*/
 void Boiler::process_UBAMonitorWW(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(wWSetTemp_, 0));
     has_update(telegram->read_value(wWCurTemp_, 1));
     has_update(telegram->read_value(wWCurTemp2_, 3));
-    has_update(telegram->read_value(wWCurFlow_, 9));
-    has_update(telegram->read_value(wWType_, 8));
 
+    has_update(telegram->read_value(wWType_, 8));
+    has_update(telegram->read_value(wWCurFlow_, 9));
     has_update(telegram->read_value(wWWorkM_, 10, 3));  // force to 3 bytes
     has_update(telegram->read_value(wWStarts_, 13, 3)); // force to 3 bytes
 
