@@ -489,8 +489,10 @@ void TxService::read_request(const uint16_t type_id, const uint8_t dest, const u
     LOG_DEBUG(F("Tx read request to device 0x%02X for type ID 0x%02X"), dest, type_id);
 
     uint8_t message_data[1] = {EMS_MAX_TELEGRAM_LENGTH}; // request all data, 32 bytes
+    // if length set, publish result and set telegram to front
     if (length) {
         message_data[0] = length;
+        EMSESP::set_read_id(type_id);
     }
     add(Telegram::Operation::TX_READ, dest, type_id, offset, message_data, 1, 0, length != 0);
 }

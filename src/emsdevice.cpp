@@ -800,13 +800,7 @@ void EMSdevice::write_command(const uint16_t type_id, const uint8_t offset, cons
 }
 
 // send Tx read command to the device
-void EMSdevice::read_command(const uint16_t type_id) {
-    EMSESP::send_read_request(type_id, device_id());
-}
-
-// send Tx read command to the device, put in front of queue and publish result
 void EMSdevice::read_command(const uint16_t type_id, const uint8_t offset, const uint8_t length) {
-    EMSESP::set_read_id(type_id);
     EMSESP::send_read_request(type_id, device_id(), offset, length);
 }
 
