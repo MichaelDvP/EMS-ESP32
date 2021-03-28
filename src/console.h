@@ -51,6 +51,7 @@ using uuid::log::Level;
 #define F_(string_name) FPSTR(__pstr__##string_name)
 #define MAKE_PSTR_LIST(list_name, ...) static const __FlashStringHelper * const __pstr__##list_name[] PROGMEM = {__VA_ARGS__, nullptr};
 #define FL_(list_name) (__pstr__##list_name)
+#define MQTT_TOPIC(list_name) (__pstr__##list_name[0])
 // clang-format on
 
 // localizations
