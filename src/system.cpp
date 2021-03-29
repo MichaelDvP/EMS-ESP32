@@ -332,9 +332,9 @@ void System::button_init(bool refresh) {
 
     if (is_valid_gpio(pbutton_gpio_)) {
         if (!myPButton_.init(pbutton_gpio_, HIGH)) {
-            LOG_INFO(F("External multi-functional button not detected"));
+            LOG_INFO(F("Multi-functional button not detected"));
         } else {
-            LOG_INFO(F("External multi-functional button enabled"));
+            LOG_INFO(F("Multi-functional button enabled"));
         }
     } else {
         LOG_WARNING(F("Invalid button GPIO. Check config."));
@@ -866,7 +866,7 @@ void System::console_commands(Shell & shell, unsigned int context) {
                                                    return StateUpdateResult::CHANGED;
                                                },
                                                "local");
-                                           shell.printfln("Loaded board profile %s with %d,%d,%d,%d,%d", board_profile.c_str(), data[0], data[1], data[2], data[3], data[4]);
+                                           shell.printfln("Loaded board profile %s (%d,%d,%d,%d,%d)", board_profile.c_str(), data[0], data[1], data[2], data[3], data[4]);
                                            EMSESP::system_.network_init(true);
                                        });
 
@@ -1062,15 +1062,15 @@ bool System::command_test(const char * value, const int8_t id) {
 // returns false if profile is not found
 bool System::load_board_profile(std::vector<uint8_t> & data, const std::string & board_profile) {
     if (board_profile == "S32") {
-        data = {2, 3, 23, 5, 0}; // Gateway S32
+        data = {2, 3, 23, 5, 0}; // BBQKees Gateway S32
     } else if (board_profile == "E32") {
-        data = {2, 4, 5, 17, 33}; // Gateway E32
+        data = {2, 4, 5, 17, 33}; // BBQKees Gateway E32
     } else if (board_profile == "MH-ET") {
         data = {2, 18, 23, 5, 0}; // MH-ET Live D1 Mini
     } else if (board_profile == "NODEMCU") {
         data = {2, 18, 23, 5, 0}; // NodeMCU 32S
     } else if (board_profile == "OLIMEX") {
-        data = {0, 4, 5, 17, 34}; // Olimex ESP32-EVB
+        data = {0, 0, 36, 4, 34}; // Olimex ESP32-EVB (uses U1TXD/U1RXD/BUTTON, no LED or Dallas)
     } else if (board_profile == "TLK110") {
         data = {2, 4, 5, 17, 33}; // Generic Ethernet (TLK110)
     } else if (board_profile == "LAN8720") {
