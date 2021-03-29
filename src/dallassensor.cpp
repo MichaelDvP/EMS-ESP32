@@ -35,14 +35,14 @@ uuid::log::Logger DallasSensor::logger_{F_(dallassensor), uuid::log::Facility::D
 void DallasSensor::start() {
     reload();
 
-#ifndef EMSESP_STANDALONE
+    // disabled if dallas gpio is 0
     if (dallas_gpio_) {
+#ifndef EMSESP_STANDALONE
         bus_.begin(dallas_gpio_);
-    }
 #endif
-
-    // API call
-    Command::add_with_json(EMSdevice::DeviceType::DALLASSENSOR, F_(info), [&](const char * value, const int8_t id, JsonObject & json) { return command_info(value, id, json); });
+        // API call
+        Command::add_with_json(EMSdevice::DeviceType::DALLASSENSOR, F_(info), [&](const char * value, const int8_t id, JsonObject & json) { return command_info(value, id, json); });
+    }
 }
 
 // load the MQTT settings

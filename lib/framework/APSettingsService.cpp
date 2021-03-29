@@ -22,22 +22,20 @@ void APSettingsService::reconfigureAP() {
 }
 
 void APSettingsService::loop() {
-    // if we have an ETH connection, quit
-    if (emsesp::EMSESP::system_.ethernet_connected()) {
-        return;
-    }
     unsigned long currentMillis = uuid::get_uptime();
     unsigned long manageElapsed = (uint32_t)(currentMillis - _lastManaged);
     if (manageElapsed >= MANAGE_NETWORK_DELAY) {
         _lastManaged = currentMillis;
         manageAP();
     }
+
     handleDNS();
 }
 
 void APSettingsService::manageAP() {
-    WiFiMode_t currentWiFiMode = WiFi.getMode();
-    if (_state.provisionMode == AP_MODE_ALWAYS || (_state.provisionMode == AP_MODE_DISCONNECTED && WiFi.status() != WL_CONNECTED)) {
+    WiFiMode_t currentWiFiMode   = WiFi.getMode();
+    bool       network_connected = (emsesp::EMSESP::system_.ethernet_connected() || (WiFi.status() == WL_CONNECTED));
+    if (_state.provisionMode == AP_MODE_ALWAYS || (_state.provisionMode == AP_MODE_DISCONNECTED && !network_connected)) {
         if (_reconfigureAp || currentWiFiMode == WIFI_OFF || currentWiFiMode == WIFI_STA) {
             startAP();
         }
