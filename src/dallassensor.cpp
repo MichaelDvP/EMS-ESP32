@@ -59,6 +59,9 @@ void DallasSensor::reload() {
 }
 
 void DallasSensor::loop() {
+    if (!dallas_gpio_) {
+        return; // dallas gpio is 0 (disabled)
+    }
 #ifndef EMSESP_STANDALONE
     uint32_t time_now = uuid::get_uptime();
 

@@ -1076,6 +1076,8 @@ bool System::load_board_profile(std::vector<uint8_t> & data, const std::string &
         data = {2, 18, 23, 5, 0}; // MH-ET Live D1 Mini
     } else if (board_profile == "NODEMCU") {
         data = {2, 18, 23, 5, 0}; // NodeMCU 32S
+    } else if (board_profile == "LOLIN") {
+        data = {2, 18, 17, 16, 0}; // Lolin D32
     } else if (board_profile == "OLIMEX") {
         data = {0, 0, 36, 4, 34}; // Olimex ESP32-EVB (uses U1TXD/U1RXD/BUTTON, no LED or Dallas)
     } else if (board_profile == "TLK110") {
