@@ -41,10 +41,11 @@ void WebStatusService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
 #endif
         EMSESP::system_.wifi_tweak();
         EMSESP::system_.send_heartbeat();
+        EMSESP::system_.syslog_start();
         break;
 
     case SYSTEM_EVENT_ETH_START:
-        EMSESP::logger().info(F("Ethernet Started"));
+        EMSESP::logger().info(F("Ethernet initialized"));
         ETH.setHostname(EMSESP::system_.hostname().c_str());
         break;
 
@@ -55,6 +56,7 @@ void WebStatusService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
             EMSESP::logger().info(F("Ethernet Connected with IP=%s, speed %d Mbps"), ETH.localIP().toString().c_str(), ETH.linkSpeed());
 #endif
             EMSESP::system_.send_heartbeat();
+            EMSESP::system_.syslog_start();
             EMSESP::system_.ethernet_connected(true);
         }
         break;
