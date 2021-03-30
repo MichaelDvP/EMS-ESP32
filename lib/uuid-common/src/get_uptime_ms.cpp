@@ -22,12 +22,12 @@
 
 namespace uuid {
 
-// added by proddy
+// added by proddy, modified
 static uint64_t now_millis = 0;
 
 // returns system uptime in seconds
 uint32_t get_uptime_sec() {
-    return now_millis / 1000UL;
+    return (uint32_t)(now_millis / 1000ULL);
 }
 
 uint64_t get_uptime_ms() {

@@ -45,7 +45,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         return;
     }
     // register values for master boiler/cascade module
-    //reserve_telgram_functions(11); // reserve some space for the telegram registries, to avoid memory fragmentation
+    // reserve_telgram_functions(25); // reserve some space for the telegram registries, to avoid memory fragmentation
 
     // the telegram handlers...
     register_telegram_type(0x10, F("UBAErrorMessage1"), false, MAKE_PF_CB(process_UBAErrorMessage));

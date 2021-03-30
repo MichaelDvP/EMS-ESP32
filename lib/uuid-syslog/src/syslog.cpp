@@ -22,7 +22,6 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 
-// #include <ETH.h>
 #include "../../../src/emsesp.h"
 
 #ifndef UUID_SYSLOG_HAVE_GETTIMEOFDAY
