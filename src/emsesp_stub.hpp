@@ -23,7 +23,7 @@
 #include "dallassensor.h"
 #include "version.h"
 
-// forward declarator
+// forward declarators
 // used to bind EMS-ESP functions to external frameworks
 namespace emsesp {
 class EMSESP {
