@@ -101,7 +101,7 @@ MAKE_PSTR(tag_hs15, "hs15")
 MAKE_PSTR(tag_hs16, "hs16")
 
 // MQTT topic names
-MAKE_PSTR(tag_heartbeat_mqtt, "heartbeat")
+// MAKE_PSTR(tag_heartbeat_mqtt, "heartbeat")
 MAKE_PSTR(tag_boiler_data_mqtt, "")
 MAKE_PSTR(tag_boiler_data_ww_mqtt, "ww")
 

@@ -77,7 +77,7 @@ static const __FlashStringHelper * const DeviceValueTAG_s[] PROGMEM = {
 static const __FlashStringHelper * const DeviceValueTAG_mqtt[] PROGMEM = {
 
     F_(tag_none),                // ""
-    F_(tag_heartbeat_mqtt),      // "heartbeat"
+    F_(heartbeat),               // "heartbeat"
     F_(tag_boiler_data_mqtt),    // ""
     F_(tag_boiler_data_ww_mqtt), // "ww"
     F_(tag_thermostat_data),     // ""

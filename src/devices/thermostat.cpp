@@ -1145,20 +1145,21 @@ bool Thermostat::set_remotetemp(const char * value, const int8_t id) {
 // 0xA5 - Set the building settings
 bool Thermostat::set_building(const char * value, const int8_t id) {
     uint8_t bd = 0;
-    if (!Helpers::value2enum(value, bd, FL_(enum_ibaBuildingType2))) {
-        LOG_WARNING(F("Set building: Invalid value"));
-        return false;
-    }
-
-    LOG_INFO(F("Setting building to %s"), value);
-
     if ((model() == EMS_DEVICE_FLAG_RC300) || (model() == EMS_DEVICE_FLAG_RC100)) {
-        write_command(0x240, 9, bd + 1, 0x240);
+        if (Helpers::value2enum(value, bd, FL_(enum_ibaBuildingType))) {
+            LOG_INFO(F("Setting building to %s"), value);
+            write_command(0x240, 9, bd , 0x240);
+            return true;
+        }
     } else {
-        write_command(EMS_TYPE_IBASettings, 6, bd, EMS_TYPE_IBASettings);
+        if (Helpers::value2enum(value, bd, FL_(enum_ibaBuildingType2))) {
+            LOG_INFO(F("Setting building to %s"), value);
+            write_command(EMS_TYPE_IBASettings, 6, bd, EMS_TYPE_IBASettings);
+            return true;
+        }
     }
-
-    return true;
+    LOG_WARNING(F("Set building: Invalid value"));
+    return false;
 }
 
 // 0xA5 Set the language settings
