@@ -485,7 +485,7 @@ void System::send_heartbeat() {
         doc["io33"] = digitalRead(33);
     }
 
-    Mqtt::publish(F("heartbeat"), doc.as<JsonObject>()); // send to MQTT with retain off. This will add to MQTT queue.
+    Mqtt::publish(F_(heartbeat), doc.as<JsonObject>()); // send to MQTT with retain off. This will add to MQTT queue.
 }
 
 // measure and moving average adc

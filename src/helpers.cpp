@@ -471,13 +471,13 @@ bool Helpers::value2bool(const char * v, bool & value) {
 }
 
 // checks to see if a string is member of a vector and return the index, also allow true/false for on/off
-bool Helpers::value2enum(const char * v, uint8_t & value, const flash_string_vector & strs) {
+bool Helpers::value2enum(const char * v, uint8_t & value, const __FlashStringHelper * const * strs) {
     if ((v == nullptr) || (strlen(v) == 0)) {
         return false;
     }
     std::string str = toLower(v);
-    for (value = 0; value < strs.size(); value++) {
-        std::string str1 = uuid::read_flash_string(strs[value]);
+    for (value = 0; strs[value]; value++) {
+        std::string str1 = toLower(uuid::read_flash_string(strs[value]));
         if ((str1 == uuid::read_flash_string(F_(off)) && str == "false") || (str1 == uuid::read_flash_string(F_(on)) && str == "true") || (str == str1) || (v[0] == ('0' + value) && v[1] == '\0')) {
             return true;
         }
