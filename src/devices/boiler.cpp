@@ -56,7 +56,6 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_telegram_type(0x18, F("UBAMonitorFast"), false, MAKE_PF_CB(process_UBAMonitorFast));
     register_telegram_type(0x19, F("UBAMonitorSlow"), true, MAKE_PF_CB(process_UBAMonitorSlow));
     register_telegram_type(0x1C, F("UBAMaintenanceStatus"), false, MAKE_PF_CB(process_UBAMaintenanceStatus));
-    register_telegram_type(0x2A, F("MC10Status"), false, MAKE_PF_CB(process_MC10Status));
     register_telegram_type(0x33, F("UBAParameterWW"), true, MAKE_PF_CB(process_UBAParameterWW));
     register_telegram_type(0x34, F("UBAMonitorWW"), false, MAKE_PF_CB(process_UBAMonitorWW));
     if ((flags & 0x0F) != EMSdevice::EMS_DEVICE_FLAG_EMS) {
