@@ -2063,7 +2063,7 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(MQTT_TOPIC(manualtemp), MAKE_CF_CB(set_manualtemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(ecotemp), MAKE_CF_CB(set_ecotemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(comforttemp), MAKE_CF_CB(set_comforttemp), FLAG_HC);
-        register_mqtt_cmd(MQTT_TOPIC(summermode), MAKE_CF_CB(set_summermode), FLAG_HC);
+        register_mqtt_cmd(MQTT_TOPIC(summersetmode), MAKE_CF_CB(set_summermode), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(summertemp), MAKE_CF_CB(set_summertemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(wwMode), MAKE_CF_CB(set_wwmode));
         register_mqtt_cmd(MQTT_TOPIC(wwSetTemp), MAKE_CF_CB(set_wwtemp));
@@ -2235,6 +2235,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<emsesp::Thermostat::H
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT, nullptr, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
         register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype));
         register_device_value(tag, &hc->summer_setmode, DeviceValueType::ENUM, FL_(enum_summermode), FL_(summermode));
+        register_device_value(tag, &hc->summermode, DeviceValueType::BOOL, nullptr, FL_(summermode));
         register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode), FL_(controlmode));
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program));
     }

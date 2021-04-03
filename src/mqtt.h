@@ -151,6 +151,7 @@ class Mqtt {
     static uint16_t publish_count() {
         return mqtt_message_id_;
     }
+
     static void reset_mqtt();
 
     static uint8_t ha_climate_format() {
