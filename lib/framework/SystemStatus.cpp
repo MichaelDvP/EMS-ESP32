@@ -21,7 +21,7 @@ void SystemStatus::systemStatus(AsyncWebServerRequest * request) {
 
     root["fs_total"] = LITTLEFS.totalBytes();
     root["fs_used"]  = LITTLEFS.usedBytes();
-    root["uptime"]   = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3);
+    root["uptime"]   = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
 
     response->setLength();
     request->send(response);

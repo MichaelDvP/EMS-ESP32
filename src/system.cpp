@@ -459,7 +459,7 @@ void System::send_heartbeat() {
     if (!ethernet_connected_) {
         doc["rssi"] = rssi;
     }
-    doc["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3);
+    doc["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
     doc["uptime_sec"]  = uuid::get_uptime_sec();
     doc["mqttfails"]   = Mqtt::publish_fails();
     doc["rxreceived"]  = EMSESP::rxservice_.telegram_count();
@@ -677,7 +677,7 @@ void System::show_users(uuid::console::Shell & shell) {
 }
 
 void System::show_system(uuid::console::Shell & shell) {
-    shell.printfln(F("Uptime: %s"), uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).c_str());
+    shell.printfln(F("Uptime: %s"), uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12).c_str());
 
 #ifndef EMSESP_STANDALONE
     shell.printfln(F("SDK version: %s"), ESP.getSdkVersion());
@@ -1015,7 +1015,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
     node = json.createNestedObject("System");
 
     node["version"] = EMSESP_APP_VERSION;
-    node["uptime"]  = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3);
+    node["uptime"]  = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
 
     node = json.createNestedObject("Status");
 

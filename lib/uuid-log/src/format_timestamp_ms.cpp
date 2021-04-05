@@ -29,7 +29,7 @@ namespace log {
 
 std::string format_timestamp_ms(uint64_t timestamp_ms, unsigned int days_width) {
     unsigned long days;
-    unsigned int  hours, minutes, seconds; //, milliseconds;
+    unsigned int  hours, minutes, seconds, milliseconds;
 
     days = timestamp_ms / 86400000UL;
     timestamp_ms %= 86400000UL;
@@ -43,12 +43,11 @@ std::string format_timestamp_ms(uint64_t timestamp_ms, unsigned int days_width) 
     seconds = timestamp_ms / 1000UL;
     timestamp_ms %= 1000UL;
 
-    // milliseconds = timestamp_ms;
+    milliseconds = timestamp_ms;
 
     static std::vector<char> text(10 + 1 /* days */ + 2 + 1 /* hours */ + 2 + 1 /* minutes */ + 2 + 1 /* seconds */ + 3 /* milliseconds */ + 1);
 
-    // snprintf_P(text.data(), text.size(), PSTR("%0*lu+%02u:%02u:%02u.%03u"), std::min(days_width, 10U), days, hours, minutes, seconds, milliseconds);
-    snprintf_P(text.data(), text.size(), PSTR("%0*lu+%02u:%02u:%02u"), std::min(days_width, 10U), days, hours, minutes, seconds);
+    snprintf_P(text.data(), text.size(), PSTR("%0*lu+%02u:%02u:%02u.%03u"), std::min(days_width, 10U), days, hours, minutes, seconds, milliseconds);
 
     return text.data();
 }
