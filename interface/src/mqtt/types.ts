@@ -42,6 +42,6 @@ export interface MqttSettings {
   mqtt_retain: boolean;
   ha_enabled: boolean;
   ha_climate_format: number;
-  nested_format: boolean;
+  nested_format: number;
   subscribe_format: number;
 }
