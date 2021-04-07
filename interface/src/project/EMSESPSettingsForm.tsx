@@ -197,15 +197,6 @@ class EMSESPSettingsForm extends React.Component<EMSESPSettingsFormProps> {
           Board Profile
         </Typography>
 
-        <Box color="warning.main" p={0} mt={0} mb={0}>
-          <Typography variant="body2">
-            <i>
-              Select a pre-configured board layout to automatically set the GPIO
-              pins, or set your own custom configuration
-            </i>
-          </Typography>
-        </Box>
-
         <SelectValidator
           name="board_profile"
           label="Board Profile"

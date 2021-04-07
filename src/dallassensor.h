@@ -68,6 +68,9 @@ class DallasSensor {
         return sensorfails_;
     }
 
+    uint32_t reads() {
+        return sensorreads_;
+    }
   private:
     static constexpr uint8_t MAX_SENSORS = 20;
 
@@ -123,6 +126,7 @@ class DallasSensor {
     bool     parasite_    = false;
     bool     changed_     = false;
     uint32_t sensorfails_ = 0;
+    uint32_t sensorreads_ = 0;
     int8_t   scanretry_   = 0;
 };
 

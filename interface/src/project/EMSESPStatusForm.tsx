@@ -74,9 +74,9 @@ class EMSESPStatusForm extends Component<EMSESPStatusFormProps> {
                 </TableRow>
                 <TableRow>
                   <TableCell >
-                    # Dallas Fails
+                    # Dallassensors Read / Failed (Quality)
                   </TableCell >
-                  <TableCell align="right">{formatNumber(data.dallas_fails)}
+                  <TableCell align="right">{formatNumber(data.dallas_reads)}&nbsp;/&nbsp;{formatNumber(data.dallas_fails)}&nbsp;({data.dallas_quality}%)
                   </TableCell>
                 </TableRow>
               </TableBody>

@@ -124,6 +124,7 @@ void DallasSensor::loop() {
                         int16_t t;
                         t = get_temperature_c(addr);
                         if ((t >= -550) && (t <= 1250)) {
+                            sensorreads_++;
                             // check if we have this sensor already
                             bool found = false;
                             for (auto & sensor : sensors_) {

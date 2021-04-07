@@ -210,6 +210,7 @@ MAKE_PSTR_WORD(holiday)
 MAKE_PSTR_WORD(reduce)
 MAKE_PSTR_WORD(RC3x)
 MAKE_PSTR_WORD(RC20)
+MAKE_PSTR_WORD(error)
 MAKE_PSTR(internal_temperature, "internal temperature")
 MAKE_PSTR(internal_setpoint, "internal setpoint")
 MAKE_PSTR(external_temperature, "external temperature")
@@ -256,8 +257,6 @@ MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(h
 // Boiler
 // extra commands
 MAKE_PSTR(wwtapactivated, "wwtapactivated")
-MAKE_PSTR(maintenance, "maintenance")
-MAKE_PSTR(error, "error")
 MAKE_PSTR(reset, "reset")
 
 // single mqtt topics
@@ -325,7 +324,7 @@ MAKE_PSTR_LIST(auxElecHeatNrgConsHeating, F("auxelecheatnrgconsheating"), F("aux
 MAKE_PSTR_LIST(auxElecHeatNrgConsDHW, F("auxelecheatnrgconsww"), F("auxiliary electrical heater energy consumption DHW"))
 MAKE_PSTR_LIST(maintenanceMessage, F("maintenancemessage"), F("maintenance message"))
 MAKE_PSTR_LIST(maintenanceDate, F("maintenancedate"), F("maintenance set date"))
-MAKE_PSTR_LIST(maintenanceType, F("maintenancetype"), F("maintenance scheduled"))
+MAKE_PSTR_LIST(maintenance, F("maintenance"), F("maintenance scheduled"))
 MAKE_PSTR_LIST(maintenanceTime, F("maintenancetime"), F("maintenance set time"))
 
 MAKE_PSTR_LIST(wWSelTemp, F("wwseltemp"), F("selected temperature"))

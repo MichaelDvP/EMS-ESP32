@@ -221,8 +221,7 @@ class RxService : public EMSbus {
         if (telegram_error_count_ >= telegram_count_) {
             return 100;
         }
-        // uint8_t q = (100 * telegram_error_count_) / telegram_count_s;
-
+        // uint8_t q = (100 * telegram_error_count_) / telegram_count_;
         // return (q <= EMS_BUS_QUALITY_RX_THRESHOLD ? 100 : 100 - q);
         return (100 - (uint8_t)((100 * telegram_error_count_) / telegram_count_));
     }

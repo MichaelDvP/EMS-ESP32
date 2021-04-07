@@ -128,6 +128,10 @@ class EMSESP {
         return dallassensor_.fails();
     }
 
+    static uint32_t sensor_reads() {
+        return dallassensor_.reads();
+    }
+
     enum Watch : uint8_t { WATCH_OFF, WATCH_ON, WATCH_RAW, WATCH_UNKNOWN };
     static void     watch_id(uint16_t id);
     static uint16_t watch_id() {
