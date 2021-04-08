@@ -36,6 +36,7 @@ class Thermostat : public EMSdevice {
 
         int16_t setpoint_roomTemp;
         int16_t curr_roomTemp;
+        uint8_t tempautotemp;
         uint8_t mode;
         uint8_t modetype;
         uint8_t summermode;
@@ -59,6 +60,8 @@ class Thermostat : public EMSdevice {
         uint8_t program;
         uint8_t controlmode;
         uint8_t control;
+        uint8_t pause;
+        uint8_t party;
 
         uint8_t hc_num() const {
             return hc_num_;
@@ -94,6 +97,7 @@ class Thermostat : public EMSdevice {
             MINFLOW,
             MAXFLOW,
             ROOMINFLUENCE,
+            TEMPAUTO,
             UNKNOWN
 
         };
@@ -310,6 +314,7 @@ class Thermostat : public EMSdevice {
     bool set_offsettemp(const char * value, const int8_t id);
     bool set_holidaytemp(const char * value, const int8_t id);
     bool set_manualtemp(const char * value, const int8_t id);
+    bool set_tempautotemp(const char * value, const int8_t id);
     bool set_remotetemp(const char * value, const int8_t id);
     bool set_roominfluence(const char * value, const int8_t id);
     bool set_flowtempoffset(const char * value, const int8_t id);

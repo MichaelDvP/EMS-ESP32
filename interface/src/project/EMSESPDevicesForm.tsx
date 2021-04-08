@@ -171,7 +171,7 @@ class EMSESPDevicesForm extends Component<EMSESPDevicesFormProps, EMSESPDevicesF
                       </Button>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>{device.brand + " " + device.name} </TableCell>
+                  <TableCell align="right">{device.brand + " " + device.name} </TableCell>
                 </TableRow>
               ))}
             </TableBody>

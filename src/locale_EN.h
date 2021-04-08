@@ -184,10 +184,10 @@ MAKE_PSTR_WORD(heat)
 MAKE_PSTR_WORD(hold)
 MAKE_PSTR_WORD(cool)
 MAKE_PSTR_WORD(end)
-MAKE_PSTR_WORD(German)
-MAKE_PSTR_WORD(Dutch)
-MAKE_PSTR_WORD(French)
-MAKE_PSTR_WORD(Italian)
+MAKE_PSTR_WORD(german)
+MAKE_PSTR_WORD(dutch)
+MAKE_PSTR_WORD(french)
+MAKE_PSTR_WORD(italian)
 MAKE_PSTR_WORD(high)
 MAKE_PSTR_WORD(low)
 MAKE_PSTR_WORD(radiator)
@@ -196,7 +196,7 @@ MAKE_PSTR_WORD(floor)
 MAKE_PSTR_WORD(summer)
 MAKE_PSTR_WORD(winter)
 MAKE_PSTR_WORD(outdoor)
-MAKE_PSTR_WORD(MPC)
+MAKE_PSTR_WORD(mpc)
 MAKE_PSTR_WORD(room)
 MAKE_PSTR_WORD(power)
 MAKE_PSTR_WORD(constant)
@@ -208,20 +208,20 @@ MAKE_PSTR_WORD(night)
 MAKE_PSTR_WORD(day)
 MAKE_PSTR_WORD(holiday)
 MAKE_PSTR_WORD(reduce)
-MAKE_PSTR_WORD(RC3x)
-MAKE_PSTR_WORD(RC20)
+MAKE_PSTR_WORD(rc3x)
+MAKE_PSTR_WORD(rc20)
 MAKE_PSTR_WORD(error)
 MAKE_PSTR(internal_temperature, "internal temperature")
 MAKE_PSTR(internal_setpoint, "internal setpoint")
 MAKE_PSTR(external_temperature, "external temperature")
 MAKE_PSTR(burner_temperature, "burner temperature")
-MAKE_PSTR(WW_temperature, "WW temperature")
+MAKE_PSTR(ww_temperature, "ww temperature")
 MAKE_PSTR(functioning_mode, "functioning mode")
 MAKE_PSTR(smoke_temperature, "smoke temperature")
 
 // thermostat lists
-MAKE_PSTR_LIST(enum_ibaMainDisplay, F_(internal_temperature), F_(internal_setpoint), F_(external_temperature), F_(burner_temperature), F_(WW_temperature), F_(functioning_mode), F_(time), F_(date), F_(smoke_temperature))
-MAKE_PSTR_LIST(enum_ibaLanguage, F_(German), F_(Dutch), F_(French), F_(Italian))
+MAKE_PSTR_LIST(enum_ibaMainDisplay, F_(internal_temperature), F_(internal_setpoint), F_(external_temperature), F_(burner_temperature), F_(ww_temperature), F_(functioning_mode), F_(time), F_(date), F_(smoke_temperature))
+MAKE_PSTR_LIST(enum_ibaLanguage, F_(german), F_(dutch), F_(french), F_(italian))
 MAKE_PSTR_LIST(enum_floordrystatus, F_(off), F_(start), F_(heat), F_(hold), F_(cool), F_(end))
 MAKE_PSTR_LIST(enum_ibaBuildingType, F_(blank), F_(light), F_(medium), F_(heavy)) // RC300
 MAKE_PSTR_LIST(enum_wwMode, F_(off), F_(low), F_(high), F_(auto), F_(own_prog))
@@ -244,9 +244,9 @@ MAKE_PSTR_LIST(enum_modetype4, F_(blank), F_(nofrost), F_(eco), F_(heat))
 
 MAKE_PSTR_LIST(enum_reducemode, F_(nofrost), F_(reduce), F_(room), F_(outdoor))
 
-MAKE_PSTR_LIST(enum_controlmode, F_(off), F_(outdoor), F_(simple), F_(MPC), F_(room), F_(power), F_(constant))
+MAKE_PSTR_LIST(enum_controlmode, F_(off), F_(outdoor), F_(simple), F_(mpc), F_(room), F_(power), F_(constant))
 MAKE_PSTR_LIST(enum_controlmode2, F_(outdoor), F_(room))
-MAKE_PSTR_LIST(enum_control, F_(off), F_(RC20), F_(RC3x))
+MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
 
 MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(heat), F_(auto), F_(auto), F_(auto), F_(auto))
 
@@ -256,8 +256,8 @@ MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(h
 
 // Boiler
 // extra commands
-MAKE_PSTR(wwtapactivated, "wwtapactivated")
-MAKE_PSTR(reset, "reset")
+MAKE_PSTR_LIST(wwtapactivated, F("wwtapactivated"))
+MAKE_PSTR_LIST(reset, F("reset"))
 
 // single mqtt topics
 MAKE_PSTR(heating_active, "heating_active")
@@ -359,13 +359,12 @@ MAKE_PSTR_LIST(wWStarts2, F("wwstarts2"), F("# control starts"))
 MAKE_PSTR_LIST(wWWorkM, F("wwworkm"), F("active time"))
 
 // thermostat
-// extra commands
-MAKE_PSTR(remoteTemp, "remotetemp")
-MAKE_PSTR(pause, "pause")
-MAKE_PSTR(party, "party")
-MAKE_PSTR(switchtime, "switchtime")
-MAKE_PSTR(temp, "temp")
+// extra commands, not published yet
+MAKE_PSTR_LIST(remoteTemp, F("remotetemp"), F("remotetemp"))
+MAKE_PSTR_LIST(switchtime, F("switchtime"), F("switchtime"))
+MAKE_PSTR_LIST(temp, F("temp"), F("temporary set temperature"))
 
+// mqtt values / commands
 MAKE_PSTR_LIST(dateTime, F("datetime"), F("date/time"))
 MAKE_PSTR_LIST(errorCode, F("errorcode"), F("error code"))
 
@@ -400,6 +399,7 @@ MAKE_PSTR_LIST(heattemp, F("heattemp"), F("heat temperature"))
 MAKE_PSTR_LIST(nighttemp, F("nighttemp"), F("night temperature"))
 MAKE_PSTR_LIST(ecotemp, F("ecotemp"), F("eco temperature"))
 MAKE_PSTR_LIST(manualtemp, F("manualtemp"), F("manual temperature"))
+MAKE_PSTR_LIST(tempautotemp, F("tempautotemp"), F("temporary room temperature automode"))
 MAKE_PSTR_LIST(comforttemp, F("comforttemp"), F("comfort temperature"))
 MAKE_PSTR_LIST(summertemp, F("summertemp"), F("summer temperature"))
 MAKE_PSTR_LIST(designtemp, F("designtemp"), F("design temperature"))
@@ -414,6 +414,8 @@ MAKE_PSTR_LIST(summersetmode, F("summersetmode"), F("summer set mode"))
 MAKE_PSTR_LIST(controlmode, F("controlmode"), F("control mode"))
 MAKE_PSTR_LIST(control, F("control"), F("control device"))
 MAKE_PSTR_LIST(program, F("program"), F("program"))
+MAKE_PSTR_LIST(pause, F("pause"), F("pause time"))
+MAKE_PSTR_LIST(party, F("party"), F("party time"))
 
 MAKE_PSTR_LIST(holidaytemp, F("holidaytemp"), F("holiday temperature"))
 MAKE_PSTR_LIST(summermode, F("summermode"), F("summer mode"))

@@ -792,6 +792,7 @@ void Thermostat::process_RC300Set(std::shared_ptr<const Telegram> telegram) {
     // has_update(telegram->read_value(hc->mode, 0); // Auto = xFF, Manual = x00 eg. 10 00 FF 08 01 B9 FF
     has_update(telegram->read_value(hc->daytemp, 2));     // is * 2
     has_update(telegram->read_value(hc->nighttemp, 4));   // is * 2
+    has_update(telegram->read_value(hc->tempautotemp, 8));
     has_update(telegram->read_value(hc->manualtemp, 10)); // is * 2
     has_update(telegram->read_value(hc->program, 11));    // timer program 1 or 2
 }
@@ -976,6 +977,8 @@ void Thermostat::process_RC35Timer(std::shared_ptr<const Telegram> telegram) {
     }
 
     has_update(telegram->read_value(hc->program, 84)); // 0 .. 10, 0-userprogram 1, 10-userprogram 2
+    has_update(telegram->read_value(hc->pause, 85));   // time in hours
+    has_update(telegram->read_value(hc->party, 86));   // time in hours
 }
 
 // process_RCTime - type 0x06 - date and time from a thermostat - 14 bytes long
@@ -1311,7 +1314,7 @@ bool Thermostat::set_holiday(const char * value, const int8_t id) {
         LOG_INFO(F("Setting holiday at home for hc %d"), hc->hc_num());
         write_command(timer_typeids[hc->hc_num() - 1], 93, data, 6, 0);
     } else {
-        LOG_WARNING(F("Set holiday: Invalid"));
+        LOG_WARNING(F("Set holiday: Invalid value"));
         return false;
     }
 
@@ -1738,6 +1741,12 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
         case HeatingCircuit::Mode::MANUAL:
             offset = 0x0A; // manual offset
             break;
+        case HeatingCircuit::Mode::TEMPAUTO:
+            offset = 0x08; // manual offset
+            if (temperature == -1) {
+                factor = 0xFF; // use factor as value
+            }
+            break;
         case HeatingCircuit::Mode::COMFORT:
             offset = 0x02; // comfort offset level 2
             break;
@@ -2026,6 +2035,10 @@ bool Thermostat::set_manualtemp(const char * value, const int8_t id) {
     return set_temperature_value(value, id, HeatingCircuit::Mode::MANUAL);
 }
 
+bool Thermostat::set_tempautotemp(const char * value, const int8_t id) {
+    return set_temperature_value(value, id, HeatingCircuit::Mode::TEMPAUTO);
+}
+
 bool Thermostat::set_flowtempoffset(const char * value, const int8_t id) {
     return set_temperature_value(value, id, HeatingCircuit::Mode::FLOWOFFSET);
 }
@@ -2050,7 +2063,7 @@ void Thermostat::add_commands() {
     }
 
     // common to all thermostats (like temp and mode)
-    register_mqtt_cmd(F_(temp), MAKE_CF_CB(set_temp), FLAG_HC);    // for backwards compatibility
+    register_mqtt_cmd(MQTT_TOPIC(temp), MAKE_CF_CB(set_temp), FLAG_HC);    // for backwards compatibility
     register_mqtt_cmd(MQTT_TOPIC(setpoint_roomTemp), MAKE_CF_CB(set_temp), FLAG_HC); // new naming
     register_mqtt_cmd(MQTT_TOPIC(mode), MAKE_CF_CB(set_mode), FLAG_HC);
 
@@ -2058,6 +2071,7 @@ void Thermostat::add_commands() {
     case EMS_DEVICE_FLAG_RC100:
     case EMS_DEVICE_FLAG_RC300:
         register_mqtt_cmd(MQTT_TOPIC(dateTime), MAKE_CF_CB(set_datetime));
+        register_mqtt_cmd(MQTT_TOPIC(tempautotemp), MAKE_CF_CB(set_tempautotemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(manualtemp), MAKE_CF_CB(set_manualtemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(ecotemp), MAKE_CF_CB(set_ecotemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(comforttemp), MAKE_CF_CB(set_comforttemp), FLAG_HC);
@@ -2095,14 +2109,14 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(MQTT_TOPIC(nighttemp), MAKE_CF_CB(set_nighttemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(daytemp), MAKE_CF_CB(set_daytemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(nofrosttemp), MAKE_CF_CB(set_nofrosttemp), FLAG_HC);
-        register_mqtt_cmd(F_(remoteTemp), MAKE_CF_CB(set_remotetemp), FLAG_HC);
+        register_mqtt_cmd(MQTT_TOPIC(remoteTemp), MAKE_CF_CB(set_remotetemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(ibaMinExtTemperature), MAKE_CF_CB(set_minexttemp));
         register_mqtt_cmd(MQTT_TOPIC(ibaCalIntTemperature), MAKE_CF_CB(set_calinttemp));
         register_mqtt_cmd(MQTT_TOPIC(ibaBuildingType), MAKE_CF_CB(set_building));
         register_mqtt_cmd(MQTT_TOPIC(control), MAKE_CF_CB(set_control), FLAG_HC);
-        register_mqtt_cmd(F_(pause), MAKE_CF_CB(set_pause), FLAG_HC);
-        register_mqtt_cmd(F_(party), MAKE_CF_CB(set_party), FLAG_HC);
-        register_mqtt_cmd(F_(holiday), MAKE_CF_CB(set_holiday), FLAG_HC);
+        register_mqtt_cmd(MQTT_TOPIC(pause), MAKE_CF_CB(set_pause), FLAG_HC);
+        register_mqtt_cmd(MQTT_TOPIC(party), MAKE_CF_CB(set_party), FLAG_HC);
+        register_mqtt_cmd(MQTT_TOPIC(holidaymode), MAKE_CF_CB(set_holiday), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(summertemp), MAKE_CF_CB(set_summertemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(designtemp), MAKE_CF_CB(set_designtemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(offsettemp), MAKE_CF_CB(set_offsettemp), FLAG_HC);
@@ -2115,7 +2129,7 @@ void Thermostat::add_commands() {
         register_mqtt_cmd(MQTT_TOPIC(maxflowtemp), MAKE_CF_CB(set_maxflowtemp), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(reducemode), MAKE_CF_CB(set_reducemode), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(program), MAKE_CF_CB(set_program), FLAG_HC);
-        register_mqtt_cmd(F_(switchtime), MAKE_CF_CB(set_switchtime), FLAG_HC);
+        register_mqtt_cmd(MQTT_TOPIC(switchtime), MAKE_CF_CB(set_switchtime), FLAG_HC);
         register_mqtt_cmd(MQTT_TOPIC(controlmode), MAKE_CF_CB(set_controlmode), FLAG_HC);
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
@@ -2239,6 +2253,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<emsesp::Thermostat::H
         register_device_value(tag, &hc->summermode, DeviceValueType::BOOL, nullptr, FL_(summermode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode), FL_(controlmode), DeviceValueUOM::NONE, true);
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, true);
+        register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, setpoint_temp_divider, FL_(tempautotemp), DeviceValueUOM::DEGREES, true);
     }
 
     if (model == EMS_DEVICE_FLAG_RC20) {
@@ -2273,8 +2288,10 @@ void Thermostat::register_device_values_hc(std::shared_ptr<emsesp::Thermostat::H
         register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->reducemode, DeviceValueType::ENUM, FL_(enum_reducemode), FL_(reducemode), DeviceValueUOM::NONE, true);
         register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode2), FL_(controlmode), DeviceValueUOM::NONE, true);
-        register_device_value(tag, &hc->control, DeviceValueType::ENUM, FL_(enum_control), FL_(control), DeviceValueUOM::NONE);
+        register_device_value(tag, &hc->control, DeviceValueType::ENUM, FL_(enum_control), FL_(control), DeviceValueUOM::NONE, true);
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, true);
+        register_device_value(tag, &hc->pause, DeviceValueType::UINT, nullptr, FL_(pause), DeviceValueUOM::HOURS, true);
+        register_device_value(tag, &hc->party, DeviceValueType::UINT, nullptr, FL_(party), DeviceValueUOM::HOURS, true);
     }
 
     if (model == EMSdevice::EMS_DEVICE_FLAG_JUNKERS) {

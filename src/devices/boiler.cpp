@@ -77,7 +77,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     // MQTT commands for boiler topic
     register_mqtt_cmd(MQTT_TOPIC(wWComfort), MAKE_CF_CB(set_warmwater_mode));
     register_mqtt_cmd(MQTT_TOPIC(wWActivated), MAKE_CF_CB(set_warmwater_activated));
-    register_mqtt_cmd(F_(wwtapactivated), MAKE_CF_CB(set_tapwarmwater_activated));
+    register_mqtt_cmd(MQTT_TOPIC(wwtapactivated), MAKE_CF_CB(set_tapwarmwater_activated));
     register_mqtt_cmd(MQTT_TOPIC(wWFlowTempOffset), MAKE_CF_CB(set_wWFlowTempOffset));
     register_mqtt_cmd(MQTT_TOPIC(wWMaxPower), MAKE_CF_CB(set_warmwater_maxpower));
     register_mqtt_cmd(MQTT_TOPIC(wWOneTime), MAKE_CF_CB(set_warmwater_onetime));
@@ -94,10 +94,10 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_mqtt_cmd(MQTT_TOPIC(boilHystOff), MAKE_CF_CB(set_hyst_off));
     register_mqtt_cmd(MQTT_TOPIC(burnPeriod), MAKE_CF_CB(set_burn_period));
     register_mqtt_cmd(MQTT_TOPIC(pumpDelay), MAKE_CF_CB(set_pump_delay));
-    register_mqtt_cmd(F_(maintenance), MAKE_CF_CB(set_maintenance));
+    register_mqtt_cmd(MQTT_TOPIC(maintenance), MAKE_CF_CB(set_maintenance));
     register_mqtt_cmd(MQTT_TOPIC(pumpModMax), MAKE_CF_CB(set_max_pump));
     register_mqtt_cmd(MQTT_TOPIC(pumpModMin), MAKE_CF_CB(set_min_pump));
-    register_mqtt_cmd(F_(reset), MAKE_CF_CB(set_reset));
+    register_mqtt_cmd(MQTT_TOPIC(reset), MAKE_CF_CB(set_reset));
     // add values
     // reserve_device_values(90);
 
