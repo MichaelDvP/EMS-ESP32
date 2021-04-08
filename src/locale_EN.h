@@ -271,7 +271,6 @@ MAKE_PSTR(heating_active, "heating_active")
 MAKE_PSTR(tapwater_active, "tapwater_active")
 
 // mqtt, commands and text
-MAKE_PSTR_LIST(burnPeriod, F("burnperiod"), F("min burner periode"))
 MAKE_PSTR_LIST(heatingActive, F("heatingactive"), F("heating active"))
 MAKE_PSTR_LIST(tapwaterActive, F("tapwateractive"), F("warm water active"))
 MAKE_PSTR_LIST(selFlowTemp, F("selflowtemp"), F("selected flow temperature"))

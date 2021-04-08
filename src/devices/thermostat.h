@@ -121,8 +121,6 @@ class Thermostat : public EMSdevice {
   private:
     static uuid::log::Logger logger_;
 
-    void add_commands();
-
     void register_device_values();
     void register_device_values(uint8_t hc_num);
 
