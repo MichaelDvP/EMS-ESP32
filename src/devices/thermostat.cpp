@@ -2259,7 +2259,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<emsesp::Thermostat::H
         register_device_value(tag, &hc->summermode, DeviceValueType::BOOL, nullptr, FL_(summermode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode), FL_(controlmode), DeviceValueUOM::NONE, true);
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, true);
-        register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, setpoint_temp_divider, FL_(tempautotemp), DeviceValueUOM::DEGREES, true);
+        register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, FL_(div2), FL_(tempautotemp), DeviceValueUOM::DEGREES, true);
         break;
     case EMS_DEVICE_FLAG_RC20:
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::NONE, true);
