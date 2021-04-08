@@ -537,59 +537,65 @@ uint8_t Thermostat::HeatingCircuit::get_mode_type() const {
 std::string Thermostat::mode_tostring(uint8_t mode) {
     switch (mode) {
     case HeatingCircuit::Mode::OFF:
-        return read_flash_string(F("off"));
+        return read_flash_string(F_(off));
         break;
     case HeatingCircuit::Mode::MANUAL:
-        return read_flash_string(F("manual"));
+        return read_flash_string(F_(manual));
         break;
     case HeatingCircuit::Mode::DAY:
-        return read_flash_string(F("day"));
+        return read_flash_string(F_(day));
         break;
     case HeatingCircuit::Mode::NIGHT:
-        return read_flash_string(F("night"));
+        return read_flash_string(F_(night));
         break;
     case HeatingCircuit::Mode::ECO:
-        return read_flash_string(F("eco"));
+        return read_flash_string(F_(eco));
         break;
     case HeatingCircuit::Mode::COMFORT:
-        return read_flash_string(F("comfort"));
+        return read_flash_string(F_(comfort));
         break;
     case HeatingCircuit::Mode::HEAT:
-        return read_flash_string(F("heat"));
+        return read_flash_string(F_(heat));
         break;
     case HeatingCircuit::Mode::HOLIDAY:
-        return read_flash_string(F("holiday"));
+        return read_flash_string(F_(holiday));
         break;
     case HeatingCircuit::Mode::NOFROST:
-        return read_flash_string(F("nofrost"));
+        return read_flash_string(F_(nofrost));
         break;
     case HeatingCircuit::Mode::AUTO:
-        return read_flash_string(F("auto"));
+        return read_flash_string(F_(auto));
         break;
     case HeatingCircuit::Mode::SUMMER:
-        return read_flash_string(F("summer"));
+        return read_flash_string(F_(summer));
         break;
     case HeatingCircuit::Mode::OFFSET:
-        return read_flash_string(F("offset"));
+        return read_flash_string(F_(offset));
         break;
     case HeatingCircuit::Mode::DESIGN:
-        return read_flash_string(F("design"));
+        return read_flash_string(F_(design));
         break;
     case HeatingCircuit::Mode::MINFLOW:
-        return read_flash_string(F("minflow"));
+        return read_flash_string(F_(minflow));
         break;
     case HeatingCircuit::Mode::MAXFLOW:
-        return read_flash_string(F("maxflow"));
+        return read_flash_string(F_(maxflow));
         break;
     case HeatingCircuit::Mode::ROOMINFLUENCE:
-        return read_flash_string(F("roominfluence"));
+        return read_flash_string(F_(roominfluence[0]));
         break;
     case HeatingCircuit::Mode::FLOWOFFSET:
-        return read_flash_string(F("flowtempoffset"));
+        return read_flash_string(F_(flowtempoffset[0]));
+        break;
+    case HeatingCircuit::Mode::TEMPAUTO:
+        return read_flash_string(F_(tempauto));
+        break;
+    case HeatingCircuit::Mode::NOREDUCE:
+        return read_flash_string(F_(noreduce));
         break;
     default:
     case HeatingCircuit::Mode::UNKNOWN:
-        return read_flash_string(F("unknown"));
+        return read_flash_string(F_(unknown));
         break;
     }
 }
@@ -958,7 +964,8 @@ void Thermostat::process_RC35Set(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(hc->reducemode, 25));     // 0-nofrost, 1-reduce, 2-roomhold, 3-outdoorhold
     has_update(telegram->read_value(hc->control, 26));        // 0-off, 1-RC20 (remote), 2-RC35
     has_update(telegram->read_value(hc->controlmode, 33));    // 0-outdoortemp, 1-roomtemp
-    // has_update(telegram->read_value(hc->noreducetemp, 38));    // outdoor temperature for no reduce
+    has_update(telegram->read_value(hc->tempautotemp, 37));    // 0-outdoortemp, 1-roomtemp
+    has_update(telegram->read_value(hc->noreducetemp, 38));    // outdoor temperature for no reduce
     has_update(telegram->read_value(hc->minflowtemp, 16));
     if (hc->heatingtype == 3) {
         has_update(telegram->read_value(hc->designtemp, 36));  // is * 1
@@ -1867,6 +1874,13 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
             offset = 4;
             factor = 1;
             break;
+        case HeatingCircuit::Mode::NOREDUCE:
+            offset = EMS_OFFSET_RC35Set_noreducetemp;
+            factor = 1;
+            break;
+        case HeatingCircuit::Mode::TEMPAUTO:
+            offset = EMS_OFFSET_RC35Set_seltemp;
+            break;
         case HeatingCircuit::Mode::MINFLOW:
             offset = 16;
             factor = 1;
@@ -2039,6 +2053,10 @@ bool Thermostat::set_tempautotemp(const char * value, const int8_t id) {
     return set_temperature_value(value, id, HeatingCircuit::Mode::TEMPAUTO);
 }
 
+bool Thermostat::set_noreducetemp(const char * value, const int8_t id) {
+    return set_temperature_value(value, id, HeatingCircuit::Mode::NOREDUCE);
+}
+
 bool Thermostat::set_flowtempoffset(const char * value, const int8_t id) {
     return set_temperature_value(value, id, HeatingCircuit::Mode::FLOWOFFSET);
 }
@@ -2091,6 +2109,7 @@ void Thermostat::add_commands() {
         register_cmd(MQTT_TOPIC(roominfluence), MAKE_CF_CB(set_roominfluence), FLAG_HC);
         register_cmd(MQTT_TOPIC(program), MAKE_CF_CB(set_program), FLAG_HC);
         register_cmd(MQTT_TOPIC(controlmode), MAKE_CF_CB(set_controlmode), FLAG_HC);
+        register_cmd(MQTT_TOPIC(tempautotemp), MAKE_CF_CB(set_tempautotemp), FLAG_HC);
         break;
     case EMS_DEVICE_FLAG_RC20_N:
         register_cmd(MQTT_TOPIC(nighttemp), MAKE_CF_CB(set_nighttemp));
@@ -2130,6 +2149,8 @@ void Thermostat::add_commands() {
         register_cmd(MQTT_TOPIC(program), MAKE_CF_CB(set_program), FLAG_HC);
         register_cmd(MQTT_TOPIC(switchtime), MAKE_CF_CB(set_switchtime), FLAG_HC);
         register_cmd(MQTT_TOPIC(controlmode), MAKE_CF_CB(set_controlmode), FLAG_HC);
+        register_cmd(MQTT_TOPIC(noreducetemp), MAKE_CF_CB(set_noreducetemp), FLAG_HC);
+        register_cmd(MQTT_TOPIC(tempautotemp), MAKE_CF_CB(set_tempautotemp), FLAG_HC);
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
         register_cmd(MQTT_TOPIC(dateTime), MAKE_CF_CB(set_datetime));
@@ -2296,6 +2317,8 @@ void Thermostat::register_device_values_hc(std::shared_ptr<emsesp::Thermostat::H
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, true);
         register_device_value(tag, &hc->pause, DeviceValueType::UINT, nullptr, FL_(pause), DeviceValueUOM::HOURS, true);
         register_device_value(tag, &hc->party, DeviceValueType::UINT, nullptr, FL_(party), DeviceValueUOM::HOURS, true);
+        register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, FL_(div2), FL_(tempautotemp), DeviceValueUOM::DEGREES, true);
+        register_device_value(tag, &hc->noreducetemp, DeviceValueType::INT, nullptr, FL_(noreducetemp), DeviceValueUOM::DEGREES, true);
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode4), FL_(mode), DeviceValueUOM::NONE, true);

@@ -62,6 +62,7 @@ class Thermostat : public EMSdevice {
         uint8_t control;
         uint8_t pause;
         uint8_t party;
+        int8_t  noreducetemp; // signed -20°C to +10°C
 
         uint8_t hc_num() const {
             return hc_num_;
@@ -98,6 +99,7 @@ class Thermostat : public EMSdevice {
             MAXFLOW,
             ROOMINFLUENCE,
             TEMPAUTO,
+            NOREDUCE,
             UNKNOWN
 
         };
@@ -205,6 +207,7 @@ class Thermostat : public EMSdevice {
     static constexpr uint8_t EMS_OFFSET_RC35Set_heatingtype        = 0;  // e.g. floor heating = 3
     static constexpr uint8_t EMS_OFFSET_RC35Set_targetflowtemp     = 14; // target flow temperature
     static constexpr uint8_t EMS_OFFSET_RC35Set_seltemp            = 37; // selected temp
+    static constexpr uint8_t EMS_OFFSET_RC35Set_noreducetemp       = 38; // temp to stop reducing
     static constexpr uint8_t EMS_OFFSET_RC35Set_temp_offset        = 6;
     static constexpr uint8_t EMS_OFFSET_RC35Set_temp_flowoffset    = 24;
     static constexpr uint8_t EMS_OFFSET_RC35Set_temp_design        = 17;
@@ -315,6 +318,7 @@ class Thermostat : public EMSdevice {
     bool set_holidaytemp(const char * value, const int8_t id);
     bool set_manualtemp(const char * value, const int8_t id);
     bool set_tempautotemp(const char * value, const int8_t id);
+    bool set_noreducetemp(const char * value, const int8_t id);
     bool set_remotetemp(const char * value, const int8_t id);
     bool set_roominfluence(const char * value, const int8_t id);
     bool set_flowtempoffset(const char * value, const int8_t id);
