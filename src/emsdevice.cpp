@@ -769,6 +769,15 @@ void EMSdevice::publish_mqtt_ha_sensor() {
     ha_config_done(ok); // see if it worked
 }
 
+bool EMSdevice::has_telegram_id(uint16_t id) {
+    for (const auto & tf : telegram_functions_) {
+        if (tf.telegram_type_id_ == id) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // return the name of the telegram type
 std::string EMSdevice::telegram_type_name(std::shared_ptr<const Telegram> telegram) {
     // see if it's one of the common ones, like Version

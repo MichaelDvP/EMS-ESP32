@@ -55,56 +55,11 @@ enum DeviceValueType : uint8_t {
 };
 
 // Unit Of Measurement mapping - maps to DeviceValueUOM_s in emsdevice.cpp
-// sequence is important!
 // uom - also used with HA
-MAKE_PSTR(percent, "%")
-MAKE_PSTR(degrees, "°C")
-MAKE_PSTR(kwh, "kWh")
-MAKE_PSTR(wh, "Wh")
-MAKE_PSTR(bar, "bar")
-MAKE_PSTR(minutes, "minutes")
-MAKE_PSTR(hours, "hours")
-MAKE_PSTR(ua, "uA")
-MAKE_PSTR(lmin, "l/min")
+// sequence is important!
 enum DeviceValueUOM : uint8_t { NONE = 0, DEGREES, PERCENT, LMIN, KWH, WH, HOURS, MINUTES, UA, BAR, PUMP };
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
-// use empty string if want to suppress showing tags
-MAKE_PSTR(tag_none, "")
-MAKE_PSTR(tag_heartbeat, "")
-MAKE_PSTR(tag_boiler_data, "")
-MAKE_PSTR(tag_boiler_data_ww, "warm water")
-MAKE_PSTR(tag_thermostat_data, "")
-MAKE_PSTR(tag_hc1, "hc1")
-MAKE_PSTR(tag_hc2, "hc2")
-MAKE_PSTR(tag_hc3, "hc3")
-MAKE_PSTR(tag_hc4, "hc4")
-MAKE_PSTR(tag_wwc1, "wwc1")
-MAKE_PSTR(tag_wwc2, "wwc2")
-MAKE_PSTR(tag_wwc3, "wwc3")
-MAKE_PSTR(tag_wwc4, "wwc4")
-MAKE_PSTR(tag_hs1, "hs1")
-MAKE_PSTR(tag_hs2, "hs2")
-MAKE_PSTR(tag_hs3, "hs3")
-MAKE_PSTR(tag_hs4, "hs4")
-MAKE_PSTR(tag_hs5, "hs5")
-MAKE_PSTR(tag_hs6, "hs6")
-MAKE_PSTR(tag_hs7, "hs7")
-MAKE_PSTR(tag_hs8, "hs8")
-MAKE_PSTR(tag_hs9, "hs9")
-MAKE_PSTR(tag_hs10, "hs10")
-MAKE_PSTR(tag_hs11, "hs11")
-MAKE_PSTR(tag_hs12, "hs12")
-MAKE_PSTR(tag_hs13, "hs13")
-MAKE_PSTR(tag_hs14, "hs14")
-MAKE_PSTR(tag_hs15, "hs15")
-MAKE_PSTR(tag_hs16, "hs16")
-
-// MQTT topic names
-// MAKE_PSTR(tag_heartbeat_mqtt, "heartbeat")
-MAKE_PSTR(tag_boiler_data_mqtt, "")
-MAKE_PSTR(tag_boiler_data_ww_mqtt, "ww")
-
 enum DeviceValueTAG : uint8_t {
     TAG_NONE = 0, // wild card
     TAG_HEARTBEAT,
@@ -283,6 +238,8 @@ class EMSdevice {
 
     void publish_mqtt_ha_sensor();
 
+    bool has_telegram_id(uint16_t id);
+    
     std::string telegram_type_name(std::shared_ptr<const Telegram> telegram);
 
     void fetch_values();
@@ -336,7 +293,9 @@ class EMSdevice {
     static constexpr uint8_t EMS_DEVICE_FLAG_NONE = 0;
 
     // Boiler
-    static constexpr uint8_t EMS_DEVICE_FLAG_EMS = 1;
+    static constexpr uint8_t EMS_DEVICE_FLAG_EMS      = 1;
+    static constexpr uint8_t EMS_DEVICE_FLAG_EMSPLUS  = 2;
+    static constexpr uint8_t EMS_DEVICE_FLAG_HEATPUMP = 3;
 
     // Solar Module
     static constexpr uint8_t EMS_DEVICE_FLAG_SM10  = 1;
