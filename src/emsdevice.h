@@ -59,6 +59,8 @@ enum DeviceValueType : uint8_t {
 // sequence is important!
 enum DeviceValueUOM : uint8_t { NONE = 0, DEGREES, PERCENT, LMIN, KWH, WH, HOURS, MINUTES, UA, BAR, PUMP };
 
+enum DeviceValueHA : uint8_t { HA_NONE = 0, HA_VALUE, HA_DONE};
+
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 enum DeviceValueTAG : uint8_t {
     TAG_NONE = 0, // wild card
@@ -103,7 +105,7 @@ class EMSdevice {
     static constexpr uint8_t EMS_DEVICES_MAX_TELEGRAMS = 20;
 
     // virtual functions overrules by derived classes
-    virtual bool publish_ha_config() = 0;
+    // virtual bool publish_ha_config() = 0;
 
     // device_type defines which derived class to use, e.g. BOILER, THERMOSTAT etc..
     EMSdevice(uint8_t device_type, uint8_t device_id, uint8_t product_id, const std::string & version, const std::string & name, uint8_t flags, uint8_t brand)
@@ -366,6 +368,7 @@ class EMSdevice {
         const __FlashStringHelper *         short_name;   // used in MQTT
         const __FlashStringHelper *         full_name;    // used in Web and Console
         uint8_t                             uom;          // DeviceValueUOM::*
+        uint8_t                             ha;           // DevcieValueHA::
         bool                                has_cmd;      // true if there is a Console/MQTT command which matches the short_name
 
         DeviceValue(uint8_t                             device_type,
@@ -377,6 +380,7 @@ class EMSdevice {
                     const __FlashStringHelper *         short_name,
                     const __FlashStringHelper *         full_name,
                     uint8_t                             uom,
+                    uint8_t                             ha,
                     bool                                has_cmd)
             : device_type(device_type)
             , tag(tag)
@@ -387,6 +391,7 @@ class EMSdevice {
             , short_name(short_name)
             , full_name(full_name)
             , uom(uom)
+            , ha(ha)
             , has_cmd(has_cmd) {
         }
     };

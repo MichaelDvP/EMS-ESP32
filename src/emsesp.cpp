@@ -441,7 +441,8 @@ void EMSESP::publish_device_values(uint8_t device_type) {
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice && (emsdevice->device_type() == device_type)) {
             // if we're using HA and it's not already done, send the config topics first. only do this once
-            if (Mqtt::ha_enabled() && (!emsdevice->ha_config_done())) {
+            // if (Mqtt::ha_enabled() && (!emsdevice->ha_config_done())) {
+            if (Mqtt::ha_enabled()) {
                 emsdevice->publish_mqtt_ha_sensor(); // create the configs for each value as a sensor
             }
 

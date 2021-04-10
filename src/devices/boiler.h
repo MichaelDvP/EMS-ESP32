@@ -32,6 +32,10 @@ class Boiler : public EMSdevice {
   private:
     static uuid::log::Logger logger_;
 
+    // specific thermostat characteristics, stripping the top 4 bits
+    inline uint8_t model() const {
+        return (flags() & 0x0F);
+    }
     void check_active(const bool force = false);
 
     uint8_t boilerState_ = EMS_VALUE_UINT_NOTSET; // Boiler state flag - FOR INTERNAL USE
