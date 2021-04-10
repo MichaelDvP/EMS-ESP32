@@ -109,9 +109,9 @@ bool Mixer::publish_ha_config() {
     // determine the topic, if its HC and WWC. This is determined by the incoming telegram types.
     std::string topic(Mqtt::MQTT_TOPIC_MAX_SIZE, '\0');
     if (type_ == Type::HC) {
-        snprintf_P(&topic[0], topic.capacity() + 1, PSTR("homeassistant/sensor/%s/mixer_hc%d/config"), Mqtt::base().c_str(), hc_);
+        snprintf_P(&topic[0], topic.capacity() + 1, PSTR("sensor/%s/mixer_hc%d/config"), Mqtt::base().c_str(), hc_);
     } else {
-        snprintf_P(&topic[0], topic.capacity() + 1, PSTR("homeassistant/sensor/%s/mixer_wwc%d/config"), Mqtt::base().c_str(), hc_); // WWC
+        snprintf_P(&topic[0], topic.capacity() + 1, PSTR("sensor/%s/mixer_wwc%d/config"), Mqtt::base().c_str(), hc_); // WWC
     }
 
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag

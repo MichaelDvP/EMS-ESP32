@@ -676,7 +676,7 @@ void Mqtt::ha_status() {
     ids.add("ems-esp");
 
     char topic[MQTT_TOPIC_MAX_SIZE];
-    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/system/config"), mqtt_base_.c_str());
+    snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/system/config"), mqtt_base_.c_str());
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
 
     // create the sensors
@@ -806,14 +806,15 @@ void Mqtt::publish_ha(const std::string & topic, const JsonObject & payload) {
     payload_text.reserve(measureJson(payload) + 1);
     serializeJson(payload, payload_text); // convert json to string
 
+    std::string fulltopic = uuid::read_flash_string(F_(homeassistant)) + topic;
 #if defined(EMSESP_STANDALONE)
-    LOG_DEBUG(F("Publishing HA topic=%s, payload=%s"), topic.c_str(), payload_text.c_str());
+    LOG_DEBUG(F("Publishing HA topic=%s, payload=%s"), fulltopic.c_str(), payload_text.c_str());
 #elif defined(EMSESP_DEBUG)
-    LOG_DEBUG(F("[debug] Publishing HA topic=%s, payload=%s"), topic.c_str(), payload_text.c_str());
+    LOG_DEBUG(F("[debug] Publishing HA topic=%s, payload=%s"), fulltopic.c_str(), payload_text.c_str());
 #endif
 
     // queue messages if the MQTT connection is not yet established. to ensure we don't miss messages
-    queue_publish_message(topic, payload_text, true); // with retain true
+    queue_publish_message(fulltopic, payload_text, true); // with retain true
 }
 
 // take top from queue and perform the publish or subscribe action
@@ -827,7 +828,7 @@ void Mqtt::process_queue() {
     auto mqtt_message = mqtt_messages_.front();
     auto message      = mqtt_message.content_;
     char topic[MQTT_TOPIC_MAX_SIZE];
-    if ((strncmp(message->topic.c_str(), "homeassistant/", 13) == 0)) {
+    if (message->topic.find(uuid::read_flash_string(F_(homeassistant))) == 0) {
         // leave topic as it is
         strcpy(topic, message->topic.c_str());
     } else {
@@ -962,7 +963,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     // look at the device value type
     if (type == DeviceValueType::BOOL) {
         // binary sensor
-        snprintf_P(topic, sizeof(topic), PSTR("homeassistant/binary_sensor/%s/%s/config"), mqtt_base_.c_str(), uniq.c_str()); // topic
+        snprintf_P(topic, sizeof(topic), PSTR("binary_sensor/%s/%s/config"), mqtt_base_.c_str(), uniq.c_str()); // topic
 
         // how to render boolean. HA only accepts String values
         char result[10];
@@ -970,7 +971,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
         doc[F("payload_off")] = Helpers::render_boolean(result, false);
     } else {
         // normal HA sensor, not a boolean one
-        snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/%s/config"), mqtt_base_.c_str(), uniq.c_str()); // topic
+        snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/%s/config"), mqtt_base_.c_str(), uniq.c_str()); // topic
 
         // unit of measure and map the HA icon
         if (uom != DeviceValueUOM::NONE && uom != DeviceValueUOM::PUMP) {

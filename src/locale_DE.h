@@ -308,6 +308,7 @@ MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(h
 /*
  * MQTT topics and full text for values and commands
  */
+MAKE_PSTR(homeassistant, "homeassistant/")
 
 // Boiler
 // extra commands

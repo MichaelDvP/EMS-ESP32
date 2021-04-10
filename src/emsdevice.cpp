@@ -762,7 +762,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
 }
 
 // create the Home Assistant configs for each value
-// this is called when an MQTT publish is done via an EMS Device, and only done once
+// this is called when an MQTT publish is done via an EMS Device
 void EMSdevice::publish_mqtt_ha_sensor() {
     for (auto & dv : devicevalues_) {
         if (dv.ha == DeviceValueHA::HA_VALUE) {

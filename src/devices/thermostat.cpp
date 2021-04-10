@@ -203,7 +203,7 @@ bool Thermostat::publish_ha_config() {
     ids.add("ems-esp-thermostat");
 
     char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
-    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/thermostat/config"), Mqtt::base().c_str());
+    snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/thermostat/config"), Mqtt::base().c_str());
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
 
     return true;
@@ -420,7 +420,7 @@ void Thermostat::register_mqtt_ha_config_hc(uint8_t hc_num) {
     ids.add("ems-esp-thermostat");
 
     char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
-    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/climate/%s/thermostat_hc%d/config"), Mqtt::base().c_str(), hc_num);
+    snprintf_P(topic, sizeof(topic), PSTR("climate/%s/thermostat_hc%d/config"), Mqtt::base().c_str(), hc_num);
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
 
     // enable the a special "thermostat_hc<n>" topic to take both mode strings and floats for each of the heating circuits
@@ -2069,7 +2069,7 @@ bool Thermostat::set_roominfluence(const char * value, const int8_t id) {
 // register main device values, top level for all thermostats (excluding heating circuits)
 // as these are done in void Thermostat::register_device_values_hc()
 void Thermostat::register_device_values() {
-    // extra commands 
+    // extra commands
     if (!has_flags(EMS_DEVICE_FLAG_NO_WRITE)) {
         register_cmd(MQTT_TOPIC(temp), MAKE_CF_CB(set_temp), FLAG_HC); // for backwards compatibility
     }

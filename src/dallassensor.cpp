@@ -396,9 +396,9 @@ void DallasSensor::publish_values(const bool force) {
                     // std::string topicname = sensor.to_string();
                     // std::replace(topicname.begin(), topicname.end(), '-', '_');
                     // Helpers::toLower(topic);
-                    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%s/config"), Mqtt::base().c_str(), sensor.to_string().c_str());
+                    snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/dallas_sensor%s/config"), Mqtt::base().c_str(), sensor.to_string().c_str());
                 } else {
-                    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/dallas_sensor%d/config"), Mqtt::base().c_str(), sensor_no);
+                    snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/dallas_sensor%d/config"), Mqtt::base().c_str(), sensor_no);
                 }
                 Mqtt::publish_ha(topic, config.as<JsonObject>());
 

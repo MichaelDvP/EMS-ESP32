@@ -61,7 +61,7 @@ bool Heatpump::publish_ha_config() {
     ids.add("ems-esp-heatpump");
 
     char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
-    snprintf_P(topic, sizeof(topic), PSTR("homeassistant/sensor/%s/heatpump/config"), Mqtt::base().c_str());
+    snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/heatpump/config"), Mqtt::base().c_str());
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
 
     return true;
