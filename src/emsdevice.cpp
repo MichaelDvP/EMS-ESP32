@@ -770,11 +770,20 @@ void EMSdevice::publish_mqtt_ha_sensor() {
             dv.ha |= DeviceValueHA::HA_DONE;
         }
     }
-
-    // bool ok = publish_ha_config();
-    // ha_config_done(ok); // see if it worked
+    if (!ha_config_done()) {
+        bool ok = publish_ha_config();
+        ha_config_done(ok); // see if it worked
+    }
 }
 
+void EMSdevice::ha_config_clear() {
+    for (auto & dv : devicevalues_) {
+        dv.ha &= ~DeviceValueHA::HA_DONE;
+    }
+    ha_config_done(false);
+}
+
+/*
 bool EMSdevice::has_telegram_id(uint16_t id) {
     for (const auto & tf : telegram_functions_) {
         if (tf.telegram_type_id_ == id) {
@@ -783,6 +792,7 @@ bool EMSdevice::has_telegram_id(uint16_t id) {
     }
     return false;
 }
+*/
 
 // return the name of the telegram type
 std::string EMSdevice::telegram_type_name(std::shared_ptr<const Telegram> telegram) {

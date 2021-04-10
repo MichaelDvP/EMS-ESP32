@@ -427,11 +427,6 @@ void Thermostat::register_mqtt_ha_config_hc(uint8_t hc_num) {
     std::string topic2(Mqtt::MQTT_TOPIC_MAX_SIZE, '\0');
     snprintf_P(&topic2[0], topic2.capacity() + 1, PSTR("thermostat_hc%d"), hc_num);
     register_mqtt_topic(topic2, [=](const char * m) { return thermostat_ha_cmd(m, hc_num); });
-
-    char hc_name[10]; // hc{1-4}
-    strlcpy(hc_name, "hc", 10);
-    char s[3];
-    strlcat(hc_name, Helpers::itoa(s, hc_num), 10);
 }
 
 // for HA specifically when receiving over MQTT in the thermostat topic

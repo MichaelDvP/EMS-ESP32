@@ -59,8 +59,6 @@ enum DeviceValueType : uint8_t {
 // sequence is important!
 enum DeviceValueUOM : uint8_t { NONE = 0, DEGREES, PERCENT, LMIN, KWH, WH, HOURS, MINUTES, UA, BAR, PUMP };
 
-enum DeviceValueHA : uint8_t { HA_NONE = 0, HA_VALUE, HA_DONE};
-
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 enum DeviceValueTAG : uint8_t {
     TAG_NONE = 0, // wild card
@@ -98,6 +96,9 @@ enum DeviceValueTAG : uint8_t {
 // mqtt flags for command subscriptions
 enum MqttSubFlag : uint8_t { FLAG_NORMAL = 0, FLAG_HC, FLAG_WWC, FLAG_NOSUB };
 
+// mqtt-HA flags
+enum DeviceValueHA : uint8_t { HA_NONE = 0, HA_VALUE, HA_DONE};
+
 class EMSdevice {
   public:
     virtual ~EMSdevice() = default; // destructor of base class must always be virtual because it's a polymorphic class
@@ -105,7 +106,7 @@ class EMSdevice {
     static constexpr uint8_t EMS_DEVICES_MAX_TELEGRAMS = 20;
 
     // virtual functions overrules by derived classes
-    // virtual bool publish_ha_config() = 0;
+    virtual bool publish_ha_config() = 0;
 
     // device_type defines which derived class to use, e.g. BOILER, THERMOSTAT etc..
     EMSdevice(uint8_t device_type, uint8_t device_id, uint8_t product_id, const std::string & version, const std::string & name, uint8_t flags, uint8_t brand)
@@ -240,8 +241,8 @@ class EMSdevice {
 
     void publish_mqtt_ha_sensor();
 
-    bool has_telegram_id(uint16_t id);
-    
+    // bool has_telegram_id(uint16_t id);
+
     std::string telegram_type_name(std::shared_ptr<const Telegram> telegram);
 
     void fetch_values();
@@ -255,6 +256,8 @@ class EMSdevice {
     void ha_config_done(const bool v) {
         ha_config_done_ = v;
     }
+
+    void ha_config_clear();
 
     enum Brand : uint8_t {
         NO_BRAND = 0, // 0
