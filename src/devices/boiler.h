@@ -146,7 +146,7 @@ class Boiler : public EMSdevice {
     uint32_t nrgSuppCooling_;            // Energy supplied cooling
     uint32_t auxElecHeatNrgConsTotal_;   // Auxiliary electrical heater energy consumption total
     uint32_t auxElecHeatNrgConsHeating_; // Auxiliary electrical heater energy consumption heating
-    uint32_t auxElecHeatNrgConsDHW_;     // Auxiliary electrical heater energy consumption DHW
+    uint32_t auxElecHeatNrgConsWW_;      // Auxiliary electrical heater energy consumption DHW
     char     maintenanceMessage_[4];
     char     maintenanceDate_[12];
     uint8_t  maintenanceType_;

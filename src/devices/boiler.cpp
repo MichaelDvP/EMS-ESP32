@@ -147,7 +147,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_device_value(TAG_BOILER_DATA, &nrgConsCompCooling_, DeviceValueType::ULONG, nullptr, FL_(nrgConsCompCooling), DeviceValueUOM::NONE);
         register_device_value(TAG_BOILER_DATA, &auxElecHeatNrgConsTotal_, DeviceValueType::ULONG, nullptr, FL_(auxElecHeatNrgConsTotal), DeviceValueUOM::NONE);
         register_device_value(TAG_BOILER_DATA, &auxElecHeatNrgConsHeating_, DeviceValueType::ULONG, nullptr, FL_(auxElecHeatNrgConsHeating), DeviceValueUOM::NONE);
-        register_device_value(TAG_BOILER_DATA, &auxElecHeatNrgConsDHW_, DeviceValueType::ULONG, nullptr, FL_(auxElecHeatNrgConsDHW), DeviceValueUOM::NONE);
+        register_device_value(TAG_BOILER_DATA, &auxElecHeatNrgConsWW_, DeviceValueType::ULONG, nullptr, FL_(auxElecHeatNrgConsWW), DeviceValueUOM::NONE);
 
         register_device_value(TAG_BOILER_DATA, &nrgSuppTotal_, DeviceValueType::ULONG, nullptr, FL_(nrgSuppTotal), DeviceValueUOM::NONE);
         register_device_value(TAG_BOILER_DATA, &nrgSuppHeating_, DeviceValueType::ULONG, nullptr, FL_(nrgSuppHeating), DeviceValueUOM::NONE);
@@ -549,7 +549,7 @@ void Boiler::process_UBAInformation(std::shared_ptr<const Telegram> telegram) {
 
     has_update(telegram->read_value(auxElecHeatNrgConsTotal_, 40));
     has_update(telegram->read_value(auxElecHeatNrgConsHeating_, 48));
-    has_update(telegram->read_value(auxElecHeatNrgConsDHW_, 44));
+    has_update(telegram->read_value(auxElecHeatNrgConsWW_, 44));
 
     has_update(telegram->read_value(nrgConsCompTotal_, 56));
     has_update(telegram->read_value(nrgConsCompHeating_, 68));
