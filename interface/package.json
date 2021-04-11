@@ -16,7 +16,7 @@
     "express": "^4.17.1",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
-    "mime-types": "^2.1.29",
+    "mime-types": "^2.1.30",
     "notistack": "^1.0.5",
     "parse-ms": "^3.0.0",
     "react": "^17.0.2",
