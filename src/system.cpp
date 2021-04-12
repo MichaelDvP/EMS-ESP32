@@ -757,7 +757,7 @@ void System::show_system(uuid::console::Shell & shell) {
 #endif
 }
 
-// console commands to add
+/*/ console commands to add
 void System::console_commands(Shell & shell, unsigned int context) {
     EMSESPShell::commands->add_command(ShellContext::SYSTEM,
                                        CommandFlags::ADMIN,
@@ -900,7 +900,7 @@ void System::console_commands(Shell & shell, unsigned int context) {
     // enter the context
     Console::enter_custom_context(shell, context);
 }
-
+*/
 // upgrade from previous versions of EMS-ESP
 // returns true if an upgrade was done
 bool System::check_upgrade() {

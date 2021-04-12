@@ -138,6 +138,7 @@ class Console {
 
     static void enter_custom_context(Shell & shell, unsigned int context);
     static void load_standard_commands(unsigned int context);
+    static void load_system_commands(unsigned int context);
 };
 
 } // namespace emsesp

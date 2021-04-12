@@ -54,9 +54,9 @@ void EMSESPShell::stopped() {
     logger().log(LogLevel::DEBUG, LogFacility::CONSOLE, F("User session closed on console %s"), console_name().c_str());
 
     // remove all custom contexts
-    commands->remove_all_commands();
+    // commands->remove_all_commands();
 
-    console_commands_loaded_ = false; // make sure they get reloaded next time a console is opened
+    // console_commands_loaded_ = false; // make sure they get reloaded next time a console is opened
 }
 
 // show welcome banner
@@ -212,6 +212,7 @@ void EMSESPShell::add_console_commands() {
             shell.printfln(F_(bus_id_fmt), settings.ems_bus_id);
             char buffer[4];
             shell.printfln(F_(master_thermostat_fmt), settings.master_thermostat == 0 ? uuid::read_flash_string(F_(auto)).c_str() : Helpers::hextoa(buffer, settings.master_thermostat));
+            shell.printfln(F_(board_profile_fmt), settings.board_profile.c_str());
         });
     });
 
@@ -409,12 +410,13 @@ void EMSESPShell::add_console_commands() {
             return {};
         });
 
-    // System context menu
+    /*/ System context menu
     commands->add_command(ShellContext::MAIN, CommandFlags::USER, flash_string_vector{F_(system)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
         System::console_commands(shell, ShellContext::SYSTEM);
     });
-
+    */
     Console::load_standard_commands(ShellContext::MAIN);
+    Console::load_system_commands(ShellContext::MAIN);
 
     console_commands_loaded_ = true;
 }
@@ -426,18 +428,19 @@ std::string EMSESPShell::hostname_text() {
 // remove commands from the current context to save memory before exiting
 bool EMSESPShell::exit_context() {
     unsigned int current_context = context();
-    commands->remove_context_commands(current_context);
 
     if (current_context == ShellContext::MAIN) {
         Shell::stop();
         return true;
     }
-    return Shell::exit_context();
+    // commands->remove_context_commands(current_context);
+    // return Shell::exit_context();
+    return false;
 }
 
 // enter a custom context (sub-menu)
 void Console::enter_custom_context(Shell & shell, unsigned int context) {
-    load_standard_commands(context);
+    // load_standard_commands(context);
 
     // don't go into the new context if it's already the root (to prevent double loading)
     if (context != ShellContext::MAIN) {
@@ -505,7 +508,7 @@ void Console::load_standard_commands(unsigned int context) {
 
     EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F_(exit)}, [=](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
         // delete MAIN console stuff first to save memory
-        EMSESPShell::commands->remove_context_commands(context);
+        // EMSESPShell::commands->remove_context_commands(context);
         shell.exit_context();
     });
 
@@ -537,6 +540,149 @@ void Console::load_standard_commands(unsigned int context) {
         }
     });
 }
+
+// console commands to add
+void Console::load_system_commands(unsigned int context) {
+    EMSESPShell::commands->add_command(context,
+                                       CommandFlags::ADMIN,
+                                       flash_string_vector{F_(restart)},
+                                       [](Shell & shell __attribute__((unused)), const std::vector<std::string> & arguments __attribute__((unused))) { EMSESP::system_.restart(); });
+
+    EMSESPShell::commands->add_command(context,
+                                       CommandFlags::ADMIN,
+                                       flash_string_vector{F_(wifi), F_(reconnect)},
+                                       [](Shell & shell __attribute__((unused)), const std::vector<std::string> & arguments __attribute__((unused))) { EMSESP::system_.wifi_reconnect(); });
+
+    EMSESPShell::commands->add_command(ShellContext::MAIN, CommandFlags::ADMIN, flash_string_vector{F_(format)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
+        shell.enter_password(F_(password_prompt), [=](Shell & shell, bool completed, const std::string & password) {
+            if (completed) {
+                EMSESP::esp8266React.getSecuritySettingsService()->read([&](SecuritySettings & securitySettings) {
+                    if (securitySettings.jwtSecret.equals(password.c_str())) {
+                        EMSESP::system_.format(shell);
+                    } else {
+                        shell.println(F("incorrect password"));
+                    }
+                });
+            }
+        });
+    });
+
+    EMSESPShell::commands->add_command(context, CommandFlags::ADMIN, flash_string_vector{F_(passwd)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
+        shell.enter_password(F_(new_password_prompt1), [](Shell & shell, bool completed, const std::string & password1) {
+            if (completed) {
+                shell.enter_password(F_(new_password_prompt2), [password1](Shell & shell, bool completed, const std::string & password2) {
+                    if (completed) {
+                        if (password1 == password2) {
+                            EMSESP::esp8266React.getSecuritySettingsService()->update(
+                                [&](SecuritySettings & securitySettings) {
+                                    securitySettings.jwtSecret = password2.c_str();
+                                    return StateUpdateResult::CHANGED;
+                                },
+                                "local");
+                            shell.println(F("su password updated"));
+                        } else {
+                            shell.println(F("Passwords do not match"));
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F_(show), F_(system)}, [=](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
+        EMSESP::system_.show_system(shell);
+        shell.println();
+    });
+
+    EMSESPShell::commands->add_command(context,
+                                       CommandFlags::ADMIN,
+                                       flash_string_vector{F_(set), F_(hostname)},
+                                       flash_string_vector{F_(name_mandatory)},
+                                       [](Shell & shell, const std::vector<std::string> & arguments) {
+                                           shell.println("The network connection will be reset...");
+                                           Shell::loop_all();
+                                           delay(1000); // wait a second
+                                           EMSESP::esp8266React.getNetworkSettingsService()->update(
+                                               [&](NetworkSettings & networkSettings) {
+                                                   networkSettings.hostname = arguments.front().c_str();
+                                                   return StateUpdateResult::CHANGED;
+                                               },
+                                               "local");
+                                       });
+
+    EMSESPShell::commands->add_command(context,
+                                       CommandFlags::ADMIN,
+                                       flash_string_vector{F_(set), F_(wifi), F_(ssid)},
+                                       flash_string_vector{F_(name_mandatory)},
+                                       [](Shell & shell, const std::vector<std::string> & arguments) {
+                                           EMSESP::esp8266React.getNetworkSettingsService()->updateWithoutPropagation([&](NetworkSettings & networkSettings) {
+                                               networkSettings.ssid = arguments.front().c_str();
+                                               return StateUpdateResult::CHANGED;
+                                           });
+                                           shell.println("Use `wifi reconnect` to save and apply the new settings");
+                                       });
+
+    EMSESPShell::commands->add_command(context, CommandFlags::ADMIN, flash_string_vector{F_(set), F_(wifi), F_(password)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
+        shell.enter_password(F_(new_password_prompt1), [](Shell & shell, bool completed, const std::string & password1) {
+            if (completed) {
+                shell.enter_password(F_(new_password_prompt2), [password1](Shell & shell, bool completed, const std::string & password2) {
+                    if (completed) {
+                        if (password1 == password2) {
+                            EMSESP::esp8266React.getNetworkSettingsService()->updateWithoutPropagation([&](NetworkSettings & networkSettings) {
+                                networkSettings.password = password2.c_str();
+                                return StateUpdateResult::CHANGED;
+                            });
+                            shell.println("Use `wifi reconnect` to save and apply the new settings");
+                        } else {
+                            shell.println(F("Passwords do not match"));
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    EMSESPShell::commands->add_command(context,
+                                       CommandFlags::ADMIN,
+                                       flash_string_vector{F_(set), F_(board_profile)},
+                                       flash_string_vector{F_(name_mandatory)},
+                                       [](Shell & shell, const std::vector<std::string> & arguments) {
+                                           std::vector<uint8_t> data; // led, dallas, rx, tx, button
+                                           std::string          board_profile = Helpers::toUpper(arguments.front());
+                                           if (!EMSESP::system_.load_board_profile(data, board_profile)) {
+                                               shell.println(F("Invalid board profile"));
+                                               return;
+                                           }
+                                           EMSESP::webSettingsService.update(
+                                               [&](WebSettings & settings) {
+                                                   settings.board_profile = board_profile.c_str();
+                                                   settings.led_gpio      = data[0];
+                                                   settings.dallas_gpio   = data[1];
+                                                   settings.rx_gpio       = data[2];
+                                                   settings.tx_gpio       = data[3];
+                                                   settings.pbutton_gpio  = data[4];
+                                                   return StateUpdateResult::CHANGED;
+                                               },
+                                               "local");
+                                           shell.printfln("Loaded board profile %s (%d,%d,%d,%d,%d)", board_profile.c_str(), data[0], data[1], data[2], data[3], data[4]);
+                                           EMSESP::system_.network_init(true);
+                                       });
+/*
+    EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F_(set)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
+        EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
+            shell.printfln(F_(hostname_fmt), networkSettings.hostname.isEmpty() ? uuid::read_flash_string(F_(unset)).c_str() : networkSettings.hostname.c_str());
+            shell.printfln(F_(wifi_ssid_fmt), networkSettings.ssid.isEmpty() ? uuid::read_flash_string(F_(unset)).c_str() : networkSettings.ssid.c_str());
+            shell.printfln(F_(wifi_password_fmt), networkSettings.ssid.isEmpty() ? F_(unset) : F_(asterisks));
+        });
+        EMSESP::webSettingsService.read([&](WebSettings & settings) { shell.printfln(F_(board_profile_fmt), settings.board_profile.c_str()); });
+    });
+*/
+    EMSESPShell::commands->add_command(context, CommandFlags::ADMIN, flash_string_vector{F_(show), F_(users)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
+         EMSESP::system_.show_users(shell);
+    });
+
+}
+
 
 // prompt, change per context
 std::string EMSESPShell::context_text() {
@@ -606,8 +752,7 @@ EMSESPStreamConsole::~EMSESPStreamConsole() {
 #endif
         ptys_[pty_] = false;
         ptys_.shrink_to_fit();
-
-        EMSESPShell::commands->remove_all_commands();
+        // EMSESPShell::commands->remove_all_commands();
     }
 }
 
