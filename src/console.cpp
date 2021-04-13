@@ -650,7 +650,7 @@ void Console::load_system_commands(unsigned int context) {
                                            std::vector<uint8_t> data; // led, dallas, rx, tx, button
                                            std::string          board_profile = Helpers::toUpper(arguments.front());
                                            if (!EMSESP::system_.load_board_profile(data, board_profile)) {
-                                               shell.println(F("Invalid board profile"));
+                                               shell.println(F("Invalid board profile (S32, E32, MH-ET, NODEMCU, OLIMEX, TLK110, LAN8720, CUSTOM)"));
                                                return;
                                            }
                                            EMSESP::webSettingsService.update(
