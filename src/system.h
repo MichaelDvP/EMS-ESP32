@@ -48,7 +48,6 @@ class System {
     void loop();
 
     // commands
-    // static void console_commands(Shell & shell, unsigned int context);
     static bool command_pin(const char * value, const int8_t id);
     static bool command_send(const char * value, const int8_t id);
     static bool command_publish(const char * value, const int8_t id);

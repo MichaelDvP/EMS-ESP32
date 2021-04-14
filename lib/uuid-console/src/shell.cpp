@@ -510,8 +510,9 @@ void Shell::process_command() {
         println();
         return;
     }
-    for (uint8_t i = MAX_LINES - 1; i > 0; i--) {
-        line_old_[i] = line_old_[i - 1];
+    uint8_t no = line_no_ ? line_no_ : MAX_LINES;
+    while (--no) {
+        line_old_[no] = line_old_[no - 1];
     }
     line_no_ = 0;
     line_old_[0] = line_buffer_;

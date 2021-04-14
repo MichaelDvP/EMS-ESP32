@@ -99,9 +99,8 @@ void EMSESPShell::add_console_commands() {
     if (console_commands_loaded_) {
         return;
     }
-
+    console_commands_loaded_ = true;
     // just in case, remove everything
-    // commands->remove_context_commands(ShellContext::MAIN);
     commands->remove_all_commands();
 
     commands->add_command(ShellContext::MAIN, CommandFlags::USER, flash_string_vector{F_(show)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
@@ -418,7 +417,7 @@ void EMSESPShell::add_console_commands() {
     Console::load_standard_commands(ShellContext::MAIN);
     Console::load_system_commands(ShellContext::MAIN);
 
-    console_commands_loaded_ = true;
+    // console_commands_loaded_ = true;
 }
 
 std::string EMSESPShell::hostname_text() {
@@ -716,7 +715,7 @@ EMSESPStreamConsole::EMSESPStreamConsole(Stream & stream, bool local)
     , uuid::console::StreamConsole(stream)
     , EMSESPShell()
     , name_(uuid::read_flash_string(F("Serial")))
-    , pty_(std::numeric_limits<size_t>::max())
+    , pty_(SIZE_MAX)
     , addr_()
     , port_(0) {
 }
@@ -752,7 +751,6 @@ EMSESPStreamConsole::~EMSESPStreamConsole() {
 #endif
         ptys_[pty_] = false;
         ptys_.shrink_to_fit();
-        // EMSESPShell::commands->remove_all_commands();
     }
 }
 
