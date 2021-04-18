@@ -369,7 +369,7 @@ class EMSESPDevicesForm extends Component<EMSESPDevicesFormProps, EMSESPDevicesF
                             </CustomTooltip>                          )}
                         </TableCell>
                         <TableCell padding="none" component="th" scope="row">{deviceData.data[i + 2]}</TableCell>
-                        <TableCell padding="none" align="right">{deviceData.data[i]}{formatUnit(deviceData.data[i + 1])}</TableCell>
+                        <TableCell padding="none" align="right">{deviceData.data[i]}{formatUnit(deviceData.data[i + 1])}&nbsp;&nbsp;&nbsp;</TableCell>
                       </TableRow>
                     );
                   }

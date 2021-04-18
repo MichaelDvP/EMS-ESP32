@@ -300,7 +300,8 @@ class EMSdevice {
     // Boiler
     static constexpr uint8_t EMS_DEVICE_FLAG_EMS      = 1;
     static constexpr uint8_t EMS_DEVICE_FLAG_EMSPLUS  = 2;
-    static constexpr uint8_t EMS_DEVICE_FLAG_HEATPUMP = 3;
+    static constexpr uint8_t EMS_DEVICE_FLAG_HT3      = 3;
+    static constexpr uint8_t EMS_DEVICE_FLAG_HEATPUMP = 4;
 
     // Solar Module
     static constexpr uint8_t EMS_DEVICE_FLAG_SM10  = 1;
