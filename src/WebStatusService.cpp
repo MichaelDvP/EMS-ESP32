@@ -90,7 +90,7 @@ void WebStatusService::webStatusService(AsyncWebServerRequest * request) {
     root["tx_fails"]     = EMSESP::txservice_.telegram_fail_count();
     root["dallas_fails"] = EMSESP::sensor_fails();
     root["dallas_reads"] = EMSESP::sensor_reads();
-    uint8_t dallas_quality = EMSESP::sensor_reads() > 0 ? 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads()) : 100;
+    uint8_t dallas_quality = EMSESP::sensor_reads() > 0 ? 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads()) : 0;
     root["dallas_quality"] = dallas_quality;
 
     response->setLength();

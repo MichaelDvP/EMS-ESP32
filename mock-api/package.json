@@ -1,6 +1,7 @@
 {
     "name": "api",
     "version": "1.0.0",
+    "private": "true",
     "description": "mock api for EMS-ESP",
     "main": "server.js",
     "scripts": {

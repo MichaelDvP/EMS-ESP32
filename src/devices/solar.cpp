@@ -64,12 +64,12 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
     if (device_id == 0x2A) {
         register_device_value(TAG_NONE, &type_, DeviceValueType::TEXT, nullptr, F("type"), F("type"), DeviceValueUOM::NONE);
         strncpy(type_, "warm water circuit", sizeof(type_));
-        register_device_value(TAG_BOILER_DATA_WW, &wwTemp_1_, DeviceValueType::UINT, nullptr, FL_(wwTemp1), DeviceValueUOM::DEGREES);
-        register_device_value(TAG_BOILER_DATA_WW, &wwTemp_3_, DeviceValueType::UINT, nullptr, FL_(wwTemp3), DeviceValueUOM::DEGREES);
-        register_device_value(TAG_BOILER_DATA_WW, &wwTemp_4_, DeviceValueType::UINT, nullptr, FL_(wwTemp4), DeviceValueUOM::DEGREES);
-        register_device_value(TAG_BOILER_DATA_WW, &wwTemp_5_, DeviceValueType::UINT, nullptr, FL_(wwTemp5), DeviceValueUOM::DEGREES);
-        register_device_value(TAG_BOILER_DATA_WW, &wwTemp_7_, DeviceValueType::UINT, nullptr, FL_(wwTemp7), DeviceValueUOM::DEGREES);
-        register_device_value(TAG_BOILER_DATA_WW, &wwPump_, DeviceValueType::UINT, nullptr, FL_(wwPump), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_DEVICE_DATA_WW, &wwTemp_1_, DeviceValueType::UINT, nullptr, FL_(wwTemp1), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_DEVICE_DATA_WW, &wwTemp_3_, DeviceValueType::UINT, nullptr, FL_(wwTemp3), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_DEVICE_DATA_WW, &wwTemp_4_, DeviceValueType::UINT, nullptr, FL_(wwTemp4), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_DEVICE_DATA_WW, &wwTemp_5_, DeviceValueType::UINT, nullptr, FL_(wwTemp5), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_DEVICE_DATA_WW, &wwTemp_7_, DeviceValueType::UINT, nullptr, FL_(wwTemp7), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_DEVICE_DATA_WW, &wwPump_, DeviceValueType::UINT, nullptr, FL_(wwPump), DeviceValueUOM::DEGREES);
         return;
     }
 

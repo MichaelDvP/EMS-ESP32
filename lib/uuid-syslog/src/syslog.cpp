@@ -100,7 +100,6 @@ SyslogService::~SyslogService() {
 
 void SyslogService::start() {
     uuid::log::Logger::register_handler(this, uuid::log::Level::ALL);
-    // uuid::log::Logger::register_handler(this, log_level());
 }
 
 uuid::log::Level SyslogService::log_level() const {
@@ -192,15 +191,6 @@ SyslogService::QueuedLogMessage::QueuedLogMessage(unsigned long id, std::shared_
     , content_(std::move(content)) {
     // Added by proddy - check for Ethernet too. This assumes the network has already started.
     if (time_good_ || emsesp::EMSESP::system_.network_connected()) {
-    if (time(nullptr)) {
-        time_.tv_sec  = time(nullptr);
-        time_.tv_usec = 0;
-    } else {
-        if (gettimeofday(&time_, nullptr) != 0) {
-            time_.tv_sec = (time_t)-1;
-        }
-    }
-/*
 #if UUID_SYSLOG_HAVE_GETTIMEOFDAY
         if (gettimeofday(&time_, nullptr) != 0) {
             time_.tv_sec = (time_t)-1;
@@ -209,7 +199,6 @@ SyslogService::QueuedLogMessage::QueuedLogMessage(unsigned long id, std::shared_
         time_.tv_sec  = time(nullptr);
         time_.tv_usec = 0;
 #endif
-*/
         if (time_.tv_sec >= 0 && time_.tv_sec < 18140 * 86400) {
             time_.tv_sec = (time_t)-1;
         }
@@ -431,7 +420,7 @@ bool SyslogService::transmit(const QueuedLogMessage & message) {
         udp_.print('-');
     }
 
-    udp_.printf_P(PSTR(" %s %s: - - - \xEF\xBB\xBF"), hostname_.c_str(), uuid::read_flash_string(message.content_->name).c_str());
+    udp_.printf_P(PSTR(" %s %s - - - \xEF\xBB\xBF"), hostname_.c_str(), uuid::read_flash_string(message.content_->name).c_str());
 
     udp_.print(uuid::log::format_timestamp_ms(message.content_->uptime_ms, 3).c_str());
     udp_.printf_P(PSTR(" %c %lu: "), uuid::log::format_level_char(message.content_->level), message.id_);
