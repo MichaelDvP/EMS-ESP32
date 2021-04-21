@@ -935,7 +935,7 @@ bool System::command_test(const char * value, const int8_t id) {
 // returns false if profile is not found
 bool System::load_board_profile(std::vector<uint8_t> & data, const std::string & board_profile) {
     if (board_profile == "S32") {
-        data = {2, 3, 23, 5, 0}; // BBQKees Gateway S32
+        data = {2, 18, 23, 5, 0}; // BBQKees Gateway S32
     } else if (board_profile == "E32") {
         data = {2, 4, 5, 17, 33}; // BBQKees Gateway E32
     } else if (board_profile == "MH-ET") {

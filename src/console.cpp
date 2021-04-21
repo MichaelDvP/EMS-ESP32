@@ -409,15 +409,8 @@ void EMSESPShell::add_console_commands() {
             return {};
         });
 
-    /*/ System context menu
-    commands->add_command(ShellContext::MAIN, CommandFlags::USER, flash_string_vector{F_(system)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
-        System::console_commands(shell, ShellContext::SYSTEM);
-    });
-    */
     Console::load_standard_commands(ShellContext::MAIN);
     Console::load_system_commands(ShellContext::MAIN);
-
-    // console_commands_loaded_ = true;
 }
 
 std::string EMSESPShell::hostname_text() {
@@ -437,6 +430,7 @@ bool EMSESPShell::exit_context() {
     return false;
 }
 
+/*
 // enter a custom context (sub-menu)
 void Console::enter_custom_context(Shell & shell, unsigned int context) {
     // load_standard_commands(context);
@@ -446,6 +440,7 @@ void Console::enter_custom_context(Shell & shell, unsigned int context) {
         shell.enter_context(context);
     }
 }
+*/
 
 // each custom context has the common commands like log, help, exit, su etc
 void Console::load_standard_commands(unsigned int context) {
@@ -506,8 +501,6 @@ void Console::load_standard_commands(unsigned int context) {
     });
 
     EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F_(exit)}, [=](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
-        // delete MAIN console stuff first to save memory
-        // EMSESPShell::commands->remove_context_commands(context);
         shell.exit_context();
     });
 
@@ -666,16 +659,7 @@ void Console::load_system_commands(unsigned int context) {
                                            shell.printfln("Loaded board profile %s (%d,%d,%d,%d,%d)", board_profile.c_str(), data[0], data[1], data[2], data[3], data[4]);
                                            EMSESP::system_.network_init(true);
                                        });
-/*
-    EMSESPShell::commands->add_command(context, CommandFlags::USER, flash_string_vector{F_(set)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
-        EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
-            shell.printfln(F_(hostname_fmt), networkSettings.hostname.isEmpty() ? uuid::read_flash_string(F_(unset)).c_str() : networkSettings.hostname.c_str());
-            shell.printfln(F_(wifi_ssid_fmt), networkSettings.ssid.isEmpty() ? uuid::read_flash_string(F_(unset)).c_str() : networkSettings.ssid.c_str());
-            shell.printfln(F_(wifi_password_fmt), networkSettings.ssid.isEmpty() ? F_(unset) : F_(asterisks));
-        });
-        EMSESP::webSettingsService.read([&](WebSettings & settings) { shell.printfln(F_(board_profile_fmt), settings.board_profile.c_str()); });
-    });
-*/
+
     EMSESPShell::commands->add_command(context, CommandFlags::ADMIN, flash_string_vector{F_(show), F_(users)}, [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
          EMSESP::system_.show_users(shell);
     });
