@@ -1139,10 +1139,11 @@ bool Thermostat::set_remotetemp(const char * value, const int8_t id) {
     }
 
     if (f > 100 || f < 0) {
-        Roomctrl::set_remotetemp(hc->hc_num() - 1, EMS_VALUE_SHORT_NOTSET);
+        hc->remotetemp = EMS_VALUE_SHORT_NOTSET;
     } else {
-        Roomctrl::set_remotetemp(hc->hc_num() - 1, (int16_t)(f * 10));
+        hc->remotetemp = (int16_t)(f * 10);
     }
+    Roomctrl::set_remotetemp(hc->hc_num() - 1, hc->remotetemp);
 
     return true;
 }
@@ -2241,6 +2242,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<emsesp::Thermostat::H
         register_device_value(tag, &hc->party, DeviceValueType::UINT, nullptr, FL_(party), DeviceValueUOM::HOURS, MAKE_CF_CB(set_party));
         register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, FL_(div2), FL_(tempautotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_tempautotemp));
         register_device_value(tag, &hc->noreducetemp, DeviceValueType::INT, nullptr, FL_(noreducetemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_noreducetemp));
+        register_device_value(tag, &hc->remotetemp, DeviceValueType::SHORT, FL_(div10), FL_(remotetemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_remotetemp));
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode4), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
