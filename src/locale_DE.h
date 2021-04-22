@@ -135,15 +135,15 @@ MAKE_PSTR(new_password_prompt2, "Retype new password: ")
 MAKE_PSTR(password_prompt, "Password: ")
 MAKE_PSTR(unset, "<unset>")
 
-MAKE_PSTR_WORD(number);
-MAKE_PSTR_WORD(enum);
-MAKE_PSTR_WORD(boolean);
-MAKE_PSTR_WORD(text);
+MAKE_PSTR_WORD(number)
+MAKE_PSTR_WORD(enum)
+MAKE_PSTR_WORD(boolean)
+MAKE_PSTR_WORD(text)
 
-MAKE_PSTR_WORD(2);
-MAKE_PSTR_WORD(10);
-MAKE_PSTR_WORD(100);
-MAKE_PSTR_WORD(60);
+MAKE_PSTR_WORD(2)
+MAKE_PSTR_WORD(10)
+MAKE_PSTR_WORD(100)
+MAKE_PSTR_WORD(60)
 
 MAKE_PSTR_LIST(div2, F_(2))
 MAKE_PSTR_LIST(div10, F_(10))
@@ -208,7 +208,7 @@ MAKE_PSTR_WORD(3x3min)
 MAKE_PSTR_WORD(4x3min)
 MAKE_PSTR_WORD(5x3min)
 MAKE_PSTR_WORD(6x3min)
-MAKE_PSTR_(continuos, "kontinuierlich");
+MAKE_PSTR_(continuos, "kontinuierlich")
 MAKE_PSTR(3wayvalve, "3-wege ventil")
 MAKE_PSTR(chargepump, "ladepumpe")
 MAKE_PSTR(hot, "heiss")
