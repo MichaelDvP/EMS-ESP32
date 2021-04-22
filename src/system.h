@@ -137,9 +137,6 @@ class System {
     void system_check();
     void measure_analog();
 
-    // void   show_system(uuid::console::Shell & shell);
-    // void   show_users(uuid::console::Shell & shell);
-    // void   wifi_reconnect();
     int8_t wifi_quality();
 
     bool     system_healthy_     = false;

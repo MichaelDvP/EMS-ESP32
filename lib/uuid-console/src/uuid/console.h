@@ -904,9 +904,9 @@ class Shell : public std::enable_shared_from_this<Shell>, public uuid::log::Hand
     unsigned long               log_message_id_ = 0; /*!< The next identifier to use for queued log messages. @since 0.1.0 */
     std::list<QueuedLogMessage> log_messages_;       /*!< Queued log messages, in the order they were received. @since 0.1.0 */
     size_t                      maximum_log_messages_ = MAX_LOG_MESSAGES; /*!< Maximum command line length in bytes. @since 0.6.0 */
-    std::string                 line_buffer_; /*!< Command line buffer. Limited to maximum_command_line_length() bytes. @since 0.1.0 */
-    std::string                 line_old_[MAX_LINES];    /*!< old Command line buffer.*/
-	uint8_t                     line_no_ = 0;
+    std::string                 line_buffer_;         /*!< Command line buffer. Limited to maximum_command_line_length() bytes. @since 0.1.0 */
+    std::string                 line_old_[MAX_LINES]; /*!< old Command line buffer.*/
+    uint8_t                     line_no_ = 0;
     size_t                      maximum_command_line_length_ = MAX_COMMAND_LINE_LENGTH; /*!< Maximum command line length in bytes. @since 0.6.0 */
     unsigned char               previous_  = 0; /*!< Previous character that was entered on the command line. Used to detect CRLF line endings. @since 0.1.0 */
     uint8_t                     cursor_    = 0; /*!< cursor position from end of line */

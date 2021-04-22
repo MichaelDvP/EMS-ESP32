@@ -460,15 +460,22 @@ void System::send_heartbeat() {
     if (!ethernet_connected_) {
         doc["rssi"] = rssi;
     }
-    doc["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
-    doc["uptime_sec"]  = uuid::get_uptime_sec();
-    doc["mqttfails"]   = Mqtt::publish_fails();
-    doc["rxreceived"]  = EMSESP::rxservice_.telegram_count();
-    doc["rxfails"]     = EMSESP::rxservice_.telegram_error_count();
-    doc["txread"]      = EMSESP::txservice_.telegram_read_count();
-    doc["txwrite"]     = EMSESP::txservice_.telegram_write_count();
-    doc["txfails"]     = EMSESP::txservice_.telegram_fail_count();
-    doc["dallasfails"] = EMSESP::sensor_fails();
+    doc["uptime"]     = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
+    doc["uptime_sec"] = uuid::get_uptime_sec();
+    doc["rxreceived"] = EMSESP::rxservice_.telegram_count();
+    doc["rxfails"]    = EMSESP::rxservice_.telegram_error_count();
+    doc["txread"]     = EMSESP::txservice_.telegram_read_count();
+    doc["txwrite"]    = EMSESP::txservice_.telegram_write_count();
+    doc["txfails"]    = EMSESP::txservice_.telegram_fail_count();
+    if (Mqtt::enabled()) {
+        doc["mqttpublish"] = Mqtt::publish_count();
+        doc["mqttfails"]   = Mqtt::publish_fails();
+    }
+    if (EMSESP::dallas_enabled()) {
+        // doc["dallassensors"] = EMSESP::sensor_devices().size();
+        doc["dallasreads"] = EMSESP::sensor_reads();
+        doc["dallasfails"] = EMSESP::sensor_fails();
+    }
 #ifndef EMSESP_STANDALONE
     doc["freemem"] = ESP.getFreeHeap();
     // doc["freemem"] = (uint8_t)(100 * ESP.getFreeHeap() / heap_start_);
@@ -898,11 +905,15 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["#tx fails"]             = EMSESP::txservice_.telegram_fail_count();
         node["rx line quality"]       = EMSESP::rxservice_.quality();
         node["tx line quality"]       = EMSESP::txservice_.quality();
-        node["#MQTT publishes"]       = Mqtt::publish_count();
-        node["#MQTT publish fails"]   = Mqtt::publish_fails();
-        node["#dallas sensors"]       = EMSESP::sensor_devices().size();
-        node["#dallas reads"]         = EMSESP::sensor_reads();
-        node["#dallas fails"]         = EMSESP::sensor_fails();
+        if (Mqtt::enabled()) {
+            node["#MQTT publishes"]       = Mqtt::publish_count();
+            node["#MQTT publish fails"]   = Mqtt::publish_fails();
+        }
+        if (EMSESP::dallas_enabled()) {
+            node["#dallas sensors"]       = EMSESP::sensor_devices().size();
+            node["#dallas reads"]         = EMSESP::sensor_reads();
+            node["#dallas fails"]         = EMSESP::sensor_fails();
+        }
     }
 
     JsonArray devices2 = json.createNestedArray("Devices");

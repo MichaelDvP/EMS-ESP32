@@ -87,6 +87,7 @@ const RESTART_ENDPOINT = ENDPOINT_ROOT + "restart";
 const FACTORY_RESET_ENDPOINT = ENDPOINT_ROOT + "factoryReset";
 const UPLOAD_FIRMWARE_ENDPOINT = ENDPOINT_ROOT + "uploadFirmware";
 const SIGN_IN_ENDPOINT = ENDPOINT_ROOT + "signIn";
+const GENERATE_TOKEN_ENDPOINT = ENDPOINT_ROOT + "generateToken";
 const system_status = {
     "esp_platform": "ESP32", "max_alloc_heap": 113792, "psram_size": 0, "free_psram": 0, "cpu_freq_mhz": 240,
     "free_heap": 193340, "sdk_version": "v3.3.5-1-g85c43024c", "flash_chip_size": 4194304, "flash_chip_speed": 40000000,
@@ -102,6 +103,7 @@ const verify_authentication = { access_token: '1234' };
 const signin = {
     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiYWRtaW4iOnRydWUsInZlcnNpb24iOiIzLjAuMmIwIn0.MsHSgoJKI1lyYz77EiT5ZN3ECMrb4mPv9FNy3udq0TU"
 };
+const generate_token = { token: '1234' }; 
 
 // EMS-ESP Project specific
 const EMSESP_SETTINGS_ENDPOINT = ENDPOINT_ROOT + "emsespSettings";
@@ -209,7 +211,6 @@ const emsesp_devicedata_2 = {
     ]
 };
 
-
 // NETWORK
 app.get(NETWORK_STATUS_ENDPOINT, (req, res) => { res.json(network_status); });
 app.get(NETWORK_SETTINGS_ENDPOINT, (req, res) => { res.json(network_settings); });
@@ -247,6 +248,7 @@ app.post(RESTART_ENDPOINT, (req, res) => { res.sendStatus(200); });
 app.post(FACTORY_RESET_ENDPOINT, (req, res) => { res.sendStatus(200); });
 app.post(UPLOAD_FIRMWARE_ENDPOINT, (req, res) => { res.sendStatus(200); });
 app.post(SIGN_IN_ENDPOINT, (req, res) => { res.json(signin); });
+app.get(GENERATE_TOKEN_ENDPOINT, (req, res) => { res.json(generate_token); });
 
 // EMS-ESP Project stuff
 app.get(EMSESP_SETTINGS_ENDPOINT, (req, res) => { res.json(emsesp_settings); });
@@ -295,7 +297,7 @@ app.post(EMSESP_BOARDPROFILE_ENDPOINT, (req, res) => {
         data.rx_gpio = 5;
         data.tx_gpio = 17;
         data.pbutton_gpio = 33;
-    } else if (board_profile == "MH-ET") { // MT-ET Live D1 Mini
+    } else if (board_profile == "MH-ET") { // MH-ET Live D1 Mini
         data.led_gpio = 2;
         data.dallas_gpio = 18;
         data.rx_gpio = 23;
