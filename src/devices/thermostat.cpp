@@ -959,7 +959,7 @@ void Thermostat::process_RC35Set(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(hc->reducemode, 25));     // 0-nofrost, 1-reduce, 2-roomhold, 3-outdoorhold
     has_update(telegram->read_value(hc->control, 26));        // 0-off, 1-RC20 (remote), 2-RC35
     has_update(telegram->read_value(hc->controlmode, 33));    // 0-outdoortemp, 1-roomtemp
-    has_update(telegram->read_value(hc->tempautotemp, 37));   // 0-outdoortemp, 1-roomtemp
+    has_update(telegram->read_value(hc->tempautotemp, 37));
     has_update(telegram->read_value(hc->noreducetemp, 38));   // outdoor temperature for no reduce
     has_update(telegram->read_value(hc->minflowtemp, 16));
     if (hc->heatingtype == 3) {
