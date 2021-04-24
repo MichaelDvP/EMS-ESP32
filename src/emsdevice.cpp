@@ -720,12 +720,21 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 json["min"]   = 0;
                 json["max"]   = divider ? EMS_VALUE_ULONG_NOTSET / divider : EMS_VALUE_ULONG_NOTSET;
                 break;
-            case DeviceValueType::BOOL:
+            case DeviceValueType::BOOL: {
                 if (Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
                     json["value"] = (bool)(*(uint8_t *)(dv.value_p)) ? true : false;
                 }
                 json["type"]  = F("boolean");
+                JsonArray enum_ = json.createNestedArray(F("enum"));
+                if (dv.options_size == 2) {
+                    enum_.add(dv.options[0]);
+                    enum_.add(dv.options[1]);
+                } else {
+                    enum_.add(false);
+                    enum_.add(true);
+                }
                 break;
+            }
             case DeviceValueType::TIME:
                 if (Helpers::hasValue(*(uint32_t *)(dv.value_p))) {
                     json["value"] = (divider) ? *(uint32_t *)(dv.value_p) / divider : *(uint32_t *)(dv.value_p);
