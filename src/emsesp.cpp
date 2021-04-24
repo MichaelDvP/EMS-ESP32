@@ -547,10 +547,10 @@ void EMSESP::publish_response(std::shared_ptr<const Telegram> telegram) {
     Mqtt::publish(F("response"), doc.as<JsonObject>());
 }
 
-bool EMSESP::get_device_value_info(JsonObject & root, const char * cmd, uint8_t devicetype) {
+bool EMSESP::get_device_value_info(JsonObject & root, const char * cmd, const int8_t id, const uint8_t devicetype) {
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice->device_type() == devicetype) {
-            return emsdevice->get_value_info(root, cmd);
+            return emsdevice->get_value_info(root, cmd, id);
         }
     }
     return false;

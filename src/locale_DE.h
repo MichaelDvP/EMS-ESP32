@@ -137,7 +137,6 @@ MAKE_PSTR(unset, "<unset>")
 
 MAKE_PSTR_WORD(number)
 MAKE_PSTR_WORD(enum)
-MAKE_PSTR_WORD(boolean)
 MAKE_PSTR_WORD(text)
 
 MAKE_PSTR_WORD(2)
@@ -218,6 +217,8 @@ MAKE_PSTR_(flow, "fluss")
 MAKE_PSTR_(buffer, "speicher")
 MAKE_PSTR(bufferedflow, "durchlaufspeicher")
 MAKE_PSTR(layeredbuffer, "schichtspeicher")
+MAKE_PSTR_WORD(maintenance)
+MAKE_PSTR_WORD(error)
 
 // boiler lists
 MAKE_PSTR_LIST(enum_off_time_date, F_(off), F_(time), F_(date))
@@ -225,6 +226,7 @@ MAKE_PSTR_LIST(enum_freq, F_(off), F_(1x3min), F_(2x3min), F_(3x3min), F_(4x3min
 MAKE_PSTR_LIST(enum_charge, F_(3wayvalve), F_(chargepump))
 MAKE_PSTR_LIST(enum_comfort, F_(hot), F_(eco), F_(intelligent))
 MAKE_PSTR_LIST(enum_flow, F_(off), F_(flow), F_(bufferedflow), F_(buffer), F_(layeredbuffer))
+MAKE_PSTR_LIST(enum_reset, F_(maintenance), F_(error))
 
 // thermostat
 MAKE_PSTR(light, "leicht")
@@ -254,6 +256,7 @@ MAKE_PSTR(room, "raum")
 MAKE_PSTR(power, "leistung")
 MAKE_PSTR(constant, "konstant")
 MAKE_PSTR(simple, "einfach")
+MAKE_PSTR(optimized, "optimiert")
 MAKE_PSTR(nofrost, "frostschutz")
 MAKE_PSTR(comfort, "komfort")
 MAKE_PSTR(manual, "manuell")
@@ -262,15 +265,14 @@ MAKE_PSTR(day, "tag")
 MAKE_PSTR(holiday, "urlaub")
 MAKE_PSTR(reduce, "reduziert")
 MAKE_PSTR(noreduce, "unreduziert")
-MAKE_PSTR_WORD(offset)
-MAKE_PSTR_WORD(design)
+MAKE_PSTR(offset, "anhebung")
+MAKE_PSTR(design, "auslegung")
 MAKE_PSTR_WORD(tempauto)
 MAKE_PSTR(minflow, "minfluss")
 MAKE_PSTR(maxflow, "maxfluss")
 
 MAKE_PSTR_WORD(rc3x)
 MAKE_PSTR_WORD(rc20)
-MAKE_PSTR(error, "fehler")
 MAKE_PSTR(internal_temperature, "interne temperatur")
 MAKE_PSTR(internal_setpoint, "interner sollwert")
 MAKE_PSTR(external_temperature, "externe temperatur")
@@ -304,7 +306,8 @@ MAKE_PSTR_LIST(enum_modetype4, F_(blank), F_(nofrost), F_(eco), F_(heat))
 
 MAKE_PSTR_LIST(enum_reducemode, F_(nofrost), F_(reduce), F_(room), F_(outdoor))
 
-MAKE_PSTR_LIST(enum_controlmode, F_(off), F_(outdoor), F_(simple), F_(mpc), F_(room), F_(power), F_(constant))
+MAKE_PSTR_LIST(enum_controlmode, F_(off), F_(optimized), F_(simple), F_(mpc), F_(room), F_(power), F_(constant))
+MAKE_PSTR_LIST(enum_controlmode3, F_(off), F_(room), F_(outdoor), F("room+outdoor"))
 MAKE_PSTR_LIST(enum_controlmode2, F_(outdoor), F_(room))
 MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
 
@@ -314,6 +317,9 @@ MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(h
  * MQTT topics and full text for values and commands
  */
 MAKE_PSTR(homeassistant, "homeassistant/")
+
+// if for all devices
+MAKE_PSTR_LIST(ID, F_(id))
 
 // Boiler
 // extra commands
@@ -365,7 +371,7 @@ MAKE_PSTR_LIST(serviceCode, F("servicecode"), F("statusmeldung"))
 MAKE_PSTR_LIST(serviceCodeNumber, F("servicecodenumber"), F("statusmeldungsnummer"))
 MAKE_PSTR_LIST(maintenanceMessage, F("maintenancemessage"), F("wartungsmeldung"))
 MAKE_PSTR_LIST(maintenanceDate, F("maintenancedate"), F("wartungsdatum"))
-MAKE_PSTR_LIST(maintenance, F("maintenance"), F("wartungsplan"))
+MAKE_PSTR_LIST(maintenanceType, F_(maintenance), F("wartungsplan"))
 MAKE_PSTR_LIST(maintenanceTime, F("maintenancetime"), F("wartung in"))
 
 MAKE_PSTR_LIST(upTimeControl, F("uptimecontrol"), F("betriebszeit total heizen"))
@@ -423,6 +429,8 @@ MAKE_PSTR_LIST(wWWorkM, F("wwworkm"), F("aktive zeit"))
 MAKE_PSTR_LIST(remoteTemp, F("remotetemp"), F("fb raum temperatur"))
 MAKE_PSTR_LIST(switchtime, F("switchtime"), F("schaltzeit"))
 MAKE_PSTR_LIST(temp, F("temp"), F("temporäre solltemperatur"))
+MAKE_PSTR_LIST(hatemp, F("hatemp"), F("homeassistant temperatur"))
+MAKE_PSTR_LIST(hamode, F("hamode"), F("homeassistent mode"))
 
 // mqtt values / commands
 MAKE_PSTR_LIST(dateTime, F("datetime"), F("datum/zeit"))
@@ -501,6 +509,7 @@ MAKE_PSTR_LIST(tempStatus, F("tempstatus"), F("temperatur schalter des hk (MC1)"
 MAKE_PSTR_LIST(wwTemp, F("wwtemp"), F("aktuelle temperatur"))
 
 // solar
+MAKE_PSTR_LIST(type, F("type"), F("type"))
 MAKE_PSTR_LIST(collectorTemp, F("collectortemp"), F("kollektor temperatur (TS1)"))
 MAKE_PSTR_LIST(tankBottomTemp, F("tankbottomtemp"), F("speicher boden temperatur (TS2)"))
 MAKE_PSTR_LIST(tank2BottomTemp, F("tank2bottomtemp"), F("2. speicher boden temperatur (TS5)"))

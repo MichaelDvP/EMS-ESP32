@@ -328,11 +328,11 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
                 }
                 cmd_only++; // skip the /
                 int8_t id = -1;
-                // check for hcx/ prefix
-                if (cmd_only[0] == 'h' && cmd_only[1] == 'c' && cmd_only[3] == '/') {
-                    id = cmd_only[2] - '0';
-                    cmd_only += 4;
-                }
+                // check for hcx/ prefix, commented out, this is now in command::call
+                // if (cmd_only[0] == 'h' && cmd_only[1] == 'c' && cmd_only[3] == '/') {
+                //     id = cmd_only[2] - '0';
+                //     cmd_only += 4;
+                // }
                 // LOG_INFO(F("devicetype= %d, topic = %s, cmd = %s, message =  %s, id = %d"), mf.device_type_, topic, cmd_only, message, id);
                 if (!Command::call(mf.device_type_, cmd_only, message, id)) {
                     LOG_ERROR(F("No matching cmd (%s) in topic %s, id %d, or invalid data"), cmd_only, topic, id);
@@ -927,7 +927,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
 
     // device name
     char device_name[50];
-    strncpy(device_name, EMSdevice::device_type_2_device_name(device_type).c_str(), sizeof(device_name));
+    strlcpy(device_name, EMSdevice::device_type_2_device_name(device_type).c_str(), sizeof(device_name));
 
     // build unique identifier which will be used in the topic
     // and replacing all . with _ as not to break HA

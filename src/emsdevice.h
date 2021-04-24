@@ -218,7 +218,7 @@ class EMSdevice {
     bool handle_telegram(std::shared_ptr<const Telegram> telegram);
 
     std::string get_value_uom(const char * key);
-    bool        get_value_info(JsonObject & root, const char * cmd);
+    bool        get_value_info(JsonObject & root, const char * cmd, const int8_t id);
     bool        generate_values_json(JsonObject & json, const uint8_t tag_filter, const bool nested, const bool console = false);
     bool        generate_values_json_web(JsonObject & json);
 
@@ -229,8 +229,13 @@ class EMSdevice {
                                const __FlashStringHelper *         short_name,
                                const __FlashStringHelper *         full_name,
                                uint8_t                             uom,
-                               bool                                has_cmd = false);
-    void register_device_value(uint8_t tag, void * value_p, uint8_t type, const __FlashStringHelper * const * options, const __FlashStringHelper * const * name, uint8_t uom, cmdfunction_p f = nullptr);
+                               bool                                has_cmd,
+                               int32_t                             min,
+                               uint32_t                            max);
+    void register_device_value(uint8_t tag, void * value_p, uint8_t type, const __FlashStringHelper * const * options, const __FlashStringHelper * const * name, uint8_t uom, cmdfunction_p f, int32_t min, uint32_t max);
+    void register_device_value(uint8_t tag, void * value_p, uint8_t type, const __FlashStringHelper * const * options, const __FlashStringHelper * const * name, uint8_t uom, cmdfunction_p f);
+    void register_device_value(uint8_t tag, void * value_p, uint8_t type, const __FlashStringHelper * const * options, const __FlashStringHelper * const * name, uint8_t uom);
+    // void register_device_value(uint8_t tag, void * value_p, uint8_t type, const __FlashStringHelper * const * options, const __FlashStringHelper * const * name, uint8_t uom, int32_t min, uint32_t max);
 
     void write_command(const uint16_t type_id, const uint8_t offset, uint8_t * message_data, const uint8_t message_length, const uint16_t validate_typeid);
     void write_command(const uint16_t type_id, const uint8_t offset, const uint8_t value, const uint16_t validate_typeid);
@@ -238,7 +243,7 @@ class EMSdevice {
     void read_command(const uint16_t type_id, uint8_t offset = 0, uint8_t length = 0);
 
     void register_mqtt_topic(const std::string & topic, mqtt_subfunction_p f);
-    void register_cmd(const __FlashStringHelper * cmd, cmdfunction_p f, uint8_t flag = 0);
+    // void register_cmd(const __FlashStringHelper * cmd, cmdfunction_p f, uint8_t flag = 0);
 
     void publish_mqtt_ha_sensor();
 
@@ -375,6 +380,8 @@ class EMSdevice {
         uint8_t                             uom;          // DeviceValueUOM::*
         uint8_t                             ha;           // DevcieValueHA::
         bool                                has_cmd;      // true if there is a Console/MQTT command which matches the short_name
+        int32_t                             min;
+        uint32_t                            max;
 
         DeviceValue(uint8_t                             device_type,
                     uint8_t                             tag,
@@ -386,7 +393,9 @@ class EMSdevice {
                     const __FlashStringHelper *         full_name,
                     uint8_t                             uom,
                     uint8_t                             ha,
-                    bool                                has_cmd)
+                    bool                                has_cmd,
+                    int32_t                             min,
+                    uint32_t                            max)
             : device_type(device_type)
             , tag(tag)
             , value_p(value_p)
@@ -397,7 +406,9 @@ class EMSdevice {
             , full_name(full_name)
             , uom(uom)
             , ha(ha)
-            , has_cmd(has_cmd) {
+            , has_cmd(has_cmd)
+            , min(min)
+            , max(max) {
         }
     };
     const std::vector<DeviceValue> devicevalues() const;
