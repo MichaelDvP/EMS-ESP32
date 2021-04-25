@@ -652,8 +652,8 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
         if (strcmp(cmd, uuid::read_flash_string(dv.short_name).c_str()) == 0 && (tag <= 0 || tag == dv.tag)) {
             uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
             json["name"] = dv.short_name;
-            if (dv.tag >= DeviceValueTAG::TAG_HC1) {
-                json["circuit"] = tag_to_string(dv.tag);
+            if (!tag_to_mqtt(dv.tag).empty()) {
+                json["circuit"] = tag_to_mqtt(dv.tag);
             }
             switch (dv.type) {
             case DeviceValueType::ENUM: {
@@ -725,10 +725,18 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                     json["value"] = (bool)(*(uint8_t *)(dv.value_p)) ? true : false;
                 }
                 json["type"]  = F("boolean");
+                json["min"]   = 0;
+                json["max"]   = 1;
                 JsonArray enum_ = json.createNestedArray(F("enum"));
                 if (dv.options_size == 2) {
-                    enum_.add(dv.options[0]);
                     enum_.add(dv.options[1]);
+                    enum_.add(dv.options[0]);
+                } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF) {
+                    enum_.add("off");
+                    enum_.add("on");
+                } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
+                    enum_.add("OFF");
+                    enum_.add("ON");
                 } else {
                     enum_.add(false);
                     enum_.add(true);

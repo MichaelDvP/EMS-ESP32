@@ -318,7 +318,7 @@ MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(h
  */
 MAKE_PSTR(homeassistant, "homeassistant/")
 
-// if for all devices
+// id for all devices
 // empty full name to prevent being shown in web or console
 MAKE_PSTR_LIST(ID, F_(id))
 
