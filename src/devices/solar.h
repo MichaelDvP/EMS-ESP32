@@ -76,7 +76,7 @@ class Solar : public EMSdevice {
     uint16_t collector1Area_; // Area of collector field 1
     uint8_t  collector1Type_; // Type of collector field 1, 01=flat, 02=vacuum
 
-  // SM100wwTemperature - 0x07D6
+    // SM100wwTemperature - 0x07D6
     uint8_t wwTemp_1_;
     uint8_t wwTemp_3_;
     uint8_t wwTemp_4_;

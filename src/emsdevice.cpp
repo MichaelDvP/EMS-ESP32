@@ -652,7 +652,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
     for (auto & dv : devicevalues_) {
         if (strcmp(cmd, Helpers::toLower(uuid::read_flash_string(dv.short_name)).c_str()) == 0 && (tag <= 0 || tag == dv.tag)) {
             uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
-            json["name"] = dv.short_name;
+            json["name"]    = dv.short_name;
             if (!tag_to_mqtt(dv.tag).empty()) {
                 json["circuit"] = tag_to_mqtt(dv.tag);
             }
@@ -725,9 +725,9 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 if (Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
                     json["value"] = (bool)(*(uint8_t *)(dv.value_p)) ? true : false;
                 }
-                json["type"] = F("boolean");
-                json["min"]  = 0;
-                json["max"]  = 1;
+                json["type"]    = F("boolean");
+                json["min"]     = 0;
+                json["max"]     = 1;
                 JsonArray enum_ = json.createNestedArray(F("enum"));
                 if (dv.options_size == 2) {
                     enum_.add(dv.options[1]);
@@ -767,10 +767,10 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
             }
             json["writeable"] = dv.has_cmd;
             if (dv.min != 0 || dv.max != 0) {
-                json["min"]   = dv.min;
-                json["max"]   = dv.max;
+                json["min"] = dv.min;
+                json["max"] = dv.max;
             }
-             return true;
+            return true;
         }
     }
     return false;

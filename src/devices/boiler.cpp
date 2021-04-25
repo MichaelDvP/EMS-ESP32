@@ -584,13 +584,13 @@ void Boiler::process_UBAEnergySupplied(std::shared_ptr<const Telegram> telegram)
     has_update(telegram->read_value(nrgSuppCooling_, 16));
 }
 
-// * Heatpump power - type 0x48D
+// Heatpump power - type 0x48D
 void Boiler::process_HpPower(std::shared_ptr<const Telegram> telegram){
     has_update(telegram->read_value(hpPower_, 11));
 
 }
 
-// * Heatpump outdoor unit - type 0x48F
+// Heatpump outdoor unit - type 0x48F
 void Boiler::process_HpOutdoor(std::shared_ptr<const Telegram> telegram){
     has_update(telegram->read_value(hpTc0_, 6));
     has_update(telegram->read_value(hpTc1_, 4));
