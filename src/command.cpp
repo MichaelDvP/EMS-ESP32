@@ -123,7 +123,6 @@ char * Command::check_command(char * out, const char * cmd, int8_t & id) {
     return out;
 }
 
-
 // add a command to the list, which does not return json
 void Command::add(const uint8_t device_type, const __FlashStringHelper * cmd, cmdfunction_p cb, uint8_t flag) {
     // if the command already exists for that device type don't add it
