@@ -81,7 +81,8 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
     register_device_value(TAG_NONE, &tankBottomTemp2_, DeviceValueType::SHORT, FL_(div10), FL_(tank2BottomTemp), DeviceValueUOM::DEGREES);
     register_device_value(TAG_NONE, &heatExchangerTemp_, DeviceValueType::SHORT, FL_(div10), FL_(heatExchangerTemp), DeviceValueUOM::DEGREES);
 
-    register_device_value(TAG_NONE, &tankBottomMaxTemp_, DeviceValueType::UINT, nullptr, FL_(tankMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_SM100TankBottomMaxTemp));
+    register_device_value(
+        TAG_NONE, &tankBottomMaxTemp_, DeviceValueType::UINT, nullptr, FL_(tankMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_SM100TankBottomMaxTemp));
     register_device_value(TAG_NONE, &solarPumpModulation_, DeviceValueType::UINT, nullptr, FL_(solarPumpModulation), DeviceValueUOM::PERCENT);
     register_device_value(TAG_NONE, &cylinderPumpModulation_, DeviceValueType::UINT, nullptr, FL_(cylinderPumpModulation), DeviceValueUOM::PERCENT);
 
@@ -130,6 +131,8 @@ void Solar::process_SM10Monitor(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(solarPumpModulation_, 4)); // modulation solar pump
     has_update(telegram->read_bitvalue(solarPump_, 7, 1));
     has_update(telegram->read_value(pumpWorkTime_, 8, 3));
+    // has_update(telegram->read_bitvalue(collectorShutdown_, 0, 3)); // collector shutdown
+    // has_update(telegram->read_bitvalue(tankHeated_, 0, x));        // tank full
 }
 
 /*
@@ -317,12 +320,9 @@ void Solar::process_SM100Time(std::shared_ptr<const Telegram> telegram) {
 void Solar::process_ISM1StatusMessage(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(collectorTemp_, 4));  // Collector Temperature
     has_update(telegram->read_value(tankBottomTemp_, 6)); // Temperature Bottom of Solar Boiler tank
-    uint16_t Wh = 0xFFFF;
+    uint16_t Wh = energyLastHour_ / 10;
     has_update(telegram->read_value(Wh, 2)); // Solar Energy produced in last hour only ushort, is not * 10
-
-    if (Wh != 0xFFFF) {
-        energyLastHour_ = Wh * 10; // set to *10
-    }
+    energyLastHour_ = Wh * 10; // set to *10
 
     has_update(telegram->read_bitvalue(solarPump_, 8, 0));         // PS1 Solar pump on (1) or off (0)
     has_update(telegram->read_value(pumpWorkTime_, 10, 3));        // force to 3 bytes
