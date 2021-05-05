@@ -41,9 +41,8 @@ AsyncWebServer::AsyncWebServer(uint16_t port)
   , _handlers(LinkedList<AsyncWebHandler*>([](AsyncWebHandler* h){ delete h; }))
 {
   _catchAllHandler = new AsyncCallbackWebHandler();
-  if(_catchAllHandler == NULL) {
+  if(_catchAllHandler == NULL)
     return;
-  }
   _server.onClient([](void *s, AsyncClient* c){
     if(c == NULL)
       return;
@@ -60,9 +59,7 @@ AsyncWebServer::AsyncWebServer(uint16_t port)
 AsyncWebServer::~AsyncWebServer(){
   reset();
   end();
-  if(_catchAllHandler) {
-      delete _catchAllHandler;
-  }
+  if(_catchAllHandler) delete _catchAllHandler;
 }
 
 AsyncWebRewrite& AsyncWebServer::addRewrite(AsyncWebRewrite* rewrite){

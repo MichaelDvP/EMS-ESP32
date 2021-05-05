@@ -169,10 +169,6 @@ class LinkedList {
       }
       _root = nullptr;
     }
-
-    void setOnRemove(OnRemove cb) {
-      _onRemove = cb;
-    }
 };
 
 

@@ -23,14 +23,6 @@
 
 #include <libb64/cencode.h>
 
-#ifdef HAVE_KFC_FIRMWARE_VERSION
-#include <debug_helper.h>
-#else
-#define __DBG_printf(...)
-#define __DBG_panic(...)
-#endif
-
-
 #ifndef ESP8266
 extern "C" {
 typedef struct {
@@ -146,7 +138,7 @@ AsyncWebSocketMessageBuffer::AsyncWebSocketMessageBuffer()
 
 }
 
-AsyncWebSocketMessageBuffer::AsyncWebSocketMessageBuffer(uint8_t *data, size_t size, bool allocate)
+AsyncWebSocketMessageBuffer::AsyncWebSocketMessageBuffer(uint8_t * data, size_t size)
   :_data(nullptr)
   ,_len(size)
   ,_lock(false)
@@ -157,15 +149,11 @@ AsyncWebSocketMessageBuffer::AsyncWebSocketMessageBuffer(uint8_t *data, size_t s
     return;
   }
 
-  if (allocate) {
-    _data = new uint8_t[_len + 1];
-    if (_data) {
-      memcpy(_data, data, _len);
-      _data[_len] = 0;
-    }
-  }
-  else {
-    _data = data;
+  _data = new uint8_t[_len + 1];
+
+  if (_data) {
+    memcpy(_data, data, _len);
+    _data[_len] = 0;
   }
 }
 
@@ -255,45 +243,36 @@ bool AsyncWebSocketMessageBuffer::reserve(size_t size)
 /*
  * Control Frame
  */
-class AsyncWebSocketClient;
 
 class AsyncWebSocketControl {
   private:
-    friend AsyncWebSocketClient;
-
     uint8_t _opcode;
     uint8_t *_data;
     size_t _len;
     bool _mask;
     bool _finished;
   public:
-    AsyncWebSocketControl(uint8_t opcode, size_t len, bool mask = false) :
-      _opcode(opcode),
-      _data(nullptr),
-      _len(std::min(len, 125U)),
-      _mask(_len && mask),
-      _finished(false)
-    {
-      if(_len) {
+    AsyncWebSocketControl(uint8_t opcode, uint8_t *data=NULL, size_t len=0, bool mask=false)
+      :_opcode(opcode)
+      ,_len(len)
+      ,_mask(len && mask)
+      ,_finished(false)
+  {
+      if(data == NULL)
+        _len = 0;
+      if(_len){
+        if(_len > 125)
+          _len = 125;
         _data = (uint8_t*)malloc(_len);
-        if (!_data) {
+        if(_data == NULL)
           _len = 0;
-        }
-      }
+        else memcpy_P(_data, data, len);
+      } else _data = NULL;
     }
-
-    AsyncWebSocketControl(uint8_t opcode, uint8_t *data = nullptr, size_t len = 0, bool mask = false) : AsyncWebSocketControl(opcode, data ? len : 0, mask)
-    {
-      if (data && _len) {
-        memcpy_P(_data, data, _len);
-      }
-    }
-
     virtual ~AsyncWebSocketControl(){
-      if(_data)
+      if(_data != NULL)
         free(_data);
     }
-
     virtual bool finished() const { return _finished; }
     uint8_t opcode(){ return _opcode; }
     uint8_t len(){ return _len + 2; }
@@ -322,7 +301,7 @@ AsyncWebSocketBasicMessage::AsyncWebSocketBasicMessage(const char * data, size_t
     _status = WS_MSG_ERROR;
   } else {
     _status = WS_MSG_SENDING;
-    memcpy_P(_data, data, _len);
+    memcpy(_data, data, _len);
     _data[_len] = 0;
   }
 }
@@ -495,8 +474,8 @@ AsyncWebSocketMultiMessage::~AsyncWebSocketMultiMessage() {
 /*
  * Async WebSocket Client
  */
-const char AWSC_PING_PAYLOAD[] PROGMEM = { "ESPAsyncWebServer-PING" };
-constexpr size_t AWSC_PING_PAYLOAD_LEN = 22;
+ const char *AWSC_PING_PAYLOAD[] PROGMEM = { "ESPAsyncWebServer-PING" };
+ const size_t AWSC_PING_PAYLOAD_LEN = 22;
 
 AsyncWebSocketClient::AsyncWebSocketClient(AsyncWebServerRequest *request, AsyncWebSocket *server)
   : _controlQueue(LinkedList<AsyncWebSocketControl *>([](AsyncWebSocketControl *c){ delete  c; }))
@@ -580,9 +559,7 @@ bool AsyncWebSocketClient::_queueIsFull() const {
     (_server->getQueuedMessageCount() >= WS_MAX_QUEUED_MESSAGES) ||
     (_server->getQueuedMessageSize() >= WS_MAX_QUEUED_MESSAGES_SIZE)
 #if WS_MAX_QUEUED_MESSAGES_MIN_HEAP
-    || (_server->getQueuedMessageCount() >= WS_MIN_QUEUED_MESSAGES &&
-        _server->getQueuedMessageSize() >= WS_MIN_QUEUED_MESSAGES_SIZE &&
-         ESP.getFreeHeap() < WS_MAX_QUEUED_MESSAGES_MIN_HEAP)
+    || (ESP.getFreeHeap() < WS_MAX_QUEUED_MESSAGES_MIN_HEAP)
 #endif
     ;
 }
@@ -594,22 +571,9 @@ void AsyncWebSocketClient::_queueMessage(AsyncWebSocketMessage *dataMessage){
     delete dataMessage;
     return;
   }
-#if defined(HAVE_KFC_FIRMWARE_VERSION) && AT_MODE_SUPPORTED && DEBUG
-  extern void __kfcfw_queue_monitor(AsyncWebSocketMessage *dataMessage, AsyncClient *_client, AsyncWebSocket *_server);
-  __kfcfw_queue_monitor(dataMessage, _client, _server);
-#endif
   if(_queueIsFull()){
-#if defined(HAVE_KFC_FIRMWARE_VERSION) && DEBUG
-      static uint32_t queueWarningDelayTime = 0;
-      static uint32_t queueWarningRepeated = 0;
-      if (millis() > queueWarningDelayTime) {
-        queueWarningDelayTime = millis() + 30000;
-        __DBG_printf("Too many messages queued (repeated %u times)", queueWarningRepeated);
-        queueWarningRepeated = 0;
-      }
-      else {
-        queueWarningRepeated++;
-      }
+#if DEBUG
+      ::printf(PSTR("AsyncWebSocketClient: Too many messages queued\n"));
 #endif
       delete dataMessage;
   } else {
@@ -627,45 +591,40 @@ void AsyncWebSocketClient::_queueControl(AsyncWebSocketControl *controlMessage){
     _runQueue();
 }
 
-void AsyncWebSocketClient::close(uint16_t code, const char *message){
-  if(_status != WS_CONNECTED) {
+void AsyncWebSocketClient::close(uint16_t code, const char * message){
+  if(_status != WS_CONNECTED)
     return;
-  }
-  if (code) {
-    auto socketCtrl = new AsyncWebSocketControl(WS_DISCONNECT, 2 + (message ? strlen_P(message) : 0));
-    if (socketCtrl) {
-      auto buf = socketCtrl->_data;
-      if (buf) {
-        *buf++ = code >> 8;
-        *buf++ = code;
-        if (message) {
-          strncpy_P((char *)buf, message, socketCtrl->_len - 2);
-        }
-      }
-      _queueControl(socketCtrl);
+  if(code){
+    uint8_t packetLen = 2;
+    if(message != NULL){
+      size_t mlen = strlen(message);
+      if(mlen > 123) mlen = 123;
+      packetLen += mlen;
     }
-    return;
+    char * buf = (char*)malloc(packetLen);
+    if(buf != NULL){
+      buf[0] = (uint8_t)(code >> 8);
+      buf[1] = (uint8_t)(code & 0xFF);
+      if(message != NULL){
+        memcpy(buf+2, message, packetLen -2);
+      }
+      _queueControl(new AsyncWebSocketControl(WS_DISCONNECT,(uint8_t*)buf,packetLen));
+      free(buf);
+      return;
+    }
   }
   _queueControl(new AsyncWebSocketControl(WS_DISCONNECT));
 }
 
 void AsyncWebSocketClient::ping(uint8_t *data, size_t len){
-  if(_status == WS_CONNECTED) {
+  if(_status == WS_CONNECTED)
     _queueControl(new AsyncWebSocketControl(WS_PING, data, len));
-  }
-
 }
 
-void AsyncWebSocketClient::_onError(int8_t error){
-  __DBG_printf("error=%u", error);
-}
+void AsyncWebSocketClient::_onError(int8_t){}
 
-void AsyncWebSocketClient::_onTimeout(uint32_t time) {
-  uint16_t reasonCode = 1006; // there is no reason for timeout, but the websocket will show reason 1006, unclean disconnect without reason since the socket is just closed
-  String reason = F("Timeout ");
-  reason += String(time / 1000.0, 2);
-  reason += F(" seconds");
-  _server->_handleEvent(this, WS_EVT_ERROR, (void *)&reasonCode, (uint8_t*)reason.c_str(), reason.length());
+void AsyncWebSocketClient::_onTimeout(uint32_t time){
+  (void)time;
   _client->close(true);
 }
 
@@ -745,9 +704,8 @@ void AsyncWebSocketClient::_onData(void *pbuf, size_t plen){
       } else if(_pinfo.opcode == WS_PING){
         _queueControl(new AsyncWebSocketControl(WS_PONG, data, datalen));
       } else if(_pinfo.opcode == WS_PONG){
-        if (datalen == AWSC_PING_PAYLOAD_LEN && memcmp_P(data, AWSC_PING_PAYLOAD, AWSC_PING_PAYLOAD_LEN) == 0) {
+        if(datalen != AWSC_PING_PAYLOAD_LEN || memcmp_P(data, AWSC_PING_PAYLOAD, AWSC_PING_PAYLOAD_LEN) != 0)
           _server->_handleEvent(this, WS_EVT_PONG, NULL, data, datalen);
-        }
       } else if(_pinfo.opcode < 8){//continuation or text/binary frame
         _server->_handleEvent(this, WS_EVT_DATA, (void *)&_pinfo, data, datalen);
       }
@@ -767,9 +725,6 @@ void AsyncWebSocketClient::_onData(void *pbuf, size_t plen){
 }
 
 size_t AsyncWebSocketClient::printf(const char *format, ...) {
-#if HAVE_KFC_FIRMWARE_VERSION
-  __DBG_panic("do not use");
-#endif
   va_list arg;
   va_start(arg, format);
   char* temp = new char[MAX_PRINTF_LEN];
@@ -801,9 +756,6 @@ size_t AsyncWebSocketClient::printf(const char *format, ...) {
 
 #ifndef ESP32
 size_t AsyncWebSocketClient::printf_P(PGM_P formatP, ...) {
-#if HAVE_KFC_FIRMWARE_VERSION
-  __DBG_panic("do not use");
-#endif
   va_list arg;
   va_start(arg, formatP);
   char* temp = new char[MAX_PRINTF_LEN];
@@ -837,27 +789,21 @@ size_t AsyncWebSocketClient::printf_P(PGM_P formatP, ...) {
 void AsyncWebSocketClient::text(const char * message, size_t len){
   _queueMessage(new AsyncWebSocketBasicMessage(message, len));
 }
-
 void AsyncWebSocketClient::text(const char * message){
   text(message, strlen(message));
 }
-
 void AsyncWebSocketClient::text(uint8_t * message, size_t len){
-  text(reinterpret_cast<const char *>(message), len);
+  text((const char *)message, len);
 }
-
 void AsyncWebSocketClient::text(char * message){
   text(message, strlen(message));
 }
-
 void AsyncWebSocketClient::text(const String &message){
   text(message.c_str(), message.length());
 }
-
 void AsyncWebSocketClient::text(const __FlashStringHelper *data){
-  text(reinterpret_cast<const char *>(data), strlen_P(reinterpret_cast<const char *>(data)));
+  text(String(data));
 }
-
 void AsyncWebSocketClient::text(AsyncWebSocketMessageBuffer * buffer)
 {
   _queueMessage(new AsyncWebSocketMultiMessage(buffer));
@@ -866,27 +812,28 @@ void AsyncWebSocketClient::text(AsyncWebSocketMessageBuffer * buffer)
 void AsyncWebSocketClient::binary(const char * message, size_t len){
   _queueMessage(new AsyncWebSocketBasicMessage(message, len, WS_BINARY));
 }
-
 void AsyncWebSocketClient::binary(const char * message){
   binary(message, strlen(message));
 }
-
 void AsyncWebSocketClient::binary(uint8_t * message, size_t len){
   binary((const char *)message, len);
 }
-
 void AsyncWebSocketClient::binary(char * message){
   binary(message, strlen(message));
 }
-
 void AsyncWebSocketClient::binary(const String &message){
   binary(message.c_str(), message.length());
 }
-
 void AsyncWebSocketClient::binary(const __FlashStringHelper *data, size_t len){
-  binary(reinterpret_cast<const char *>(data), len);
-}
+  PGM_P p = reinterpret_cast<PGM_P>(data);
+  char * message = (char*) malloc(len);
+  if(message){
+    memcpy_P(message, p, len);
+    binary(message, len);
+    free(message);
+  }
 
+}
 void AsyncWebSocketClient::binary(AsyncWebSocketMessageBuffer * buffer)
 {
   _queueMessage(new AsyncWebSocketMultiMessage(buffer, WS_BINARY));
@@ -1024,14 +971,13 @@ void AsyncWebSocket::textAll(AsyncWebSocketMessageBuffer * buffer){
 
 void AsyncWebSocket::textAll(const char * message, size_t len){
   AsyncWebSocketMessageBuffer * WSBuffer = makeBuffer((uint8_t *)message, len);
-  textAll(WSBuffer);
+    textAll(WSBuffer);
 }
 
 void AsyncWebSocket::binary(uint32_t id, const char * message, size_t len){
   AsyncWebSocketClient * c = client(id);
-  if(c) {
+  if(c)
     c->binary(message, len);
-  }
 }
 
 void AsyncWebSocket::binaryAll(const char * message, size_t len){
@@ -1041,11 +987,9 @@ void AsyncWebSocket::binaryAll(const char * message, size_t len){
 
 void AsyncWebSocket::binaryAll(AsyncWebSocketMessageBuffer * buffer)
 {
-  if (!buffer) {
-    return;
-  }
+  if (!buffer) return;
   buffer->lock();
-  for(const auto& c: _clients){
+    for(const auto& c: _clients){
     if(c->status() == WS_CONNECTED)
       c->binary(buffer);
   }
@@ -1068,10 +1012,6 @@ void AsyncWebSocket::messageAll(AsyncWebSocketMultiMessage *message){
 }
 
 size_t AsyncWebSocket::printf(uint32_t id, const char *format, ...){
-#if HAVE_KFC_FIRMWARE_VERSION
-  __DBG_panic("do not use");
-#endif
-
   AsyncWebSocketClient * c = client(id);
   if(c){
     va_list arg;
@@ -1084,9 +1024,6 @@ size_t AsyncWebSocket::printf(uint32_t id, const char *format, ...){
 }
 
 size_t AsyncWebSocket::printfAll(const char *format, ...) {
-#if HAVE_KFC_FIRMWARE_VERSION
-  __DBG_panic("do not use");
-#endif
   va_list arg;
   char* temp = new char[MAX_PRINTF_LEN];
   if(!temp){
@@ -1112,9 +1049,6 @@ size_t AsyncWebSocket::printfAll(const char *format, ...) {
 
 #ifndef ESP32
 size_t AsyncWebSocket::printf_P(uint32_t id, PGM_P formatP, ...){
-#if HAVE_KFC_FIRMWARE_VERSION
-  __DBG_panic("do not use");
-#endif
   AsyncWebSocketClient * c = client(id);
   if(c != NULL){
     va_list arg;
@@ -1128,9 +1062,6 @@ size_t AsyncWebSocket::printf_P(uint32_t id, PGM_P formatP, ...){
 #endif
 
 size_t AsyncWebSocket::printfAll_P(PGM_P formatP, ...) {
-#if HAVE_KFC_FIRMWARE_VERSION
-  __DBG_panic("do not use");
-#endif
   va_list arg;
   char* temp = new char[MAX_PRINTF_LEN];
   if(!temp){
@@ -1157,90 +1088,71 @@ size_t AsyncWebSocket::printfAll_P(PGM_P formatP, ...) {
 void AsyncWebSocket::text(uint32_t id, const char * message){
   text(id, message, strlen(message));
 }
-
 void AsyncWebSocket::text(uint32_t id, uint8_t * message, size_t len){
   text(id, (const char *)message, len);
 }
-
 void AsyncWebSocket::text(uint32_t id, char * message){
   text(id, message, strlen(message));
 }
-
 void AsyncWebSocket::text(uint32_t id, const String &message){
   text(id, message.c_str(), message.length());
 }
-
 void AsyncWebSocket::text(uint32_t id, const __FlashStringHelper *message){
   AsyncWebSocketClient * c = client(id);
   if(c != NULL)
     c->text(message);
 }
-
 void AsyncWebSocket::textAll(const char * message){
   textAll(message, strlen(message));
 }
-
 void AsyncWebSocket::textAll(uint8_t * message, size_t len){
   textAll((const char *)message, len);
 }
-
 void AsyncWebSocket::textAll(char * message){
   textAll(message, strlen(message));
 }
-
 void AsyncWebSocket::textAll(const String &message){
   textAll(message.c_str(), message.length());
 }
-
 void AsyncWebSocket::textAll(const __FlashStringHelper *message){
   for(const auto& c: _clients){
     if(c->status() == WS_CONNECTED)
       c->text(message);
   }
 }
-
 void AsyncWebSocket::binary(uint32_t id, const char * message){
   binary(id, message, strlen(message));
 }
-
 void AsyncWebSocket::binary(uint32_t id, uint8_t * message, size_t len){
   binary(id, (const char *)message, len);
 }
-
 void AsyncWebSocket::binary(uint32_t id, char * message){
   binary(id, message, strlen(message));
 }
-
 void AsyncWebSocket::binary(uint32_t id, const String &message){
   binary(id, message.c_str(), message.length());
 }
-
 void AsyncWebSocket::binary(uint32_t id, const __FlashStringHelper *message, size_t len){
   AsyncWebSocketClient * c = client(id);
   if(c != NULL)
     c-> binary(message, len);
 }
-
 void AsyncWebSocket::binaryAll(const char * message){
   binaryAll(message, strlen(message));
 }
-
 void AsyncWebSocket::binaryAll(uint8_t * message, size_t len){
   binaryAll((const char *)message, len);
 }
-
 void AsyncWebSocket::binaryAll(char * message){
   binaryAll(message, strlen(message));
 }
-
 void AsyncWebSocket::binaryAll(const String &message){
   binaryAll(message.c_str(), message.length());
 }
-
 void AsyncWebSocket::binaryAll(const __FlashStringHelper *message, size_t len){
   for(const auto& c: _clients){
     if(c->status() == WS_CONNECTED)
-      c->binary(message, len);
+      c-> binary(message, len);
   }
  }
 
@@ -1289,7 +1201,7 @@ void AsyncWebSocket::handleRequest(AsyncWebServerRequest *request){
   AsyncWebHeader* version = request->getHeader(WS_STR_VERSION);
   if(version->value().toInt() != 13){
     AsyncWebServerResponse *response = request->beginResponse(400);
-    response->addHeader(WS_STR_VERSION, String(13));
+    response->addHeader(WS_STR_VERSION, F("13"));
     request->send(response);
     return;
   }
@@ -1313,9 +1225,9 @@ AsyncWebSocketMessageBuffer * AsyncWebSocket::makeBuffer(size_t size)
   return buffer;
 }
 
-AsyncWebSocketMessageBuffer * AsyncWebSocket::makeBuffer(uint8_t * data, size_t size, bool allocate)
+AsyncWebSocketMessageBuffer * AsyncWebSocket::makeBuffer(uint8_t * data, size_t size)
 {
-  AsyncWebSocketMessageBuffer *buffer = new AsyncWebSocketMessageBuffer(data, size, allocate);
+  AsyncWebSocketMessageBuffer * buffer = new AsyncWebSocketMessageBuffer(data, size);
 
   if (buffer) {
     AsyncWebLockGuard l(_lock);
@@ -1345,14 +1257,22 @@ AsyncWebSocket::AsyncWebSocketClientLinkedList AsyncWebSocket::getClients() cons
  * Authentication code from https://github.com/Links2004/arduinoWebSockets/blob/master/src/WebSockets.cpp#L480
  */
 
-AsyncWebSocketResponse::AsyncWebSocketResponse(const String& key, AsyncWebSocket *server) {
-  uint8_t hash[20];
-  char buffer[33];
-
+AsyncWebSocketResponse::AsyncWebSocketResponse(const String& key, AsyncWebSocket *server){
   _server = server;
   _code = 101;
   _sendContentLength = false;
 
+  uint8_t * hash = (uint8_t*)malloc(20);
+  if(hash == NULL){
+    _state = RESPONSE_FAILED;
+    return;
+  }
+  char * buffer = (char *) malloc(33);
+  if(buffer == NULL){
+    free(hash);
+    _state = RESPONSE_FAILED;
+    return;
+  }
 #ifdef ESP8266
   sha1(key + WS_STR_UUID, hash);
 #else
@@ -1369,6 +1289,8 @@ AsyncWebSocketResponse::AsyncWebSocketResponse(const String& key, AsyncWebSocket
   addHeader(WS_STR_CONNECTION, WS_STR_UPGRADE);
   addHeader(WS_STR_UPGRADE, F("websocket"));
   addHeader(WS_STR_ACCEPT,buffer);
+  free(buffer);
+  free(hash);
 }
 
 void AsyncWebSocketResponse::_respond(AsyncWebServerRequest *request){

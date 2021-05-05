@@ -22,45 +22,29 @@
 #define ASYNCWEBSOCKET_H_
 
 #include <Arduino.h>
-
-// total number of messages in the queue for all socket servers
-#ifndef WS_MAX_QUEUED_MESSAGES
-#  define WS_MAX_QUEUED_MESSAGES                  12
-#endif
-
-// max. size of the messages in the queue of all socket servers
-#ifndef WS_MAX_QUEUED_MESSAGES_SIZE
-#  if defined(ESP8266)
-#      define WS_MAX_QUEUED_MESSAGES_SIZE         8192
-#  else
-#      define WS_MAX_QUEUED_MESSAGES_SIZE         65535
-#  endif
-#endif
-
-// if free heap drops below this number, the queue reports fuill. 0 = disable
-#ifndef WS_MAX_QUEUED_MESSAGES_MIN_HEAP
-#  define WS_MAX_QUEUED_MESSAGES_MIN_HEAP         0
-#endif
-
-// minimum number of messages before WS_MAX_QUEUED_MESSAGES_MIN_HEAP gets checked
-#ifndef WS_MIN_QUEUED_MESSAGES
-#    define WS_MIN_QUEUED_MESSAGES                6
-#endif
-// min queue size before WS_MAX_QUEUED_MESSAGES_MIN_HEAP gets checked
-#ifndef WS_MIN_QUEUED_MESSAGES_SIZE
-#    if defined(ESP8266)
-#        define WS_MIN_QUEUED_MESSAGES_SIZE       2048
-#    else
-#        define WS_MIN_QUEUED_MESSAGES_SIZE       8192
-#    endif
-#endif
-
 #ifdef ESP32
 #include <AsyncTCP.h>
+#ifndef WS_MAX_QUEUED_MESSAGES
+#define WS_MAX_QUEUED_MESSAGES 32
+#endif
+#ifndef WS_MAX_QUEUED_MESSAGES_SIZE
+#define WS_MAX_QUEUED_MESSAGES_SIZE 65535
+#endif
 #else
 #include <ESPAsyncTCP.h>
+#ifndef WS_MAX_QUEUED_MESSAGES
+#define WS_MAX_QUEUED_MESSAGES 8
+#endif
+#ifndef WS_MAX_QUEUED_MESSAGES_SIZE
+#define WS_MAX_QUEUED_MESSAGES_SIZE 8192
+#endif
 #endif
 #include <ESPAsyncWebServer.h>
+
+// 0 = disable
+#ifndef WS_MAX_QUEUED_MESSAGES_MIN_HEAP
+#define WS_MAX_QUEUED_MESSAGES_MIN_HEAP 0
+#endif
 
 #include "AsyncWebSynchronization.h"
 
@@ -81,7 +65,6 @@ class AsyncWebSocket;
 class AsyncWebSocketResponse;
 class AsyncWebSocketClient;
 class AsyncWebSocketControl;
-class WsClient;
 
 typedef struct {
     /** Message type as defined by enum AwsFrameType.
@@ -122,7 +105,7 @@ class AsyncWebSocketMessageBuffer {
   public:
     AsyncWebSocketMessageBuffer();
     AsyncWebSocketMessageBuffer(size_t size);
-    AsyncWebSocketMessageBuffer(uint8_t *data, size_t size, bool allocate = true); // allocate=true copies the content of data to _data, false sets _data to data
+    AsyncWebSocketMessageBuffer(uint8_t * data, size_t size);
     AsyncWebSocketMessageBuffer(const AsyncWebSocketMessageBuffer &);
     AsyncWebSocketMessageBuffer(AsyncWebSocketMessageBuffer &&);
     ~AsyncWebSocketMessageBuffer();
@@ -137,7 +120,6 @@ class AsyncWebSocketMessageBuffer {
     bool canDelete() { return (!_count && !_lock); }
 
     friend AsyncWebSocket;
-    friend WsClient;
 
 };
 
@@ -329,14 +311,8 @@ class AsyncWebSocket: public AsyncWebHandler {
     AsyncWebSocketClient * client(uint32_t id);
     bool hasClient(uint32_t id){ return client(id) != NULL; }
 
-    void close(uint32_t id, uint16_t code = 0, const char *message = nullptr);
-    void close(uint32_t id, uint16_t code = 0, const __FlashStringHelper *message = nullptr) {
-      close(id, code, reinterpret_cast<const char *>(message));
-    }
-    void closeAll(uint16_t code = 0, const char *message = nullptr);
-    void closeAll(uint16_t code = 0, const __FlashStringHelper *message = nullptr) {
-      closeAll(code, reinterpret_cast<const char *>(message));
-    }
+    void close(uint32_t id, uint16_t code=0, const char * message=NULL);
+    void closeAll(uint16_t code=0, const char * message=NULL);
     void cleanupClients(uint16_t maxClients = DEFAULT_MAX_WS_CLIENTS);
 
     void ping(uint32_t id, uint8_t *data=NULL, size_t len=0);
@@ -398,7 +374,7 @@ class AsyncWebSocket: public AsyncWebHandler {
 
     //  messagebuffer functions/objects.
     AsyncWebSocketMessageBuffer * makeBuffer(size_t size = 0);
-    AsyncWebSocketMessageBuffer * makeBuffer(uint8_t *data, size_t size, bool allocate = true);
+    AsyncWebSocketMessageBuffer * makeBuffer(uint8_t * data, size_t size);
     AsyncWebSocketMessageBufferLinkedList _buffers;
     void _cleanBuffers();
 
