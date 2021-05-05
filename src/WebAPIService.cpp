@@ -37,7 +37,7 @@ WebAPIService::WebAPIService(AsyncWebServer * server, SecurityManager * security
 void WebAPIService::webAPIService_get(AsyncWebServerRequest * request) {
     std::string device("");
     std::string cmd("");
-    int         id = -1;
+    int         id = 0;
     std::string value("");
 
     parse(request, device, cmd, id, value); // pass it defaults
@@ -172,10 +172,6 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
     // if the cmd is empty, default it 'info'
     if (cmd_s.empty()) {
         cmd_s = "info";
-    }
-    if (Command::find_command(device_type, cmd_s.c_str()) == nullptr) {
-        send_message_response(request, 422, "Invalid cmd"); // Unprocessable Entity
-        return;
     }
 
     // check that we have permissions first. We require authenticating on 1 or more of these conditions:
