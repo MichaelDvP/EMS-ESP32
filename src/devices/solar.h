@@ -86,10 +86,15 @@ class Solar : public EMSdevice {
     // SM100wwStatus - 0x07AA
     uint8_t wwPump_;
 
+  // SM10Config
+  uint8_t wwMinTemp_;
+  uint8_t minPumpMod_;
+
     char    type_[20]; // Solar of WWC
     uint8_t id_;
 
     void process_SM10Monitor(std::shared_ptr<const Telegram> telegram);
+    void process_SM10Config(std::shared_ptr<const Telegram> telegram);
     void process_SM100SystemConfig(std::shared_ptr<const Telegram> telegram);
     void process_SM100SolarCircuitConfig(std::shared_ptr<const Telegram> telegram);
     void process_SM100ParamCfg(std::shared_ptr<const Telegram> telegram);
@@ -113,6 +118,9 @@ class Solar : public EMSdevice {
 
 
     bool set_SM100TankBottomMaxTemp(const char * value, const int8_t id);
+    bool set_SM10TankBottomMaxTemp(const char * value, const int8_t id);
+    bool set_SM10PumpMinMod(const char * value, const int8_t id);
+    bool set_SM10wwMinTemp(const char * value, const int8_t id);
 };
 
 } // namespace emsesp

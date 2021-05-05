@@ -31,6 +31,7 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
     // telegram handlers
     if (flags == EMSdevice::EMS_DEVICE_FLAG_SM10) {
         register_telegram_type(0x0097, F("SM10Monitor"), true, MAKE_PF_CB(process_SM10Monitor));
+        register_telegram_type(0x0096, F("SM10Config"), true, MAKE_PF_CB(process_SM10Config));
     }
 
     if (flags == EMSdevice::EMS_DEVICE_FLAG_SM100) {
@@ -96,6 +97,10 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
     register_device_value(TAG_NONE, &energyLastHour_, DeviceValueType::ULONG, FL_(div10), FL_(energyLastHour), DeviceValueUOM::WH);
     register_device_value(TAG_NONE, &energyTotal_, DeviceValueType::ULONG, FL_(div10), FL_(energyTotal), DeviceValueUOM::KWH);
     register_device_value(TAG_NONE, &energyToday_, DeviceValueType::ULONG, nullptr, FL_(energyToday), DeviceValueUOM::WH);
+
+    register_device_value(TAG_NONE, &minPumpMod_, DeviceValueType::UINT, nullptr, FL_(minPumpMod), DeviceValueUOM::PERCENT);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwMinTemp_, DeviceValueType::UINT, nullptr, FL_(wwMinTemp), DeviceValueUOM::DEGREES);
+
 }
 
 // publish HA config
@@ -122,6 +127,15 @@ bool Solar::publish_ha_config() {
     Mqtt::publish_ha(topic, doc.as<JsonObject>()); // publish the config payload with retain flag
 
     return true;
+}
+
+// SM10Monitor - type 0x96
+// Solar(0x30) -> All(0x00), (0x96), data: FF 18 19 0A 02 5A 27 0A 05 2D 1E 0F 64 28 0A
+void Solar::process_SM10Config(std::shared_ptr<const Telegram> telegram) {
+    // pos 0 activated 00 -FF
+    has_update(telegram->read_value(minPumpMod_, 2));
+    has_update(telegram->read_value(tankBottomMaxTemp_, 5));
+    has_update(telegram->read_value(wwMinTemp_, 6));
 }
 
 // SM10Monitor - type 0x97
@@ -348,8 +362,33 @@ bool Solar::set_SM100TankBottomMaxTemp(const char * value, const int8_t id) {
     // 90 30 FF 03 02 5A 59 B3
     // note: optionally add the validate to 0x035A which will pick up the adjusted tank1MaxTempCurrent_
     write_command(0x35A, 0x03, (uint8_t)temperature);
-
     return true;
 }
+bool Solar::set_SM10TankBottomMaxTemp(const char * value, const int8_t id) {
+    int temperature;
+    if (!Helpers::value2number(value, temperature)) {
+        return false;
+    }
+    write_command(0x96, 6, (uint8_t)temperature);
+    return true;
+}
+bool Solar::set_SM10PumpMinMod(const char * value, const int8_t id) {
+    int modulation;
+    if (!Helpers::value2number(value, modulation)) {
+        return false;
+    }
+    write_command(0x96, 2, (uint8_t)modulation);
+    return true;
+}
+bool Solar::set_SM10wwMinTemp(const char * value, const int8_t id) {
+    int temperature;
+    if (!Helpers::value2number(value, temperature)) {
+        return false;
+    }
+    write_command(0x96, 5, (uint8_t)temperature);
+    return true;
+}
+
+
 
 } // namespace emsesp

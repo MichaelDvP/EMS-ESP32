@@ -564,6 +564,9 @@ MAKE_PSTR_LIST(wwTemp5, F("wwtemp5"), F("temperature 5"))
 MAKE_PSTR_LIST(wwTemp7, F("wwtemp7"), F("temperature 7"))
 MAKE_PSTR_LIST(wwPump, F("wwpump"), F("pump"))
 
+MAKE_PSTR_LIST(wwMinTemp, F("wwmintemp"), F("minimum temperature"))
+MAKE_PSTR_LIST(minPumpMod, F("minpumpmod"), F("minimum pump modulation"))
+
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("activated"))
 MAKE_PSTR_LIST(status, F("status"), F("status"))

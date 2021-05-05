@@ -663,6 +663,15 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
     return (num_elements != 0);
 }
 
+bool EMSdevice::get_catalog(JsonObject & root) {
+    std::string name    = device_type_2_device_name(device_type());
+    JsonArray   catalog = root.createNestedArray(name);
+    for (auto & dv : devicevalues_) {
+        catalog.add(uuid::read_flash_string(dv.short_name));
+    }
+    return (root.size() > 0);
+}
+
 bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t id) {
     JsonObject json = root;
     int8_t     tag  = id;
