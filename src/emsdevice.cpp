@@ -667,7 +667,11 @@ bool EMSdevice::get_catalog(JsonObject & root) {
     std::string name    = device_type_2_device_name(device_type());
     JsonArray   catalog = root.createNestedArray(name);
     for (auto & dv : devicevalues_) {
-        catalog.add(uuid::read_flash_string(dv.short_name));
+        if (dv.tag >= TAG_HC1) {
+            catalog.add(tag_to_mqtt(dv.tag) + "/" + uuid::read_flash_string(dv.short_name));
+        } else {
+            catalog.add(uuid::read_flash_string(dv.short_name));
+        }
     }
     return (root.size() > 0);
 }

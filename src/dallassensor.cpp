@@ -310,7 +310,7 @@ bool DallasSensor::updated_values() {
 // returns false if empty
 // e.g. dallassensor_data = {"sensor1":{"id":"28-EA41-9497-0E03-5F","temp":23.30},"sensor2":{"id":"28-233D-9497-0C03-8B","temp":24.0}}
 bool DallasSensor::command_info(const char * value, const int8_t id, JsonObject & json) {
-    if (sensors_.size() == 0) {
+    if (sensors_.size() == 0 || id != -1) {
         return false;
     }
 

@@ -79,6 +79,7 @@ MAKE_PSTR_WORD(data)
 MAKE_PSTR_WORD(command)
 MAKE_PSTR_WORD(commands)
 MAKE_PSTR_WORD(info)
+MAKE_PSTR_WORD(catalog)
 MAKE_PSTR_WORD(settings)
 
 // devices
@@ -554,6 +555,9 @@ MAKE_PSTR_LIST(wwTemp4, F("wwtemp4"), F("Temperatur 4"))
 MAKE_PSTR_LIST(wwTemp5, F("wwtemp5"), F("Temperatur 5"))
 MAKE_PSTR_LIST(wwTemp7, F("wwtemp7"), F("Temperatur 7"))
 MAKE_PSTR_LIST(wwPump, F("wwpump"), F("Pumpe"))
+
+MAKE_PSTR_LIST(wwMinTemp, F("wwmintemp"), F("minimale Temperatur"))
+MAKE_PSTR_LIST(minPumpMod, F("minpumpmod"), F("minimale Pumpenmodulation"))
 
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("aktiviert"))

@@ -556,6 +556,33 @@ void EMSESP::publish_response(std::shared_ptr<const Telegram> telegram) {
     Mqtt::publish(F_(response), doc.as<JsonObject>());
 }
 
+// get all alues and commands as list
+bool EMSESP::get_catalog(uint8_t devicetype, JsonObject & root, const int8_t id) {
+    if (id != -1) {
+        return false;
+    }
+    for (const auto & emsdevice : emsdevices) {
+        if (emsdevice->device_type() == devicetype) {
+            return emsdevice->get_catalog(root);
+        }
+    }
+    if (devicetype == DeviceType::DALLASSENSOR) {
+        JsonArray catalog = root.createNestedArray(F_(dallassensor));
+        uint8_t   i       = 1;
+        for (const auto & sensor : EMSESP::sensor_devices()) {
+            char sensorID[10];
+            snprintf_P(sensorID, 10, PSTR("sensor%d"), i++);
+            if (Mqtt::dallas_format() == Mqtt::Dallas_Format::SENSORID) {
+                catalog.add(sensor.to_string());
+            } else {
+                catalog.add(sensorID);
+            }
+        }
+    }
+    return (root.size() > 0);
+}
+
+// show info to each command or value
 bool EMSESP::get_device_value_info(JsonObject & root, const char * cmd, const int8_t id, const uint8_t devicetype) {
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice->device_type() == devicetype) {
@@ -585,7 +612,6 @@ bool EMSESP::get_device_value_info(JsonObject & root, const char * cmd, const in
 
     return false;
 }
-
 
 // search for recognized device_ids : Me, All, otherwise print hex value
 std::string EMSESP::device_tostring(const uint8_t device_id) {
@@ -971,6 +997,10 @@ bool EMSESP::add_device(const uint8_t device_id, const uint8_t product_id, std::
 
     Command::add_with_json(device_type, F_(info), [device_type](const char * value, const int8_t id, JsonObject & json) {
         return command_info(device_type, json, id);
+    });
+
+    Command::add_with_json(device_type, F("catalog"), [device_type](const char * value, const int8_t id, JsonObject & json) {
+        return get_catalog(device_type, json, id);
     });
 
     return true;
