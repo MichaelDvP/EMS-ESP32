@@ -131,14 +131,15 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
         // first param must be a valid device, which includes "system"
         device_s = p.paths().front();
 
-        // if there are no more paths parameters, default to 'info'
         auto num_paths = p.paths().size();
         if (num_paths == 1) {
+            // if there are no more paths parameters, default to 'info'
             cmd_s = "info";
         } else if (num_paths == 2) {
             cmd_s = p.paths()[1];
         } else if (num_paths > 2) {
-            cmd_s = p.paths()[1] + "." + p.paths()[2];
+            // command-check makes prefix to TAG
+            cmd_s = p.paths()[1] + "/" + p.paths()[2];
         }
     }
     // now go and validate everything

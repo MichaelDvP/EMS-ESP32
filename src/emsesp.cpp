@@ -323,8 +323,8 @@ void EMSESP::show_device_values(uuid::console::Shell & shell) {
                     shell.printf("  %s: ", key);
                     JsonVariant data = p.value();
                     shell.print(COLOR_BRIGHT_GREEN);
-                    if (data.is<char *>()) {
-                        shell.print(data.as<char *>());
+                    if (data.is<const char *>()) {
+                        shell.print(data.as<const char *>());
                     } else if (data.is<int>()) {
                         shell.print(data.as<int>());
                     } else if (data.is<float>()) {
