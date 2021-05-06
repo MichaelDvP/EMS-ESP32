@@ -6,11 +6,11 @@
     "@material-ui/core": "^4.11.4",
     "@material-ui/icons": "^4.11.2",
     "@types/lodash": "^4.14.168",
-    "@types/node": "^15.0.1",
-    "@types/react": "^17.0.4",
+    "@types/node": "^15.0.2",
+    "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.3",
     "@types/react-material-ui-form-validator": "^2.1.0",
-    "@types/react-router": "^5.1.13",
+    "@types/react-router": "^5.1.14",
     "@types/react-router-dom": "^5.1.7",
     "compression-webpack-plugin": "^5.0.2",
     "express": "^4.17.1",
@@ -54,7 +54,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.13.16",
+    "@babel/core": "^7.14.0",
     "concurrently": "^6.0.2",
     "http-proxy-middleware": "^0.19.1",
     "nodemon": "^2.0.7",

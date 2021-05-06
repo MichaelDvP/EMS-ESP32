@@ -64,7 +64,7 @@ class Solar : public EMSdevice {
     uint8_t tankBottomMaxTemp_;    // Current value for max tank temp
     uint8_t collectorMinTemp_;     // minimum allowed collectorTemp array 1
     uint8_t solarPumpMode_;        // 00=off, 01=PWM, 02=10V
-    uint8_t solarPumpMinRPM_;      // minimum RPM setting, *5 %
+    uint8_t solarPumpMinMod_;      // minimum modulation setting, *5 %
     uint8_t solarPumpTurnoffDiff_; // solar pump turnoff collector/tank diff
     uint8_t solarPumpTurnonDiff_;  // solar pump turnon collector/tank diff
     uint8_t solarPumpKick_;        // pump kick for vacuum collector, 00=off
@@ -88,7 +88,6 @@ class Solar : public EMSdevice {
 
   // SM10Config
   uint8_t  wwMinTemp_;
-  uint8_t  minPumpMod_;
   uint8_t  maxFlow_;
   uint32_t solarPower_;
 
@@ -119,10 +118,13 @@ class Solar : public EMSdevice {
     void process_ISM1Set(std::shared_ptr<const Telegram> telegram);
 
 
-    bool set_SM100TankBottomMaxTemp(const char * value, const int8_t id);
-    bool set_SM10TankBottomMaxTemp(const char * value, const int8_t id);
-    bool set_SM10PumpMinMod(const char * value, const int8_t id);
-    bool set_SM10wwMinTemp(const char * value, const int8_t id);
+    bool set_CollectorMaxTemp(const char * value, const int8_t id);
+    bool set_TankBottomMaxTemp(const char * value, const int8_t id);
+    bool set_PumpMinMod(const char * value, const int8_t id);
+    bool set_wwMinTemp(const char * value, const int8_t id);
+    bool set_TurnonDiff(const char * value, const int8_t id);
+    bool set_TurnoffDiff(const char * value, const int8_t id);
+
     bool set_SM10MaxFlow(const char * value, const int8_t id);
 };
 

@@ -544,6 +544,7 @@ MAKE_PSTR_LIST(tankBottomTemp, F("tankbottomtemp"), F("tank bottom temperature (
 MAKE_PSTR_LIST(tank2BottomTemp, F("tank2bottomtemp"), F("second tank bottom temperature (TS5)"))
 MAKE_PSTR_LIST(heatExchangerTemp, F("heatexchangertemp"), F("heat exchanger temperature (TS6)"))
 
+MAKE_PSTR_LIST(collectorMaxTemp, F("collectormaxtemp"), F("maximum collector temperature"))
 MAKE_PSTR_LIST(tankMaxTemp, F("tankmaxtemp"), F("maximum tank temperature"))
 MAKE_PSTR_LIST(solarPumpModulation, F("solarpumpmodulation"), F("pump modulation (PS1)"))
 MAKE_PSTR_LIST(cylinderPumpModulation, F("cylinderpumpmodulation"), F("cylinder pump modulation (PS5)"))
@@ -570,6 +571,8 @@ MAKE_PSTR_LIST(wwMinTemp, F("wwmintemp"), F("minimum temperature"))
 MAKE_PSTR_LIST(minPumpMod, F("minpumpmod"), F("minimum pump modulation"))
 MAKE_PSTR_LIST(maxFlow, F("maxflow"), F("maximum solar flow"))
 MAKE_PSTR_LIST(solarPower, F("solarpower"), F("actual solar power"))
+MAKE_PSTR_LIST(turnonDiff, F("turnondiff"), F("pump turn on difference"))
+MAKE_PSTR_LIST(turnoffDiff, F("turnoffdiff"), F("pump turn off difference"))
 
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("activated"))

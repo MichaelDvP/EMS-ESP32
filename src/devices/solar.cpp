@@ -81,33 +81,32 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
     register_device_value(TAG_NONE, &tankBottomTemp_, DeviceValueType::SHORT, FL_(div10), FL_(tankBottomTemp), DeviceValueUOM::DEGREES);
     register_device_value(TAG_NONE, &solarPump_, DeviceValueType::BOOL, nullptr, FL_(solarPump), DeviceValueUOM::PUMP);
     register_device_value(TAG_NONE, &solarPumpModulation_, DeviceValueType::UINT, nullptr, FL_(solarPumpModulation), DeviceValueUOM::PERCENT);
+    register_device_value(TAG_NONE, &pumpWorkTime_, DeviceValueType::TIME, nullptr, FL_(pumpWorkTime), DeviceValueUOM::MINUTES);
 
     if (flags == EMSdevice::EMS_DEVICE_FLAG_SM10) {
-        register_device_value(
-            TAG_NONE, &tankBottomMaxTemp_, DeviceValueType::UINT, nullptr, FL_(tankMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_SM10TankBottomMaxTemp));
-        register_device_value(TAG_NONE, &minPumpMod_, DeviceValueType::UINT, nullptr, FL_(minPumpMod), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_SM10PumpMinMod));
-        register_device_value(TAG_DEVICE_DATA_WW, &wwMinTemp_, DeviceValueType::UINT, nullptr, FL_(wwMinTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_SM10wwMinTemp));
+        // register_device_value(TAG_NONE, &collectorMaxTemp_, DeviceValueType::UINT, nullptr, FL_(collectorMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_CollectorMaxTemp));
+        register_device_value(TAG_NONE, &tankBottomMaxTemp_, DeviceValueType::UINT, nullptr, FL_(tankMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TankBottomMaxTemp));
+        register_device_value(TAG_NONE, &solarPumpMinMod_, DeviceValueType::UINT, nullptr, FL_(minPumpMod), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_PumpMinMod));
+        register_device_value(TAG_NONE, &solarPumpTurnonDiff_, DeviceValueType::UINT, nullptr, FL_(turnonDiff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TurnonDiff));
+        register_device_value(TAG_NONE, &solarPumpTurnoffDiff_, DeviceValueType::UINT, nullptr, FL_(turnoffDiff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TurnoffDiff));
         register_device_value(TAG_NONE, &collectorShutdown_, DeviceValueType::BOOL, nullptr, FL_(collectorShutdown), DeviceValueUOM::NONE);
         register_device_value(TAG_NONE, &tankHeated_, DeviceValueType::BOOL, nullptr, FL_(tankHeated), DeviceValueUOM::NONE);
-        register_device_value(TAG_NONE, &pumpWorkTime_, DeviceValueType::TIME, nullptr, FL_(pumpWorkTime), DeviceValueUOM::MINUTES);
         register_device_value(TAG_NONE, &solarPower_, DeviceValueType::ULONG, nullptr, FL_(solarPower), DeviceValueUOM::W);
         register_device_value(TAG_NONE, &energyTotal_, DeviceValueType::ULONG, FL_(div10), FL_(energyTotal), DeviceValueUOM::KWH);
-        register_device_value(TAG_DEVICE_DATA_WW, &maxFlow_, DeviceValueType::UINT, FL_(div10), FL_(maxFlow), DeviceValueUOM::LMIN, MAKE_CF_CB(set_SM10MaxFlow));
+        register_device_value(TAG_NONE, &maxFlow_, DeviceValueType::UINT, FL_(div10), FL_(maxFlow), DeviceValueUOM::LMIN, MAKE_CF_CB(set_SM10MaxFlow));
+        register_device_value(TAG_DEVICE_DATA_WW, &wwMinTemp_, DeviceValueType::UINT, nullptr, FL_(wwMinTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwMinTemp));
         return;
     }
 
     register_device_value(TAG_NONE, &tankBottomTemp2_, DeviceValueType::SHORT, FL_(div10), FL_(tank2BottomTemp), DeviceValueUOM::DEGREES);
     register_device_value(TAG_NONE, &heatExchangerTemp_, DeviceValueType::SHORT, FL_(div10), FL_(heatExchangerTemp), DeviceValueUOM::DEGREES);
 
-    register_device_value(
-        TAG_NONE, &tankBottomMaxTemp_, DeviceValueType::UINT, nullptr, FL_(tankMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_SM100TankBottomMaxTemp));
+    register_device_value(TAG_NONE, &tankBottomMaxTemp_, DeviceValueType::UINT, nullptr, FL_(tankMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TankBottomMaxTemp));
     register_device_value(TAG_NONE, &cylinderPumpModulation_, DeviceValueType::UINT, nullptr, FL_(cylinderPumpModulation), DeviceValueUOM::PERCENT);
 
     register_device_value(TAG_NONE, &valveStatus_, DeviceValueType::BOOL, nullptr, FL_(valveStatus), DeviceValueUOM::NONE);
     register_device_value(TAG_NONE, &tankHeated_, DeviceValueType::BOOL, nullptr, FL_(tankHeated), DeviceValueUOM::NONE);
     register_device_value(TAG_NONE, &collectorShutdown_, DeviceValueType::BOOL, nullptr, FL_(collectorShutdown), DeviceValueUOM::NONE);
-
-    register_device_value(TAG_NONE, &pumpWorkTime_, DeviceValueType::TIME, nullptr, FL_(pumpWorkTime), DeviceValueUOM::MINUTES);
 
     register_device_value(TAG_NONE, &energyLastHour_, DeviceValueType::ULONG, FL_(div10), FL_(energyLastHour), DeviceValueUOM::WH);
     register_device_value(TAG_NONE, &energyTotal_, DeviceValueType::ULONG, FL_(div10), FL_(energyTotal), DeviceValueUOM::KWH);
@@ -144,8 +143,10 @@ bool Solar::publish_ha_config() {
 // SM10Monitor - type 0x96
 // Solar(0x30) -> All(0x00), (0x96), data: FF 18 19 0A 02 5A 27 0A 05 2D 1E 0F 64 28 0A
 void Solar::process_SM10Config(std::shared_ptr<const Telegram> telegram) {
-    // pos 0 activated 00 -FF
-    has_update(telegram->read_value(minPumpMod_, 2));
+    // has_update(telegram->read_value(collectorMaxTemp_, 12));
+    has_update(telegram->read_value(solarPumpMinMod_, 2));
+    has_update(telegram->read_value(solarPumpTurnonDiff_, 7));
+    has_update(telegram->read_value(solarPumpTurnoffDiff_, 8));
     has_update(telegram->read_value(tankBottomMaxTemp_, 5));
     has_update(telegram->read_value(wwMinTemp_, 6));
 }
@@ -161,6 +162,9 @@ void Solar::process_SM10Monitor(std::shared_ptr<const Telegram> telegram) {
     // has_update(telegram->read_bitvalue(tankHeated_, 0, x));        // tank full
     if (!Helpers::hasValue(maxFlow_)) {
         maxFlow_ = 50;
+    }
+    if (!Helpers::hasValue(energyTotal_)) {
+        energyTotal_ = 0;
     }
     if (telegram->dest == EMSbus::ems_bus_id()) { // every minute
         solarPower_ = (collectorTemp_ - tankBottomTemp_) * solarPumpModulation_ * maxFlow_ * 10 / 1434;
@@ -189,7 +193,7 @@ void Solar::process_SM100SolarCircuitConfig(std::shared_ptr<const Telegram> tele
     has_update(telegram->read_value(tankBottomMaxTemp_, 3, 1));
     has_update(telegram->read_value(collectorMinTemp_, 4, 1));
     has_update(telegram->read_value(solarPumpMode_, 5, 1));
-    has_update(telegram->read_value(solarPumpMinRPM_, 6, 1));
+    has_update(telegram->read_value(solarPumpMinMod_, 6, 1));
     has_update(telegram->read_value(solarPumpTurnoffDiff_, 7, 1));
     has_update(telegram->read_value(solarPumpTurnonDiff_, 8, 1));
     has_update(telegram->read_value(solarPumpKick_, 9, 1));
@@ -370,43 +374,82 @@ void Solar::process_ISM1Set(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram->read_value(setpoint_maxBottomTemp_, 6));
 }
 
-// set temperature for tank
-bool Solar::set_SM100TankBottomMaxTemp(const char * value, const int8_t id) {
+/*
+ * Settings
+ */
+// collector shutdown temperature
+bool Solar::set_CollectorMaxTemp(const char * value, const int8_t id) {
     int temperature;
     if (!Helpers::value2number(value, temperature)) {
         return false;
     }
+    if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
+        write_command(0x96, 12, (uint8_t)temperature, 0x96);
+    } else {
+        write_command(0x35A, 0, (uint8_t)temperature, 0x35A);
+    }
+    return true;
+}
 
-    // write value
-    // 90 30 FF 03 02 5A 59 B3
-    // note: optionally add the validate to 0x035A which will pick up the adjusted tank1MaxTempCurrent_
-    write_command(0x35A, 0x03, (uint8_t)temperature);
-    return true;
-}
-bool Solar::set_SM10TankBottomMaxTemp(const char * value, const int8_t id) {
+bool Solar::set_TankBottomMaxTemp(const char * value, const int8_t id) {
     int temperature;
     if (!Helpers::value2number(value, temperature)) {
         return false;
     }
-    write_command(0x96, 6, (uint8_t)temperature);
+    if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
+        write_command(0x96, 5, (uint8_t)temperature, 0x96);
+    } else {
+        // write value: 90 30 FF 03 02 5A 59 B3
+        write_command(0x35A, 0x03, (uint8_t)temperature, 0x35A);
+    }
     return true;
 }
-bool Solar::set_SM10PumpMinMod(const char * value, const int8_t id) {
+bool Solar::set_PumpMinMod(const char * value, const int8_t id) {
     int modulation;
     if (!Helpers::value2number(value, modulation)) {
         return false;
     }
-    write_command(0x96, 2, (uint8_t)modulation);
+    write_command(0x96, 2, (uint8_t)modulation, 0x96);
     return true;
 }
-bool Solar::set_SM10wwMinTemp(const char * value, const int8_t id) {
+
+bool Solar::set_wwMinTemp(const char * value, const int8_t id) {
     int temperature;
     if (!Helpers::value2number(value, temperature)) {
         return false;
     }
-    write_command(0x96, 5, (uint8_t)temperature);
+    write_command(0x96, 6, (uint8_t)temperature, 0x96);
     return true;
 }
+
+bool Solar::set_TurnoffDiff(const char * value, const int8_t id){
+    int temperature;
+    if (!Helpers::value2number(value, temperature)) {
+        return false;
+    }
+    if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
+        write_command(0x96, 8, (uint8_t)temperature, 0x96);
+    } else {
+        write_command(0x35A, 7, (uint8_t)temperature, 0x35A);
+    }
+    return true;
+
+}
+
+bool Solar::set_TurnonDiff(const char * value, const int8_t id){
+    int temperature;
+    if (!Helpers::value2number(value, temperature)) {
+        return false;
+    }
+    if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
+        write_command(0x96, 7, (uint8_t)temperature, 0x96);
+    } else {
+        write_command(0x35A, 8, (uint8_t)temperature, 0x35A);
+    }
+    return true;
+}
+
+// external value to calculate energy
 bool Solar::set_SM10MaxFlow(const char * value, const int8_t id) {
     float flow;
     if (!Helpers::value2float(value, flow)) {
@@ -415,7 +458,5 @@ bool Solar::set_SM10MaxFlow(const char * value, const int8_t id) {
     maxFlow_ = (flow * 10);
     return true;
 }
-
-
 
 } // namespace emsesp
