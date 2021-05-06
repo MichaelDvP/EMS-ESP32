@@ -900,16 +900,18 @@ bool System::command_settings(const char * value, const int8_t id, JsonObject & 
 // export status information including some basic settings
 // e.g. http://ems-esp/api?device=system&cmd=info
 bool System::command_info(const char * value, const int8_t id, JsonObject & json) {
-    if (id == 0) {
-        return EMSESP::system_.heartbeat_json(json);
+    if (id != -1) {
+        // return EMSESP::system_.heartbeat_json(json);
+        return false;
     }
 
     JsonObject node;
 
     node = json.createNestedObject("System");
 
-    node["version"] = EMSESP_APP_VERSION;
-    node["uptime"]  = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
+    node["version"]     = EMSESP_APP_VERSION;
+    node["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
+    node["uptime_sec"]  = uuid::get_uptime_sec();
 #ifndef EMSESP_STANDALONE
     node["freemem"] = ESP.getFreeHeap();
 #endif
@@ -930,22 +932,22 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
     }
 
     if (EMSESP::bus_status() != EMSESP::BUS_STATUS_OFFLINE) {
-        node["bus protocol"]          = EMSbus::is_ht3() ? F("HT3") : F("Buderus");
-        node["#telegrams received"]   = EMSESP::rxservice_.telegram_count();
-        node["#read requests sent"]   = EMSESP::txservice_.telegram_read_count();
-        node["#write requests sent"]  = EMSESP::txservice_.telegram_write_count();
-        node["#incomplete telegrams"] = EMSESP::rxservice_.telegram_error_count();
-        node["#tx fails"]             = EMSESP::txservice_.telegram_fail_count();
-        node["rx line quality"]       = EMSESP::rxservice_.quality();
-        node["tx line quality"]       = EMSESP::txservice_.quality();
+        node["bus_protocol"]  = EMSbus::is_ht3() ? F("HT3") : F("Buderus");
+        node["rx_received"]   = EMSESP::rxservice_.telegram_count();
+        node["tx_reads"]      = EMSESP::txservice_.telegram_read_count();
+        node["tx_writes"]     = EMSESP::txservice_.telegram_write_count();
+        node["rx_fails"]      = EMSESP::rxservice_.telegram_error_count();
+        node["tx_fails"]      = EMSESP::txservice_.telegram_fail_count();
+        node["rx_quality"]    = EMSESP::rxservice_.quality();
+        node["tx_quality"]    = EMSESP::txservice_.quality();
         if (Mqtt::enabled()) {
-            node["#MQTT publishes"]     = Mqtt::publish_count();
-            node["#MQTT publish fails"] = Mqtt::publish_fails();
+            node["mqtt_publishes"] = Mqtt::publish_count();
+            node["mqtt_fails"]     = Mqtt::publish_fails();
         }
         if (EMSESP::dallas_enabled()) {
-            node["#dallas sensors"] = EMSESP::sensor_devices().size();
-            node["#dallas reads"]   = EMSESP::sensor_reads();
-            node["#dallas fails"]   = EMSESP::sensor_fails();
+            node["dallas_sensors"] = EMSESP::sensor_devices().size();
+            node["dallas_reads"]   = EMSESP::sensor_reads();
+            node["dallas_fails"]   = EMSESP::sensor_fails();
         }
     }
 

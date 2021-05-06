@@ -87,8 +87,10 @@ class Solar : public EMSdevice {
     uint8_t wwPump_;
 
   // SM10Config
-  uint8_t wwMinTemp_;
-  uint8_t minPumpMod_;
+  uint8_t  wwMinTemp_;
+  uint8_t  minPumpMod_;
+  uint8_t  maxFlow_;
+  uint32_t solarPower_;
 
     char    type_[20]; // Solar of WWC
     uint8_t id_;
@@ -121,6 +123,7 @@ class Solar : public EMSdevice {
     bool set_SM10TankBottomMaxTemp(const char * value, const int8_t id);
     bool set_SM10PumpMinMod(const char * value, const int8_t id);
     bool set_SM10wwMinTemp(const char * value, const int8_t id);
+    bool set_SM10MaxFlow(const char * value, const int8_t id);
 };
 
 } // namespace emsesp

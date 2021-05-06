@@ -162,6 +162,7 @@ MAKE_PSTR(hours, "hours")
 MAKE_PSTR(ua, "uA")
 MAKE_PSTR(lmin, "l/min")
 MAKE_PSTR(kw, "kW")
+MAKE_PSTR(w, "W")
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 // use empty string if want to suppress showing tags
@@ -567,6 +568,8 @@ MAKE_PSTR_LIST(wwPump, F("wwpump"), F("pump"))
 
 MAKE_PSTR_LIST(wwMinTemp, F("wwmintemp"), F("minimum temperature"))
 MAKE_PSTR_LIST(minPumpMod, F("minpumpmod"), F("minimum pump modulation"))
+MAKE_PSTR_LIST(maxFlow, F("maxflow"), F("maximum solar flow"))
+MAKE_PSTR_LIST(solarPower, F("solarpower"), F("actual solar power"))
 
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("activated"))

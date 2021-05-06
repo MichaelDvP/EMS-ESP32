@@ -162,6 +162,7 @@ MAKE_PSTR(hours, "Stunden")
 MAKE_PSTR(ua, "uA")
 MAKE_PSTR(lmin, "l/min")
 MAKE_PSTR(kw, "kW")
+MAKE_PSTR(w, "W")
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 // use empty string if want to suppress showing tags
@@ -284,7 +285,16 @@ MAKE_PSTR(functioning_mode, "functioning mode")
 MAKE_PSTR(smoke_temperature, "Abgastemperatur")
 
 // thermostat lists
-MAKE_PSTR_LIST(enum_ibaMainDisplay, F_(internal_temperature), F_(internal_setpoint), F_(external_temperature), F_(burner_temperature), F_(ww_temperature), F_(functioning_mode), F_(time), F_(date), F_(smoke_temperature))
+MAKE_PSTR_LIST(enum_ibaMainDisplay,
+               F_(internal_temperature),
+               F_(internal_setpoint),
+               F_(external_temperature),
+               F_(burner_temperature),
+               F_(ww_temperature),
+               F_(functioning_mode),
+               F_(time),
+               F_(date),
+               F_(smoke_temperature))
 MAKE_PSTR_LIST(enum_ibaLanguage, F_(german), F_(dutch), F_(french), F_(italian))
 MAKE_PSTR_LIST(enum_floordrystatus, F_(off), F_(start), F_(heat), F_(hold), F_(cool), F_(end))
 MAKE_PSTR_LIST(enum_ibaBuildingType, F_(blank), F_(light), F_(medium), F_(heavy)) // RC300
@@ -558,6 +568,8 @@ MAKE_PSTR_LIST(wwPump, F("wwpump"), F("Pumpe"))
 
 MAKE_PSTR_LIST(wwMinTemp, F("wwmintemp"), F("minimale Temperatur"))
 MAKE_PSTR_LIST(minPumpMod, F("minpumpmod"), F("minimale Pumpenmodulation"))
+MAKE_PSTR_LIST(maxFlow, F("maxflow"), F("maximaler Durchfluss"))
+MAKE_PSTR_LIST(solarPower, F("solarpower"), F("aktuelle Leistung"))
 
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("aktiviert"))
