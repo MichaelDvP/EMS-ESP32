@@ -134,13 +134,13 @@ void WebDevicesService::write_value(AsyncWebServerRequest * request, JsonVariant
                     // the data could be in any format, but we need string
                     JsonVariant data = dv["data"];
                     if (data.is<const char *>()) {
-                        ok = Command::call(device_type, cmd, data.as<const char *>());
+                        ok = Command::call(device_type, cmd, data.as<const char *>(), -1);
                     } else if (data.is<int>()) {
-                        ok = Command::call(device_type, cmd, Helpers::render_value(s, data.as<int16_t>(), 0));
+                        ok = Command::call(device_type, cmd, Helpers::render_value(s, data.as<int16_t>(), -1));
                     } else if (data.is<float>()) {
-                        ok = Command::call(device_type, cmd, Helpers::render_value(s, (float)data.as<float>(), 1));
+                        ok = Command::call(device_type, cmd, Helpers::render_value(s, (float)data.as<float>(), -1));
                     } else if (data.is<bool>()) {
-                        ok = Command::call(device_type, cmd, data.as<bool>() ? "true" : "false");
+                        ok = Command::call(device_type, cmd, data.as<bool>() ? "true" : "false", -1);
                     }
 
                     if (ok) {

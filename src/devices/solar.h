@@ -40,7 +40,6 @@ class Solar : public EMSdevice {
     uint8_t  cylinderPumpModulation_; // PS5: modulation cylinder pump
     uint8_t  solarPump_;              // PS1: solar pump active
     uint8_t  valveStatus_;            // VS2: status 3-way valve for cylinder 2 (solar thermal system) with valve
-    int16_t  setpoint_maxBottomTemp_; // setpoint for maximum collector temp
     uint32_t energyLastHour_;
     uint32_t energyToday_;
     uint32_t energyTotal_;
@@ -61,7 +60,7 @@ class Solar : public EMSdevice {
 
     // telegram 0x035A
     uint8_t collectorMaxTemp_;     // maximum allowed collectorTemp array 1
-    uint8_t tankBottomMaxTemp_;    // Current value for max tank temp
+    uint8_t tankMaxTemp_;          // Current value for max tank temp
     uint8_t collectorMinTemp_;     // minimum allowed collectorTemp array 1
     uint8_t solarPumpMode_;        // 00=off, 01=PWM, 02=10V
     uint8_t solarPumpMinMod_;      // minimum modulation setting, *5 %
@@ -86,10 +85,12 @@ class Solar : public EMSdevice {
     // SM100wwStatus - 0x07AA
     uint8_t wwPump_;
 
-  // SM10Config
-  uint8_t  wwMinTemp_;
-  uint8_t  maxFlow_;
-  uint32_t solarPower_;
+    // SM10Config - 0x96
+    uint8_t  wwMinTemp_;
+    uint8_t  maxFlow_;    // set this to caltulate power
+    uint32_t solarPower_; // calculated from maxFlow
+
+    std::deque<uint16_t> energy;
 
     char    type_[20]; // Solar of WWC
     uint8_t id_;
@@ -119,7 +120,8 @@ class Solar : public EMSdevice {
 
 
     bool set_CollectorMaxTemp(const char * value, const int8_t id);
-    bool set_TankBottomMaxTemp(const char * value, const int8_t id);
+    bool set_CollectorMinTemp(const char * value, const int8_t id);
+    bool set_TankMaxTemp(const char * value, const int8_t id);
     bool set_PumpMinMod(const char * value, const int8_t id);
     bool set_wwMinTemp(const char * value, const int8_t id);
     bool set_TurnonDiff(const char * value, const int8_t id);

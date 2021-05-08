@@ -900,11 +900,6 @@ bool System::command_settings(const char * value, const int8_t id, JsonObject & 
 // export status information including some basic settings
 // e.g. http://ems-esp/api?device=system&cmd=info
 bool System::command_info(const char * value, const int8_t id, JsonObject & json) {
-    if (id != -1) {
-        // return EMSESP::system_.heartbeat_json(json);
-        return false;
-    }
-
     JsonObject node;
 
     node = json.createNestedObject("System");
@@ -966,8 +961,8 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
     }
     if (EMSESP::sensor_devices().size()) {
         JsonObject obj = devices2.createNestedObject();
-        obj["type"]    = F("Dallassensor");
-        obj["name"]    = F("Dallassensor");
+        obj["type"]    = F_(Dallassensor);
+        obj["name"]    = F_(Dallassensor);
     }
 
     return true;

@@ -456,11 +456,13 @@ void EMSESP::publish_device_values(uint8_t device_type) {
 
             // if its a boiler, generate json for each group and publish it directly
             if (device_type == DeviceType::BOILER) {
-                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_BOILER_DATA, false);
-                Mqtt::publish(Mqtt::tag_to_topic(device_type, DeviceValueTAG::TAG_BOILER_DATA), json);
-                json.clear();
-                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_DEVICE_DATA_WW, false);
-                Mqtt::publish(Mqtt::tag_to_topic(device_type, DeviceValueTAG::TAG_DEVICE_DATA_WW), json);
+                if (emsdevice->generate_values_json(json, DeviceValueTAG::TAG_BOILER_DATA, false)) {
+                    Mqtt::publish(Mqtt::tag_to_topic(device_type, DeviceValueTAG::TAG_BOILER_DATA), json);
+                }
+                doc.clear();
+                if (emsdevice->generate_values_json(json, DeviceValueTAG::TAG_DEVICE_DATA_WW, false)) {
+                    Mqtt::publish(Mqtt::tag_to_topic(device_type, DeviceValueTAG::TAG_DEVICE_DATA_WW), json);
+                }
                 need_publish = false;
             }
 
@@ -471,14 +473,16 @@ void EMSESP::publish_device_values(uint8_t device_type) {
                     if (nested) {
                         need_publish |= emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, true); // nested
                     } else {
-                        emsdevice->generate_values_json(json, DeviceValueTAG::TAG_THERMOSTAT_DATA, false); // not nested
-                        Mqtt::publish(Mqtt::tag_to_topic(device_type, DeviceValueTAG::TAG_NONE), json);
-                        json.clear();
+                        if (emsdevice->generate_values_json(json, DeviceValueTAG::TAG_THERMOSTAT_DATA, false)) { // not nested
+                            Mqtt::publish(Mqtt::tag_to_topic(device_type, DeviceValueTAG::TAG_NONE), json);
+                        }
+                        doc.clear();
 
                         for (uint8_t hc_tag = TAG_HC1; hc_tag <= DeviceValueTAG::TAG_HC4; hc_tag++) {
-                            emsdevice->generate_values_json(json, hc_tag, false); // not nested
-                            Mqtt::publish(Mqtt::tag_to_topic(device_type, hc_tag), json);
-                            json.clear();
+                            if (emsdevice->generate_values_json(json, hc_tag, false)) { // not nested
+                                Mqtt::publish(Mqtt::tag_to_topic(device_type, hc_tag), json);
+                            }
+                            doc.clear();
                         }
                         need_publish = false;
                     }
@@ -491,9 +495,10 @@ void EMSESP::publish_device_values(uint8_t device_type) {
                     need_publish |= emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, true); // nested
                 } else {
                     for (uint8_t hc_tag = TAG_HC1; hc_tag <= DeviceValueTAG::TAG_WWC4; hc_tag++) {
-                        emsdevice->generate_values_json(json, hc_tag, false); // not nested
-                        Mqtt::publish(Mqtt::tag_to_topic(device_type, hc_tag), json);
-                        json.clear();
+                        if (emsdevice->generate_values_json(json, hc_tag, false)) { // not nested
+                            Mqtt::publish(Mqtt::tag_to_topic(device_type, hc_tag), json);
+                        }
+                        doc.clear();
                     }
                     need_publish = false;
                 }
@@ -999,7 +1004,7 @@ bool EMSESP::add_device(const uint8_t device_id, const uint8_t product_id, std::
         return command_info(device_type, json, id);
     });
 
-    Command::add_with_json(device_type, F("catalog"), [device_type](const char * value, const int8_t id, JsonObject & json) {
+    Command::add_with_json(device_type, F_(catalog), [device_type](const char * value, const int8_t id, JsonObject & json) {
         return get_catalog(device_type, json, id);
     });
 
@@ -1015,7 +1020,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
         tag = DeviceValueTAG::TAG_HC1 + id - 1;
     } else if (id >= 9 && id <= 10) {
         tag = DeviceValueTAG::TAG_WWC1 + id - 9;
-    } else if (id == -1) {
+    } else if (id == -1 || id == 0) {
         tag = DeviceValueTAG::TAG_NONE;
     } else {
         return false;
@@ -1024,8 +1029,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice && (emsdevice->device_type() == device_type)
             && ((device_type != DeviceType::THERMOSTAT) || (emsdevice->device_id() == EMSESP::actual_master_thermostat()))) {
-            // has_value |= emsdevice->generate_values_json(json, tag, (id < 1), (id == -1)); // nested for id -1,0 & console for id -1
-            has_value |= emsdevice->generate_values_json(json, tag, (id == -1), false); // nested for id -1,0
+            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), (id == -1)); // nested for id -1,0 & console for id -1
         }
     }
 

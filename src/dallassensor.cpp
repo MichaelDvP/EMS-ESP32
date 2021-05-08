@@ -313,7 +313,7 @@ bool DallasSensor::updated_values() {
 // returns false if empty
 // e.g. dallassensor_data = {"sensor1":{"id":"28-EA41-9497-0E03-5F","temp":23.30},"sensor2":{"id":"28-233D-9497-0C03-8B","temp":24.0}}
 bool DallasSensor::command_info(const char * value, const int8_t id, JsonObject & json) {
-    if (sensors_.size() == 0 || id != -1) {
+    if (sensors_.size() == 0) {
         return false;
     }
 
@@ -321,10 +321,18 @@ bool DallasSensor::command_info(const char * value, const int8_t id, JsonObject 
     for (const auto & sensor : sensors_) {
         char sensorID[10]; // sensor{1-n}
         snprintf_P(sensorID, 10, PSTR("sensor%d"), i++);
-        if (Mqtt::dallas_format() == Mqtt::Dallas_Format::SENSORID && Helpers::hasValue(sensor.temperature_c)) {
-            json[sensor.to_string()] = (float)(sensor.temperature_c) / 10;
-        } else if (Helpers::hasValue(sensor.temperature_c)) {
-            json[sensorID] = (float)(sensor.temperature_c) / 10;
+        if (id == 0) { // standard shortname
+            if (Mqtt::dallas_format() == Mqtt::Dallas_Format::SENSORID && Helpers::hasValue(sensor.temperature_c)) {
+                json[sensor.to_string()] = (float)(sensor.temperature_c) / 10;
+            } else if (Helpers::hasValue(sensor.temperature_c)) {
+                json[sensorID] = (float)(sensor.temperature_c) / 10;
+            }
+        } else {
+            JsonObject dataSensor = json.createNestedObject(sensorID);
+            dataSensor["id"]      = sensor.to_string();
+            if (Helpers::hasValue(sensor.temperature_c)) {
+                dataSensor["temp"] = (float)(sensor.temperature_c) / 10;
+            }
         }
     }
 

@@ -44,7 +44,7 @@ using uuid::log::Level;
 #define LOG_WARNING(...) logger_.warning(__VA_ARGS__)
 #define LOG_ERROR(...) logger_.err(__VA_ARGS__)
 
-#define MQTT_TOPIC(list_name) (__pstr__##list_name[0])
+// #define MQTT_TOPIC(list_name) (__pstr__##list_name[0])
 
 // clang-format off
 // strings stored 32 bit aligned on ESP8266/ESP32

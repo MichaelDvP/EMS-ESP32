@@ -31,8 +31,8 @@ std::vector<Command::CmdFunction> Command::cmdfunctions_;
 // returns false if error or not found
 bool Command::call(const uint8_t device_type, const char * cmd, const char * value, const int8_t id) {
     std::string dname  = EMSdevice::device_type_2_device_name(device_type);
-    int8_t      id_new = id;
-    char        cmd_new[20];
+    int8_t      id_new      = id;
+    char        cmd_new[20] = {'\0'};
 
     check_command(cmd_new, cmd, id_new);
     auto cf = find_command(device_type, cmd_new);
@@ -97,8 +97,18 @@ bool Command::call(const uint8_t device_type, const char * cmd, const char * val
 
 // set the id if there are prefixes
 char * Command::check_command(char * out, const char * cmd, int8_t & id) {
-    // convert cmd to lowercase
+    // no command for id0
+    if (id == 0) {
+        return out;
+    }
+    // empty command is info with id0
+    if (cmd[0] == '\0' || cmd == nullptr) {
+        strlcpy(out, "info", 20);
+        id = 0;
+        return out;
+    }
     strlcpy(out, cmd, 20);
+    // convert cmd to lowercase
     for (char * p = out; *p; p++) {
         *p = tolower(*p);
     }

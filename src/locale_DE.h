@@ -81,6 +81,7 @@ MAKE_PSTR_WORD(commands)
 MAKE_PSTR_WORD(info)
 MAKE_PSTR_WORD(catalog)
 MAKE_PSTR_WORD(settings)
+MAKE_PSTR_WORD(value)
 
 // devices
 MAKE_PSTR_WORD(boiler)
@@ -95,6 +96,7 @@ MAKE_PSTR_WORD(heatpump)
 MAKE_PSTR_WORD(generic)
 MAKE_PSTR_WORD(dallassensor)
 MAKE_PSTR_WORD(unknown)
+MAKE_PSTR_WORD(Dallassensor)
 
 // format strings
 MAKE_PSTR(EMSESP, "EMS-ESP")
@@ -327,6 +329,9 @@ MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
 
 MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(heat), F_(auto), F_(auto), F_(auto), F_(auto))
 
+// solar list
+MAKE_PSTR_LIST(enum_solarmode, F_(constant), F("pwm"), F("analog"))
+
 /*
  * MQTT topics and full text for values and commands
  */
@@ -544,6 +549,8 @@ MAKE_PSTR_LIST(tankBottomTemp, F("tankbottomtemp"), F("Speicher Bodentemperatur 
 MAKE_PSTR_LIST(tank2BottomTemp, F("tank2bottomtemp"), F("2. Speicher Bodentemperatur (TS5)"))
 MAKE_PSTR_LIST(heatExchangerTemp, F("heatexchangertemp"), F("wärmetauscher Temperatur (TS6)"))
 
+MAKE_PSTR_LIST(collectorMaxTemp, F("collectormaxtemp"), F("maximale Kollektortemperatur"))
+MAKE_PSTR_LIST(collectorMinTemp, F("collectormintemp"), F("minimale Kollektortemperatur"))
 MAKE_PSTR_LIST(tankMaxTemp, F("tankmaxtemp"), F("maximale Speichertemperatur"))
 MAKE_PSTR_LIST(solarPumpModulation, F("solarpumpmodulation"), F("Pumpenmodulation (PS1)"))
 MAKE_PSTR_LIST(cylinderPumpModulation, F("cylinderpumpmodulation"), F("Speicherpumpenmodulation (PS5)"))
@@ -567,9 +574,11 @@ MAKE_PSTR_LIST(wwTemp7, F("wwtemp7"), F("Temperatur 7"))
 MAKE_PSTR_LIST(wwPump, F("wwpump"), F("Pumpe"))
 
 MAKE_PSTR_LIST(wwMinTemp, F("wwmintemp"), F("minimale Temperatur"))
-MAKE_PSTR_LIST(minPumpMod, F("minpumpmod"), F("minimale Pumpenmodulation"))
+MAKE_PSTR_LIST(pumpMinMod, F("minpumpmod"), F("minimale Pumpenmodulation"))
 MAKE_PSTR_LIST(maxFlow, F("maxflow"), F("maximaler Durchfluss"))
 MAKE_PSTR_LIST(solarPower, F("solarpower"), F("aktuelle Leistung"))
+MAKE_PSTR_LIST(solarPumpTurnonDiff, F("turnondiff"), F("Einschaltdifferenz"))
+MAKE_PSTR_LIST(solarPumpTurnoffDiff, F("turnoffdiff"), F("Ausschaltdifferenz"))
 
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("aktiviert"))
