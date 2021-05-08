@@ -701,7 +701,11 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
 
             json["name"] = dv.short_name;
             if (dv.full_name != nullptr) {
-                json["fullname"] = dv.full_name;
+                if (dv.tag == TAG_DEVICE_DATA_WW) {
+                    json["fullname"] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
+                } else {
+                    json["fullname"] = dv.full_name;
+                }
             }
             if (!tag_to_mqtt(dv.tag).empty()) {
                 json["circuit"] = tag_to_mqtt(dv.tag);
