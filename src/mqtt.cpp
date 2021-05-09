@@ -344,15 +344,15 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
                 strlcpy(topic, &fulltopic[1 + strlen(mqtt_base_.c_str())], 100);
                 char * cmd_only = strchr(topic, '/');
                 if (cmd_only == NULL) {
+                    DynamicJsonDocument resp(EMSESP_JSON_SIZE_XLARGE_DYN);
+                    JsonObject          json = resp.to<JsonObject>();
+                    if (Command::call(mf.device_type_, "", "", -1, json)) {
+                        Mqtt::publish(F_(response), json);
+                    }
                     return; // invalid topic name
                 }
                 cmd_only++; // skip the /
                 int8_t id = -1;
-                // check for hcx/ prefix, commented out, this is now in command::call
-                // if (cmd_only[0] == 'h' && cmd_only[1] == 'c' && cmd_only[3] == '/') {
-                //     id = cmd_only[2] - '0';
-                //     cmd_only += 4;
-                // }
                 // LOG_INFO(F("devicetype= %d, topic = %s, cmd = %s, message =  %s, id = %d"), mf.device_type_, topic, cmd_only, message, id);
                 if (!Command::call(mf.device_type_, cmd_only, message, id)) {
                     LOG_ERROR(F("No matching cmd (%s) in topic %s, id %d, or invalid data"), cmd_only, topic, id);
@@ -372,8 +372,9 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
 
             const char * command = doc["cmd"];
             if (command == nullptr) {
-                LOG_ERROR(F("MQTT error: invalid payload cmd format. message=%s"), message);
-                return;
+                // LOG_ERROR(F("MQTT error: invalid payload cmd format. message=%s"), message);
+                LOG_INFO(F("MQTT: invalid payload showing info"));
+                // return;
             }
 
             // check for hc and id, and convert to int

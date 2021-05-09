@@ -115,7 +115,7 @@ char * Command::check_command(char * out, const char * cmd, int8_t & id) {
 
     // scan for prefix hc.
     for (uint8_t i = DeviceValueTAG::TAG_HC1; i <= DeviceValueTAG::TAG_HC4; i++) {
-        if ((strncmp(out, EMSdevice::tag_to_string(i).c_str(), 3) == 0) && (strlen(out) > 4)) {
+        if ((strncmp(out, EMSdevice::tag_to_string(i).c_str(), 3) == 0) && (strlen(out) > 3)) {
             strcpy(out, &out[4]);
             id = 1 + i - DeviceValueTAG::TAG_HC1;
             break;
@@ -124,11 +124,16 @@ char * Command::check_command(char * out, const char * cmd, int8_t & id) {
 
     // scan for prefix wwc.
     for (uint8_t i = DeviceValueTAG::TAG_WWC1; i <= DeviceValueTAG::TAG_WWC4; i++) {
-        if ((strncmp(out, EMSdevice::tag_to_string(i).c_str(), 4) == 0) && (strlen(out) > 5)) {
+        if ((strncmp(out, EMSdevice::tag_to_string(i).c_str(), 4) == 0) && (strlen(out) > 4)) {
             strcpy(out, &out[5]);
             id = 8 + i - DeviceValueTAG::TAG_WWC1;
             break;
         }
+    }
+
+    // empty command is info
+    if (cmd[0] == '\0') {
+        strlcpy(out, "info", 20);
     }
 
     return out;
