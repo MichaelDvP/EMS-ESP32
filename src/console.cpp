@@ -252,7 +252,7 @@ void EMSESPShell::add_console_commands() {
                                   uint16_t offset = Helpers::hextoint(arguments.back().c_str());
                                   EMSESP::send_read_request(type_id, device_id, offset, EMS_MAX_TELEGRAM_LENGTH);
                               } else {
-                                  // send with length to send immediatly and trigger publish read_id
+                                  // send with length to send immediately and trigger publish read_id
                                   EMSESP::send_read_request(type_id, device_id, 0, EMS_MAX_TELEGRAM_LENGTH);
                               }
                           });
@@ -382,8 +382,8 @@ void EMSESPShell::add_console_commands() {
                     shell.println();
                     return;
                 }
-                shell.print(F("Available commands are: "));
-                Command::show(shell, device_type);
+                shell.print(F("Missing command. Available commands are: "));
+                Command::show(shell, device_type, false); // non-verbose mode
                 return;
             }
 
@@ -406,14 +406,13 @@ void EMSESPShell::add_console_commands() {
             }
 
             if (ok && json.size()) {
-                doc.shrinkToFit();
                 serializeJsonPretty(doc, shell);
                 shell.println();
                 return;
             } else if (!ok) {
                 shell.println(F("Unknown command, value, or id."));
                 shell.print(F("Available commands are: "));
-                Command::show(shell, device_type);
+                Command::show(shell, device_type, false); // non-verbose mode
             }
         },
         [&](Shell & shell __attribute__((unused)), const std::vector<std::string> & arguments) -> std::vector<std::string> {

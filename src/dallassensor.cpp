@@ -40,13 +40,22 @@ void DallasSensor::start() {
 #ifndef EMSESP_STANDALONE
         bus_.begin(dallas_gpio_);
 #endif
-        // API call
-        Command::add_with_json(EMSdevice::DeviceType::DALLASSENSOR, F_(info), [&](const char * value, const int8_t id, JsonObject & json) {
-            return command_info(value, id, json);
-        });
-        Command::add_with_json(EMSdevice::DeviceType::DALLASSENSOR, F_(catalog), [&](const char * value, const int8_t id, JsonObject & json) {
-            return EMSESP::get_catalog(EMSdevice::DeviceType::DALLASSENSOR, json, id);
-        });
+        // API calls
+        Command::add_with_json(
+            EMSdevice::DeviceType::DALLASSENSOR,
+            F_(info),
+            [&](const char * value, const int8_t id, JsonObject & json) { return command_info(value, id, json); },
+            F_(info_cmd));
+        Command::add_with_json(
+            EMSdevice::DeviceType::DALLASSENSOR,
+            F_(catalog),
+            [&](const char * value, const int8_t id, JsonObject & json) { return EMSESP::get_catalog(EMSdevice::DeviceType::DALLASSENSOR, json, id); },
+            F_(catalog_cmd));
+        Command::add_with_json(
+            EMSdevice::DeviceType::DALLASSENSOR,
+            F_(commands),
+            [&](const char * value, const int8_t id, JsonObject & json) { return command_commands(value, id, json); },
+            F_(commands_cmd));
     }
 }
 
@@ -307,6 +316,11 @@ bool DallasSensor::updated_values() {
         return true;
     }
     return false;
+}
+
+// list commands
+bool DallasSensor::command_commands(const char * value, const int8_t id, JsonObject & json) {
+    return Command::list(EMSdevice::DeviceType::DALLASSENSOR, json);
 }
 
 // creates JSON doc from values
