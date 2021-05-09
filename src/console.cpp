@@ -382,8 +382,8 @@ void EMSESPShell::add_console_commands() {
                     shell.println();
                     return;
                 }
-                shell.print(F("Missing command. Available commands are: "));
-                Command::show(shell, device_type, false); // non-verbose mode
+                // shell.print(F("Missing command. Available commands are: "));
+                // Command::show(shell, device_type, false); // non-verbose mode
                 return;
             }
 

@@ -253,12 +253,20 @@ void Command::show(uuid::console::Shell & shell, uint8_t device_type, bool verbo
     shell.println();
     for (auto & cl : sorted_cmds) {
         shell.print("  ");
-        shell.print(cl);
         // find and print the description
         for (const auto & cf : cmdfunctions_) {
             if ((cf.device_type_ == device_type) && !cf.hidden_ && cf.description_ && (cl == uuid::read_flash_string(cf.cmd_))) {
+                uint8_t i = cl.length();
+                if (cf.flag_ == FLAG_HC) {
+                    shell.print("(hc) ");
+                    i += 5;
+                } else if (cf.flag_ == FLAG_WWC) {
+                    shell.print("(wwc) ");
+                    i += 6;
+                }
+                shell.print(cl);
                 // pad with spaces
-                for (uint8_t i = cl.length(); i++ < 22;) {
+                while (i++ < 22) {
                     shell.print(' ');
                 }
                 shell.print(COLOR_BRIGHT_CYAN);
