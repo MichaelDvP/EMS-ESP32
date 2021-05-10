@@ -490,9 +490,8 @@ bool System::heartbeat_json(JsonObject & doc) {
         doc["dallasfails"] = EMSESP::sensor_fails();
     }
 #ifndef EMSESP_STANDALONE
-    doc["freemem"] = ESP.getFreeHeap();
-    // doc["freemem"] = (uint8_t)(100 * ESP.getFreeHeap() / heap_start_);
-    doc["max_alloc_heap"] = ESP.getMaxAllocHeap();
+    doc["freemem"] = ESP.getFreeHeap() / 1000UL; // kilobytes
+    doc["max_alloc_heap"] = ESP.getMaxAllocHeap() / 1000UL;
 #endif
     if (analog_enabled_) {
         doc["adc"]  = analog_;
@@ -717,8 +716,8 @@ void System::show_system(uuid::console::Shell & shell) {
 #ifndef EMSESP_STANDALONE
     shell.printfln(F("SDK version: %s"), ESP.getSdkVersion());
     shell.printfln(F("CPU frequency: %lu MHz"), ESP.getCpuFreqMHz());
-    shell.printfln(F("Free heap:  %lu bytes"), ESP.getFreeHeap());
-    shell.printfln(F("Free block: %lu bytes"), ESP.getMaxAllocHeap());
+    shell.printfln(F("Free heap:  %lu kbytes"), ESP.getFreeHeap() / 1000UL);
+    shell.printfln(F("Free block: %lu kbytes"), ESP.getMaxAllocHeap() / 1000UL);
     shell.println();
 
     switch (WiFi.status()) {
@@ -914,7 +913,8 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
     node["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
     node["uptime_sec"]  = uuid::get_uptime_sec();
 #ifndef EMSESP_STANDALONE
-    node["freemem"] = ESP.getFreeHeap();
+    node["freemem"]        = ESP.getFreeHeap() / 1000UL; // kilobytes
+    node["max_alloc_heap"] = ESP.getMaxAllocHeap() / 1000UL;
 #endif
 
     node = json.createNestedObject("Status");

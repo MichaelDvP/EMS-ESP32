@@ -64,12 +64,12 @@ class DallasSensor {
 
     const std::vector<Sensor> sensors() const;
 
-    uint32_t fails() {
-        return sensorfails_;
-    }
-
     uint32_t reads() {
         return sensorreads_;
+    }
+
+    uint32_t fails() {
+        return sensorfails_;
     }
 
     bool dallas_enabled() {

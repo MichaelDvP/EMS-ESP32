@@ -375,7 +375,7 @@ void EMSESPShell::add_console_commands() {
             bool ok = false;
             // validate the command
             if (arguments.size() < 2) {
-                // no cmd specified
+                // no cmd specified, default to empty command
                 if (Command::call(device_type, "", "", -1, json)) {
                     serializeJsonPretty(doc, shell);
                     shell.println();

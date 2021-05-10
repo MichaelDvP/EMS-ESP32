@@ -134,11 +134,12 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
         auto num_paths = p.paths().size();
         if (num_paths == 1) {
             // if there are no more paths parameters, default to 'info'
-            // cmd_s = uuid::read_flash_string(F_(info_short));
+            // cmd_s = "info_short";
+            // check empty command in Command::find_command and set the default there!
         } else if (num_paths == 2) {
             cmd_s = p.paths()[1];
         } else if (num_paths > 2) {
-            // command-check makes prefix to TAG
+            // check in Command::find_command makes prefix to TAG
             cmd_s = p.paths()[1] + "/" + p.paths()[2];
         }
     }

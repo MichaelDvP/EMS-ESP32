@@ -41,6 +41,7 @@ bool Command::call(const uint8_t device_type, const char * cmd, const char * val
     }
 
 #ifdef EMSESP_DEBUG
+    std::string dname = EMSdevice::device_type_2_device_name(device_type);
     if (value == nullptr) {
         LOG_DEBUG(F("[DEBUG] Calling %s command '%s'"), dname.c_str(), cmd);
     } else if (id == -1) {
@@ -102,7 +103,8 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
     }
     // empty command is info with id0 or info_short
     if (cmd[0] == '\0') {
-        strcpy(cmd, "info");
+        // strcpy(cmd, "info_short");
+         strcpy(cmd, "info");
         id = 0;
     }
     // convert cmd to lowercase
