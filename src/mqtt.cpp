@@ -346,16 +346,15 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
                 if (cmd_only == NULL) {
                     DynamicJsonDocument resp(EMSESP_JSON_SIZE_XLARGE_DYN);
                     JsonObject          json = resp.to<JsonObject>();
-                    if (Command::call(mf.device_type_, "", "", -1, json)) {
-                        Mqtt::publish(F_(response), json);
+                    if (Command::call(mf.device_type_, message, "", -1, json)) {
+                        Mqtt::publish(F_(response), resp.as<JsonObject>());
                     }
                     return; // invalid topic name
                 }
                 cmd_only++; // skip the /
-                int8_t id = -1;
                 // LOG_INFO(F("devicetype= %d, topic = %s, cmd = %s, message =  %s, id = %d"), mf.device_type_, topic, cmd_only, message, id);
-                if (!Command::call(mf.device_type_, cmd_only, message, id)) {
-                    LOG_ERROR(F("No matching cmd (%s) in topic %s, id %d, or invalid data"), cmd_only, topic, id);
+                if (!Command::call(mf.device_type_, cmd_only, message)) {
+                    LOG_ERROR(F("No matching cmd (%s) in topic %s, or invalid data"), cmd_only, topic);
                     Mqtt::publish(F_(response), "unknown");
                 }
                 return;
@@ -372,9 +371,8 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
 
             const char * command = doc["cmd"];
             if (command == nullptr) {
-                // LOG_ERROR(F("MQTT error: invalid payload cmd format. message=%s"), message);
-                LOG_INFO(F("MQTT: invalid payload showing info"));
-                // return;
+                LOG_ERROR(F("MQTT error: invalid payload cmd format. message=%s"), message);
+                return;
             }
 
             // check for hc and id, and convert to int
@@ -401,7 +399,7 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
                 JsonObject          json = resp.to<JsonObject>();
                 cmd_known                = Command::call(mf.device_type_, command, "", n, json);
                 if (cmd_known && json.size()) {
-                    Mqtt::publish(F_(response), json);
+                    Mqtt::publish(F_(response), resp.as<JsonObject>());
                     return;
                 }
             }

@@ -375,15 +375,14 @@ void EMSESPShell::add_console_commands() {
             bool ok = false;
             // validate the command
             if (arguments.size() < 2) {
-                // no value specified, just the cmd
+                // no cmd specified
                 if (Command::call(device_type, "", "", -1, json)) {
-                    doc.shrinkToFit();
                     serializeJsonPretty(doc, shell);
                     shell.println();
                     return;
                 }
-                // shell.print(F("Missing command. Available commands are: "));
-                // Command::show(shell, device_type, false); // non-verbose mode
+                shell.print(F("Missing command. Available commands are: "));
+                Command::show(shell, device_type, false); // non-verbose mode
                 return;
             }
 
