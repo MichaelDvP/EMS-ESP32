@@ -104,7 +104,7 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
     // empty command is info with id0 or info_short
     if (cmd[0] == '\0') {
         // strcpy(cmd, "info_short");
-         strcpy(cmd, "info");
+        strcpy(cmd, "info");
         id = 0;
     }
     // convert cmd to lowercase
@@ -114,8 +114,12 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
 
     // scan for prefix hc.
     for (uint8_t i = DeviceValueTAG::TAG_HC1; i <= DeviceValueTAG::TAG_HC4; i++) {
-        if ((strncmp(cmd, EMSdevice::tag_to_string(i).c_str(), 3) == 0) && (strlen(cmd) > 3)) {
-            strcpy(cmd, &cmd[4]);
+        if (strncmp(cmd, EMSdevice::tag_to_string(i).c_str(), 3) == 0) {
+            if (cmd[3] != '\0') {
+                strcpy(cmd, &cmd[4]);
+            } else {
+                strcpy(cmd, &cmd[3]);
+            }
             id = 1 + i - DeviceValueTAG::TAG_HC1;
             break;
         }
@@ -123,8 +127,12 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
 
     // scan for prefix wwc.
     for (uint8_t i = DeviceValueTAG::TAG_WWC1; i <= DeviceValueTAG::TAG_WWC4; i++) {
-        if ((strncmp(cmd, EMSdevice::tag_to_string(i).c_str(), 4) == 0) && (strlen(cmd) > 4)) {
-            strcpy(cmd, &cmd[5]);
+        if (strncmp(cmd, EMSdevice::tag_to_string(i).c_str(), 4) == 0) {
+            if (cmd[4] != '\0') {
+                strcpy(cmd, &cmd[5]);
+            } else {
+                strcpy(cmd, &cmd[4]);
+            }
             id = 8 + i - DeviceValueTAG::TAG_WWC1;
             break;
         }
