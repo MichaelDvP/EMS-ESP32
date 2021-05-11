@@ -609,3 +609,8 @@ MAKE_PSTR_LIST(collector1Type, F("collector1type"), F("collector 1 type"))
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("activated"))
 MAKE_PSTR_LIST(status, F("status"), F("status"))
+
+MAKE_PSTR_LIST(data11, F("data11"), F("unknown datafield 11"))
+MAKE_PSTR_LIST(data8, F("data8"), F("unknown datafield 8"))
+MAKE_PSTR_LIST(data0, F("data0"), F("unknown datafield 0"))
+MAKE_PSTR_LIST(data1, F("data1"), F("unknown datafield 1"))

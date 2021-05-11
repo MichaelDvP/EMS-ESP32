@@ -99,6 +99,9 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         register_device_value(TAG_NONE, &maxFlow_, DeviceValueType::UINT, FL_(div10), FL_(maxFlow), DeviceValueUOM::LMIN, MAKE_CF_CB(set_SM10MaxFlow));
         register_device_value(TAG_DEVICE_DATA_WW, &wwMinTemp_, DeviceValueType::UINT, nullptr, FL_(wwMinTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwMinTemp));
         register_device_value(TAG_NONE, &solarIsEnabled_, DeviceValueType::BOOL, nullptr, FL_(activated), DeviceValueUOM::NONE, MAKE_CF_CB(set_solarEnabled));
+        register_device_value(TAG_NONE, &data11_, DeviceValueType::USHORT, nullptr, FL_(data11), DeviceValueUOM::NONE);
+        register_device_value(TAG_NONE, &data1_, DeviceValueType::UINT, nullptr, FL_(data1), DeviceValueUOM::NONE);
+        register_device_value(TAG_NONE, &data0_, DeviceValueType::UINT, nullptr, FL_(data0), DeviceValueUOM::NONE);
     }
     if (flags == EMSdevice::EMS_DEVICE_FLAG_ISM) {
         register_device_value(TAG_NONE, &collectorShutdown_, DeviceValueType::BOOL, nullptr, FL_(collectorShutdown), DeviceValueUOM::NONE);
@@ -188,11 +191,15 @@ void Solar::process_SM10Config(std::shared_ptr<const Telegram> telegram) {
 void Solar::process_SM10Monitor(std::shared_ptr<const Telegram> telegram) {
     uint8_t solarpumpmod = solarPumpModulation_;
 
+    has_update(telegram->read_value(data0_, 0));
+    has_update(telegram->read_value(data1_, 1));
+    has_update(telegram->read_value(data11_, 11));
+
     has_update(telegram->read_bitvalue(collectorShutdown_, 0, 3));
     // has_update(telegram->read_bitvalue(tankHeated_, 0, x)); // tank full, to be determined
     has_update(telegram->read_value(collectorTemp_, 2));       // collector temp from SM10, is *10
-    has_update(telegram->read_value(tankBottomTemp_, 5));      // tank bottom temp from SM10, is *10
     has_update(telegram->read_value(solarPumpModulation_, 4)); // modulation solar pump
+    has_update(telegram->read_value(tankBottomTemp_, 5));      // tank bottom temp from SM10, is *10
     has_update(telegram->read_bitvalue(solarPump_, 7, 1));
     has_update(telegram->read_value(pumpWorkTime_, 8, 3));
 
