@@ -99,7 +99,34 @@ void EMSESPShell::add_console_commands() {
     console_commands_loaded_ = true;
     // just in case, remove everything
     commands->remove_all_commands();
-
+    commands->add_command(ShellContext::MAIN,
+                          CommandFlags::USER,
+                          flash_string_vector{F_(show)},
+                          flash_string_vector{F_(show_optional)},
+                          [](Shell & shell __attribute__((unused)), const std::vector<std::string> & arguments) {
+                              if (arguments.size() == 0) {
+                                  shell.printfln(F("%s%sEMS-ESP version %s%s"), COLOR_BRIGHT_GREEN, COLOR_BOLD_ON, EMSESP_APP_VERSION, COLOR_RESET);
+                                  shell.println();
+                                  EMSESP::show_device_values(shell);
+                                  EMSESP::show_sensor_values(shell);
+                              } else if (arguments.front() == uuid::read_flash_string(F_(devices))) {
+                                  EMSESP::show_devices(shell);
+                              } else if (arguments.front() == uuid::read_flash_string(F_(ems))) {
+                                  EMSESP::show_ems(shell);
+                              } else if (arguments.front() == uuid::read_flash_string(F_(mqtt))) {
+                                  Mqtt::show_mqtt(shell);
+                              } else if (arguments.front() == uuid::read_flash_string(F_(commands))) {
+                                  Command::show_all(shell);
+                              } else if (arguments.front() == uuid::read_flash_string(F_(system))) {
+                                  EMSESP::system_.show_system(shell);
+                                  shell.println();
+                              } else if (arguments.front() == uuid::read_flash_string(F_(users))) {
+                                  EMSESP::system_.show_users(shell);
+                              } else {
+                                    shell.println(F("Invalid parameter"));
+                              }
+                          });
+/*
     commands->add_command(ShellContext::MAIN,
                           CommandFlags::USER,
                           flash_string_vector{F_(show)},
@@ -136,7 +163,7 @@ void EMSESPShell::add_console_commands() {
                           CommandFlags::USER,
                           flash_string_vector{F_(show), F_(commands)},
                           [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) { Command::show_all(shell); });
-
+*/
     commands->add_command(
         ShellContext::MAIN,
         CommandFlags::ADMIN,
@@ -413,6 +440,7 @@ void EMSESPShell::add_console_commands() {
                 shell.print(F("Available commands are: "));
                 Command::show(shell, device_type, false); // non-verbose mode
             }
+        /*
         },
         [&](Shell & shell __attribute__((unused)), const std::vector<std::string> & arguments) -> std::vector<std::string> {
             if (arguments.size() == 0) {
@@ -439,6 +467,7 @@ void EMSESPShell::add_console_commands() {
             }
 
             return {};
+        */
         });
 
     Console::load_standard_commands(ShellContext::MAIN);
@@ -645,7 +674,7 @@ void Console::load_system_commands(unsigned int context) {
                                                }
                                            });
                                        });
-
+/*
     EMSESPShell::commands->add_command(context,
                                        CommandFlags::USER,
                                        flash_string_vector{F_(show), F_(system)},
@@ -653,7 +682,7 @@ void Console::load_system_commands(unsigned int context) {
                                            EMSESP::system_.show_system(shell);
                                            shell.println();
                                        });
-
+*/
     EMSESPShell::commands->add_command(context,
                                        CommandFlags::ADMIN,
                                        flash_string_vector{F_(set), F_(hostname)},
@@ -733,12 +762,14 @@ void Console::load_system_commands(unsigned int context) {
                           shell.printfln("Loaded board profile %s (%d,%d,%d,%d,%d)", board_profile.c_str(), data[0], data[1], data[2], data[3], data[4]);
                           EMSESP::system_.network_init(true);
                       });
+/*
     EMSESPShell::commands->add_command(context,
                                        CommandFlags::ADMIN,
                                        flash_string_vector{F_(show), F_(users)},
                                        [](Shell & shell, const std::vector<std::string> & arguments __attribute__((unused))) {
                                            EMSESP::system_.show_users(shell);
                                        });
+*/
 }
 
 /*

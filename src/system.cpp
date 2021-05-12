@@ -913,8 +913,8 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
     node["uptime"]      = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
     node["uptime_sec"]  = uuid::get_uptime_sec();
 #ifndef EMSESP_STANDALONE
-    node["freemem"]        = ESP.getFreeHeap() / 1000UL; // kilobytes
-    node["max_alloc_heap"] = ESP.getMaxAllocHeap() / 1000UL;
+    node["freemem"]   = ESP.getFreeHeap() / 1000UL; // kilobytes
+    node["freeblock"] = ESP.getMaxAllocHeap() / 1000UL;
 #endif
 
     node = json.createNestedObject("Status");
