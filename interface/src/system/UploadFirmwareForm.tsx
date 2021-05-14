@@ -1,6 +1,6 @@
-import React, { Fragment } from "react";
-import { SingleUpload } from "../components";
-import { Box } from "@material-ui/core";
+import React, { Fragment } from 'react';
+import { SingleUpload } from '../components';
+import { Box } from '@material-ui/core';
 
 interface UploadFirmwareFormProps {
   uploading: boolean;

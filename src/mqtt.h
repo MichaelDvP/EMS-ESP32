@@ -145,16 +145,16 @@ class Mqtt {
         return mqtt_base_;
     }
 
+    static uint16_t publish_count() {
+        return mqtt_message_id_;
+    }
+
     static uint32_t publish_fails() {
         return mqtt_publish_fails_;
     }
 
     static uint16_t publish_queue() {
         return mqtt_messages_.size();
-    }
-
-    static uint16_t publish_count() {
-        return mqtt_message_id_;
     }
 
     static void reset_mqtt();
