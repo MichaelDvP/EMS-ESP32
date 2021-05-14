@@ -525,6 +525,68 @@ void EMSdevice::register_device_value(uint8_t                             tag,
     register_device_value(tag, value_p, type, options, name, uom, nullptr, 0, 0);
 }
 
+// publish a single value on change
+void EMSdevice::publish_value(void * value_p) {
+    if (Mqtt::subscribe_format() == 0) {
+        return;
+    }
+    for (auto & dv : devicevalues_) {
+        if (dv.value_p == value_p) {
+            char topic[128];
+            if ((Mqtt::subscribe_format() == 2) && ((dv.tag >= TAG_HC1 && dv.tag <= TAG_HC4) || (dv.tag >= TAG_WWC1 && dv.tag <= TAG_WWC4))) {
+                snprintf_P(topic, sizeof(topic), PSTR("%s/%s%s"), device_type_2_device_name(device_type_).c_str(), tag_to_string(dv.tag).c_str(), uuid::read_flash_string(dv.short_name).c_str());
+            } else {
+                snprintf_P(topic, sizeof(topic), PSTR("%s/%s"), device_type_2_device_name(device_type_).c_str(), uuid::read_flash_string(dv.short_name).c_str());
+            }
+            uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
+            char payload[30];
+            switch (dv.type) {
+            case DeviceValueType::ENUM: {
+                if (Helpers::hasValue((uint8_t)(*(uint8_t *)(dv.value_p)))) {
+                    if (Mqtt::bool_format() == BOOL_FORMAT_10) {
+                        Helpers::render_value(payload, *(uint8_t *)(dv.value_p), 0);
+                    } else {
+                        strlcpy(payload, uuid::read_flash_string(dv.options[*(uint8_t *)(dv.value_p)]).c_str(), sizeof(payload));
+                    }
+                }
+                break;
+            }
+            case DeviceValueType::USHORT:
+                Helpers::render_value(payload, *(uint16_t *)(dv.value_p), divider);
+                break;
+            case DeviceValueType::UINT:
+                Helpers::render_value(payload, *(uint8_t *)(dv.value_p), divider);
+                break;
+            case DeviceValueType::SHORT:
+                Helpers::render_value(payload, *(int16_t *)(dv.value_p), divider);
+                break;
+            case DeviceValueType::INT:
+                Helpers::render_value(payload, *(int8_t *)(dv.value_p), divider);
+                break;
+            case DeviceValueType::ULONG:
+                Helpers::render_value(payload, *(uint32_t *)(dv.value_p), divider);
+                break;
+            case DeviceValueType::BOOL: {
+                Helpers::render_boolean(payload, (bool)(*(uint8_t *)(dv.value_p)));
+                break;
+            }
+            case DeviceValueType::TIME:
+                Helpers::render_value(payload, *(uint32_t *)(dv.value_p), divider);
+                break;
+            case DeviceValueType::TEXT:
+            default:
+                if (Helpers::hasValue((char *)(dv.value_p))) {
+                    strlcpy(payload, (char *)(dv.value_p), sizeof(payload));
+                }
+                break;
+            }
+
+            Mqtt::publish(topic, payload);
+        }
+    }
+}
+
+
 // looks up the uom (suffix) for a given key from the device value table
 std::string EMSdevice::get_value_uom(const char * key) {
     // the key may have a suffix at the start which is between brackets. remove it.

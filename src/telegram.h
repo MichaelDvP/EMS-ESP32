@@ -117,6 +117,7 @@ class Telegram {
             value = (value << 8) + this->message_data[index - this->offset + i]; // shift by byte
         }
         if (val != value) {
+            // EMSdevice::publish_value(value);
             return true;
         }
         return false;

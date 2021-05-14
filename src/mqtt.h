@@ -163,6 +163,10 @@ class Mqtt {
         return ha_climate_format_;
     }
 
+    static uint8_t subscribe_format() {
+        return subscribe_format_;
+    }
+
     static uint8_t dallas_format() {
         return dallas_format_;
     }

@@ -143,6 +143,13 @@ void DallasSensor::loop() {
                             bool found = false;
                             for (auto & sensor : sensors_) {
                                 if (sensor.id() == get_id(addr)) {
+                                    if (t != sensor.temperature_c && Mqtt::subscribe_format > 0) {
+                                        char topic[128];
+                                        snprintf_P(topic, 128,  PSTR("%s/%s"), uuid::read_flash_string(F_(dallassensor)).c_str(), sensor.to_string().c_str());
+                                        char payload[20];
+                                        Helpers::render_value(payload, sensor.temperature_c, 10);
+                                        Mqtt::publish(topic, payload);
+                                    }
                                     changed_ |= (t != sensor.temperature_c);
                                     sensor.temperature_c = t;
                                     sensor.read          = true;
@@ -156,6 +163,11 @@ void DallasSensor::loop() {
                                 sensors_.back().temperature_c = t;
                                 sensors_.back().read          = true;
                                 changed_                      = true;
+                                char topic[128];
+                                snprintf_P(topic, 128,  PSTR("%s/%s"), uuid::read_flash_string(F_(dallassensor)).c_str(), sensors_.back().to_string().c_str());
+                                char payload[20];
+                                Helpers::render_value(payload, t, 10);
+                                Mqtt::publish(topic, payload);
                             }
                         } else {
                             sensorfails_++;

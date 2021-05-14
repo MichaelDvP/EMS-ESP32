@@ -130,19 +130,19 @@ bool Mixer::publish_ha_config() {
 // e.g.  A0 00 FF 00 01 D7 00 00 00 80 00 00 00 00 03 C5
 //       A0 0B FF 00 01 D7 00 00 00 80 00 00 00 00 03 80
 void Mixer::process_MMPLUSStatusMessage_HC(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(flowTempHc_, 3)); // is * 10
-    has_update(telegram->read_value(flowSetTemp_, 5));
-    has_update(telegram->read_bitvalue(pumpStatus_, 0, 0));
-    has_update(telegram->read_value(status_, 2)); // valve status
+    has_update(telegram, flowTempHc_, 3); // is * 10
+    has_update(telegram, flowSetTemp_, 5);
+    has_bitupdate(telegram, pumpStatus_, 0, 0);
+    has_update(telegram, status_, 2); // valve status
 }
 
 // Mixer warm water loading/DHW - 0x0331, 0x0332
 // e.g. A9 00 FF 00 02 32 02 6C 00 3C 00 3C 3C 46 02 03 03 00 3C // on 0x28
 //      A8 00 FF 00 02 31 02 35 00 3C 00 3C 3C 46 02 03 03 00 3C // in 0x29
 void Mixer::process_MMPLUSStatusMessage_WWC(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(flowTempHc_, 0)); // is * 10
-    has_update(telegram->read_bitvalue(pumpStatus_, 2, 0));
-    has_update(telegram->read_value(status_, 11)); // temp status
+    has_update(telegram, flowTempHc_, 0); // is * 10
+    has_bitupdate(telegram, pumpStatus_, 2, 0);
+    has_update(telegram, status_, 11); // temp status
 }
 
 // Mixer IPM - 0x010C
@@ -158,18 +158,18 @@ void Mixer::process_IPMStatusMessage(std::shared_ptr<const Telegram> telegram) {
 
     // do we have a mixed circuit
     if (ismixed == 2) {
-        has_update(telegram->read_value(flowTempHc_, 3)); // is * 10
-        has_update(telegram->read_value(status_, 2));     // valve status
+        has_update(telegram, flowTempHc_, 3); // is * 10
+        has_update(telegram, status_, 2);     // valve status
     }
 
-    has_update(telegram->read_bitvalue(pumpStatus_, 1, 0)); // pump is also in unmixed circuits
-    has_update(telegram->read_value(flowSetTemp_, 5));      // flowSettemp is also in unmixed circuits, see #711
+    has_bitupdate(telegram, pumpStatus_, 1, 0); // pump is also in unmixed circuits
+    has_update(telegram, flowSetTemp_, 5);      // flowSettemp is also in unmixed circuits, see #711
 }
 
 // Mixer IPM - 0x001E Temperature Message in unmixed circuits
 // in unmixed circuits FlowTemp in 10C is zero, this is the measured flowtemp in header
 void Mixer::process_IPMTempMessage(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(flowTempVf_, 0)); // TC1, is * 10
+    has_update(telegram, flowTempVf_, 0); // TC1, is * 10
 }
 
 // Mixer on a MM10 - 0xAB
@@ -180,10 +180,10 @@ void Mixer::process_MMStatusMessage(std::shared_ptr<const Telegram> telegram) {
     // 0x21 is position 2. 0x20 is typically reserved for the WM10 switch module
     // see https://github.com/emsesp/EMS-ESP/issues/270 and https://github.com/emsesp/EMS-ESP/issues/386#issuecomment-629610918
 
-    has_update(telegram->read_value(flowTempHc_, 1));       // is * 10
-    has_update(telegram->read_bitvalue(pumpStatus_, 3, 2)); // is 0 or 0x64 (100%), check only bit 2
-    has_update(telegram->read_value(flowSetTemp_, 0));
-    has_update(telegram->read_value(status_, 4)); // valve status -100 to 100
+    has_update(telegram, flowTempHc_, 1);       // is * 10
+    has_bitupdate(telegram, pumpStatus_, 3, 2); // is 0 or 0x64 (100%), check only bit 2
+    has_update(telegram, flowSetTemp_, 0);
+    has_update(telegram, status_, 4); // valve status -100 to 100
 }
 
 #pragma GCC diagnostic push

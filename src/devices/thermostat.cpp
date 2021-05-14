@@ -622,7 +622,7 @@ void Thermostat::process_RC20Set(std::shared_ptr<const Telegram> telegram) {
     if (hc == nullptr) {
         return;
     }
-    has_update(telegram->read_value(hc->mode, 23));
+    has_update(telegram, hc->mode, 23);
 }
 
 // type 0xAE - data from the RC20 thermostat (0x17) - not for RC20's
@@ -632,9 +632,9 @@ void Thermostat::process_RC20Monitor_2(std::shared_ptr<const Telegram> telegram)
     if (hc == nullptr) {
         return;
     }
-    has_update(telegram->read_bitvalue(hc->modetype, 0, 7));       // day/night MSB 7th bit is day
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 2, 1)); // is * 2, force as single byte
-    has_update(telegram->read_value(hc->curr_roomTemp, 3));        // is * 10
+    has_bitupdate(telegram, hc->modetype, 0, 7);       // day/night MSB 7th bit is day
+    has_update(telegram, hc->setpoint_roomTemp, 2, 1); // is * 2, force as single byte
+    has_update(telegram, hc->curr_roomTemp, 3);        // is * 10
 }
 
 // 0xAD - for reading the mode from the RC20/ES72 thermostat (0x17)
@@ -645,10 +645,10 @@ void Thermostat::process_RC20Set_2(std::shared_ptr<const Telegram> telegram) {
     if (hc == nullptr) {
         return;
     }
-    has_update(telegram->read_value(hc->nighttemp, 1)); // is * 2,
-    has_update(telegram->read_value(hc->daytemp, 2));   // is * 2,
-    has_update(telegram->read_value(hc->mode, 3));
-    has_update(telegram->read_value(hc->program, 11)); // 1 .. 9 predefined programs
+    has_update(telegram, hc->nighttemp, 1); // is * 2,
+    has_update(telegram, hc->daytemp, 2);   // is * 2,
+    has_update(telegram, hc->mode, 3);
+    has_update(telegram, hc->program, 11); // 1 .. 9 predefined programs
 }
 
 // 0xAF - for reading the roomtemperature from the RC20/ES72 thermostat (0x18, 0x19, ..)
@@ -657,7 +657,7 @@ void Thermostat::process_RC20Remote(std::shared_ptr<const Telegram> telegram) {
     if (hc == nullptr) {
         return;
     }
-    has_update(telegram->read_value(hc->curr_roomTemp, 0));
+    has_update(telegram, hc->curr_roomTemp, 0);
 }
 
 // type 0xB1 - data from the RC10 thermostat (0x17)
@@ -667,8 +667,8 @@ void Thermostat::process_RC10Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 1, 1)); // is * 2, force as single byte
-    has_update(telegram->read_value(hc->curr_roomTemp, 2));        // is * 10
+    has_update(telegram, hc->setpoint_roomTemp, 1, 1); // is * 2, force as single byte
+    has_update(telegram, hc->curr_roomTemp, 2);        // is * 10
 }
 
 #pragma GCC diagnostic push
@@ -687,9 +687,9 @@ void Thermostat::process_JunkersSet(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->daytemp, 17));     // is * 2
-    has_update(telegram->read_value(hc->nighttemp, 16));   // is * 2
-    has_update(telegram->read_value(hc->nofrosttemp, 15)); // is * 2
+    has_update(telegram, hc->daytemp, 17);     // is * 2
+    has_update(telegram, hc->nighttemp, 16);   // is * 2
+    has_update(telegram, hc->nofrosttemp, 15); // is * 2
 }
 
 // type 0x0179, ff
@@ -699,16 +699,16 @@ void Thermostat::process_JunkersSet2(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->daytemp, 7));     // is * 2
-    has_update(telegram->read_value(hc->nighttemp, 6));   // is * 2
-    has_update(telegram->read_value(hc->nofrosttemp, 5)); // is * 2
+    has_update(telegram, hc->daytemp, 7);     // is * 2
+    has_update(telegram, hc->nighttemp, 6);   // is * 2
+    has_update(telegram, hc->nofrosttemp, 5); // is * 2
 }
 
 // type 0xA3 - for external temp settings from the the RC* thermostats (e.g. RC35)
 void Thermostat::process_RCOutdoorTemp(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(dampedoutdoortemp_, 0));
-    has_update(telegram->read_value(tempsensor1_, 3)); // sensor 1 - is * 10
-    has_update(telegram->read_value(tempsensor2_, 5)); // sensor 2 - is * 10
+    has_update(telegram, dampedoutdoortemp_, 0);
+    has_update(telegram, tempsensor1_, 3); // sensor 1 - is * 10
+    has_update(telegram, tempsensor2_, 5); // sensor 2 - is * 10
 }
 
 // 0x91 - data from the RC20 thermostat (0x17) - 15 bytes long
@@ -718,8 +718,8 @@ void Thermostat::process_RC20Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 1, 1)); // is * 2, force as single byte
-    has_update(telegram->read_value(hc->curr_roomTemp, 2));        // is * 10
+    has_update(telegram, hc->setpoint_roomTemp, 1, 1); // is * 2, force as single byte
+    has_update(telegram, hc->curr_roomTemp, 2);        // is * 10
 }
 
 // type 0x0A - data from the Nefit Easy/TC100 thermostat (0x18) - 31 bytes long
@@ -729,8 +729,8 @@ void Thermostat::process_EasyMonitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->curr_roomTemp, 8));      // is * 100
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 10)); // is * 100
+    has_update(telegram, hc->curr_roomTemp, 8);      // is * 100
+    has_update(telegram, hc->setpoint_roomTemp, 10); // is * 100
 }
 
 // Settings Parameters - 0xA5 - RC30_1
@@ -738,18 +738,18 @@ void Thermostat::process_IBASettings(std::shared_ptr<const Telegram> telegram) {
     // 22 - display line on RC35
 
     // display on Thermostat: 0 int. temp, 1 int. setpoint, 2 ext. temp., 3 burner temp., 4 ww temp, 5 functioning mode, 6 time, 7 data, 8 smoke temp
-    has_update(telegram->read_value(ibaMainDisplay_, 0));
-    has_update(telegram->read_value(ibaLanguage_, 1));          // language on Thermostat: 0 german, 1 dutch, 2 french, 3 italian
-    has_update(telegram->read_value(ibaCalIntTemperature_, 2)); // offset int. temperature sensor, by * 0.1 Kelvin
-    has_update(telegram->read_value(ibaBuildingType_, 6));      // building type: 0 = light, 1 = medium, 2 = heavy
-    has_update(telegram->read_value(ibaMinExtTemperature_, 5)); // min ext temp for heating curve, in deg., 0xF6=-10, 0x0 = 0, 0xFF=-1
-    has_update(telegram->read_value(ibaClockOffset_, 12));      // offset (in sec) to clock, 0xff = -1 s, 0x02 = 2 s
+    has_update(telegram, ibaMainDisplay_, 0);
+    has_update(telegram, ibaLanguage_, 1);          // language on Thermostat: 0 german, 1 dutch, 2 french, 3 italian
+    has_update(telegram, ibaCalIntTemperature_, 2); // offset int. temperature sensor, by * 0.1 Kelvin
+    has_update(telegram, ibaBuildingType_, 6);      // building type: 0 = light, 1 = medium, 2 = heavy
+    has_update(telegram, ibaMinExtTemperature_, 5); // min ext temp for heating curve, in deg., 0xF6=-10, 0x0 = 0, 0xFF=-1
+    has_update(telegram, ibaClockOffset_, 12);      // offset (in sec) to clock, 0xff = -1 s, 0x02 = 2 s
 }
 
 // Settings WW 0x37 - RC35
 void Thermostat::process_RC35wwSettings(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(wwMode_, 2));     // 0 off, 1-on, 2-auto
-    has_update(telegram->read_value(wwCircMode_, 3)); // 0 off, 1-on, 2-auto
+    has_update(telegram, wwMode_, 2);     // 0 off, 1-on, 2-auto
+    has_update(telegram, wwCircMode_, 3); // 0 off, 1-on, 2-auto
 }
 
 // type 0x6F - FR10/FR50/FR100/FR110/FR120 Junkers
@@ -764,11 +764,11 @@ void Thermostat::process_JunkersMonitor(std::shared_ptr<const Telegram> telegram
         return;
     }
 
-    has_update(telegram->read_value(hc->curr_roomTemp, 4));     // value is * 10
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 2)); // value is * 10
+    has_update(telegram, hc->curr_roomTemp, 4);     // value is * 10
+    has_update(telegram, hc->setpoint_roomTemp, 2); // value is * 10
 
-    has_update(telegram->read_value(hc->modetype, 0)); // 1 = nofrost, 2 = eco, 3 = heat
-    has_update(telegram->read_value(hc->mode, 1));     // 1 = manual, 2 = auto
+    has_update(telegram, hc->modetype, 0); // 1 = nofrost, 2 = eco, 3 = heat
+    has_update(telegram, hc->mode, 1);     // 1 = manual, 2 = auto
 }
 
 // type 0x02A5 - data from Worchester CRF200
@@ -777,11 +777,11 @@ void Thermostat::process_CRFMonitor(std::shared_ptr<const Telegram> telegram) {
     if (hc == nullptr) {
         return;
     }
-    has_update(telegram->read_value(hc->curr_roomTemp, 0));        // is * 10
-    has_update(telegram->read_bitvalue(hc->modetype, 2, 0));       // bit 0, modetype (off=0 , on=1)
-    has_update(telegram->read_bitvalue(hc->mode, 2, 4));           // bit 4, mode (auto=0, off=1)
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 6, 1)); // is * 2, force as single byte
-    has_update(telegram->read_value(hc->targetflowtemp, 4));
+    has_update(telegram, hc->curr_roomTemp, 0);        // is * 10
+    has_bitupdate(telegram, hc->modetype, 2, 0);       // bit 0, modetype (off=0 , on=1)
+    has_bitupdate(telegram, hc->mode, 2, 4);           // bit 4, mode (auto=0, off=1)
+    has_update(telegram, hc->setpoint_roomTemp, 6, 1); // is * 2, force as single byte
+    has_update(telegram, hc->targetflowtemp, 4);
 }
 
 // type 0x02A5 - data from the Nefit RC1010/3000 thermostat (0x18) and RC300/310s on 0x10
@@ -791,9 +791,9 @@ void Thermostat::process_RC300Monitor(std::shared_ptr<const Telegram> telegram) 
         return;
     }
 
-    has_update(telegram->read_value(hc->curr_roomTemp, 0)); // is * 10
-    has_update(telegram->read_bitvalue(hc->modetype, 10, 1));
-    has_update(telegram->read_bitvalue(hc->mode, 10, 0)); // bit 1, mode (auto=1 or manual=0)
+    has_update(telegram, hc->curr_roomTemp, 0); // is * 10
+    has_bitupdate(telegram, hc->modetype, 10, 1);
+    has_bitupdate(telegram, hc->mode, 10, 0); // bit 1, mode (auto=1 or manual=0)
 
     // if manual, take the current setpoint temp at pos 6
     // if auto, take the next setpoint temp at pos 7
@@ -802,9 +802,9 @@ void Thermostat::process_RC300Monitor(std::shared_ptr<const Telegram> telegram) 
     // pos 3 actual setpoint (optimized), i.e. changes with temporary change, summer/holiday-modes
     // pos 6 actual setpoint according to programmed changes eco/comfort
     // pos 7 next setpoint in the future, time to next setpoint in pos 8/9
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 3, 1)); // is * 2, force as single byte
-    has_update(telegram->read_bitvalue(hc->summermode, 2, 4));
-    has_update(telegram->read_value(hc->targetflowtemp, 4));
+    has_update(telegram, hc->setpoint_roomTemp, 3, 1); // is * 2, force as single byte
+    has_bitupdate(telegram, hc->summermode, 2, 4);
+    has_update(telegram, hc->targetflowtemp, 4);
 }
 
 // type 0x02B9 EMS+ for reading from RC300/RC310 thermostat
@@ -820,16 +820,16 @@ void Thermostat::process_RC300Set(std::shared_ptr<const Telegram> telegram) {
     // eco is position 4
     // auto is position 8, temporary until next switch
     // actual setpoint taken from RC300Monitor (Michael 12.06.2020)
-    // has_update(telegram->read_value(hc->setpoint_roomTemp, 8, 1);  // single byte conversion, value is * 2 - auto?
-    // has_update(telegram->read_value(hc->setpoint_roomTemp, 10, 1); // single byte conversion, value is * 2 - manual
+    // has_update(telegram, hc->setpoint_roomTemp, 8, 1);  // single byte conversion, value is * 2 - auto?
+    // has_update(telegram, hc->setpoint_roomTemp, 10, 1); // single byte conversion, value is * 2 - manual
 
     // check why mode is both in the Monitor and Set for the RC300. It'll be read twice!
-    // has_update(telegram->read_value(hc->mode, 0); // Auto = xFF, Manual = x00 eg. 10 00 FF 08 01 B9 FF
-    has_update(telegram->read_value(hc->daytemp, 2));   // is * 2
-    has_update(telegram->read_value(hc->nighttemp, 4)); // is * 2
-    has_update(telegram->read_value(hc->tempautotemp, 8));
-    has_update(telegram->read_value(hc->manualtemp, 10)); // is * 2
-    has_update(telegram->read_value(hc->program, 11));    // timer program 1 or 2
+    // has_update(telegram, hc->mode, 0); // Auto = xFF, Manual = x00 eg. 10 00 FF 08 01 B9 FF
+    has_update(telegram, hc->daytemp, 2);   // is * 2
+    has_update(telegram, hc->nighttemp, 4); // is * 2
+    has_update(telegram, hc->tempautotemp, 8);
+    has_update(telegram, hc->manualtemp, 10); // is * 2
+    has_update(telegram, hc->program, 11);    // timer program 1 or 2
 }
 
 // types 0x2AF ff
@@ -839,18 +839,18 @@ void Thermostat::process_RC300Summer(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->roominfluence, 0));
-    has_update(telegram->read_value(hc->offsettemp, 2));
-    has_update(telegram->read_value(hc->summertemp, 6));
-    has_update(telegram->read_value(hc->summer_setmode, 7));
+    has_update(telegram, hc->roominfluence, 0);
+    has_update(telegram, hc->offsettemp, 2);
+    has_update(telegram, hc->summertemp, 6);
+    has_update(telegram, hc->summer_setmode, 7);
 
     if (hc->heatingtype < 3) {
-        has_update(telegram->read_value(hc->designtemp, 4));
+        has_update(telegram, hc->designtemp, 4);
     } else {
-        has_update(telegram->read_value(hc->designtemp, 5));
+        has_update(telegram, hc->designtemp, 5);
     }
 
-    has_update(telegram->read_value(hc->minflowtemp, 8));
+    has_update(telegram, hc->minflowtemp, 8);
 }
 
 // types 0x29B ff
@@ -860,31 +860,31 @@ void Thermostat::process_RC300Curve(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->controlmode, 0)); // 1-outdoor, 2-simple, 3-MPC, 4-room, 5-power, 6-const
-    has_update(telegram->read_value(hc->heatingtype, 1)); // 1=radiator, 2=convector, 3=floor
-    has_update(telegram->read_value(hc->nofrosttemp, 6));
+    has_update(telegram, hc->controlmode, 0); // 1-outdoor, 2-simple, 3-MPC, 4-room, 5-power, 6-const
+    has_update(telegram, hc->heatingtype, 1); // 1=radiator, 2=convector, 3=floor
+    has_update(telegram, hc->nofrosttemp, 6);
 
     if (hc->heatingtype < 3) {
-        has_update(telegram->read_value(hc->maxflowtemp, 8));
+        has_update(telegram, hc->maxflowtemp, 8);
     } else {
-        has_update(telegram->read_value(hc->maxflowtemp, 7));
+        has_update(telegram, hc->maxflowtemp, 7);
     }
 }
 
 // types 0x31B (and 0x31C?)
 void Thermostat::process_RC300WWtemp(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(wwSetTemp_, 0));
-    has_update(telegram->read_value(wwSetTempLow_, 1));
+    has_update(telegram, wwSetTemp_, 0);
+    has_update(telegram, wwSetTempLow_, 1);
 }
 
 // type 02F5
 // RC300WWmode(0x2F5), data: 01 FF 04 00 00 00 08 05 00 08 04 00 00 00 00 00 00 00 00 00 01
 void Thermostat::process_RC300WWmode(std::shared_ptr<const Telegram> telegram) {
     // circulation pump see: https://github.com/Th3M3/buderus_ems-wiki/blob/master/Einstellungen%20der%20Bedieneinheit%20RC310.md
-    has_update(telegram->read_value(wwCircPump_, 1)); // FF=off, 0=on ?
+    has_update(telegram, wwCircPump_, 1); // FF=off, 0=on ?
 
-    has_update(telegram->read_value(wwMode_, 2));     // 0=off, 1=low, 2=high, 3=auto, 4=own prog
-    has_update(telegram->read_value(wwCircMode_, 3)); // 0=off, 1=on, 2=auto, 4=own?
+    has_update(telegram, wwMode_, 2);     // 0=off, 1=low, 2=high, 3=auto, 4=own prog
+    has_update(telegram, wwCircMode_, 3); // 0=off, 1=on, 2=auto, 4=own?
 }
 
 // types 0x31D and 0x31E
@@ -895,27 +895,27 @@ void Thermostat::process_RC300WWmode2(std::shared_ptr<const Telegram> telegram) 
     // pos 2 = current status of DHW setpoint
     // pos 3 = current status of DHW circulation pump
     if (telegram->type_id == 0x031D) {
-        has_update(telegram->read_value(wwExtra1_, 0)); // 0=no, 1=yes
+        has_update(telegram, wwExtra1_, 0); // 0=no, 1=yes
     } else {
-        has_update(telegram->read_value(wwExtra2_, 0)); // 0=no, 1=yes
+        has_update(telegram, wwExtra2_, 0); // 0=no, 1=yes
     }
 }
 
 // 0x23A damped outdoor temp
 void Thermostat::process_RC300OutdoorTemp(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(dampedoutdoortemp2_, 0)); // is *10
+    has_update(telegram, dampedoutdoortemp2_, 0); // is *10
 }
 
 // 0x240 RC300 parameter
 void Thermostat::process_RC300Settings(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(ibaBuildingType_, 9)); // 1=light, 2=medium, 3=heavy
-    has_update(telegram->read_value(ibaMinExtTemperature_, 10));
+    has_update(telegram, ibaBuildingType_, 9); // 1=light, 2=medium, 3=heavy
+    has_update(telegram, ibaMinExtTemperature_, 10);
 }
 
 // 0x267 RC300 floordrying
 void Thermostat::process_RC300Floordry(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram->read_value(floordrystatus_, 0));
-    has_update(telegram->read_value(floordrytemp_, 1));
+    has_update(telegram, floordrystatus_, 0);
+    has_update(telegram, floordrytemp_, 1);
 }
 
 // type 0x41 - data from the RC30 thermostat(0x10) - 14 bytes long
@@ -925,8 +925,8 @@ void Thermostat::process_RC30Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 1, 1)); // is * 2, force as single byte
-    has_update(telegram->read_value(hc->curr_roomTemp, 2));
+    has_update(telegram, hc->setpoint_roomTemp, 1, 1); // is * 2, force as single byte
+    has_update(telegram, hc->curr_roomTemp, 2);
 }
 
 // type 0xA7 - for reading the mode from the RC30 thermostat (0x10)
@@ -936,7 +936,7 @@ void Thermostat::process_RC30Set(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->mode, 23));
+    has_update(telegram, hc->mode, 23);
 }
 
 // type 0x3E (HC1), 0x48 (HC2), 0x52 (HC3), 0x5C (HC4) - data from the RC35 thermostat (0x10) - 16 bytes
@@ -957,14 +957,14 @@ void Thermostat::process_RC35Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->setpoint_roomTemp, 2, 1)); // is * 2, force to single byte, is 0 in summermode
-    has_update(telegram->read_value(hc->curr_roomTemp, 3));        // is * 10 - or 0x7D00 if thermostat is mounted on boiler
+    has_update(telegram, hc->setpoint_roomTemp, 2, 1); // is * 2, force to single byte, is 0 in summermode
+    has_update(telegram, hc->curr_roomTemp, 3);        // is * 10 - or 0x7D00 if thermostat is mounted on boiler
 
-    has_update(telegram->read_bitvalue(hc->modetype, 1, 1));
-    has_update(telegram->read_bitvalue(hc->summermode, 1, 0));
-    has_update(telegram->read_bitvalue(hc->holidaymode, 0, 5));
+    has_bitupdate(telegram, hc->modetype, 1, 1);
+    has_bitupdate(telegram, hc->summermode, 1, 0);
+    has_bitupdate(telegram, hc->holidaymode, 0, 5);
 
-    has_update(telegram->read_value(hc->targetflowtemp, 14));
+    has_update(telegram, hc->targetflowtemp, 14);
 }
 
 // type 0x3D (HC1), 0x47 (HC2), 0x51 (HC3), 0x5B (HC4) - Working Mode Heating - for reading the mode from the RC35 thermostat (0x10)
@@ -979,29 +979,29 @@ void Thermostat::process_RC35Set(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->heatingtype, 0));   // 0- off, 1-radiator, 2-convector, 3-floor
-    has_update(telegram->read_value(hc->nighttemp, 1));     // is * 2
-    has_update(telegram->read_value(hc->daytemp, 2));       // is * 2
-    has_update(telegram->read_value(hc->holidaytemp, 3));   // is * 2
-    has_update(telegram->read_value(hc->roominfluence, 4)); // is * 1
-    has_update(telegram->read_value(hc->offsettemp, 6));    // is * 2
-    has_update(telegram->read_value(hc->mode, 7));          // night, day, auto
+    has_update(telegram, hc->heatingtype, 0);   // 0- off, 1-radiator, 2-convector, 3-floor
+    has_update(telegram, hc->nighttemp, 1);     // is * 2
+    has_update(telegram, hc->daytemp, 2);       // is * 2
+    has_update(telegram, hc->holidaytemp, 3);   // is * 2
+    has_update(telegram, hc->roominfluence, 4); // is * 1
+    has_update(telegram, hc->offsettemp, 6);    // is * 2
+    has_update(telegram, hc->mode, 7);          // night, day, auto
 
-    has_update(telegram->read_value(hc->summertemp, 22));     // is * 1
-    has_update(telegram->read_value(hc->nofrosttemp, 23));    // is * 1
-    has_update(telegram->read_value(hc->flowtempoffset, 24)); // is * 1, only in mixed circuits
-    has_update(telegram->read_value(hc->reducemode, 25));     // 0-nofrost, 1-reduce, 2-roomhold, 3-outdoorhold
-    has_update(telegram->read_value(hc->control, 26));        // 0-off, 1-RC20 (remote), 2-RC35
-    has_update(telegram->read_value(hc->controlmode, 33));    // 0-outdoortemp, 1-roomtemp
-    has_update(telegram->read_value(hc->tempautotemp, 37));
-    has_update(telegram->read_value(hc->noreducetemp, 38)); // outdoor temperature for no reduce
-    has_update(telegram->read_value(hc->minflowtemp, 16));
+    has_update(telegram, hc->summertemp, 22);     // is * 1
+    has_update(telegram, hc->nofrosttemp, 23);    // is * 1
+    has_update(telegram, hc->flowtempoffset, 24); // is * 1, only in mixed circuits
+    has_update(telegram, hc->reducemode, 25);     // 0-nofrost, 1-reduce, 2-roomhold, 3-outdoorhold
+    has_update(telegram, hc->control, 26);        // 0-off, 1-RC20 (remote), 2-RC35
+    has_update(telegram, hc->controlmode, 33);    // 0-outdoortemp, 1-roomtemp
+    has_update(telegram, hc->tempautotemp, 37);
+    has_update(telegram, hc->noreducetemp, 38); // outdoor temperature for no reduce
+    has_update(telegram, hc->minflowtemp, 16);
     if (hc->heatingtype == 3) {
-        has_update(telegram->read_value(hc->designtemp, 36));  // is * 1
-        has_update(telegram->read_value(hc->maxflowtemp, 35)); // is * 1
+        has_update(telegram, hc->designtemp, 36);  // is * 1
+        has_update(telegram, hc->maxflowtemp, 35); // is * 1
     } else {
-        has_update(telegram->read_value(hc->designtemp, 17));  // is * 1
-        has_update(telegram->read_value(hc->maxflowtemp, 15)); // is * 1
+        has_update(telegram, hc->designtemp, 17);  // is * 1
+        has_update(telegram, hc->maxflowtemp, 15); // is * 1
     }
 }
 
@@ -1012,9 +1012,9 @@ void Thermostat::process_RC35Timer(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram->read_value(hc->program, 84)); // 0 .. 10, 0-userprogram 1, 10-userprogram 2
-    has_update(telegram->read_value(hc->pause, 85));   // time in hours
-    has_update(telegram->read_value(hc->party, 86));   // time in hours
+    has_update(telegram, hc->program, 84); // 0 .. 10, 0-userprogram 1, 10-userprogram 2
+    has_update(telegram, hc->pause, 85);   // time in hours
+    has_update(telegram, hc->party, 86);   // time in hours
 }
 
 // process_RCTime - type 0x06 - date and time from a thermostat - 14 bytes long
@@ -1056,7 +1056,7 @@ void Thermostat::process_RCTime(std::shared_ptr<const Telegram> telegram) {
                Helpers::itoa(buf6, telegram->message_data[0] + 2000) // year
     );
 
-    has_update((strcmp(timeold, dateTime_) != 0));
+     has_update((strcmp(timeold, dateTime_) != 0));
 }
 
 // process_RCError - type 0xA2 - error message - 14 bytes long
@@ -1072,7 +1072,7 @@ void Thermostat::process_RCError(std::shared_ptr<const Telegram> telegram) {
     buf[1] = telegram->message_data[1];
     buf[2] = telegram->message_data[2];
     buf[3] = 0;
-    has_update(telegram->read_value(errorNumber_, 3));
+     has_update(telegram, errorNumber_, 3);
     snprintf_P(errorCode_, sizeof(errorCode_), PSTR("%s(%d)"), buf, errorNumber_);
 }
 

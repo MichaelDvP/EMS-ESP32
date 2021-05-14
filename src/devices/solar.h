@@ -90,9 +90,10 @@ class Solar : public EMSdevice {
     uint8_t  maxFlow_;    // set this to caltulate power
     uint32_t solarPower_; // calculated from maxFlow
 
-    uint8_t  data0_;
-    uint8_t  data1_;
-    uint16_t data11_;
+    uint8_t data0_;
+    uint8_t data1_;
+    uint8_t data11_;
+    uint8_t data12_;
 
     std::deque<uint16_t> energy;
 

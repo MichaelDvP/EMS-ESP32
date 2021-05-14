@@ -220,6 +220,31 @@ class EMSdevice {
         has_update_ |= has_update;
     }
 
+    inline void has_update(bool has_update, void * value) {
+        has_update_ |= has_update;
+        if (has_update) {
+            publish_value(value);
+        }
+    }
+
+    template <typename Value>
+    inline void has_update(std::shared_ptr<const Telegram> telegram, Value & value, const uint8_t index, uint8_t s = 0) {
+        bool has_update = telegram->read_value(value, index, s);
+        has_update_ |= has_update;
+        if (has_update) {
+            publish_value((void *) &value);
+        }
+    }
+
+   template <typename BitValue>
+   inline void has_bitupdate(std::shared_ptr<const Telegram> telegram, BitValue & value, const uint8_t index, uint8_t b) {
+        bool has_update = telegram->read_bitvalue(value, index, b);
+        has_update_ |= has_update;
+        if (has_update) {
+            publish_value((void *) &value);
+        }
+    }
+
     std::string    brand_to_string() const;
     static uint8_t decode_brand(uint8_t value);
 
@@ -281,6 +306,7 @@ class EMSdevice {
     void write_command(const uint16_t type_id, const uint8_t offset, const uint8_t value);
     void read_command(const uint16_t type_id, uint8_t offset = 0, uint8_t length = 0);
 
+    void publish_value(void * value);
     void register_mqtt_topic(const std::string & topic, mqtt_subfunction_p f);
     // void register_cmd(const __FlashStringHelper * cmd, cmdfunction_p f, uint8_t flag = 0);
 

@@ -941,15 +941,15 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["tx_fails"]      = EMSESP::txservice_.telegram_fail_count();
         node["rx_quality"]    = EMSESP::rxservice_.quality();
         node["tx_quality"]    = EMSESP::txservice_.quality();
-        if (Mqtt::enabled()) {
-            node["mqtt_publishes"] = Mqtt::publish_count();
-            node["mqtt_fails"]     = Mqtt::publish_fails();
-        }
-        if (EMSESP::dallas_enabled()) {
-            node["dallas_sensors"] = EMSESP::sensor_devices().size();
-            node["dallas_reads"]   = EMSESP::sensor_reads();
-            node["dallas_fails"]   = EMSESP::sensor_fails();
-        }
+    }
+    if (Mqtt::enabled()) {
+        node["mqtt_publishes"] = Mqtt::publish_count();
+        node["mqtt_fails"]     = Mqtt::publish_fails();
+    }
+    if (EMSESP::dallas_enabled()) {
+        node["dallas_sensors"] = EMSESP::sensor_devices().size();
+        node["dallas_reads"]   = EMSESP::sensor_reads();
+        node["dallas_fails"]   = EMSESP::sensor_fails();
     }
 
     JsonArray devices2 = json.createNestedArray("Devices");
