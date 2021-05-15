@@ -306,37 +306,6 @@ void Boiler::check_active(const bool force) {
     }
 }
 
-// 0x33
-//  Boiler(0x08) -> Me(0x0B), UBAParameterWW(0x33), data: 08 FF 30 FB FF 28 FF 07 46 00 00
-void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
-    // has_bitupdate(telegram, wwEquipt_,0,3);  //  8=boiler has ww
-    has_update(telegram, wWActivated_, 1); // 0xFF means on
-    has_update(telegram, wWSelTemp_, 2);
-    // has_update(telegram, wW?_, 3);           // Hyst on (default -5)
-    // has_update(telegram, wW?_, 4);           // (0xFF) Maybe: Hyst off -1?
-    has_update(telegram, wWFlowTempOffset_, 5); // default 40
-    has_update(telegram, wWCircPump_, 6);       // 0xFF means on
-    has_update(telegram, wWCircMode_, 7);       // 1=1x3min 6=6x3min 7=continuous
-    has_update(telegram, wWDisinfectionTemp_, 8);
-    has_update(telegram, wWChargeType_, 10); // 0 = charge pump, 0xff = 3-way valve
-
-    uint8_t wWComfort;
-    telegram->read_value(wWComfort, 9);
-    if (wWComfort == 0) {
-        wWComfort = 0; // Hot
-    } else if (wWComfort == 0xD8) {
-        wWComfort = 1; // Eco
-    } else if (wWComfort == 0xEC) {
-        wWComfort = 2; // Intelligent
-    } else {
-        wWComfort = EMS_VALUE_UINT_NOTSET;
-    }
-    if (wWComfort != wWComfort_) {
-        wWComfort_ = wWComfort;
-        publish_value(&wWComfort_);
-    }
-}
-
 // 0x18
 void Boiler::process_UBAMonitorFast(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, selFlowTemp_, 0);
@@ -370,9 +339,9 @@ void Boiler::process_UBAMonitorFast(std::shared_ptr<const Telegram> telegram) {
         serviceCode[0] = (serviceCode[0] == (char)0xF0) ? '~' : serviceCode[0];
         telegram->read_value(serviceCode[1], 19);
         serviceCode[2] = '\0'; // null terminate string
-        if (strcmp(serviceCode, serviceCode_) != 0) {
+        if (strcmp(serviceCode_, serviceCode) != 0) {
             strcpy(serviceCode_, serviceCode);
-            publish_value(serviceCode_);
+            has_update(true, serviceCode_);
         }
     }
 
@@ -413,6 +382,37 @@ void Boiler::process_UBAParameters(std::shared_ptr<const Telegram> telegram) {
  */
 void Boiler::process_UBASettingsWW(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, wWMaxPower_, 7);
+}
+
+// 0x33
+//  Boiler(0x08) -> Me(0x0B), UBAParameterWW(0x33), data: 08 FF 30 FB FF 28 FF 07 46 00 00
+void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
+    // has_bitupdate(telegram, wwEquipt_,0,3);  //  8=boiler has ww
+    has_update(telegram, wWActivated_, 1); // 0xFF means on
+    has_update(telegram, wWSelTemp_, 2);
+    // has_update(telegram, wW?_, 3);           // Hyst on (default -5)
+    // has_update(telegram, wW?_, 4);           // (0xFF) Maybe: Hyst off -1?
+    has_update(telegram, wWFlowTempOffset_, 5); // default 40
+    has_update(telegram, wWCircPump_, 6);       // 0xFF means on
+    has_update(telegram, wWCircMode_, 7);       // 1=1x3min 6=6x3min 7=continuous
+    has_update(telegram, wWDisinfectionTemp_, 8);
+    has_update(telegram, wWChargeType_, 10); // 0 = charge pump, 0xff = 3-way valve
+
+    uint8_t wWComfort;
+    telegram->read_value(wWComfort, 9);
+    if (wWComfort == 0) {
+        wWComfort = 0; // Hot
+    } else if (wWComfort == 0xD8) {
+        wWComfort = 1; // Eco
+    } else if (wWComfort == 0xEC) {
+        wWComfort = 2; // Intelligent
+    } else {
+        wWComfort = EMS_VALUE_UINT_NOTSET;
+    }
+    if (wWComfort != wWComfort_) {
+        wWComfort_ = wWComfort;
+        has_update(true, &wWComfort_);
+    }
 }
 
 /*
@@ -469,9 +469,9 @@ void Boiler::process_UBAMonitorFastPlus(std::shared_ptr<const Telegram> telegram
         telegram->read_value(serviceCode[1], 2);
         telegram->read_value(serviceCode[2], 3);
         serviceCode[3] = '\0';
-        if (strcmp(serviceCode,serviceCode) != 0) {
+        if (strcmp(serviceCode_, serviceCode) != 0) {
             strcpy(serviceCode_, serviceCode);
-            publish_value(serviceCode_);
+            has_update(true, serviceCode_);
         }
     }
 
@@ -560,8 +560,8 @@ void Boiler::process_UBAParameterWWPlus(std::shared_ptr<const Telegram> telegram
     has_update(telegram, wWActivated_, 5); // 0x01 means on
     has_update(telegram, wWCircPump_, 10); // 0x01 means yes
     has_update(telegram, wWCircMode_, 11); // 1=1x3min... 6=6x3min, 7=continuous
-    //has_update(telegram, wWDisinfectTemp_, 12); // settings, status in E9
-    //has_update(telegram, wWSelTemp_, 6);        // settings, status in E9
+    has_update(telegram, wWDisinfectionTemp_, 12); // setting here, status in E9
+    has_update(telegram, wWSelTemp_, 6); // setting here, status in E9
 }
 
 // 0xE9 - WW monitor ems+
@@ -582,8 +582,8 @@ void Boiler::process_UBAMonitorWWPlus(std::shared_ptr<const Telegram> telegram) 
     has_bitupdate(telegram, wWCirc_, 13, 2);
 
     // has_update(telegram, wWActivated_, 20); // Activated is in 0xEA, this is something other 0/100%
-    has_update(telegram, wWSelTemp_, 10);
-    has_update(telegram, wWDisinfectionTemp_, 9);
+    // has_update(telegram, wWSelTemp_, 10); 
+    // has_update(telegram, wWDisinfectionTemp_, 9);
 }
 
 /*
@@ -701,8 +701,7 @@ void Boiler::process_UBAMaintenanceStatus(std::shared_ptr<const Telegram> telegr
     // ignore if 0, which means all is ok
     if (Helpers::hasValue(message_code) && message_code > 0 && message_code != (maintenanceMessage_[2] - '0')) {
         snprintf_P(maintenanceMessage_, sizeof(maintenanceMessage_), PSTR("H%02d"), message_code);
-        has_update(true);
-        publish_value(maintenanceMessage_);
+        has_update(true, maintenanceMessage_);
     }
 }
 
@@ -731,8 +730,7 @@ void Boiler::process_UBAErrorMessage(std::shared_ptr<const Telegram> telegram) {
         if (date > lastCodeDate_) {
             snprintf_P(lastCode_, sizeof(lastCode_), PSTR("%s(%d) %02d.%02d.%d %02d:%02d"), code, codeNo, day, month, year, hour, min);
             lastCodeDate_ = date;
-            has_update(true);
-            publish_value(lastCode_);
+            has_update(true, lastCode_);
         }
     }
 }
@@ -748,8 +746,12 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
 
     uint8_t time = (maintenanceTime_ == EMS_VALUE_USHORT_NOTSET) ? EMS_VALUE_UINT_NOTSET : maintenanceTime_ / 100;
     telegram->read_value(time, 1);
-    maintenanceTime_ = (time == EMS_VALUE_UINT_NOTSET) ? EMS_VALUE_USHORT_NOTSET : time * 100;
-    publish_value(&maintenanceTime_);
+    if (Helpers::hasValue(time)) {
+        if (time * 100 != maintenanceTime_) {
+            maintenanceTime_ = time * 100;
+            has_update(true, &maintenanceTime_);
+        }
+    }
     // telegram->read_value(maintenanceTime_, 1, 1);
     // maintenanceTime_ = maintenanceTime * 100;
 
@@ -758,12 +760,16 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
     uint8_t month = telegram->message_data[3];
     uint8_t year  = telegram->message_data[4];
     if (day > 0 && month > 0) {
-        snprintf_P(maintenanceDate_, sizeof(maintenanceDate_), PSTR("%02d.%02d.%04d"), day, month, year + 2000);
-        publish_value(maintenanceDate_);
+        char date[20];
+        snprintf_P(date, sizeof(date), PSTR("%02d.%02d.%04d"), day, month, year + 2000);
+        if (strcmp(maintenanceDate_, date) != 0) {
+            strcpy(maintenanceDate_, date);
+            has_update(true, maintenanceDate_);
+        }
     }
 }
 
-// Set the warm water temperature 0x33
+// Set the warm water temperature 0x33 (seltemp)
 bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
     int v = 0;
     if (!Helpers::value2number(value, v)) {

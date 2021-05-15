@@ -95,10 +95,10 @@ class DallasSensor {
     static constexpr uint8_t TYPE_DS1822  = 0x22;
     static constexpr uint8_t TYPE_DS1825  = 0x3B; // also DS1826
 
-    static constexpr uint32_t READ_INTERVAL_MS = 5000; // 5 seconds
-    static constexpr uint32_t CONVERSION_MS    = 1000; // 1 seconds
-    static constexpr uint32_t READ_TIMEOUT_MS  = 2000; // 2 seconds
-    static constexpr uint32_t SCAN_TIMEOUT_MS  = 3000; // 3 seconds
+    static constexpr uint32_t READ_INTERVAL_MS = 10000; // 10 seconds
+    static constexpr uint32_t CONVERSION_MS    = 1000;  // 1 seconds
+    static constexpr uint32_t READ_TIMEOUT_MS  = 2000;  // 2 seconds
+    static constexpr uint32_t SCAN_TIMEOUT_MS  = 3000;  // 3 seconds
 
     static constexpr uint8_t CMD_CONVERT_TEMP    = 0x44;
     static constexpr uint8_t CMD_READ_SCRATCHPAD = 0xBE;
@@ -120,7 +120,7 @@ class DallasSensor {
     bool command_commands(const char * value, const int8_t id, JsonObject & json);
 
     uint32_t            last_activity_ = uuid::get_uptime();
-    uint32_t            last_publish_  = uuid::get_uptime();
+    // uint32_t            last_publish_  = uuid::get_uptime();
     State               state_         = State::IDLE;
     std::vector<Sensor> sensors_;
 

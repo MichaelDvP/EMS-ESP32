@@ -1036,17 +1036,17 @@ void Thermostat::process_RCTime(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    auto timeold = dateTime_;
-    // render time to HH:MM:SS DD/MM/YYYY
+    // render date to HH:MM:SS DD/MM/YYYY
     // had to create separate buffers because of how printf works
+    char date[25];
     char buf1[6];
     char buf2[6];
     char buf3[6];
     char buf4[6];
     char buf5[6];
     char buf6[6];
-    snprintf_P(dateTime_,
-               sizeof(dateTime_),
+    snprintf_P(date,
+               sizeof(date),
                PSTR("%s:%s:%s %s/%s/%s"),
                Helpers::smallitoa(buf1, telegram->message_data[2]),  // hour
                Helpers::smallitoa(buf2, telegram->message_data[4]),  // minute
@@ -1055,8 +1055,10 @@ void Thermostat::process_RCTime(std::shared_ptr<const Telegram> telegram) {
                Helpers::smallitoa(buf5, telegram->message_data[1]),  // month
                Helpers::itoa(buf6, telegram->message_data[0] + 2000) // year
     );
-
-     has_update((strcmp(timeold, dateTime_) != 0));
+    if (strcmp(dateTime_, date) != 0){
+        strcpy(dateTime_, date);
+        has_update(true, dateTime_);
+    }
 }
 
 // process_RCError - type 0xA2 - error message - 14 bytes long
@@ -1067,13 +1069,16 @@ void Thermostat::process_RCError(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    char buf[4];
-    buf[0] = telegram->message_data[0];
-    buf[1] = telegram->message_data[1];
-    buf[2] = telegram->message_data[2];
-    buf[3] = 0;
-     has_update(telegram, errorNumber_, 3);
-    snprintf_P(errorCode_, sizeof(errorCode_), PSTR("%s(%d)"), buf, errorNumber_);
+    has_update(telegram, errorNumber_, 3);
+    char code[15];
+    code[0] = telegram->message_data[0];
+    code[1] = telegram->message_data[1];
+    code[2] = telegram->message_data[2];
+    snprintf_P(&code[3], sizeof(code) - 3, PSTR("(%d)"), errorNumber_);
+    if (strcmp(errorCode_, code) != 0) {
+        strcpy(errorCode_, code);
+        has_update(true, errorCode_);
+    }
 }
 
 // 0x12 error log
@@ -1084,18 +1089,21 @@ void Thermostat::process_RCErrorMessage(std::shared_ptr<const Telegram> telegram
 
     // data: displaycode(2), errornumber(2), year, month, hour, day, minute, duration(2), src-addr
     if (telegram->message_data[4] & 0x80) { // valid date
-        char     code[3];
+        char     code[30];
         uint16_t codeNo;
         code[0] = telegram->message_data[0];
         code[1] = telegram->message_data[1];
-        code[2] = 0;
         telegram->read_value(codeNo, 2);
         uint16_t year  = (telegram->message_data[4] & 0x7F) + 2000;
         uint8_t  month = telegram->message_data[5];
         uint8_t  day   = telegram->message_data[7];
         uint8_t  hour  = telegram->message_data[6];
         uint8_t  min   = telegram->message_data[8];
-        snprintf_P(lastCode_, sizeof(lastCode_), PSTR("%s(%d) %02d.%02d.%d %02d:%02d"), code, codeNo, day, month, year, hour, min);
+        snprintf_P(&code[2], sizeof(code) - 2, PSTR("(%d) %02d.%02d.%d %02d:%02d"), codeNo, day, month, year, hour, min);
+        if (strcmp(lastCode_, code) != 0) {
+            strcpy(lastCode_, code);
+            has_update(true, lastCode_);            
+        }
     }
 }
 
