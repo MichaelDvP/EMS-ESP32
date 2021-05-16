@@ -946,13 +946,13 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
 
     DynamicJsonDocument doc(EMSESP_JSON_SIZE_HA_CONFIG);
 
-    bool have_tag  = !EMSdevice::tag_to_string(tag).empty() && (device_type != EMSdevice::DeviceType::BOILER); // ignore boiler
-    bool is_nested = (nested_format_ == 1) || (device_type == EMSdevice::DeviceType::BOILER);                  // boiler never uses nested
+    // bool have_tag  = !EMSdevice::tag_to_string(tag).empty() && (device_type != EMSdevice::DeviceType::BOILER); // ignore boiler
+    bool is_nested = (nested_format_ == 1) || (device_type == EMSdevice::DeviceType::BOILER); // boiler never uses nested
 
     // create entity by add the tag if present, seperating with a .
     char new_entity[50];
-    if (have_tag) {
-        snprintf_P(new_entity, sizeof(new_entity), PSTR("%s.%s"), EMSdevice::tag_to_string(tag).c_str(), uuid::read_flash_string(entity).c_str());
+    if (tag >= TAG_HC1) {
+        snprintf_P(new_entity, sizeof(new_entity), PSTR("%s.%s"), EMSdevice::tag_to_mqtt(tag).c_str(), uuid::read_flash_string(entity).c_str());
     } else {
         snprintf_P(new_entity, sizeof(new_entity), PSTR("%s"), uuid::read_flash_string(entity).c_str());
     }
@@ -977,7 +977,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
 
     // name
     char new_name[80];
-    if (have_tag) {
+    if (tag >= TAG_DEVICE_DATA_WW && !EMSdevice::tag_to_string(tag).empty()) {
         snprintf_P(new_name, sizeof(new_name), PSTR("%s %s %s"), device_name, EMSdevice::tag_to_string(tag).c_str(), uuid::read_flash_string(name).c_str());
     } else {
         snprintf_P(new_name, sizeof(new_name), PSTR("%s %s"), device_name, uuid::read_flash_string(name).c_str());

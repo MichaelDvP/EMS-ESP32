@@ -323,6 +323,11 @@ MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))
 MAKE_PSTR_LIST(enum_mode4, F_(blank), F_(manual), F_(auto), F_(holiday))
 MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))
 
+// MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(off))
+MAKE_PSTR_LIST(enum_hamode1, F_(heat), F_(auto))
+MAKE_PSTR_LIST(enum_hamode2, F_(off), F_(heat), F_(auto), F_(off))
+MAKE_PSTR_LIST(enum_hamode5, F_(auto), F_(off))
+
 MAKE_PSTR_LIST(enum_modetype, F_(eco), F_(comfort))
 MAKE_PSTR_LIST(enum_modetype2, F_(day))
 MAKE_PSTR_LIST(enum_modetype3, F_(night), F_(day))
@@ -335,8 +340,6 @@ MAKE_PSTR_LIST(enum_controlmode, F_(off), F_(optimized), F_(simple), F_(mpc), F_
 MAKE_PSTR_LIST(enum_controlmode2, F_(outdoor), F_(room))
 MAKE_PSTR_LIST(enum_controlmode3, F_(off), F_(room), F_(outdoor), F("room+outdoor"))
 MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
-
-MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(heat), F_(auto), F_(auto), F_(auto), F_(auto))
 
 // solar list
 MAKE_PSTR_LIST(enum_solarmode, F_(constant), F("pwm"), F("analog"))
