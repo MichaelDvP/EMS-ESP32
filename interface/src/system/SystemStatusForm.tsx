@@ -72,8 +72,8 @@ class SystemStatusForm extends Component<
             </Avatar>
           </ListItemAvatar>
           <ListItemText
-            primary="EMS-ESP Version"
-            secondary={'v' + data.emsesp_version}
+            primary="EMS-ESP"
+            secondary={data.emsesp_version}
           />
         </ListItem>
         <ListItem>

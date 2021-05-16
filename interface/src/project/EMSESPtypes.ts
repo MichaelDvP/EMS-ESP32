@@ -30,17 +30,17 @@ export enum busConnectionStatus {
 }
 
 export interface EMSESPStatus {
-  status: busConnectionStatus
-  tx_mode: number
-  rx_received: number
-  tx_sent: number
-  rx_quality: number
-  tx_quality: number
-  tx_fails: number
-  rx_fails: number
-  dallas_fails: number
-  dallas_reads: number
-  dallas_quality: number
+  status: busConnectionStatus;
+  tx_mode: number;
+  rx_received: number;
+  tx_sent: number;
+  rx_quality: number;
+  tx_quality: number;
+  tx_fails: number;
+  rx_fails: number;
+  dallas_fails: number;
+  dallas_reads: number;
+  dallas_quality: number;
 }
 
 export interface Device {

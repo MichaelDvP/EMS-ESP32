@@ -115,6 +115,7 @@ MAKE_PSTR(bus_id_fmt, "Bus ID: %02X")
 MAKE_PSTR(log_level_fmt, "Log level: %s")
 
 //strings
+MAKE_PSTR(show_optional, "[devices | users | ems | mqtt | system | commands]")
 MAKE_PSTR(cmd_optional, "[cmd]")
 MAKE_PSTR(ha_optional, "[ha]")
 MAKE_PSTR(deep_optional, "[deep]")
@@ -171,6 +172,8 @@ MAKE_PSTR(ua, "uA")
 MAKE_PSTR(lmin, "l/min")
 MAKE_PSTR(kw, "kW")
 MAKE_PSTR(w, "W")
+MAKE_PSTR(kb, "KB")
+MAKE_PSTR(seconds, "seconds")
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 // use empty string if want to suppress showing tags
@@ -320,6 +323,11 @@ MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))
 MAKE_PSTR_LIST(enum_mode4, F_(blank), F_(manual), F_(auto), F_(holiday))
 MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))
 
+// MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(off))
+MAKE_PSTR_LIST(enum_hamode1, F_(heat), F_(auto))
+MAKE_PSTR_LIST(enum_hamode2, F_(off), F_(heat), F_(auto), F_(off))
+MAKE_PSTR_LIST(enum_hamode5, F_(auto), F_(off))
+
 MAKE_PSTR_LIST(enum_modetype, F_(eco), F_(comfort))
 MAKE_PSTR_LIST(enum_modetype2, F_(day))
 MAKE_PSTR_LIST(enum_modetype3, F_(night), F_(day))
@@ -333,10 +341,9 @@ MAKE_PSTR_LIST(enum_controlmode3, F_(off), F_(room), F_(outdoor), F("room+outdoo
 MAKE_PSTR_LIST(enum_controlmode2, F_(outdoor), F_(room))
 MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
 
-MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(heat), F_(off), F_(heat), F_(auto), F_(auto), F_(auto), F_(auto))
-
 // solar list
 MAKE_PSTR_LIST(enum_solarmode, F_(constant), F("pwm"), F("analog"))
+MAKE_PSTR_LIST(enum_collectortype, F_(blank), F("flat"), F("vacuum"))
 
 /*
  * MQTT topics and full text for values and commands
@@ -584,6 +591,24 @@ MAKE_PSTR_LIST(maxFlow, F("maxflow"), F("maximaler Durchfluss"))
 MAKE_PSTR_LIST(solarPower, F("solarpower"), F("aktuelle Leistung"))
 MAKE_PSTR_LIST(solarPumpTurnonDiff, F("turnondiff"), F("Einschaltdifferenz"))
 MAKE_PSTR_LIST(solarPumpTurnoffDiff, F("turnoffdiff"), F("Ausschaltdifferenz"))
+
+//SM100
+MAKE_PSTR_LIST(heatTransferSystem, F("heattransfersystem"), F("heattransfer system"))
+MAKE_PSTR_LIST(externalTank, F("externaltank"), F("external tank"))
+MAKE_PSTR_LIST(thermalDisinfect, F("thermaldisinfect"), F("thermal disinfection"))
+MAKE_PSTR_LIST(heatMetering, F("heatmetering"), F("heatmetering"))
+// MAKE_PSTR_LIST(solarIsEnabled, F("solarenabled"), F(""))
+
+        // telegram 0x035A
+MAKE_PSTR_LIST(solarPumpMode, F("solarpumpmode"), F("solar pump mode"))
+MAKE_PSTR_LIST(solarPumpKick, F("pumpkick"), F("pumpkick"))
+MAKE_PSTR_LIST(plainWaterMode, F("plainwatermode"), F("plain water mode"))
+MAKE_PSTR_LIST(doubleMatchFlow, F("doublematchflow"), F("doublematchflow"))
+
+        // telegram 0x380
+MAKE_PSTR_LIST(climateZone, F("climatezone"), F("climate zone"))
+MAKE_PSTR_LIST(collector1Area, F("collector1area"), F("collector 1 area"))
+MAKE_PSTR_LIST(collector1Type, F("collector1type"), F("collector 1 type"))
 
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("aktiviert"))
