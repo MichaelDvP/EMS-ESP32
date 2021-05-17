@@ -627,7 +627,7 @@ void Thermostat::process_RC20Set(std::shared_ptr<const Telegram> telegram) {
         return;
     }
     has_update(telegram, hc->mode, 23);
-    hc->hamode = hc->mode + 1;                            // set special HA mode
+    hc->hamode = hc->mode; // set special HA mode
 }
 
 // type 0xAE - data from the RC20 thermostat (0x17) - not for RC20's
@@ -640,6 +640,8 @@ void Thermostat::process_RC20Monitor_2(std::shared_ptr<const Telegram> telegram)
     has_bitupdate(telegram, hc->modetype, 0, 7);       // day/night MSB 7th bit is day
     has_update(telegram, hc->setpoint_roomTemp, 2, 1); // is * 2, force as single byte
     has_update(telegram, hc->curr_roomTemp, 3);        // is * 10
+    hc->hamode = hc->mode;
+
 }
 
 // 0xAD - for reading the mode from the RC20/ES72 thermostat (0x17)
@@ -655,6 +657,7 @@ void Thermostat::process_RC20Set_2(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, hc->mode, 3);
     hc->hamode = hc->mode;                 // set special HA mode
     has_update(telegram, hc->program, 11); // 1 .. 9 predefined programs
+    hc->hamode = hc->mode;
 }
 
 // 0xAF - for reading the roomtemperature from the RC20/ES72 thermostat (0x18, 0x19, ..)
@@ -790,6 +793,7 @@ void Thermostat::process_CRFMonitor(std::shared_ptr<const Telegram> telegram) {
     hc->hamode = 2 - 2 * hc->mode;                     // set special HA mode
     has_update(telegram, hc->setpoint_roomTemp, 6, 1); // is * 2, force as single byte
     has_update(telegram, hc->targetflowtemp, 4);
+    hc->hamode = 2 - 2 * hc->mode;
 }
 
 // type 0x02A5 - data from the Nefit RC1010/3000 thermostat (0x18) and RC300/310s on 0x10
@@ -814,6 +818,7 @@ void Thermostat::process_RC300Monitor(std::shared_ptr<const Telegram> telegram) 
     has_update(telegram, hc->setpoint_roomTemp, 3, 1); // is * 2, force as single byte
     has_bitupdate(telegram, hc->summermode, 2, 4);
     has_update(telegram, hc->targetflowtemp, 4);
+    hc->hamode = hc->mode + 1;
 }
 
 // type 0x02B9 EMS+ for reading from RC300/RC310 thermostat
@@ -1013,6 +1018,7 @@ void Thermostat::process_RC35Set(std::shared_ptr<const Telegram> telegram) {
         has_update(telegram, hc->designtemp, 17);  // is * 1
         has_update(telegram, hc->maxflowtemp, 15); // is * 1
     }
+    hc->hamode = hc->mode;
 }
 
 // type 0x3F (HC1), 0x49 (HC2), 0x53 (HC3), 0x5D (HC4) - timer setting
@@ -2291,7 +2297,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         // manual & day = heat
         // night & off = off
         // everything else auto
-        register_device_value(tag, &hc->hamode, DeviceValueType::ENUM, FL_(enum_hamode), FL_(hamode), DeviceValueUOM::NONE);
+        register_device_value(tag, &hc->hamode, DeviceValueType::ENUMTXT, FL_(enum_hamode), FL_(hamode), DeviceValueUOM::NONE);
     }
 
     switch (model) {

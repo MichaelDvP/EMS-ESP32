@@ -645,7 +645,7 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
             }
 
             // handle ENUMs
-            else if ((dv.type == DeviceValueType::ENUM) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
+            else if ((dv.type == DeviceValueType::ENUM || dv.type == DeviceValueType::ENUMTXT) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
                 if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                     data.add(dv.options[*(uint8_t *)(dv.value_p)]);
                 }
@@ -784,9 +784,10 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 json["circuit"] = tag_to_mqtt(dv.tag);
             }
             switch (dv.type) {
+            case DeviceValueType::ENUMTXT:
             case DeviceValueType::ENUM: {
                 if (Helpers::hasValue((uint8_t)(*(uint8_t *)(dv.value_p)))) {
-                    if (Mqtt::bool_format() == BOOL_FORMAT_10) {
+                    if (dv.type == DeviceValueType::ENUM && Mqtt::bool_format() == BOOL_FORMAT_10) {
                         json[value] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {
                         json[value] = dv.options[*(uint8_t *)(dv.value_p)]; // text
@@ -994,9 +995,9 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
             }
 
             // handle ENUMs
-            else if ((dv.type == DeviceValueType::ENUM) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
+            else if ((dv.type == DeviceValueType::ENUM || dv.type == DeviceValueType::ENUMTXT) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
                 if (*(uint8_t *)(dv.value_p) < dv.options_size) {
-                    if (Mqtt::bool_format() == BOOL_FORMAT_10) {
+                    if (Mqtt::bool_format() == BOOL_FORMAT_10 && dv.type == DeviceValueType::ENUM) {
                         json[name] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {
                         json[name] = dv.options[*(uint8_t *)(dv.value_p)];
