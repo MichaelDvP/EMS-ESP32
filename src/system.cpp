@@ -453,14 +453,6 @@ void System::show_mem(const char * note) {
 
 // create the json for heartbeat
 bool System::heartbeat_json(JsonObject & doc) {
-    int8_t rssi;
-    if (!ethernet_connected_) {
-        rssi = wifi_quality();
-        if (rssi == -1) {
-            return false;
-        }
-    }
-
     uint8_t ems_status = EMSESP::bus_status();
     if (ems_status == EMSESP::BUS_STATUS_TX_ERRORS) {
         doc["status"] = FJSON("txerror");
@@ -470,9 +462,6 @@ bool System::heartbeat_json(JsonObject & doc) {
         doc["status"] = FJSON("disconnected");
     }
 
-    if (!ethernet_connected_) {
-        doc["rssi"] = rssi;
-    }
     doc["uptime"]     = uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).substr(0, 12);
     doc["uptime_sec"] = uuid::get_uptime_sec();
     doc["rxreceived"] = EMSESP::rxservice_.telegram_count();
@@ -489,6 +478,7 @@ bool System::heartbeat_json(JsonObject & doc) {
         doc["dallasreads"] = EMSESP::sensor_reads();
         doc["dallasfails"] = EMSESP::sensor_fails();
     }
+
 #ifndef EMSESP_STANDALONE
     doc["freemem"] = ESP.getFreeHeap() / 1000UL; // kilobytes
     doc["max_alloc_heap"] = ESP.getMaxAllocHeap() / 1000UL;
@@ -504,7 +494,16 @@ bool System::heartbeat_json(JsonObject & doc) {
         doc["io32"] = digitalRead(32);
         doc["io33"] = digitalRead(33);
     }
-    return (doc.size() > 0);
+
+#ifndef EMSESP_STANDALONE
+    if (!ethernet_connected_) {
+        int8_t rssi         = WiFi.RSSI();
+        doc["rssi"]         = rssi;
+        doc["wifistrength"] = wifi_quality(rssi);
+    }
+#endif
+
+    return true;
 }
 
 // send periodic MQTT message with system information
@@ -671,19 +670,12 @@ void System::led_monitor() {
     }
 }
 
-// Return the quality (Received Signal Strength Indicator) of the WiFi network as a %. Or -1 if disconnected.
+// Return the quality (Received Signal Strength Indicator) of the WiFi network as a %
 //  High quality: 90% ~= -55dBm
 //  Medium quality: 50% ~= -75dBm
 //  Low quality: 30% ~= -85dBm
 //  Unusable quality: 8% ~= -96dBm
-int8_t System::wifi_quality() {
-#ifdef EMSESP_STANDALONE
-    return 100;
-#else
-    if (WiFi.status() != WL_CONNECTED) {
-        return -1;
-    }
-    int32_t dBm = WiFi.RSSI();
+int8_t System::wifi_quality(int8_t dBm) {
     if (dBm <= -100) {
         return 0;
     }
@@ -692,7 +684,6 @@ int8_t System::wifi_quality() {
         return 100;
     }
     return 2 * (dBm + 100);
-#endif
 }
 
 // print users to console
@@ -737,7 +728,7 @@ void System::show_system(uuid::console::Shell & shell) {
         shell.printfln(F("WiFi: Connected"));
         shell.printfln(F("SSID: %s"), WiFi.SSID().c_str());
         shell.printfln(F("BSSID: %s"), WiFi.BSSIDstr().c_str());
-        shell.printfln(F("RSSI: %d dBm (%d %%)"), WiFi.RSSI(), wifi_quality());
+        shell.printfln(F("RSSI: %d dBm (%d %%)"), WiFi.RSSI(), wifi_quality(WiFi.RSSI()));
         shell.printfln(F("MAC address: %s"), WiFi.macAddress().c_str());
         shell.printfln(F_(hostname_fmt), WiFi.getHostname());
         shell.printfln(F("IPv4 address: %s/%s"), uuid::printable_to_string(WiFi.localIP()).c_str(), uuid::printable_to_string(WiFi.subnetMask()).c_str());

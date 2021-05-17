@@ -691,6 +691,7 @@ void Mqtt::ha_status() {
     // doc["json_attr_t"] = FJSON("~/heartbeat"); // store also as HA attributes
     doc["stat_t"]  = FJSON("~/heartbeat");
     doc["name"]    = FJSON("EMS-ESP status");
+    doc["ic"]      = F_(icondevice);
     doc["val_tpl"] = FJSON("{{value_json['status']}}");
 
     JsonObject dev = doc.createNestedObject("dev");
@@ -707,7 +708,13 @@ void Mqtt::ha_status() {
 
     // create the sensors
     // must match the MQTT payload keys
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("WiFi strength"), EMSdevice::DeviceType::SYSTEM, F("rssi"), DeviceValueUOM::PERCENT);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("WiFi RSSI"), EMSdevice::DeviceType::SYSTEM, F("rssi"), DeviceValueUOM::DBM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT,
+                           DeviceValueTAG::TAG_HEARTBEAT,
+                           F("WiFi strength"),
+                           EMSdevice::DeviceType::SYSTEM,
+                           F("wifistrength"),
+                           DeviceValueUOM::PERCENT);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("Uptime"), EMSdevice::DeviceType::SYSTEM, F("uptime"));
     publish_mqtt_ha_sensor(DeviceValueType::INT,
                            DeviceValueTAG::TAG_HEARTBEAT,
@@ -716,13 +723,13 @@ void Mqtt::ha_status() {
                            F("uptime_sec"),
                            DeviceValueUOM::SECONDS);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("Free memory"), EMSdevice::DeviceType::SYSTEM, F("freemem"), DeviceValueUOM::KB);
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# MQTT fails"), EMSdevice::DeviceType::SYSTEM, F("mqttfails"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Rx received"), EMSdevice::DeviceType::SYSTEM, F("rxreceived"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Rx fails"), EMSdevice::DeviceType::SYSTEM, F("rxfails"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx reads"), EMSdevice::DeviceType::SYSTEM, F("txread"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx writes"), EMSdevice::DeviceType::SYSTEM, F("txwrite"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx fails"), EMSdevice::DeviceType::SYSTEM, F("txfails"));
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Dallas fails"), EMSdevice::DeviceType::SYSTEM, F("dallasfails"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# MQTT fails"), EMSdevice::DeviceType::SYSTEM, F("mqttfails"), DeviceValueUOM::NUM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Rx received"), EMSdevice::DeviceType::SYSTEM, F("rxreceived"), DeviceValueUOM::NUM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Rx fails"), EMSdevice::DeviceType::SYSTEM, F("rxfails"), DeviceValueUOM::NUM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx reads"), EMSdevice::DeviceType::SYSTEM, F("txread"), DeviceValueUOM::NUM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx writes"), EMSdevice::DeviceType::SYSTEM, F("txwrite"), DeviceValueUOM::NUM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx fails"), EMSdevice::DeviceType::SYSTEM, F("txfails"), DeviceValueUOM::NUM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Dallas fails"), EMSdevice::DeviceType::SYSTEM, F("dallasfails"), DeviceValueUOM::NUM);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"));
 
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 17"), EMSdevice::DeviceType::SYSTEM, F("io17"));
@@ -733,7 +740,6 @@ void Mqtt::ha_status() {
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 27"), EMSdevice::DeviceType::SYSTEM, F("io27"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 32"), EMSdevice::DeviceType::SYSTEM, F("io32"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 33"), EMSdevice::DeviceType::SYSTEM, F("io33"));
-
 }
 
 // add sub or pub task to the queue.
@@ -927,11 +933,6 @@ void Mqtt::process_queue() {
 
 // HA config for a sensor and binary_sensor entity
 // entity must match the key/value pair in the *_data topic
-// e.g. homeassistant/sensor/ems-esp32/thermostat_hc1_seltemp/config
-// with:
-// {"uniq_id":"thermostat_hc1_seltemp","stat_t":"ems-esp32/thermostat_data","name":"Thermostat hc1 Setpoint room temperature",
-//  "val_tpl":"{{value_json.hc1.seltemp}}","unit_of_meas":"°C","ic":"mdi:temperature-celsius","dev":{"ids":["ems-esp-thermostat"]}}
-//
 // note: some string copying here into chars, it looks messy but does help with heap fragmentation issues
 void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice::DeviceValueType
                                   uint8_t                     tag,  // EMSdevice::DeviceValueTAG
@@ -944,10 +945,20 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
         return;
     }
 
+    // nested_format is 1 if nested, otherwise 2 for single topics
+    bool is_nested;
+    if (device_type == EMSdevice::DeviceType::BOILER) {
+        is_nested = false; // boiler never uses nested
+    } else {
+        is_nested = (nested_format_ == 1);
+    }
+
+    char device_name[50];
+    strlcpy(device_name, EMSdevice::device_type_2_device_name(device_type).c_str(), sizeof(device_name));
+
     DynamicJsonDocument doc(EMSESP_JSON_SIZE_HA_CONFIG);
 
-    // bool have_tag  = !EMSdevice::tag_to_string(tag).empty() && (device_type != EMSdevice::DeviceType::BOILER); // ignore boiler
-    bool is_nested = (nested_format_ == 1) || (device_type == EMSdevice::DeviceType::BOILER); // boiler never uses nested
+    doc["~"] = mqtt_base_;
 
     // create entity by add the tag if present, seperating with a .
     char new_entity[50];
@@ -957,10 +968,6 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
         snprintf_P(new_entity, sizeof(new_entity), PSTR("%s"), uuid::read_flash_string(entity).c_str());
     }
 
-    // device name
-    char device_name[50];
-    strlcpy(device_name, EMSdevice::device_type_2_device_name(device_type).c_str(), sizeof(device_name));
-
     // build unique identifier which will be used in the topic
     // and replacing all . with _ as not to break HA
     std::string uniq(50, '\0');
@@ -968,14 +975,12 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     std::replace(uniq.begin(), uniq.end(), '.', '_');
     doc["uniq_id"] = uniq;
 
-    doc["~"] = mqtt_base_;
-
     // state topic
     char stat_t[MQTT_TOPIC_MAX_SIZE];
     snprintf_P(stat_t, sizeof(stat_t), PSTR("~/%s"), tag_to_topic(device_type, tag).c_str());
     doc["stat_t"] = stat_t;
 
-    // name
+    // name = <device> <tag> <name>
     char new_name[80];
     if (tag >= TAG_DEVICE_DATA_WW && !EMSdevice::tag_to_string(tag).empty()) {
         snprintf_P(new_name, sizeof(new_name), PSTR("%s %s %s"), device_name, EMSdevice::tag_to_string(tag).c_str(), uuid::read_flash_string(name).c_str());
@@ -986,6 +991,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     doc["name"] = new_name;
 
     // value template
+    // if its nested mqtt format then use the appended entity name, otherwise take the original
     char val_tpl[50];
     if (is_nested) {
         snprintf_P(val_tpl, sizeof(val_tpl), PSTR("{{value_json.%s}}"), new_entity);
@@ -1010,26 +1016,47 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
         snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/%s/config"), mqtt_base_.c_str(), uniq.c_str()); // topic
 
         // unit of measure and map the HA icon
-        if (uom != DeviceValueUOM::NONE && uom != DeviceValueUOM::PUMP) {
+        if (uom != DeviceValueUOM::NONE) {
             doc["unit_of_meas"] = EMSdevice::uom_to_string(uom);
         }
+
         switch (uom) {
         case DeviceValueUOM::DEGREES:
-            doc["ic"] = F_(icontemperature);
+            doc["ic"] = F_(icondegrees);
             break;
         case DeviceValueUOM::PERCENT:
             doc["ic"] = F_(iconpercent);
             break;
-        case DeviceValueUOM::PUMP:
-            doc["ic"] = F_(iconpump);
-            break;
         case DeviceValueUOM::SECONDS:
         case DeviceValueUOM::MINUTES:
         case DeviceValueUOM::HOURS:
-            doc["ic"] = F_(iconclock);
+            doc["ic"] = F_(icontime);
             break;
         case DeviceValueUOM::KB:
-            doc["ic"] = F_(iconmemory);
+            doc["ic"] = F_(iconkb);
+            break;
+        case DeviceValueUOM::LMIN:
+            doc["ic"] = F_(iconlmin);
+            break;
+        case DeviceValueUOM::WH:
+        case DeviceValueUOM::KWH:
+            doc["ic"] = F_(iconkwh);
+            break;
+        case DeviceValueUOM::UA:
+            doc["ic"] = F_(iconua);
+            break;
+        case DeviceValueUOM::BAR:
+            doc["ic"] = F_(iconbar);
+            break;
+        case DeviceValueUOM::W:
+        case DeviceValueUOM::KW:
+            doc["ic"] = F_(iconkw);
+            break;
+        case DeviceValueUOM::DBM:
+            doc["ic"] = F_(icondbm);
+            break;
+        case DeviceValueUOM::NUM:
+            doc["ic"] = F_(iconnum);
             break;
         case DeviceValueUOM::NONE:
         default:
