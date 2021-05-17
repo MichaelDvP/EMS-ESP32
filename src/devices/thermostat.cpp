@@ -623,6 +623,7 @@ void Thermostat::process_RC20Set(std::shared_ptr<const Telegram> telegram) {
         return;
     }
     has_update(telegram, hc->mode, 23);
+    hc->hamode = hc->mode;
 }
 
 // type 0xAE - data from the RC20 thermostat (0x17) - not for RC20's
@@ -635,6 +636,8 @@ void Thermostat::process_RC20Monitor_2(std::shared_ptr<const Telegram> telegram)
     has_bitupdate(telegram, hc->modetype, 0, 7);       // day/night MSB 7th bit is day
     has_update(telegram, hc->setpoint_roomTemp, 2, 1); // is * 2, force as single byte
     has_update(telegram, hc->curr_roomTemp, 3);        // is * 10
+    hc->hamode = hc->mode;
+
 }
 
 // 0xAD - for reading the mode from the RC20/ES72 thermostat (0x17)
@@ -649,6 +652,7 @@ void Thermostat::process_RC20Set_2(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, hc->daytemp, 2);   // is * 2,
     has_update(telegram, hc->mode, 3);
     has_update(telegram, hc->program, 11); // 1 .. 9 predefined programs
+    hc->hamode = hc->mode;
 }
 
 // 0xAF - for reading the roomtemperature from the RC20/ES72 thermostat (0x18, 0x19, ..)
@@ -769,6 +773,7 @@ void Thermostat::process_JunkersMonitor(std::shared_ptr<const Telegram> telegram
 
     has_update(telegram, hc->modetype, 0); // 1 = nofrost, 2 = eco, 3 = heat
     has_update(telegram, hc->mode, 1);     // 1 = manual, 2 = auto
+    hc->hamode = hc->mode;
 }
 
 // type 0x02A5 - data from Worchester CRF200
@@ -782,6 +787,7 @@ void Thermostat::process_CRFMonitor(std::shared_ptr<const Telegram> telegram) {
     has_bitupdate(telegram, hc->mode, 2, 4);           // bit 4, mode (auto=0, off=1)
     has_update(telegram, hc->setpoint_roomTemp, 6, 1); // is * 2, force as single byte
     has_update(telegram, hc->targetflowtemp, 4);
+    hc->hamode = 2 - 2 * hc->mode;
 }
 
 // type 0x02A5 - data from the Nefit RC1010/3000 thermostat (0x18) and RC300/310s on 0x10
@@ -805,6 +811,7 @@ void Thermostat::process_RC300Monitor(std::shared_ptr<const Telegram> telegram) 
     has_update(telegram, hc->setpoint_roomTemp, 3, 1); // is * 2, force as single byte
     has_bitupdate(telegram, hc->summermode, 2, 4);
     has_update(telegram, hc->targetflowtemp, 4);
+    hc->hamode = hc->mode + 1;
 }
 
 // type 0x02B9 EMS+ for reading from RC300/RC310 thermostat
@@ -936,6 +943,7 @@ void Thermostat::process_RC30Set(std::shared_ptr<const Telegram> telegram) {
         return;
     }
     has_update(telegram, hc->mode, 23);
+    hc->hamode = hc->mode;
 }
 
 // type 0x3E (HC1), 0x48 (HC2), 0x52 (HC3), 0x5C (HC4) - data from the RC35 thermostat (0x10) - 16 bytes
@@ -1002,6 +1010,7 @@ void Thermostat::process_RC35Set(std::shared_ptr<const Telegram> telegram) {
         has_update(telegram, hc->designtemp, 17);  // is * 1
         has_update(telegram, hc->maxflowtemp, 15); // is * 1
     }
+    hc->hamode = hc->mode;
 }
 
 // type 0x3F (HC1), 0x49 (HC2), 0x53 (HC3), 0x5D (HC4) - timer setting
@@ -2280,12 +2289,12 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         // manual & day = heat
         // night & off = off
         // everything else auto
-        // register_device_value(tag, &hc->hamode, DeviceValueType::ENUM, FL_(enum_hamode), FL_(hamode), DeviceValueUOM::NONE);
+        register_device_value(tag, &hc->hamode, DeviceValueType::ENUMTXT, FL_(enum_hamode), FL_(hamode), DeviceValueUOM::NONE);
     }
     switch (model) {
     case EMS_DEVICE_FLAG_RC100:
     case EMS_DEVICE_FLAG_RC300:
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode1), FL_(hamode), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode1), FL_(hamode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
         register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype), FL_(modetype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->nighttemp, DeviceValueType::UINT, FL_(div2), FL_(ecotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_ecotemp));
@@ -2309,17 +2318,17 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, FL_(div2), FL_(tempautotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_tempautotemp));
         break;
     case EMS_DEVICE_FLAG_CRF:
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode5), FL_(hamode), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode5), FL_(hamode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode5), FL_(mode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype5), FL_(modetype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT, nullptr, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
         break;
     case EMS_DEVICE_FLAG_RC20:
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
         break;
     case EMS_DEVICE_FLAG_RC20_N:
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
         register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype2), FL_(modetype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(daytemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_daytemp));
@@ -2328,7 +2337,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         break;
     case EMS_DEVICE_FLAG_RC30_N:
     case EMS_DEVICE_FLAG_RC35:
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode3), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
         register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype3), FL_(modetype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(daytemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_daytemp));
@@ -2359,7 +2368,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &dummychar_, DeviceValueType::TEXT, nullptr, FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime));
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode4), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
         register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype4), FL_(modetype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(heattemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_heattemp));

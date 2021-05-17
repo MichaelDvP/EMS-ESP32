@@ -51,6 +51,7 @@ enum DeviceValueType : uint8_t {
     ULONG,
     TIME, // same as ULONG (32 bits)
     ENUM,
+    ENUMTXT, // same as ENUM, but no number option
     TEXT
 
 };
