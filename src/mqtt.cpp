@@ -729,7 +729,7 @@ void Mqtt::ha_status() {
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx reads"), EMSdevice::DeviceType::SYSTEM, F("txread"), DeviceValueUOM::NUM);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx writes"), EMSdevice::DeviceType::SYSTEM, F("txwrite"), DeviceValueUOM::NUM);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx fails"), EMSdevice::DeviceType::SYSTEM, F("txfails"), DeviceValueUOM::NUM);
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Dallas fails"), EMSdevice::DeviceType::SYSTEM, F("dallasfails"), DeviceValueUOM::NUM);
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Sensor fails"), EMSdevice::DeviceType::SYSTEM, F("sensorfails"), DeviceValueUOM::NUM);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"));
 
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 17"), EMSdevice::DeviceType::SYSTEM, F("io17"));

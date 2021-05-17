@@ -67,9 +67,9 @@ void WebDevicesService::all_devices(AsyncWebServerRequest * request) {
     }
 
     JsonArray sensors = root.createNestedArray("sensors");
+    uint8_t   i       = 1;
+    char      s[12];
     if (EMSESP::have_sensors()) {
-        uint8_t i = 1;
-        char    s[8];
         for (const auto & sensor : EMSESP::sensor_devices()) {
             JsonObject obj = sensors.createNestedObject();
             obj["no"]      = i++;
@@ -78,8 +78,16 @@ void WebDevicesService::all_devices(AsyncWebServerRequest * request) {
             } else {
                 obj["id"] = i - 1;
             }
-            obj["temp"] = Helpers::render_value(s, sensor.temperature_c, 10);
+            Helpers::render_value(s, sensor.temperature_c, 10);
+            strcat(s, " °C");
+            obj["temp"] = s;
         }
+    }
+    if (EMSESP::system_.analog_enabled()) {
+        JsonObject obj = sensors.createNestedObject();
+        obj["no"]   = i;
+        obj["id"]   = F("adc");
+        obj["temp"] = Helpers::render_value(s, EMSESP::system_.analog(), 0);
     }
 
     response->setLength();

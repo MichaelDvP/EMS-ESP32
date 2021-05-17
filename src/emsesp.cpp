@@ -357,7 +357,7 @@ void EMSESP::show_sensor_values(uuid::console::Shell & shell) {
         return;
     }
 
-    shell.printfln(F("Dallas temperature sensors:"));
+    shell.printfln(F("Temperature sensors:"));
     uint8_t i = 1;
     char    s[7];
     for (const auto & device : sensor_devices()) {
@@ -572,7 +572,7 @@ bool EMSESP::get_catalog(uint8_t devicetype, JsonObject & root, const int8_t id)
         }
     }
     if (devicetype == DeviceType::DALLASSENSOR) {
-        JsonArray catalog = root.createNestedArray(F_(dallassensor));
+        JsonArray catalog = root.createNestedArray(F_(sensor));
         uint8_t   i       = 1;
         for (const auto & sensor : EMSESP::sensor_devices()) {
             char sensorID[10];

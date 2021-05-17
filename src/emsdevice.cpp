@@ -194,7 +194,7 @@ std::string EMSdevice::device_type_2_device_name(const uint8_t device_type) {
         break;
 
     case DeviceType::DALLASSENSOR:
-        return read_flash_string(F_(dallassensor));
+        return read_flash_string(F_(sensor));
         break;
 
     case DeviceType::CONTROLLER:
@@ -248,7 +248,7 @@ uint8_t EMSdevice::device_name_2_device_type(const char * topic) {
         return DeviceType::MIXER;
     }
 
-    if (!strcmp_P(lowtopic, reinterpret_cast<PGM_P>(F_(dallassensor)))) {
+    if (!strcmp_P(lowtopic, reinterpret_cast<PGM_P>(F_(sensor)))) {
         return DeviceType::DALLASSENSOR;
     }
 

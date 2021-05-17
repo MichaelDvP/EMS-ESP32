@@ -125,7 +125,7 @@ bool System::command_publish(const char * value, const int8_t id) {
         } else if (value_s == "other") {
             EMSESP::publish_other_values();
             return true;
-        } else if (value_s == "dallassensor") {
+        } else if (value_s == "sensor") {
             EMSESP::publish_sensor_values(true);
             return true;
         }
@@ -475,8 +475,8 @@ bool System::heartbeat_json(JsonObject & doc) {
     }
     if (EMSESP::dallas_enabled()) {
         // doc["dallassensors"] = EMSESP::sensor_devices().size();
-        doc["dallasreads"] = EMSESP::sensor_reads();
-        doc["dallasfails"] = EMSESP::sensor_fails();
+        doc["sensorreads"] = EMSESP::sensor_reads();
+        doc["sensorfails"] = EMSESP::sensor_fails();
     }
 
 #ifndef EMSESP_STANDALONE
@@ -531,14 +531,21 @@ void System::measure_analog() {
 #else
         uint16_t a = 0; // standalone
 #endif
-        static uint32_t sum_ = 0;
+        static uint32_t sum        = 0;
+        static uint16_t analog_old = 0xFFF0;
 
         if (!analog_) { // init first time
-            analog_ = a;
-            sum_    = a * 512;
+            analog_ = analogRead(36);
+            sum     = analog_ * 512UL;
         } else { // simple moving average filter
-            sum_    = (sum_ * 511) / 512 + a;
-            analog_ = sum_ / 512;
+            sum    = (sum * 511) / 512 + a;
+            analog_ = sum / 512;
+        }
+        if ((analog_ > analog_old + 1 || analog_ + 1 < analog_old) && Mqtt::subscribe_format()) {
+        // if ((analog_ != analog_old) && Mqtt::subscribe_format()) {
+            analog_old = analog_;
+            char payload[8];
+            Mqtt::publish(F("system/adc"), Helpers::render_value(payload, analog_, 0));
         }
     }
 }
@@ -938,9 +945,9 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["mqtt_fails"]     = Mqtt::publish_fails();
     }
     if (EMSESP::dallas_enabled()) {
-        node["dallas_sensors"] = EMSESP::sensor_devices().size();
-        node["dallas_reads"]   = EMSESP::sensor_reads();
-        node["dallas_fails"]   = EMSESP::sensor_fails();
+        node["sensors"]      = EMSESP::sensor_devices().size();
+        node["sensor_reads"] = EMSESP::sensor_reads();
+        node["sensor_fails"] = EMSESP::sensor_fails();
     }
 
     JsonArray devices2 = json.createNestedArray("Devices");
@@ -958,8 +965,8 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
     }
     if (EMSESP::sensor_devices().size()) {
         JsonObject obj = devices2.createNestedObject();
-        obj["type"]    = F_(Dallassensor);
-        obj["name"]    = F_(Dallassensor);
+        obj["type"]    = F_(Sensor);
+        obj["name"]    = F_(Sensor);
     }
 
     return true;

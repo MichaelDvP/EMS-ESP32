@@ -97,6 +97,14 @@ class System {
         ethernet_connected_ = b;
     }
 
+    bool analog_enabled() {
+        return analog_enabled_;
+    }
+
+    uint16_t analog() {
+        return analog_;
+    }
+
     bool network_connected() {
 #ifndef EMSESP_STANDALONE
         return (ethernet_connected_ || WiFi.isConnected());
@@ -147,8 +155,8 @@ class System {
     uint32_t last_system_check_  = 0;
     bool     upload_status_      = false; // true if we're in the middle of a OTA firmware upload
     bool     ethernet_connected_ = false;
-    uint16_t analog_;
-
+    uint16_t analog_             = 0;
+    
     // settings
     std::string hostname_ = "ems-esp";
     bool        hide_led_;

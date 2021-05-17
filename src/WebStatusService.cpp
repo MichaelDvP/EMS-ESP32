@@ -82,18 +82,18 @@ void WebStatusService::webStatusService(AsyncWebServerRequest * request) {
     AsyncJsonResponse * response = new AsyncJsonResponse(false, EMSESP_JSON_SIZE_MEDIUM_DYN);
     JsonObject          root     = response->getRoot();
 
-    root["status"]       = EMSESP::bus_status(); // 0, 1 or 2
-    root["tx_mode"]      = EMSESP::txservice_.tx_mode();
-    root["rx_received"]  = EMSESP::rxservice_.telegram_count();
-    root["tx_sent"]      = EMSESP::txservice_.telegram_read_count() + EMSESP::txservice_.telegram_write_count();
-    root["rx_quality"]   = EMSESP::rxservice_.quality();
-    root["tx_quality"]   = EMSESP::txservice_.quality();
-    root["rx_fails"]     = EMSESP::rxservice_.telegram_error_count();
-    root["tx_fails"]     = EMSESP::txservice_.telegram_fail_count();
-    root["dallas_fails"] = EMSESP::sensor_fails();
-    root["dallas_reads"] = EMSESP::sensor_reads();
-    uint8_t dallas_quality = EMSESP::sensor_reads() > 0 ? 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads()) : 0;
-    root["dallas_quality"] = dallas_quality;
+    root["status"]         = EMSESP::bus_status(); // 0, 1 or 2
+    root["tx_mode"]        = EMSESP::txservice_.tx_mode();
+    root["rx_received"]    = EMSESP::rxservice_.telegram_count();
+    root["tx_sent"]        = EMSESP::txservice_.telegram_read_count() + EMSESP::txservice_.telegram_write_count();
+    root["rx_quality"]     = EMSESP::rxservice_.quality();
+    root["tx_quality"]     = EMSESP::txservice_.quality();
+    root["rx_fails"]       = EMSESP::rxservice_.telegram_error_count();
+    root["tx_fails"]       = EMSESP::txservice_.telegram_fail_count();
+    root["sensor_fails"]   = EMSESP::sensor_fails();
+    root["sensor_reads"]   = EMSESP::sensor_reads();
+    uint8_t sensor_quality = EMSESP::sensor_reads() > 0 ? 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads()) : 0;
+    root["sensor_quality"] = sensor_quality;
 
     response->setLength();
     request->send(response);

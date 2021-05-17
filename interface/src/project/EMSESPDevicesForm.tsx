@@ -96,7 +96,7 @@ function formatTemp(t: string) {
   if (t == null) {
     return 'n/a';
   }
-  return t + ' °C';
+  return t;
 }
 
 function formatUnit(u: string) {
@@ -271,14 +271,14 @@ class EMSESPDevicesForm extends Component<
       <TableContainer>
         <p></p>
         <Typography variant="h6" color="primary" paragraph>
-          Dallas Sensors
+          Sensors
         </Typography>
         {!this.noSensors() && (
           <Table size="small" padding="default">
             <TableHead>
               <TableRow>
                 <StyledTableCell>Sensor ID</StyledTableCell>
-                <StyledTableCell align="right">Temperature</StyledTableCell>
+                <StyledTableCell align="right">Data</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>

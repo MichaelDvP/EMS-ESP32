@@ -189,7 +189,7 @@ class MqttSettingsForm extends React.Component<MqttSettingsFormProps> {
         </SelectValidator>
         <SelectValidator
           name="dallas_format"
-          label="Dallas Sensor Payload Grouping"
+          label="Sensor Payload Grouping"
           value={data.dallas_format}
           fullWidth
           variant="outlined"
