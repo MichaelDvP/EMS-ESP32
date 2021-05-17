@@ -13,7 +13,7 @@ import {
 import DeviceHubIcon from '@material-ui/icons/DeviceHub';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import ReportIcon from '@material-ui/icons/Report';
-import SpeakerNotesIcon from "@material-ui/icons/SpeakerNotes";
+import SpeakerNotesIcon from '@material-ui/icons/SpeakerNotes';
 
 import {
   RestFormProps,
@@ -56,7 +56,13 @@ class MqttStatusForm extends Component<MqttStatusFormProps> {
             </ListItemAvatar>
             <ListItemText
               primary="MQTT Publish Count / Queued / Errors"
-              secondary={formatNumber(data.mqtt_count) +' / ' + formatNumber(data.mqtt_queue) + ' / ' + formatNumber(data.mqtt_fails)}
+              secondary={
+                formatNumber(data.mqtt_count) +
+                ' / ' +
+                formatNumber(data.mqtt_queue) +
+                ' / ' +
+                formatNumber(data.mqtt_fails)
+              }
             />
           </ListItem>
         </Fragment>

@@ -49,7 +49,12 @@ class EMSESPStatusForm extends Component<EMSESPStatusFormProps> {
               <DeviceHubIcon />
             </HighlightAvatar>
           </ListItemAvatar>
-          <ListItemText primary="Connection Status" secondary={busStatus(data) + ', Tx-mode: ' + formatNumber(data.tx_mode)} />
+          <ListItemText
+            primary="Connection Status"
+            secondary={
+              busStatus(data) + ', Tx-mode: ' + formatNumber(data.tx_mode)
+            }
+          />
         </ListItem>
         {isConnected(data) && (
           <TableContainer>
@@ -59,24 +64,27 @@ class EMSESPStatusForm extends Component<EMSESPStatusFormProps> {
             >
               <TableBody>
                 <TableRow>
-                  <TableCell>
-                    # Telegrams Received / Failed (Quality)
-                  </TableCell>
-                  <TableCell align="right">{formatNumber(data.rx_received)}&nbsp;/&nbsp;{formatNumber(data.rx_fails)}&nbsp;({data.rx_quality}%)
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell >
-                    # Telegrams Sent / Failed (Quality)
-                  </TableCell >
-                  <TableCell align="right">{formatNumber(data.tx_sent)}&nbsp;/&nbsp;{formatNumber(data.tx_fails)}&nbsp;({data.tx_quality}%)
+                  <TableCell># Telegrams Received / Failed (Quality)</TableCell>
+                  <TableCell align="right">
+                    {formatNumber(data.rx_received)}&nbsp;/&nbsp;
+                    {formatNumber(data.rx_fails)}&nbsp;(
+                    {data.rx_quality}%)
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell >
-                    # Dallassensors Read / Failed (Quality)
-                  </TableCell >
-                  <TableCell align="right">{formatNumber(data.dallas_reads)}&nbsp;/&nbsp;{formatNumber(data.dallas_fails)}&nbsp;({data.dallas_quality}%)
+                  <TableCell># Telegrams Sent / Failed (Quality)</TableCell>
+                  <TableCell align="right">
+                    {formatNumber(data.tx_sent)}&nbsp;/&nbsp;
+                    {formatNumber(data.tx_fails)}&nbsp;(
+                    {data.tx_quality}%)
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell># Dallassensors Read / Failed (Quality)</TableCell>
+                  <TableCell align="right">
+                    {formatNumber(data.dallas_reads)}&nbsp;/&nbsp;
+                    {formatNumber(data.dallas_fails)}&nbsp;(
+                    {data.dallas_quality}%)
                   </TableCell>
                 </TableRow>
               </TableBody>

@@ -454,7 +454,8 @@ class EMSESPDevicesForm extends Component<
                           {deviceData.data[i + 2]}
                         </TableCell>
                         <TableCell padding="none" align="right">
-                          {deviceData.data[i]}{formatUnit(deviceData.data[i + 1])}&nbsp;&nbsp;&nbsp;
+                          {deviceData.data[i]}
+                          {formatUnit(deviceData.data[i + 1])}&nbsp;&nbsp;&nbsp;
                         </TableCell>
                       </TableRow>
                     );
