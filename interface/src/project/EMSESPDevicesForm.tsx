@@ -115,16 +115,15 @@ class EMSESPDevicesForm extends Component<
     processing: false
   };
 
-  handleValueChange = (name: keyof DeviceValue) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    this.setState({
-      devicevalue: {
-        ...this.state.devicevalue!,
-        [name]: extractEventValue(event)
-      }
-    });
-  };
+  handleValueChange = (name: keyof DeviceValue) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      this.setState({
+        devicevalue: {
+          ...this.state.devicevalue!,
+          [name]: extractEventValue(event)
+        }
+      });
+    };
 
   cancelEditingValue = () => {
     this.setState({
