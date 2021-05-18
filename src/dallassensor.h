@@ -58,6 +58,7 @@ class DallasSensor {
 
     void start();
     void loop();
+    void publish_sensor(Sensor sensor);
     void publish_values(const bool force);
     void reload();
     bool updated_values();

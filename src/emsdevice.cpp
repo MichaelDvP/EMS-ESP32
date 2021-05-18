@@ -534,7 +534,7 @@ void EMSdevice::publish_value(void * value_p) {
     }
     for (auto & dv : devicevalues_) {
         if (dv.value_p == value_p) {
-            char topic[128];
+            char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
             if ((Mqtt::subscribe_format() == 2) && ((dv.tag >= TAG_HC1 && dv.tag <= TAG_HC4) || (dv.tag >= TAG_WWC1 && dv.tag <= TAG_WWC4))) {
                 snprintf_P(topic, sizeof(topic), PSTR("%s/%s%s"), device_type_2_device_name(device_type_).c_str(), tag_to_string(dv.tag).c_str(), uuid::read_flash_string(dv.short_name).c_str());
             } else {

@@ -541,11 +541,17 @@ void System::measure_analog() {
             sum    = (sum * 511) / 512 + a;
             analog_ = sum / 512;
         }
-        if ((analog_ > analog_old + 1 || analog_ + 1 < analog_old) && Mqtt::subscribe_format()) {
-        // if ((analog_ != analog_old) && Mqtt::subscribe_format()) {
+        // publish on change with 1 digit hysteresis and maximal every 10 sec
+        static uint8_t delay_publish = 0;
+        if ((++delay_publish > 9) && (analog_ > analog_old + 1 || analog_ + 1 < analog_old) && (Mqtt::subscribe_format())) {
             analog_old = analog_;
+            delay_publish = 0;
             char payload[8];
             Mqtt::publish(F("system/adc"), Helpers::render_value(payload, analog_, 0));
+        }
+        // prevent counter roll over
+        if (delay_publish == 0xFF) {
+            delay_publish--;
         }
     }
 }
