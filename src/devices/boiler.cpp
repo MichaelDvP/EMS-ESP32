@@ -811,6 +811,7 @@ bool Boiler::set_disinfect_temp(const char * value, const int8_t id) {
 
     return true;
 }
+
 // flow temp
 bool Boiler::set_flow_temp(const char * value, const int8_t id) {
     int v = 0;

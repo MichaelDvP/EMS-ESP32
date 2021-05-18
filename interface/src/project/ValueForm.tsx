@@ -35,7 +35,8 @@ class ValueForm extends React.Component<ValueFormProps> {
   };
 
   render() {
-    const { devicevalue, handleValueChange, onDoneEditing, onCancelEditing } = this.props;
+    const { devicevalue, handleValueChange, onDoneEditing, onCancelEditing } =
+      this.props;
     return (
       <ValidatorForm onSubmit={onDoneEditing} ref={this.formRef}>
         <Dialog

@@ -156,7 +156,7 @@ class System {
     bool     upload_status_      = false; // true if we're in the middle of a OTA firmware upload
     bool     ethernet_connected_ = false;
     uint16_t analog_             = 0;
-    
+
     // settings
     std::string hostname_ = "ems-esp";
     bool        hide_led_;

@@ -115,7 +115,8 @@ class EMSESPDevicesForm extends Component<
     processing: false
   };
 
-  handleValueChange = (name: keyof DeviceValue) =>
+  handleValueChange =
+    (name: keyof DeviceValue) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       this.setState({
         devicevalue: {
