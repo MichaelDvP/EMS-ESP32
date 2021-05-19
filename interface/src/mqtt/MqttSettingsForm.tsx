@@ -215,7 +215,7 @@ class MqttSettingsForm extends React.Component<MqttSettingsFormProps> {
         </SelectValidator>
         <SelectValidator
           name="subscribe_format"
-          label="Subscribe Format"
+          label="Subscribe and publish Format"
           value={data.subscribe_format}
           fullWidth
           variant="outlined"

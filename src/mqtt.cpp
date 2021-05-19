@@ -107,22 +107,7 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
         LOG_DEBUG(F("Registering MQTT cmd %s with topic %s"), uuid::read_flash_string(cmd).c_str(), EMSdevice::device_type_2_device_name(device_type).c_str());
     }
 
-    // register the individual commands too (e.g. ems-esp/boiler/wwonetime)
-    // https://github.com/emsesp/EMS-ESP32/issues/31
-    std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
-    if (subscribe_format_ == 2 && flag == MqttSubFlag::FLAG_HC) {
-        topic = cmd_topic + "/hc1/" + uuid::read_flash_string(cmd);
-        queue_subscribe_message(topic);
-        topic = cmd_topic + "/hc2/" + uuid::read_flash_string(cmd);
-        queue_subscribe_message(topic);
-        topic = cmd_topic + "/hc3/" + uuid::read_flash_string(cmd);
-        queue_subscribe_message(topic);
-        topic = cmd_topic + "/hc4/" + uuid::read_flash_string(cmd);
-        queue_subscribe_message(topic);
-    } else if (subscribe_format_ && flag != MqttSubFlag::FLAG_NOSUB) {
-        topic = cmd_topic + "/" + uuid::read_flash_string(cmd);
-        queue_subscribe_message(topic);
-    }
+     subscribe_individual();
 }
 
 // subscribe to an MQTT topic, and store the associated callback function
@@ -140,9 +125,16 @@ void Mqtt::resubscribe() {
     for (const auto & mqtt_subfunction : mqtt_subfunctions_) {
         queue_subscribe_message(mqtt_subfunction.topic_);
     }
+
+    subscribe_individual();
+}
+
+// register the individual commands too (e.g. ems-esp/boiler/wwonetime)
+// https://github.com/emsesp/EMS-ESP32/issues/31
+void Mqtt::subscribe_individual() {
     for (const auto & cf : Command::commands()) {
         std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
-        if (subscribe_format_ == 2 && cf.flag_ == MqttSubFlag::FLAG_HC) {
+        if (subscribe_format_ == Subscribe_Format::HC_COMMAND && cf.flag_ == MqttSubFlag::FLAG_HC) {
             topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc1/" + uuid::read_flash_string(cf.cmd_);
             queue_subscribe_message(topic);
             topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc2/" + uuid::read_flash_string(cf.cmd_);
@@ -151,7 +143,7 @@ void Mqtt::resubscribe() {
             queue_subscribe_message(topic);
             topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc4/" + uuid::read_flash_string(cf.cmd_);
             queue_subscribe_message(topic);
-        } else if (subscribe_format_ && cf.flag_ != MqttSubFlag::FLAG_NOSUB) {
+        } else if (subscribe_format_ == Subscribe_Format::COMMAND && cf.flag_ != MqttSubFlag::FLAG_NOSUB) {
             topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/" + uuid::read_flash_string(cf.cmd_);
             queue_subscribe_message(topic);
         }

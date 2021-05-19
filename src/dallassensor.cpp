@@ -359,7 +359,7 @@ bool DallasSensor::command_info(const char * value, const int8_t id, JsonObject 
 
 // publish a single sensor to MQTT
 void DallasSensor::publish_sensor(Sensor sensor) {
-   if (Mqtt::subscribe_format == 0) {
+   if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE) {
        return;
    }
     uint8_t  no = 0;

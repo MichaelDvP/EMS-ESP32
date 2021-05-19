@@ -529,13 +529,14 @@ void EMSdevice::register_device_value(uint8_t                             tag,
 
 // publish a single value on change
 void EMSdevice::publish_value(void * value_p) {
-    if (Mqtt::subscribe_format() == 0) {
+    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE) {
         return;
     }
     for (auto & dv : devicevalues_) {
         if (dv.value_p == value_p) {
             char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
-            if ((Mqtt::subscribe_format() == 2) && ((dv.tag >= TAG_HC1 && dv.tag <= TAG_HC4) || (dv.tag >= TAG_WWC1 && dv.tag <= TAG_WWC4))) {
+            if ((Mqtt::subscribe_format() == Mqtt::Subscribe_Format::HC_COMMAND) &&
+               ((dv.tag >= TAG_HC1 && dv.tag <= TAG_HC4) || (dv.tag >= TAG_WWC1 && dv.tag <= TAG_WWC4))) {
                 snprintf_P(topic,
                            sizeof(topic),
                            PSTR("%s/%s%s"),

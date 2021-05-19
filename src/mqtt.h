@@ -39,7 +39,7 @@
 using uuid::console::Shell;
 
 // time between HA publishes
-#define MQTT_HA_PUBLISH_DELAY 50
+// #define MQTT_HA_PUBLISH_DELAY 50
 
 // size of queue
 #define MAX_MQTT_MESSAGES 200
@@ -85,6 +85,7 @@ class Mqtt {
 
     enum Dallas_Format : uint8_t { SENSORID = 1, NUMBER };
     enum HA_Climate_Format : uint8_t { CURRENT = 1, SETPOINT, ZERO };
+    enum Subscribe_Format : uint8_t { DEVICE = 0, COMMAND, HC_COMMAND };
 
     static constexpr uint8_t MQTT_TOPIC_MAX_SIZE = 128; // note this should really match the user setting in mqttSettings.maxTopicLength
 
@@ -93,6 +94,7 @@ class Mqtt {
     static void subscribe(const uint8_t device_type, const std::string & topic, mqtt_subfunction_p cb);
     static void subscribe(const std::string & topic, mqtt_subfunction_p cb);
     static void resubscribe();
+    static void subscribe_individual();
 
     static void publish(const std::string & topic, const std::string & payload);
     static void publish(const __FlashStringHelper * topic, const char * payload);
