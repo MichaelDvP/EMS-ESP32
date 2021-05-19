@@ -705,6 +705,8 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
                     char time_s[40];
                     snprintf_P(time_s, 40, PSTR("%d days %d hours %d minutes"), (time_value / 1440), ((time_value % 1440) / 60), (time_value % 60));
                     data.add(time_s);
+                } else if(dv.type == DeviceValueType::CMD) {
+                    data.add("");
                 }
             }
 
@@ -911,6 +913,9 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                     json[value] = (char *)(dv.value_p);
                 }
                 json[type] = F_(text);
+                break;
+            case DeviceValueType::CMD:
+                json[type] = F_(command);
                 break;
             default:
                 json[type] = F_(unknown);

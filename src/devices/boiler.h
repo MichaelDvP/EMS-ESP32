@@ -89,8 +89,7 @@ class Boiler : public EMSdevice {
 
     // main
     uint8_t  id_;               // product id
-    uint8_t  dummy8u_;          // for commands with no output
-    uint8_t  dummybool_;        // for commands with no output
+    uint8_t  dummy_;            // for commands with no output
     uint8_t  heatingActive_;    // Central heating is on/off
     uint8_t  tapwaterActive_;   // Hot tap water is on/off
     uint8_t  selFlowTemp_;      // Selected flow temperature

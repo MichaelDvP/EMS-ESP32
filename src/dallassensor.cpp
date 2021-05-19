@@ -429,7 +429,7 @@ void DallasSensor::publish_values(const bool force) {
                 }
                 config["val_tpl"] = str;
 
-                // name as sensor number not the long unique ID
+                // name as sensor number or the long unique ID
                 if (dallas_format == Mqtt::Dallas_Format::SENSORID) {
                     snprintf_P(str, sizeof(str), PSTR("Sensor %s"), sensor.to_string().c_str());
                 } else {

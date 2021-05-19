@@ -86,8 +86,9 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     }
     // MQTT commands for boiler topic
     register_device_value(
-        TAG_BOILER_DATA, &dummybool_, DeviceValueType::BOOL, nullptr, FL_(wwtapactivated), DeviceValueUOM::NONE, MAKE_CF_CB(set_tapwarmwater_activated));
-    register_device_value(TAG_BOILER_DATA, &dummy8u_, DeviceValueType::ENUM, FL_(enum_reset), FL_(reset), DeviceValueUOM::NONE, MAKE_CF_CB(set_reset));
+        TAG_BOILER_DATA, &dummy_, DeviceValueType::CMD, nullptr, FL_(wwtapactivated), DeviceValueUOM::NONE, MAKE_CF_CB(set_tapwarmwater_activated), 0, 1);
+    register_device_value(
+        TAG_BOILER_DATA, &dummy_, DeviceValueType::CMD, nullptr, FL_(reset), DeviceValueUOM::NONE, MAKE_CF_CB(set_reset), 0, 1);
 
     // add values
     // reserve_device_values(90);

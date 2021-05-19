@@ -179,7 +179,7 @@ MAKE_PSTR(num, " ") // this is hack so HA renders numbers correctly
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 // use empty string if want to suppress showing tags
-// tags must not have spaces
+// mqtt tags must not have spaces
 MAKE_PSTR(tag_none, "")
 MAKE_PSTR(tag_heartbeat, "")
 MAKE_PSTR(tag_boiler_data, "")
@@ -358,7 +358,7 @@ MAKE_PSTR_LIST(ID, F_(id))
 // Boiler
 // extra commands, no output
 MAKE_PSTR_LIST(wwtapactivated, F("wwtapactivated"), F("turn on/off DHW by going into maintenance mode"))
-MAKE_PSTR_LIST(reset, F("reset"), F("reset messages"))
+MAKE_PSTR_LIST(reset, F("reset"), F("send 'reset' message"))
 
 // single mqtt topics
 MAKE_PSTR_WORD(heating_active)

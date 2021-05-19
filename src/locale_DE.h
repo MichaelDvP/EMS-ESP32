@@ -95,9 +95,9 @@ MAKE_PSTR_WORD(controller)
 MAKE_PSTR_WORD(connect)
 MAKE_PSTR_WORD(heatpump)
 MAKE_PSTR_WORD(generic)
-MAKE_PSTR_WORD(dallassensor)
+MAKE_PSTR_WORD(sensor)
 MAKE_PSTR_WORD(unknown)
-MAKE_PSTR_WORD(Dallassensor)
+MAKE_PSTR_WORD(Sensor)
 
 // format strings
 MAKE_PSTR(EMSESP, "EMS-ESP")
@@ -174,9 +174,12 @@ MAKE_PSTR(kw, "kW")
 MAKE_PSTR(w, "W")
 MAKE_PSTR(kb, "KB")
 MAKE_PSTR(seconds, "seconds")
+MAKE_PSTR(dbm, "dBm")
+MAKE_PSTR(num, " ") // this is hack so HA renders numbers correctly
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 // use empty string if want to suppress showing tags
+// mqtt tags must not have spaces
 MAKE_PSTR(tag_none, "")
 MAKE_PSTR(tag_heartbeat, "")
 MAKE_PSTR(tag_boiler_data, "")
@@ -356,8 +359,8 @@ MAKE_PSTR_LIST(ID, F_(id))
 
 // Boiler
 // extra commands
-MAKE_PSTR_LIST(wwtapactivated, F("wwtapactivated"))
-MAKE_PSTR_LIST(reset, F("reset"))
+MAKE_PSTR_LIST(wwtapactivated, F("wwtapactivated"), F("Aktiviere Warmwasser im Wartungsmodus"))
+MAKE_PSTR_LIST(reset, F("reset"), F("Sende 'RESET'"))
 
 // single mqtt topics
 MAKE_PSTR_WORD(heating_active)
