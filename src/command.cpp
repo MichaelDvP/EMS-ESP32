@@ -103,7 +103,6 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
     }
     // empty command is info with id0 or info_short
     if (cmd[0] == '\0') {
-        // strcpy(cmd, "info_short");
         strcpy(cmd, "info");
         id = 0;
     }

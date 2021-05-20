@@ -314,7 +314,7 @@ void EMSESP::show_device_values(uuid::console::Shell & shell) {
 
                 DynamicJsonDocument doc(EMSESP_JSON_SIZE_XLARGE_DYN); // use max size
                 JsonObject          json = doc.to<JsonObject>();
-                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, true, true); // console mode and nested
+                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, true, false, true); // console mode and nested
 
                 // print line
                 uint8_t id = 0;
@@ -1033,7 +1033,7 @@ bool EMSESP::command_commands(uint8_t device_type, JsonObject & json, const int8
 // export all values to info command
 // value is ignored here
 // info command always shows in verbose mode, so full names are displayed
-bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t id, bool verbose) {
+bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t id, bool console) {
     bool    has_value = false;
     uint8_t tag;
     if (id >= 1 && id <= 4) {
@@ -1049,7 +1049,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice && (emsdevice->device_type() == device_type)
             && ((device_type != DeviceType::THERMOSTAT) || (emsdevice->device_id() == EMSESP::actual_master_thermostat()))) {
-            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), verbose && (id == -1)); // nested for id -1,0 & console for id -1
+            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), true, console && (id == -1)); // nested for id -1,0 & console for id -1
         }
     }
 

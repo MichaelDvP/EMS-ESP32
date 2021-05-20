@@ -474,7 +474,7 @@ MAKE_PSTR_LIST(wWWorkM, F("wwworkm"), F("active time"))
 
 // thermostat
 // extra commands, no long name, does not show on web
-MAKE_PSTR_LIST(switchtime, F("switchtime"))
+MAKE_PSTR_LIST(switchtime, F("switchtime"), F("single program switchtime"))
 MAKE_PSTR_LIST(temp, F("temp"))
 MAKE_PSTR_LIST(hatemp, F("hatemp"))
 MAKE_PSTR_LIST(hamode, F("hamode"))

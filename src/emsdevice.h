@@ -271,7 +271,7 @@ class EMSdevice {
     std::string get_value_uom(const char * key);
     bool        get_catalog(JsonObject & root);
     bool        get_value_info(JsonObject & root, const char * cmd, const int8_t id);
-    bool        generate_values_json(JsonObject & json, const uint8_t tag_filter, const bool nested, const bool console = false);
+    bool        generate_values_json(JsonObject & json, const uint8_t tag_filter, const bool nested, const bool verbose = false, const bool console = false);
     bool        generate_values_json_web(JsonObject & json);
 
     void register_device_value(uint8_t                             tag,

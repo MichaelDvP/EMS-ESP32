@@ -2374,7 +2374,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, FL_(div2), FL_(tempautotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_tempautotemp));
         register_device_value(tag, &hc->noreducetemp, DeviceValueType::INT, nullptr, FL_(noreducetemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_noreducetemp));
         register_device_value(tag, &hc->remotetemp, DeviceValueType::SHORT, FL_(div10), FL_(remotetemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_remotetemp));
-        register_device_value(tag, &dummychar_, DeviceValueType::TEXT, nullptr, FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime));
+        register_device_value(tag, &dummy_, DeviceValueType::CMD, nullptr, FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime));
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
         // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);

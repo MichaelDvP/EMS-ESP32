@@ -939,7 +939,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
 // For each value in the device create the json object pair and add it to given json
 // return false if empty
 // this is used to create both the MQTT payloads and Console messages (console = true)
-bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter, const bool nested, const bool console) {
+bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter, const bool nested, const bool verbose, const bool console) {
     bool       has_values = false; // to see if we've added a value. it's faster than doing a json.size() at the end
     uint8_t    old_tag    = 255;   // NAN
     JsonObject json       = root;
@@ -1074,6 +1074,9 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
                     } else {
                         json[name] = time_value;
                     }
+                    has_value = true;
+                } else if (dv.type == DeviceValueType::CMD && verbose) {
+                    json[name] = "";
                     has_value = true;
                 }
             }
