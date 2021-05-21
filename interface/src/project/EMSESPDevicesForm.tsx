@@ -288,7 +288,7 @@ class EMSESPDevicesForm extends Component<
                     {sensorData.id}
                   </TableCell>
                   <TableCell align="right">
-                    {formatTemp(sensorData.temp)}
+                    {formatTemp(sensorData.data)}
                   </TableCell>
                 </TableRow>
               ))}

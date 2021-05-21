@@ -80,14 +80,16 @@ void WebDevicesService::all_devices(AsyncWebServerRequest * request) {
             }
             Helpers::render_value(s, sensor.temperature_c, 10);
             strcat(s, " °C");
-            obj["temp"] = s;
+            obj["data"] = s;
         }
     }
     if (EMSESP::system_.analog_enabled()) {
         JsonObject obj = sensors.createNestedObject();
         obj["no"]   = i;
-        obj["id"]   = F("adc");
-        obj["temp"] = Helpers::render_value(s, EMSESP::system_.analog(), 0);
+        obj["id"]   = F("analog input");
+        Helpers::render_value(s, EMSESP::system_.analog(), 0);
+        strcat(s, " mV");
+        obj["data"] = s;
     }
 
     response->setLength();
