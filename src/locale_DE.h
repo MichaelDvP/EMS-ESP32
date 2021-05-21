@@ -504,8 +504,8 @@ MAKE_PSTR_LIST(wwSetTempLow, F("wwsettemplow"), F("untere Solltemperatur"))
 MAKE_PSTR_LIST(wwExtra1, F("wwextra1"), F("Kreis 1 Extra"))
 MAKE_PSTR_LIST(wwExtra2, F("wwextra2"), F("Kreis 2 Extra"))
 
-MAKE_PSTR_LIST(setpoint_roomTemp, F("seltemp"), F("Sollwert Raumtemperatur"))
-MAKE_PSTR_LIST(curr_roomTemp, F("currtemp"), F("aktuelle Raumtemperatur"))
+MAKE_PSTR_LIST(selTemp, F("seltemp"), F("Sollwert Raumtemperatur"))
+MAKE_PSTR_LIST(roomTemp, F("currtemp"), F("aktuelle Raumtemperatur"))
 
 MAKE_PSTR_LIST(mode, F("mode"), F("modus"))
 MAKE_PSTR_LIST(modetype, F("modetype"), F("modus Typ"))

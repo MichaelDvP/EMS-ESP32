@@ -34,8 +34,8 @@ class Thermostat : public EMSdevice {
         }
         ~HeatingCircuit() = default;
 
-        int16_t setpoint_roomTemp;
-        int16_t curr_roomTemp;
+        int16_t selTemp;
+        int16_t roomTemp;
         int16_t remotetemp; // for readback
         uint8_t tempautotemp;
         uint8_t mode;
@@ -76,7 +76,7 @@ class Thermostat : public EMSdevice {
 
         // determines if the heating circuit is actually present and has data
         bool is_active() {
-            return Helpers::hasValue(setpoint_roomTemp);
+            return Helpers::hasValue(selTemp);
         }
 
         uint8_t get_mode() const;

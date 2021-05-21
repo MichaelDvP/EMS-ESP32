@@ -638,8 +638,8 @@ void Thermostat::process_RC20Monitor_2(std::shared_ptr<const Telegram> telegram)
         return;
     }
     has_bitupdate(telegram, hc->modetype, 0, 7);       // day/night MSB 7th bit is day
-    has_update(telegram, hc->setpoint_roomTemp, 2, 1); // is * 2, force as single byte
-    has_update(telegram, hc->curr_roomTemp, 3);        // is * 10
+    has_update(telegram, hc->selTemp, 2, 1); // is * 2, force as single byte
+    has_update(telegram, hc->roomTemp, 3);        // is * 10
     hc->hamode = hc->mode;
 
 }
@@ -666,7 +666,7 @@ void Thermostat::process_RC20Remote(std::shared_ptr<const Telegram> telegram) {
     if (hc == nullptr) {
         return;
     }
-    has_update(telegram, hc->curr_roomTemp, 0);
+    has_update(telegram, hc->roomTemp, 0);
 }
 
 // type 0xB1 - data from the RC10 thermostat (0x17)
@@ -676,8 +676,8 @@ void Thermostat::process_RC10Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram, hc->setpoint_roomTemp, 1, 1); // is * 2, force as single byte
-    has_update(telegram, hc->curr_roomTemp, 2);        // is * 10
+    has_update(telegram, hc->selTemp, 1, 1); // is * 2, force as single byte
+    has_update(telegram, hc->roomTemp, 2);        // is * 10
 }
 
 #pragma GCC diagnostic push
@@ -727,8 +727,8 @@ void Thermostat::process_RC20Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram, hc->setpoint_roomTemp, 1, 1); // is * 2, force as single byte
-    has_update(telegram, hc->curr_roomTemp, 2);        // is * 10
+    has_update(telegram, hc->selTemp, 1, 1); // is * 2, force as single byte
+    has_update(telegram, hc->roomTemp, 2);   // is * 10
 }
 
 // type 0x0A - data from the Nefit Easy/TC100 thermostat (0x18) - 31 bytes long
@@ -738,8 +738,8 @@ void Thermostat::process_EasyMonitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram, hc->curr_roomTemp, 8);      // is * 100
-    has_update(telegram, hc->setpoint_roomTemp, 10); // is * 100
+    has_update(telegram, hc->roomTemp, 8); // is * 100
+    has_update(telegram, hc->selTemp, 10); // is * 100
 }
 
 // Settings Parameters - 0xA5 - RC30_1
@@ -773,8 +773,8 @@ void Thermostat::process_JunkersMonitor(std::shared_ptr<const Telegram> telegram
         return;
     }
 
-    has_update(telegram, hc->curr_roomTemp, 4);     // value is * 10
-    has_update(telegram, hc->setpoint_roomTemp, 2); // value is * 10
+    has_update(telegram, hc->roomTemp, 4); // value is * 10
+    has_update(telegram, hc->selTemp, 2);  // value is * 10
 
     has_update(telegram, hc->modetype, 0); // 1 = nofrost, 2 = eco, 3 = heat
     has_update(telegram, hc->mode, 1);     // 1 = manual, 2 = auto
@@ -787,11 +787,11 @@ void Thermostat::process_CRFMonitor(std::shared_ptr<const Telegram> telegram) {
     if (hc == nullptr) {
         return;
     }
-    has_update(telegram, hc->curr_roomTemp, 0);        // is * 10
-    has_bitupdate(telegram, hc->modetype, 2, 0);       // bit 0, modetype (off=0 , on=1)
-    has_bitupdate(telegram, hc->mode, 2, 4);           // bit 4, mode (auto=0, off=1)
-    hc->hamode = 2 - 2 * hc->mode;                     // set special HA mode
-    has_update(telegram, hc->setpoint_roomTemp, 6, 1); // is * 2, force as single byte
+    has_update(telegram, hc->roomTemp, 0);       // is * 10
+    has_bitupdate(telegram, hc->modetype, 2, 0); // bit 0, modetype (off=0 , on=1)
+    has_bitupdate(telegram, hc->mode, 2, 4);     // bit 4, mode (auto=0, off=1)
+    hc->hamode = 2 - 2 * hc->mode;               // set special HA mode
+    has_update(telegram, hc->selTemp, 6, 1);     // is * 2, force as single byte
     has_update(telegram, hc->targetflowtemp, 4);
     hc->hamode = 2 - 2 * hc->mode;
 }
@@ -803,7 +803,7 @@ void Thermostat::process_RC300Monitor(std::shared_ptr<const Telegram> telegram) 
         return;
     }
 
-    has_update(telegram, hc->curr_roomTemp, 0); // is * 10
+    has_update(telegram, hc->roomTemp, 0); // is * 10
     has_bitupdate(telegram, hc->modetype, 10, 1);
     has_bitupdate(telegram, hc->mode, 10, 0); // bit 1, mode (auto=1 or manual=0)
     hc->hamode = hc->mode + 1;                            // set special HA mode
@@ -815,7 +815,7 @@ void Thermostat::process_RC300Monitor(std::shared_ptr<const Telegram> telegram) 
     // pos 3 actual setpoint (optimized), i.e. changes with temporary change, summer/holiday-modes
     // pos 6 actual setpoint according to programmed changes eco/comfort
     // pos 7 next setpoint in the future, time to next setpoint in pos 8/9
-    has_update(telegram, hc->setpoint_roomTemp, 3, 1); // is * 2, force as single byte
+    has_update(telegram, hc->selTemp, 3, 1); // is * 2, force as single byte
     has_bitupdate(telegram, hc->summermode, 2, 4);
     has_update(telegram, hc->targetflowtemp, 4);
     hc->hamode = hc->mode + 1;
@@ -834,8 +834,8 @@ void Thermostat::process_RC300Set(std::shared_ptr<const Telegram> telegram) {
     // eco is position 4
     // auto is position 8, temporary until next switch
     // actual setpoint taken from RC300Monitor (Michael 12.06.2020)
-    // has_update(telegram, hc->setpoint_roomTemp, 8, 1);  // single byte conversion, value is * 2 - auto?
-    // has_update(telegram, hc->setpoint_roomTemp, 10, 1); // single byte conversion, value is * 2 - manual
+    // has_update(telegram, hc->selTemp, 8, 1);  // single byte conversion, value is * 2 - auto?
+    // has_update(telegram, hc->selTemp, 10, 1); // single byte conversion, value is * 2 - manual
 
     // check why mode is both in the Monitor and Set for the RC300. It'll be read twice!
     // has_update(telegram, hc->mode, 0); // Auto = xFF, Manual = x00 eg. 10 00 FF 08 01 B9 FF
@@ -939,8 +939,8 @@ void Thermostat::process_RC30Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram, hc->setpoint_roomTemp, 1, 1); // is * 2, force as single byte
-    has_update(telegram, hc->curr_roomTemp, 2);
+    has_update(telegram, hc->selTemp, 1, 1); // is * 2, force as single byte
+    has_update(telegram, hc->roomTemp, 2);
 }
 
 // type 0xA7 - for reading the mode from the RC30 thermostat (0x10)
@@ -971,8 +971,8 @@ void Thermostat::process_RC35Monitor(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram, hc->setpoint_roomTemp, 2, 1); // is * 2, force to single byte, is 0 in summermode
-    has_update(telegram, hc->curr_roomTemp, 3);        // is * 10 - or 0x7D00 if thermostat is mounted on boiler
+    has_update(telegram, hc->selTemp, 2, 1); // is * 2, force to single byte, is 0 in summermode
+    has_update(telegram, hc->roomTemp, 3);   // is * 10 - or 0x7D00 if thermostat is mounted on boiler
 
     has_bitupdate(telegram, hc->modetype, 1, 1);
     has_bitupdate(telegram, hc->summermode, 1, 0);
@@ -2247,35 +2247,26 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
     uint8_t tag = TAG_HC1 + hc->hc_num() - 1;
 
     // different logic on how temperature values are stored, depending on model
-    const __FlashStringHelper * const * setpoint_temp_divider;
-    const __FlashStringHelper * const * curr_temp_divider;
+    const __FlashStringHelper * const * seltemp_divider;
+    const __FlashStringHelper * const * roomtemp_divider;
 
     if (model == EMS_DEVICE_FLAG_EASY) {
-        setpoint_temp_divider = FL_(div100);
-        curr_temp_divider     = FL_(div100);
+        seltemp_divider  = FL_(div100);
+        roomtemp_divider = FL_(div100);
     } else if (model == EMS_DEVICE_FLAG_JUNKERS) {
-        setpoint_temp_divider = FL_(div10);
-        curr_temp_divider     = FL_(div10);
+        seltemp_divider  = FL_(div10);
+        roomtemp_divider = FL_(div10);
     } else {
-        setpoint_temp_divider = FL_(div2);
-        curr_temp_divider     = FL_(div10);
+        seltemp_divider  = FL_(div2);
+        roomtemp_divider = FL_(div10);
     }
     if (has_flags(EMS_DEVICE_FLAG_NO_WRITE) || device_id() != EMSESP::actual_master_thermostat()) {
-        register_device_value(tag, &hc->setpoint_roomTemp, DeviceValueType::SHORT, setpoint_temp_divider, FL_(setpoint_roomTemp), DeviceValueUOM::DEGREES);
+        register_device_value(tag, &hc->selTemp, DeviceValueType::SHORT, seltemp_divider, FL_(selTemp), DeviceValueUOM::DEGREES);
     } else {
-        register_device_value(tag,
-                              &hc->setpoint_roomTemp,
-                              DeviceValueType::SHORT,
-                              setpoint_temp_divider,
-                              FL_(setpoint_roomTemp),
-                              DeviceValueUOM::DEGREES,
-                              MAKE_CF_CB(set_temp),
-                              5,
-                              29);
-        register_device_value(
-            tag, &hc->setpoint_roomTemp, DeviceValueType::SHORT, setpoint_temp_divider, FL_(temp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_temp), 5, 29);
+        register_device_value(tag, &hc->selTemp, DeviceValueType::SHORT, seltemp_divider, FL_(selTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_temp), 5, 29);
+        // register_device_value(tag, &hc->selTemp, DeviceValueType::SHORT, setpoint_temp_divider, FL_(temp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_temp), 5, 29);
     }
-    register_device_value(tag, &hc->curr_roomTemp, DeviceValueType::SHORT, curr_temp_divider, FL_(curr_roomTemp), DeviceValueUOM::DEGREES);
+    register_device_value(tag, &hc->roomTemp, DeviceValueType::SHORT, roomtemp_divider, FL_(roomTemp), DeviceValueUOM::DEGREES);
 
     if (device_id() != EMSESP::actual_master_thermostat()) {
         return;
@@ -2286,9 +2277,9 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
     if (Mqtt::ha_enabled()) {
         uint8_t option = Mqtt::ha_climate_format();
         if (option == Mqtt::HA_Climate_Format::CURRENT) {
-            register_device_value(tag, &hc->curr_roomTemp, DeviceValueType::SHORT, curr_temp_divider, FL_(hatemp), DeviceValueUOM::NONE);
+            register_device_value(tag, &hc->roomTemp, DeviceValueType::SHORT, roomtemp_divider, FL_(hatemp), DeviceValueUOM::NONE);
         } else if (option == Mqtt::HA_Climate_Format::SETPOINT) {
-            register_device_value(tag, &hc->setpoint_roomTemp, DeviceValueType::SHORT, setpoint_temp_divider, FL_(hatemp), DeviceValueUOM::NONE);
+            register_device_value(tag, &hc->selTemp, DeviceValueType::SHORT, seltemp_divider, FL_(hatemp), DeviceValueUOM::NONE);
         } else if (option == Mqtt::HA_Climate_Format::ZERO) {
             register_device_value(tag, &zero_value_, DeviceValueType::UINT, nullptr, FL_(hatemp), DeviceValueUOM::NONE);
         }
@@ -2318,11 +2309,9 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->nofrosttemp, DeviceValueType::INT, nullptr, FL_(nofrosttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nofrosttemp));
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT, nullptr, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
         register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE);
-        register_device_value(
-            tag, &hc->summer_setmode, DeviceValueType::ENUM, FL_(enum_summermode), FL_(summermode), DeviceValueUOM::NONE, MAKE_CF_CB(set_summermode));
+        register_device_value(tag, &hc->summer_setmode, DeviceValueType::ENUM, FL_(enum_summermode), FL_(summermode), DeviceValueUOM::NONE, MAKE_CF_CB(set_summermode));
         register_device_value(tag, &hc->summermode, DeviceValueType::BOOL, nullptr, FL_(summermode), DeviceValueUOM::NONE);
-        register_device_value(
-            tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
+        register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, MAKE_CF_CB(set_program));
         register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, FL_(div2), FL_(tempautotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_tempautotemp));
         break;
@@ -2365,8 +2354,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->flowtempoffset, DeviceValueType::UINT, nullptr, FL_(flowtempoffset), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_flowtempoffset));
         register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->reducemode, DeviceValueType::ENUM, FL_(enum_reducemode), FL_(reducemode), DeviceValueUOM::NONE, MAKE_CF_CB(set_reducemode));
-        register_device_value(
-            tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode2), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
+        register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode2), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
         register_device_value(tag, &hc->control, DeviceValueType::ENUM, FL_(enum_control), FL_(control), DeviceValueUOM::NONE, MAKE_CF_CB(set_control));
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, MAKE_CF_CB(set_program));
         register_device_value(tag, &hc->pause, DeviceValueType::UINT, nullptr, FL_(pause), DeviceValueUOM::HOURS, MAKE_CF_CB(set_pause));
