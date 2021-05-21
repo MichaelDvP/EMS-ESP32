@@ -28,6 +28,8 @@
 #define EMSESP_SETTINGS_SERVICE_PATH "/rest/emsespSettings"
 #define EMSESP_BOARD_PROFILE_SERVICE_PATH "/rest/boardProfile"
 
+#define NUM_SENSOR_NAMES 10
+
 namespace emsesp {
 
 class WebSettings {
@@ -55,6 +57,13 @@ class WebSettings {
     uint8_t  pbutton_gpio;
     uint8_t  solar_maxflow;
     String   board_profile;
+
+    struct {
+      String  id;
+      String  name;
+      int16_t offset;
+    } sensor[NUM_SENSOR_NAMES];
+
 
     static void              read(WebSettings & settings, JsonObject & root);
     static StateUpdateResult update(JsonObject & root, WebSettings & settings);

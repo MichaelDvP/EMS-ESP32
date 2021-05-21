@@ -60,6 +60,17 @@ void WebSettings::read(WebSettings & settings, JsonObject & root) {
     root["pbutton_gpio"]         = settings.pbutton_gpio;
     root["solar_maxflow"]        = settings.solar_maxflow;
     root["board_profile"]        = settings.board_profile;
+
+    for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+        char buf[20];
+        snprintf_P(buf, sizeof(buf), PSTR("sensor_id%d"), i);
+        root[buf] = settings.sensor[i].id;
+        snprintf_P(buf, sizeof(buf), PSTR("sensor_name%d"), i);
+        root[buf] = settings.sensor[i].name;
+        snprintf_P(buf, sizeof(buf), PSTR("sensor_offset%d"), i);
+        root[buf] = settings.sensor[i].offset;
+    }
+
 }
 
 // call on initialization and also when settings are updated via web or console
@@ -78,7 +89,6 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     uint8_t default_pbutton_gpio = data[4];
 
     EMSESP::logger().info(F("EMS-ESP version %s"), EMSESP_APP_VERSION);
-
     // check to see if we have a settings file, if not it's a fresh install
     if (!root.size()) {
         EMSESP::logger().info(F("Initializing configuration with board profile %s"), settings.board_profile.c_str());
@@ -118,7 +128,7 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
 
     String old_syslog_host = settings.syslog_host;
     settings.syslog_host   = root["syslog_host"] | EMSESP_DEFAULT_SYSLOG_HOST;
-    if (old_syslog_host.equals(settings.syslog_host.c_str())) {
+    if (old_syslog_host != settings.syslog_host) {
         add_flags(ChangeFlags::SYSLOG);
     }
 
@@ -173,6 +183,15 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     settings.notoken_api   = root["notoken_api"] | EMSESP_DEFAULT_NOTOKEN_API;
     settings.solar_maxflow = root["solar_maxflow"] | EMSESP_DEFAULT_SOLAR_MAXFLOW;
 
+    for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+        char buf[20];
+        snprintf_P(buf, sizeof(buf), PSTR("sensor_id%d"), i);
+        settings.sensor[i].id = root[buf] | EMSESP_DEFAULT_SENSOR_NAME;
+        snprintf_P(buf, sizeof(buf), PSTR("sensor_name%d"), i);
+        settings.sensor[i].name = root[buf] | EMSESP_DEFAULT_SENSOR_NAME;
+        snprintf_P(buf, sizeof(buf), PSTR("sensor_offset%d"), i);
+        settings.sensor[i].offset = root[buf] | 0;
+    }
     return StateUpdateResult::CHANGED;
 }
 

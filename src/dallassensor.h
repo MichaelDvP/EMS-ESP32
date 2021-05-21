@@ -45,6 +45,7 @@ class DallasSensor {
 
         uint64_t    id() const;
         std::string to_string() const;
+        int16_t     offset() const;
 
         int16_t temperature_c = EMS_VALUE_SHORT_NOTSET;
         bool    read          = false;
@@ -76,6 +77,9 @@ class DallasSensor {
     bool dallas_enabled() {
         return (dallas_gpio_ != 0);
     }
+
+    void        add_name(const char * id, const char * name, int16_t offset);
+    std::string get_name(const char * id);
 
   private:
     static constexpr uint8_t MAX_SENSORS = 20;

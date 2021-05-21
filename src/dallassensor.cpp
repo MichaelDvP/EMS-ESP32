@@ -143,7 +143,9 @@ void DallasSensor::loop() {
                             bool found = false;
                             for (auto & sensor : sensors_) {
                                 if (sensor.id() == get_id(addr)) {
+                                    t += sensor.offset();
                                     if (t != sensor.temperature_c) {
+                                        sensor.temperature_c = t;
                                         publish_sensor(sensor);
                                         changed_ |= true;
                                     }
@@ -156,7 +158,7 @@ void DallasSensor::loop() {
                             // add new sensor
                             if (!found && (sensors_.size() < (MAX_SENSORS - 1))) {
                                 sensors_.emplace_back(addr);
-                                sensors_.back().temperature_c = t;
+                                sensors_.back().temperature_c = t + sensors_.back().offset();
                                 sensors_.back().read          = true;
                                 changed_                      = true;
                                 publish_sensor(sensors_.back());
@@ -301,6 +303,28 @@ uint64_t DallasSensor::Sensor::id() const {
     return id_;
 }
 
+int16_t DallasSensor::Sensor::offset() const {
+    std::string str(20, '\0');
+    snprintf_P(&str[0],
+               str.capacity() + 1,
+               PSTR("%02X-%04X-%04X-%04X"),
+               (unsigned int)(id_ >> 48) & 0xFF,
+               (unsigned int)(id_ >> 32) & 0xFFFF,
+               (unsigned int)(id_ >> 16) & 0xFFFF,
+               (unsigned int)(id_)&0xFFFF);
+
+    int16_t offset = 0;
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+            if (strcmp(settings.sensor[i].id.c_str(), str.c_str())  == 0) {
+                offset = settings.sensor[i].offset;
+            }
+        }
+    });
+
+    return offset;
+}
+
 std::string DallasSensor::Sensor::to_string() const {
     std::string str(20, '\0');
     snprintf_P(&str[0],
@@ -310,7 +334,86 @@ std::string DallasSensor::Sensor::to_string() const {
                (unsigned int)(id_ >> 32) & 0xFFFF,
                (unsigned int)(id_ >> 16) & 0xFFFF,
                (unsigned int)(id_)&0xFFFF);
+
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+            if (strcmp(settings.sensor[i].id.c_str(), str.c_str())  == 0) {
+                str = settings.sensor[i].name.c_str();
+            }
+        }
+    });
+
     return str;
+}
+
+std::string DallasSensor::get_name(const char * id) {
+    std::string name = id;
+
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+            if (strcmp(settings.sensor[i].id.c_str(), id)  == 0) {
+                name = settings.sensor[i].name.c_str();
+                name = name + " : ";
+                char buf[10];
+                name = name + Helpers::render_value(buf, settings.sensor[i].offset, 10);
+            }
+        }
+    });
+
+    return name;
+}
+
+void DallasSensor::add_name(const char * id, const char * name, int16_t offset) {
+    LOG_INFO(F("Setting name of sensor %s to %s"), id, name);
+    EMSESP::webSettingsService.update([&](WebSettings & settings) {
+        // check for new name of stored id
+        for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+            if (strcmp(id, settings.sensor[i].id.c_str()) == 0) {
+                if (strlen(name) == 0 && offset == 0) { // delete entry if name and offset is empty
+                    settings.sensor[i].id     = "";
+                    settings.sensor[i].name   = "";
+                    settings.sensor[i].offset = 0;
+                } else if (strlen(name) == 0) { // reset name to id and change offset
+                    settings.sensor[i].name   = id;
+                    settings.sensor[i].offset = offset;
+                } else {
+                    settings.sensor[i].name   = name;
+                    settings.sensor[i].offset = offset;
+                }
+                return StateUpdateResult::CHANGED;
+            }
+        }
+        // don't add empty names
+        if (strlen(name) == 0) {
+            return StateUpdateResult::UNCHANGED;
+        }
+        // check for free place
+        for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+            if (settings.sensor[i].id.isEmpty()) {
+                settings.sensor[i].id     = id;
+                settings.sensor[i].name   = name;
+                settings.sensor[i].offset = offset;
+                return StateUpdateResult::CHANGED;
+            }
+        }
+        // check if there is a unused id and overwrite it
+        for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+            bool found = false;
+            for (const auto & sensor : sensors_) {
+                if (strcmp(sensor.to_string().c_str(), settings.sensor[i].id.c_str()) == 0) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                settings.sensor[i].id     = id;
+                settings.sensor[i].name   = name;
+                settings.sensor[i].offset = offset;
+                return StateUpdateResult::CHANGED;
+            }
+        }
+        LOG_ERROR(F("List full, remove one sensorname first"));
+        return StateUpdateResult::UNCHANGED;
+    }, "local");
 }
 
 // check to see if values have been updated

@@ -125,6 +125,7 @@ MAKE_PSTR(invalid_watch, "Invalid watch type")
 MAKE_PSTR(data_mandatory, "\"XX XX ...\"")
 MAKE_PSTR(asterisks, "********")
 MAKE_PSTR(n_mandatory, "<n>")
+MAKE_PSTR(id_mandatory, "<id>")
 MAKE_PSTR(id_optional, "[id|hc]")
 MAKE_PSTR(data_optional, "[data]")
 MAKE_PSTR(offset_optional, "[offset]")
@@ -348,12 +349,10 @@ MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
 MAKE_PSTR_LIST(enum_solarmode, F_(constant), F("pwm"), F("analog"))
 MAKE_PSTR_LIST(enum_collectortype, F_(blank), F("flat"), F("vacuum"))
 
-/*
- * MQTT topics and full text for values and commands
- */
+// MQTT topics and full text for values and commands
 MAKE_PSTR(homeassistant, "homeassistant/")
 
-// if for all devices
+// id used to store the device ID, goes into MQTT payload
 // empty full name to prevent being shown in web or console
 MAKE_PSTR_LIST(ID, F_(id))
 
@@ -616,3 +615,9 @@ MAKE_PSTR_LIST(collector1Type, F("collector1type"), F("collector 1 type"))
 // switch
 MAKE_PSTR_LIST(activated, F("activated"), F("aktiviert"))
 MAKE_PSTR_LIST(status, F("status"), F("Status"))
+
+MAKE_PSTR_LIST(data11, F("data11"), F("unknown datafield 11"))
+MAKE_PSTR_LIST(data12, F("data12"), F("unknown datafield 12"))
+MAKE_PSTR_LIST(data8, F("data8"), F("unknown datafield 8"))
+MAKE_PSTR_LIST(data0, F("data0"), F("unknown datafield 0"))
+MAKE_PSTR_LIST(data1, F("data1"), F("unknown datafield 1"))
