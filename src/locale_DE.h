@@ -115,7 +115,7 @@ MAKE_PSTR(bus_id_fmt, "Bus ID: %02X")
 MAKE_PSTR(log_level_fmt, "Log level: %s")
 
 //strings
-MAKE_PSTR(show_optional, "[devices | users | ems | mqtt | system | commands]")
+MAKE_PSTR(show_optional, "[devices | users | ems | mqtt | system | commands | sensor]")
 MAKE_PSTR(cmd_optional, "[cmd]")
 MAKE_PSTR(ha_optional, "[ha]")
 MAKE_PSTR(deep_optional, "[deep]")
