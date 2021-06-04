@@ -33,11 +33,11 @@ using flash_string_vector = std::vector<const __FlashStringHelper *>;
 class Helpers {
   public:
     static char * render_value(char * result, const float value, const uint8_t format); // format is the precision
-    static char * render_value(char * result, const uint8_t value, const uint8_t format);
-    static char * render_value(char * result, const int8_t value, const uint8_t format);
-    static char * render_value(char * result, const uint16_t value, const uint8_t format);
-    static char * render_value(char * result, const uint32_t value, const uint8_t format);
-    static char * render_value(char * result, const int16_t value, const uint8_t format);
+    static char * render_value(char * result, const uint8_t value, const uint8_t format, bool fahrenheit = false);
+    static char * render_value(char * result, const int8_t value, const uint8_t format, bool fahrenheit = false);
+    static char * render_value(char * result, const uint16_t value, const uint8_t format, bool fahrenheit = false);
+    static char * render_value(char * result, const uint32_t value, const uint8_t format, bool fahrenheit = false);
+    static char * render_value(char * result, const int16_t value, const uint8_t format, bool fahrenheit = false);
     static char * render_value(char * result, const char * value, uint8_t format);
     static char * render_boolean(char * result, bool value);
 
@@ -50,7 +50,7 @@ class Helpers {
     static uint16_t    atoint(const char * value);
     static bool        check_abs(const int32_t i);
     static uint32_t    abs(const int32_t i);
-    static double      round2(double value, const uint8_t divider);
+    static double      round2(double value, const uint8_t divider, bool fahrenheit = false);
     static std::string toLower(std::string const & s);
     static std::string toUpper(std::string const & s);
 

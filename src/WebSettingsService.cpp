@@ -60,6 +60,7 @@ void WebSettings::read(WebSettings & settings, JsonObject & root) {
     root["pbutton_gpio"]         = settings.pbutton_gpio;
     root["solar_maxflow"]        = settings.solar_maxflow;
     root["board_profile"]        = settings.board_profile;
+    root["fahrenheit"]           = settings.fahrenheit;
 
     for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
         char buf[20];
@@ -182,6 +183,7 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     // doesn't need any follow-up actions
     settings.notoken_api   = root["notoken_api"] | EMSESP_DEFAULT_NOTOKEN_API;
     settings.solar_maxflow = root["solar_maxflow"] | EMSESP_DEFAULT_SOLAR_MAXFLOW;
+    settings.fahrenheit    = root["fahrenheit"] | false;
 
     for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
         char buf[20];

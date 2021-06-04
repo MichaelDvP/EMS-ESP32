@@ -373,25 +373,18 @@ void DallasSensor::add_name(const char * id, const char * name, int16_t offset) 
                     settings.sensor[i].id     = "";
                     settings.sensor[i].name   = "";
                     settings.sensor[i].offset = 0;
-                } else if (strlen(name) == 0) { // reset name to id and change offset
-                    settings.sensor[i].name   = id;
-                    settings.sensor[i].offset = offset;
                 } else {
-                    settings.sensor[i].name   = name;
+                    settings.sensor[i].name   = (strlen(name) == 0) ? id : name;
                     settings.sensor[i].offset = offset;
                 }
                 return StateUpdateResult::CHANGED;
             }
         }
-        // don't add empty names
-        if (strlen(name) == 0) {
-            return StateUpdateResult::UNCHANGED;
-        }
         // check for free place
         for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
             if (settings.sensor[i].id.isEmpty()) {
                 settings.sensor[i].id     = id;
-                settings.sensor[i].name   = name;
+                settings.sensor[i].name   = (strlen(name) == 0) ? id : name;
                 settings.sensor[i].offset = offset;
                 return StateUpdateResult::CHANGED;
             }
@@ -406,7 +399,7 @@ void DallasSensor::add_name(const char * id, const char * name, int16_t offset) 
             }
             if (!found) {
                 settings.sensor[i].id     = id;
-                settings.sensor[i].name   = name;
+                settings.sensor[i].name   = (strlen(name) == 0) ? id : name;
                 settings.sensor[i].offset = offset;
                 return StateUpdateResult::CHANGED;
             }
@@ -476,7 +469,16 @@ void DallasSensor::publish_sensor(Sensor sensor) {
         snprintf_P(topic, sizeof(topic), PSTR("%s/sensor%d"), uuid::read_flash_string(F_(sensor)).c_str() ,no + 1);
     }
     char payload[10];
-    Mqtt::publish(topic, Helpers::render_value(payload, sensor.temperature_c, 10));
+    bool fahrenheit = false;
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        fahrenheit = settings.fahrenheit;
+    });
+    if (fahrenheit) {
+        int16_t t = sensor.temperature_c * 1.8 + 320;
+        Mqtt::publish(topic, Helpers::render_value(payload, t, 10));
+    } else {
+        Mqtt::publish(topic, Helpers::render_value(payload, sensor.temperature_c, 10));
+   }
 }
 
 // send all dallas sensor values as a JSON package to MQTT
@@ -522,7 +524,13 @@ void DallasSensor::publish_values(const bool force) {
                 snprintf_P(stat_t, sizeof(stat_t), PSTR("%s/sensor_data"), Mqtt::base().c_str());
                 config["stat_t"] = stat_t;
 
-                config["unit_of_meas"] = FJSON("°C");
+                EMSESP::webSettingsService.read([&](WebSettings & settings) {
+                    if (settings.fahrenheit) {
+                        config["unit_of_meas"] = FJSON("°F");
+                    } else {
+                        config["unit_of_meas"] = FJSON("°C");
+                    }
+                });
 
                 char str[50];
                 if (dallas_format == Mqtt::Dallas_Format::SENSORID) {

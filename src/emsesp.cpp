@@ -603,7 +603,16 @@ bool EMSESP::get_device_value_info(JsonObject & root, const char * cmd, const in
             if ((strcmp(cmd, sensorID) == 0) || (strcmp(cmd, Helpers::toLower(sensor.to_string()).c_str()) == 0)) {
                 root["name"] = sensor.to_string();
                 if (Helpers::hasValue(sensor.temperature_c)) {
-                    root["value"] = (float)(sensor.temperature_c) / 10;
+                    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+                        if (settings.fahrenheit) {
+                            root["value"] = (float)(sensor.temperature_c * 18 + 3200) / 100;
+                            root["unit"]  = F("°F");
+                        } else {
+                            root["value"] = (float)(sensor.temperature_c) / 10;
+                            root["unit"]  = EMSdevice::uom_to_string(DeviceValueUOM::DEGREES);
+                        }
+                    });
+                    // root["value"] = (float)(sensor.temperature_c) / 10;
                 }
                 root["type"]      = F_(number);
                 root["min"]       = -55;

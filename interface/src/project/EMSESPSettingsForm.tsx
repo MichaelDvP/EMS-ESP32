@@ -397,6 +397,16 @@ class EMSESPSettingsForm extends React.Component<EMSESPSettingsFormProps> {
         <BlockFormControlLabel
           control={
             <Checkbox
+              checked={data.fahrenheit}
+              onChange={handleValueChange('fahrenheit')}
+              value="fahrenheit"
+            />
+          }
+          label="Show temperature values in Fahrenheit"
+        />
+        <BlockFormControlLabel
+          control={
+            <Checkbox
               checked={data.analog_enabled}
               onChange={handleValueChange('analog_enabled')}
               value="analog_enabled"

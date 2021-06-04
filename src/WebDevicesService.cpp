@@ -76,10 +76,19 @@ void WebDevicesService::all_devices(AsyncWebServerRequest * request) {
             if (Mqtt::dallas_format() == Mqtt::Dallas_Format::SENSORID) {
                 obj["id"] = sensor.to_string();
             } else {
-                obj["id"] = i - 1;
+                sprintf_P(s, PSTR("sensor %d"), i - 1);
+                obj["id"] = s;
             }
-            Helpers::render_value(s, sensor.temperature_c, 10);
-            strcat(s, " °C");
+            EMSESP::webSettingsService.read([&](WebSettings & settings) {
+                if (settings.fahrenheit) {
+                    int16_t t = sensor.temperature_c * 18 + 3200;
+                    Helpers::render_value(s, t, 100);
+                    strcat(s, " °F");
+                } else {
+                    Helpers::render_value(s, sensor.temperature_c, 10);
+                    strcat(s, " °C");
+                }
+            });
             obj["data"] = s;
         }
     }

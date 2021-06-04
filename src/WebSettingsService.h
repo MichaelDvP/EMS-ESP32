@@ -57,6 +57,7 @@ class WebSettings {
     uint8_t  pbutton_gpio;
     uint8_t  solar_maxflow;
     String   board_profile;
+    bool     fahrenheit;
 
     struct {
       String  id;
