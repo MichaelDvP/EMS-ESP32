@@ -49,7 +49,7 @@ uint16_t Mqtt::mqtt_publish_fails_ = 0;
 bool     Mqtt::connecting_         = false;
 bool     Mqtt::initialized_        = false;
 uint8_t  Mqtt::connectcount_       = 0;
-uint16_t Mqtt::mqtt_message_id_    = 0;
+uint32_t Mqtt::mqtt_message_id_    = 0;
 char     will_topic_[Mqtt::MQTT_TOPIC_MAX_SIZE]; // because MQTT library keeps only char pointer
 
 uuid::log::Logger Mqtt::logger_{F_(mqtt), uuid::log::Facility::DAEMON};
@@ -661,7 +661,7 @@ void Mqtt::on_connect() {
 
     publish_retain(F("status"), "online", true); // say we're alive to the Last Will topic, with retain on
 
-    mqtt_publish_fails_ = 0; // reset fail count to 0
+    mqtt_publish_fails_ = mqtt_publish_fails_ ? connectcount_ : 0; // reset fail count to 0
 
     /*
     // for debugging only
@@ -753,6 +753,7 @@ std::shared_ptr<const MqttMessage> Mqtt::queue_message(const uint8_t operation, 
     // if the queue is full, make room but removing the last one
     if (mqtt_messages_.size() >= MAX_MQTT_MESSAGES) {
         mqtt_messages_.pop_front();
+        mqtt_publish_fails_++;
     }
     mqtt_messages_.emplace_back(mqtt_message_id_++, std::move(message));
 
