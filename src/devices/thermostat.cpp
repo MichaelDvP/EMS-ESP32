@@ -1130,7 +1130,7 @@ void Thermostat::process_RCErrorMessage(std::shared_ptr<const Telegram> telegram
 // 0xA5 - Set minimum external temperature
 bool Thermostat::set_minexttemp(const char * value, const int8_t id) {
     int mt = 0;
-    if (!Helpers::value2number(value, mt)) {
+    if (!Helpers::value2temperature(value, mt)) {
         LOG_WARNING(F("Set min external temperature: Invalid value"));
         return false;
     }
@@ -1162,7 +1162,7 @@ bool Thermostat::set_clockoffset(const char * value, const int8_t id) {
 // 0xA5 - Calibrate internal temperature
 bool Thermostat::set_calinttemp(const char * value, const int8_t id) {
     int ct = 0;
-    if (!Helpers::value2number(value, ct)) {
+    if (!Helpers::value2temperature(value, ct, true)) {
         LOG_WARNING(F("Cal internal temperature: Invalid value"));
         return false;
     }
@@ -1189,7 +1189,7 @@ bool Thermostat::set_display(const char * value, const int8_t id) {
 
 bool Thermostat::set_remotetemp(const char * value, const int8_t id) {
     float f = 0;
-    if (!Helpers::value2float(value, f)) {
+    if (!Helpers::value2temperature(value, f)) {
         LOG_WARNING(F("Set remote temperature: Invalid value"));
         return false;
     }
@@ -1289,7 +1289,7 @@ bool Thermostat::set_wwmode(const char * value, const int8_t id) {
 // Set ww temperature, ems+
 bool Thermostat::set_wwtemp(const char * value, const int8_t id) {
     int t = 0;
-    if (!Helpers::value2number(value, t)) {
+    if (!Helpers::value2temperature(value, t)) {
         LOG_WARNING(F("Set warm water high temperature: Invalid value"));
         return false;
     }
@@ -1301,7 +1301,7 @@ bool Thermostat::set_wwtemp(const char * value, const int8_t id) {
 // Set ww low temperature, ems+
 bool Thermostat::set_wwtemplow(const char * value, const int8_t id) {
     int t = 0;
-    if (!Helpers::value2number(value, t)) {
+    if (!Helpers::value2temperature(value, t)) {
         LOG_WARNING(F("Set warm water low temperature: Invalid value"));
         return false;
     }
@@ -2057,7 +2057,7 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
 bool Thermostat::set_temperature_value(const char * value, const int8_t id, const uint8_t mode) {
     float   f      = 0;
     uint8_t hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
-    if (Helpers::value2float(value, f)) {
+    if (Helpers::value2temperature(value, f)) {
         return set_temperature(f, mode, hc_num);
     } else {
         LOG_WARNING(F("Set temperature: Invalid value"));
@@ -2187,7 +2187,7 @@ void Thermostat::register_device_values() {
                               DeviceValueType::INT,
                               FL_(div2),
                               FL_(ibaCalIntTemperature),
-                              DeviceValueUOM::DEGREES,
+                              DeviceValueUOM::DEGREES_R,
                               MAKE_CF_CB(set_calinttemp));
         register_device_value(TAG_THERMOSTAT_DATA,
                               &ibaMinExtTemperature_,
@@ -2215,7 +2215,7 @@ void Thermostat::register_device_values() {
                               DeviceValueType::INT,
                               FL_(div2),
                               FL_(ibaCalIntTemperature),
-                              DeviceValueUOM::DEGREES,
+                              DeviceValueUOM::DEGREES_R,
                               MAKE_CF_CB(set_calinttemp));
         register_device_value(TAG_THERMOSTAT_DATA,
                               &ibaMinExtTemperature_,
@@ -2309,7 +2309,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(comforttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_comforttemp));
         register_device_value(tag, &hc->summertemp, DeviceValueType::UINT, nullptr, FL_(summertemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_summertemp));
         register_device_value(tag, &hc->designtemp, DeviceValueType::UINT, nullptr, FL_(designtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_designtemp));
-        register_device_value(tag, &hc->offsettemp, DeviceValueType::INT, nullptr, FL_(offsettemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_offsettemp));
+        register_device_value(tag, &hc->offsettemp, DeviceValueType::INT, nullptr, FL_(offsettemp), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_offsettemp));
         register_device_value(tag, &hc->minflowtemp, DeviceValueType::UINT, nullptr, FL_(minflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_minflowtemp));
         register_device_value(tag, &hc->maxflowtemp, DeviceValueType::UINT, nullptr, FL_(maxflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_maxflowtemp));
         register_device_value(tag, &hc->roominfluence, DeviceValueType::UINT, nullptr, FL_(roominfluence), DeviceValueUOM::NONE, MAKE_CF_CB(set_roominfluence));
@@ -2348,7 +2348,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(daytemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_daytemp));
         register_device_value(tag, &hc->nighttemp, DeviceValueType::UINT, FL_(div2), FL_(nighttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nighttemp));
         register_device_value(tag, &hc->designtemp, DeviceValueType::UINT, nullptr, FL_(designtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_designtemp));
-        register_device_value(tag, &hc->offsettemp, DeviceValueType::INT, FL_(div2), FL_(offsettemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_offsettemp));
+        register_device_value(tag, &hc->offsettemp, DeviceValueType::INT, FL_(div2), FL_(offsettemp), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_offsettemp));
         register_device_value(tag, &hc->holidaytemp, DeviceValueType::UINT, FL_(div2), FL_(holidaytemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_holidaytemp));
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT, nullptr, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
         register_device_value(tag, &hc->summertemp, DeviceValueType::UINT, nullptr, FL_(summertemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_summertemp));
@@ -2358,7 +2358,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->roominfluence, DeviceValueType::UINT, nullptr, FL_(roominfluence), DeviceValueUOM::NONE, MAKE_CF_CB(set_roominfluence));
         register_device_value(tag, &hc->minflowtemp, DeviceValueType::UINT, nullptr, FL_(minflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_minflowtemp));
         register_device_value(tag, &hc->maxflowtemp, DeviceValueType::UINT, nullptr, FL_(maxflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_maxflowtemp));
-        register_device_value(tag, &hc->flowtempoffset, DeviceValueType::UINT, nullptr, FL_(flowtempoffset), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_flowtempoffset));
+        register_device_value(tag, &hc->flowtempoffset, DeviceValueType::UINT, nullptr, FL_(flowtempoffset), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_flowtempoffset));
         register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->reducemode, DeviceValueType::ENUM, FL_(enum_reducemode), FL_(reducemode), DeviceValueUOM::NONE, MAKE_CF_CB(set_reducemode));
         register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode2), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));

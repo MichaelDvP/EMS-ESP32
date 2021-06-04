@@ -469,16 +469,14 @@ void DallasSensor::publish_sensor(Sensor sensor) {
         snprintf_P(topic, sizeof(topic), PSTR("%s/sensor%d"), uuid::read_flash_string(F_(sensor)).c_str() ,no + 1);
     }
     char payload[10];
-    bool fahrenheit = false;
     EMSESP::webSettingsService.read([&](WebSettings & settings) {
-        fahrenheit = settings.fahrenheit;
+        if (settings.fahrenheit) {
+            int16_t t = sensor.temperature_c * 1.8 + 320;
+            Mqtt::publish(topic, Helpers::render_value(payload, t, 10));
+        } else {
+            Mqtt::publish(topic, Helpers::render_value(payload, sensor.temperature_c, 10));
+        }
     });
-    if (fahrenheit) {
-        int16_t t = sensor.temperature_c * 1.8 + 320;
-        Mqtt::publish(topic, Helpers::render_value(payload, t, 10));
-    } else {
-        Mqtt::publish(topic, Helpers::render_value(payload, sensor.temperature_c, 10));
-   }
 }
 
 // send all dallas sensor values as a JSON package to MQTT

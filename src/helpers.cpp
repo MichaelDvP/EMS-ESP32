@@ -18,6 +18,7 @@
 
 #include "helpers.h"
 #include "mqtt.h"
+#include "emsesp.h"
 
 namespace emsesp {
 
@@ -146,7 +147,7 @@ char * Helpers::render_value(char * result, const char * value, uint8_t format _
 
 // convert unsigned int (single byte) to text value and returns it
 // format: 255(0xFF)=boolean, 0=no formatting, otherwise divide by format
-char * Helpers::render_value(char * result, uint8_t value, uint8_t format, bool fahrenheit) {
+char * Helpers::render_value(char * result, uint8_t value, uint8_t format, uint8_t fahrenheit) {
     // special check if its a boolean
     if (format == EMS_VALUE_BOOL) {
         if (value == EMS_VALUE_BOOL_OFF) {
@@ -163,7 +164,7 @@ char * Helpers::render_value(char * result, uint8_t value, uint8_t format, bool 
         return nullptr;
     }
 
-    int16_t new_value = fahrenheit ? format ? value * 1.8 + 32 * format : value * 1.8 + 32: value;
+    int16_t new_value = fahrenheit ? format ? value * 1.8 + 32 * format * (fahrenheit - 1) : value * 1.8 + 32 * (fahrenheit - 1): value;
 
     if (!format) {
         itoa(result, new_value, 10); // format = 0
@@ -214,7 +215,7 @@ char * Helpers::render_value(char * result, const float value, const uint8_t for
 
 // int16: convert short (two bytes) to text string and returns string
 // format: 0=no division, other divide by the value given and render with a decimal point
-char * Helpers::render_value(char * result, const int16_t value, const uint8_t format, bool fahrenheit) {
+char * Helpers::render_value(char * result, const int16_t value, const uint8_t format, uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -253,7 +254,7 @@ char * Helpers::render_value(char * result, const int16_t value, const uint8_t f
 }
 
 // uint16: convert unsigned short (two bytes) to text string and prints it
-char * Helpers::render_value(char * result, const uint16_t value, const uint8_t format, bool fahrenheit) {
+char * Helpers::render_value(char * result, const uint16_t value, const uint8_t format, uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -262,7 +263,7 @@ char * Helpers::render_value(char * result, const uint16_t value, const uint8_t 
 }
 
 // int8: convert signed byte to text string and prints it
-char * Helpers::render_value(char * result, const int8_t value, const uint8_t format, bool fahrenheit) {
+char * Helpers::render_value(char * result, const int8_t value, const uint8_t format, uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -271,7 +272,7 @@ char * Helpers::render_value(char * result, const int8_t value, const uint8_t fo
 }
 
 // uint32: render long (4 byte) unsigned values
-char * Helpers::render_value(char * result, const uint32_t value, const uint8_t format, bool fahrenheit) {
+char * Helpers::render_value(char * result, const uint32_t value, const uint8_t format, uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -281,20 +282,20 @@ char * Helpers::render_value(char * result, const uint32_t value, const uint8_t 
 
 #ifndef EMSESP_STANDALONE
     if (!format) {
-        strlcpy(result, ltoa(value, s, 10), 20); // format is 0
+        strlcpy(result, ltoa(new_value, s, 10), 20); // format is 0
     } else {
-        strlcpy(result, ltoa(value / format, s, 10), 20);
+        strlcpy(result, ltoa(new_value / format, s, 10), 20);
         strlcat(result, ".", 20);
-        strlcat(result, ltoa(value % format, s, 10), 20);
+        strlcat(result, ltoa(new_value % format, s, 10), 20);
     }
 
 #else
     if (!format) {
-        strlcpy(result, ultostr(s, value, 10), 20); // format is 0
+        strlcpy(result, ultostr(s, new_value, 10), 20); // format is 0
     } else {
-        strncpy(result, ultostr(s, value / format, 10), 20);
+        strncpy(result, ultostr(s, new_value / format, 10), 20);
         strlcat(result, ".", 20);
-        strncat(result, ultostr(s, value % format, 10), 20);
+        strncat(result, ultostr(s, new_value % format, 10), 20);
     }
 #endif
 
@@ -359,7 +360,7 @@ uint16_t Helpers::atoint(const char * value) {
 
 // rounds a number to 2 decimal places
 // example: round2(3.14159) -> 3.14
-double Helpers::round2(double value, const uint8_t divider, bool fahrenheit) {
+double Helpers::round2(double value, const uint8_t divider, uint8_t fahrenheit) {
     uint8_t div = (divider ? divider : 1); // prevent div-by-zero
     double  val = ((value / div) * 100 + 0.5);
 
@@ -367,7 +368,7 @@ double Helpers::round2(double value, const uint8_t divider, bool fahrenheit) {
         val = val - 1;
     }
     if (fahrenheit) {
-        val = val * 1.8 + 3200;
+        val = val * 1.8 + 3200 * (fahrenheit - 1);
     }
 
     return ((int32_t)val) / 100.0;
@@ -429,6 +430,30 @@ bool Helpers::value2float(const char * v, float & value) {
     }
     value = atof((char *)v);
     return true;
+}
+
+bool Helpers::value2temperature(const char * v, float & value, bool relative) {
+    if (value2float(v, value)) {
+        EMSESP::webSettingsService.read([&](WebSettings & settings) {
+            if (settings.fahrenheit) {
+                value = relative ? (value / 1.8) : (value - 32) / 1.8;
+            }
+        });
+        return true;
+    }
+    return false;
+}
+
+bool Helpers::value2temperature(const char * v, int & value, bool relative) {
+    if (value2number(v, value)) {
+        EMSESP::webSettingsService.read([&](WebSettings & settings) {
+            if (settings.fahrenheit) {
+                value = relative ? (value / 1.8) : (value - 32) / 1.8;
+            }
+        });
+        return true;
+    }
+    return false;
 }
 
 // https://stackoverflow.com/questions/313970/how-to-convert-stdstring-to-lower-case

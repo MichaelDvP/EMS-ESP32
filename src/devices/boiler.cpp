@@ -124,8 +124,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA, &burnMinPeriod_, DeviceValueType::UINT, nullptr, FL_(burnMinPeriod), DeviceValueUOM::MINUTES, MAKE_CF_CB(set_burn_period));
     register_device_value(TAG_BOILER_DATA, &burnMinPower_, DeviceValueType::UINT, nullptr, FL_(burnMinPower), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_min_power));
     register_device_value(TAG_BOILER_DATA, &burnMaxPower_, DeviceValueType::UINT, nullptr, FL_(burnMaxPower), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_max_power));
-    register_device_value(TAG_BOILER_DATA, &boilHystOn_, DeviceValueType::INT, nullptr, FL_(boilHystOn), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_hyst_on));
-    register_device_value(TAG_BOILER_DATA, &boilHystOff_, DeviceValueType::INT, nullptr, FL_(boilHystOff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_hyst_off));
+    register_device_value(TAG_BOILER_DATA, &boilHystOn_, DeviceValueType::INT, nullptr, FL_(boilHystOn), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_hyst_on));
+    register_device_value(TAG_BOILER_DATA, &boilHystOff_, DeviceValueType::INT, nullptr, FL_(boilHystOff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_hyst_off));
     register_device_value(TAG_BOILER_DATA, &setFlowTemp_, DeviceValueType::UINT, nullptr, FL_(setFlowTemp), DeviceValueUOM::DEGREES);
     register_device_value(TAG_BOILER_DATA, &setBurnPow_, DeviceValueType::UINT, nullptr, FL_(setBurnPow), DeviceValueUOM::PERCENT);
     register_device_value(TAG_BOILER_DATA, &curBurnPow_, DeviceValueType::UINT, nullptr, FL_(curBurnPow), DeviceValueUOM::PERCENT);
@@ -777,7 +777,7 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
 // Set the warm water temperature 0x33 (seltemp)
 bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
     int v = 0;
-    if (!Helpers::value2number(value, v)) {
+    if (!Helpers::value2temperature(value, v)) {
         LOG_WARNING(F("Set boiler warm water temperature: Invalid value"));
         return false;
     }
@@ -798,7 +798,7 @@ bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
 // Set the warm water disinfection temperature
 bool Boiler::set_disinfect_temp(const char * value, const int8_t id) {
     int v = 0;
-    if (!Helpers::value2number(value, v)) {
+    if (!Helpers::value2temperature(value, v)) {
         LOG_WARNING(F("Set boiler warm water disinfect temperature: Invalid value"));
         return false;
     }
@@ -816,7 +816,7 @@ bool Boiler::set_disinfect_temp(const char * value, const int8_t id) {
 // flow temp
 bool Boiler::set_flow_temp(const char * value, const int8_t id) {
     int v = 0;
-    if (!Helpers::value2number(value, v)) {
+    if (!Helpers::value2temperature(value, v)) {
         LOG_WARNING(F("Set boiler flow temperature: Invalid value"));
         return false;
     }
@@ -844,7 +844,7 @@ bool Boiler::set_burn_power(const char * value, const int8_t id) {
 // Set the warm water flow temperature offset 0x33
 bool Boiler::set_wWFlowTempOffset(const char * value, const int8_t id) {
     int v = 0;
-    if (!Helpers::value2number(value, v)) {
+    if (!Helpers::value2temperature(value, v, true)) {
         LOG_WARNING(F("Set boiler warm water flow temperature offset: Invalid value"));
         return false;
     }
@@ -876,7 +876,7 @@ bool Boiler::set_heating_activated(const char * value, const int8_t id) {
 // set heating maximum temperature
 bool Boiler::set_heating_temp(const char * value, const int8_t id) {
     int v = 0;
-    if (!Helpers::value2number(value, v)) {
+    if (!Helpers::value2temperature(value, v)) {
         LOG_WARNING(F("Set boiler heating temperature: Invalid value"));
         return false;
     }
@@ -980,7 +980,7 @@ bool Boiler::set_max_pump(const char * value, const int8_t id) {
 // set boiler on hysteresis
 bool Boiler::set_hyst_on(const char * value, const int8_t id) {
     int v = 0;
-    if (!Helpers::value2number(value, v)) {
+    if (!Helpers::value2temperature(value, v, true)) {
         LOG_WARNING(F("Set boiler hysteresis: Invalid value"));
         return false;
     }
@@ -998,7 +998,7 @@ bool Boiler::set_hyst_on(const char * value, const int8_t id) {
 // set boiler off hysteresis
 bool Boiler::set_hyst_off(const char * value, const int8_t id) {
     int v = 0;
-    if (!Helpers::value2number(value, v)) {
+    if (!Helpers::value2temperature(value, v, true)) {
         LOG_WARNING(F("Set boiler hysteresis: Invalid value"));
         return false;
     }

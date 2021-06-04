@@ -26,6 +26,7 @@ namespace emsesp {
 static const __FlashStringHelper * DeviceValueUOM_s[] __attribute__((__aligned__(sizeof(uint32_t)))) PROGMEM = {
 
     F_(degrees),
+    F_(degrees),
     F_(percent),
     F_(lmin),
     F_(kwh),
@@ -552,9 +553,10 @@ void EMSdevice::publish_value(void * value_p) {
             }
             uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
             char payload[30];
-            bool fahrenheit = false;
+            uint8_t fahrenheit = 0;
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
-                fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES);
+                fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES) ? 2 : 0;
+                fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES_R) ? 1 : fahrenheit;
             });
             switch (dv.type) {
             case DeviceValueType::ENUM: {
@@ -640,7 +642,7 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
     uint8_t num_elements = 0;
 
     for (const auto & dv : devicevalues_) {
-        bool fahrenheit = false;
+        uint8_t fahrenheit = 0;
         // ignore if full_name empty
         if (dv.full_name != nullptr) {
             // handle Booleans (true, false)
@@ -673,7 +675,8 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
                 // the nested if's is necessary due to the way the ArduinoJson templates are pre-processed by the compiler
                 uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
                 EMSESP::webSettingsService.read([&](WebSettings & settings) {
-                    fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES);
+                    fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES) ? 2 : 0;
+                    fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES_R) ? 1 : fahrenheit;
                 });
                 // INT
                 if ((dv.type == DeviceValueType::INT) && Helpers::hasValue(*(int8_t *)(dv.value_p))) {
@@ -754,7 +757,7 @@ bool EMSdevice::get_catalog(JsonObject & root) {
 bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t id) {
     JsonObject json       = root;
     int8_t     tag        = id;
-    bool       fahrenheit = false;
+    uint8_t    fahrenheit = 0;
 
     // check if we have hc or wwc
     if (id >= 1 && id <= 4) {
@@ -774,7 +777,8 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
             const char * max     = "max";
             const char * value   = "value";
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
-                fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES);
+                fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES) ? 2 : 0;
+                fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES_R) ? 1 : fahrenheit;
             });
 
             json["name"] = dv.short_name;
@@ -940,12 +944,13 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
     bool       has_values = false; // to see if we've added a value. it's faster than doing a json.size() at the end
     uint8_t    old_tag    = 255;   // NAN
     JsonObject json       = root;
-    bool       fahrenheit = false;
+    uint8_t    fahrenheit = 0;
 
     for (auto & dv : devicevalues_) {
         bool has_value = false;
         EMSESP::webSettingsService.read([&](WebSettings & settings) {
-            fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES);
+            fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES) ? 1 : 0;
+            fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES_R) ? 2 : fahrenheit;
         });
         // only show if tag is either empty (TAG_NONE) or matches a value
         // and don't show if full_name is empty unless we're outputing for mqtt payloads

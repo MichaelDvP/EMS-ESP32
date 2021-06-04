@@ -52,6 +52,7 @@ enum DeviceValueUOM : uint8_t {
 
     NONE = 0,
     DEGREES,
+    DEGREES_R,
     PERCENT,
     LMIN,
     KWH,

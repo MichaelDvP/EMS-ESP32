@@ -89,9 +89,9 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         register_device_value(TAG_NONE, &solarPumpModulation_, DeviceValueType::UINT, nullptr, FL_(solarPumpModulation), DeviceValueUOM::PERCENT);
         register_device_value(TAG_NONE, &solarPumpMinMod_, DeviceValueType::UINT, nullptr, FL_(pumpMinMod), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_PumpMinMod));
         register_device_value(
-            TAG_NONE, &solarPumpTurnonDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnonDiff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TurnonDiff));
+            TAG_NONE, &solarPumpTurnonDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnonDiff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_TurnonDiff));
         register_device_value(
-            TAG_NONE, &solarPumpTurnoffDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnoffDiff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TurnoffDiff));
+            TAG_NONE, &solarPumpTurnoffDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnoffDiff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_TurnoffDiff));
         register_device_value(
             TAG_NONE, &collectorMaxTemp_, DeviceValueType::UINT, nullptr, FL_(collectorMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_CollectorMaxTemp));
         register_device_value(
@@ -118,9 +118,9 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         register_device_value(TAG_NONE, &solarPumpModulation_, DeviceValueType::UINT, nullptr, FL_(solarPumpModulation), DeviceValueUOM::PERCENT);
         register_device_value(TAG_NONE, &solarPumpMinMod_, DeviceValueType::UINT, nullptr, FL_(pumpMinMod), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_PumpMinMod));
         register_device_value(
-            TAG_NONE, &solarPumpTurnonDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnonDiff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TurnonDiff));
+            TAG_NONE, &solarPumpTurnonDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnonDiff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_TurnonDiff));
         register_device_value(
-            TAG_NONE, &solarPumpTurnoffDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnoffDiff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_TurnoffDiff));
+            TAG_NONE, &solarPumpTurnoffDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnoffDiff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_TurnoffDiff));
         register_device_value(TAG_NONE, &tankBottomTemp2_, DeviceValueType::SHORT, FL_(div10), FL_(tank2BottomTemp), DeviceValueUOM::DEGREES);
         register_device_value(TAG_NONE, &heatExchangerTemp_, DeviceValueType::SHORT, FL_(div10), FL_(heatExchangerTemp), DeviceValueUOM::DEGREES);
         register_device_value(TAG_NONE, &cylinderPumpModulation_, DeviceValueType::UINT, nullptr, FL_(cylinderPumpModulation), DeviceValueUOM::PERCENT);
@@ -499,7 +499,7 @@ void Solar::process_ISM1Set(std::shared_ptr<const Telegram> telegram) {
 // collector shutdown temperature
 bool Solar::set_CollectorMaxTemp(const char * value, const int8_t id) {
     int temperature;
-    if (!Helpers::value2number(value, temperature)) {
+    if (!Helpers::value2temperature(value, temperature)) {
         return false;
     }
     if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
@@ -513,7 +513,7 @@ bool Solar::set_CollectorMaxTemp(const char * value, const int8_t id) {
 // collector shutdown temperature
 bool Solar::set_CollectorMinTemp(const char * value, const int8_t id) {
     int temperature;
-    if (!Helpers::value2number(value, temperature)) {
+    if (!Helpers::value2temperature(value, temperature)) {
         return false;
     }
     if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
@@ -526,7 +526,7 @@ bool Solar::set_CollectorMinTemp(const char * value, const int8_t id) {
 
 bool Solar::set_TankMaxTemp(const char * value, const int8_t id) {
     int temperature;
-    if (!Helpers::value2number(value, temperature)) {
+    if (!Helpers::value2temperature(value, temperature)) {
         return false;
     }
     if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
@@ -549,7 +549,7 @@ bool Solar::set_PumpMinMod(const char * value, const int8_t id) {
 
 bool Solar::set_wwMinTemp(const char * value, const int8_t id) {
     int temperature;
-    if (!Helpers::value2number(value, temperature)) {
+    if (!Helpers::value2temperature(value, temperature)) {
         return false;
     }
     write_command(0x96, 6, (uint8_t)temperature, 0x96);
@@ -558,7 +558,7 @@ bool Solar::set_wwMinTemp(const char * value, const int8_t id) {
 
 bool Solar::set_TurnoffDiff(const char * value, const int8_t id) {
     int temperature;
-    if (!Helpers::value2number(value, temperature)) {
+    if (!Helpers::value2temperature(value, temperature, true)) {
         return false;
     }
     if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
@@ -571,7 +571,7 @@ bool Solar::set_TurnoffDiff(const char * value, const int8_t id) {
 
 bool Solar::set_TurnonDiff(const char * value, const int8_t id) {
     int temperature;
-    if (!Helpers::value2number(value, temperature)) {
+    if (!Helpers::value2temperature(value, temperature, true)) {
         return false;
     }
     if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {

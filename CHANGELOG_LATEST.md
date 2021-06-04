@@ -1,20 +1,22 @@
 # Changelog
 
+Difference to dev build:
+
 ## Added
 
-- new command called `commands` which lists all available commands. `ems-esp/api/{device}/commands`
-- More Home Assistant icons to match the UOMs
-- new API. Using secure access tokens and OpenAPI standard. See `doc/EMS-ESP32 API.md` and [#50](https://github.com/emsesp/EMS-ESP32/issues/50)
+- mqtt publish single values on change (subscribe & publish format)
+- names and offset for up to 10 dallassensors, console commands `sensor name` and `show sensor`
+- add commands without value to web
+- optional show temperatures in Fahrenheit
+- show analog input in web (sensors)
 
 ## Fixed
 
-- HA thermostat mode was not in sync with actual mode [#66](https://github.com/emsesp/EMS-ESP32/issues/66)
+- HA thermostat OFF-mode for RC100/300 sets manual 0°C
 
 ## Changed
 
-
-- `info` command always shows full names in API. For short names query the device or name directly, e.g. `http://ems-esp/api/boiler`
-- free memory is shown in kilobytes
-- boiler's warm water entities have ww added to the Home Assistant entity name [#67](https://github.com/emsesp/EMS-ESP32/issues/67)
+- show mqtt publishes on web
+- show bus/sensor with count/error (quality)
 
 ## Removed
