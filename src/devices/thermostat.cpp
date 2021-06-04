@@ -455,13 +455,17 @@ bool Thermostat::thermostat_ha_cmd(const char * message, uint8_t hc_num) {
     }
 
     // check for mode first, which is a string
-    if (!set_mode(message, hc_num)) {
+    if (set_mode(message, hc_num)) {
+        return true;
+    }
+    if ((message[0] >= '0' && message[0] <= '9') || message[0] == '-') {
         // otherwise handle as a numerical temperature value and set the setpoint temp
         float f = strtof((char *)message, 0);
         set_temperature(f, HeatingCircuit::Mode::AUTO, hc_num);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 // decodes the thermostat mode for the heating circuit based on the thermostat type
@@ -1586,6 +1590,9 @@ bool Thermostat::set_mode_n(const uint8_t mode, const uint8_t hc_num) {
         validate_typeid = monitor_typeids[hc_p];
         if (mode == HeatingCircuit::Mode::AUTO) {
             set_mode_value = 0xFF; // special value for auto
+        } else if (mode == HeatingCircuit::Mode::OFF) { // HA thermostat mode off
+            set_mode_value = 0;
+            write_command(set_typeids[hc->hc_num() - 1], 0x0A, 0); // temperature 0
         } else {
             set_mode_value = 0; // everything else, like manual/day etc..
         }
