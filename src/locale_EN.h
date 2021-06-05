@@ -504,7 +504,7 @@ MAKE_PSTR_LIST(wwSetTempLow, F("wwsettemplow"), F("set low temperature"))
 MAKE_PSTR_LIST(wwExtra1, F("wwextra1"), F("circuit 1 extra"))
 MAKE_PSTR_LIST(wwExtra2, F("wwextra2"), F("circuit 2 extra"))
 
-MAKE_PSTR_LIST(selTemp, F("seltemp"), F("selected room temperature"))
+MAKE_PSTR_LIST(selTemp, F("seltemp"), F("setpoint room temperature"))
 MAKE_PSTR_LIST(roomTemp, F("currtemp"), F("current room temperature"))
 
 MAKE_PSTR_LIST(mode, F("mode"), F("mode"))

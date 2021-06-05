@@ -151,7 +151,7 @@ class Mqtt {
         return mqtt_message_id_;
     }
 
-    static uint32_t publish_fails() {
+    static uint16_t publish_fails() {
         return mqtt_publish_fails_;
     }
 
@@ -238,7 +238,7 @@ class Mqtt {
     static AsyncMqttClient * mqttClient_;
     static uint32_t          mqtt_message_id_;
 
-    static constexpr uint32_t MQTT_PUBLISH_WAIT      = 50; // delay between sending publishes, to account for large payloads
+    static constexpr uint32_t MQTT_PUBLISH_WAIT      = 20; // delay between sending publishes, to account for large payloads
     static constexpr uint8_t  MQTT_PUBLISH_MAX_RETRY = 3;  // max retries for giving up on publishing
 
     static std::shared_ptr<const MqttMessage> queue_message(const uint8_t operation, const std::string & topic, const std::string & payload, bool retain);

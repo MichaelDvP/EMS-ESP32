@@ -2122,7 +2122,14 @@ bool Thermostat::set_noreducetemp(const char * value, const int8_t id) {
 }
 
 bool Thermostat::set_flowtempoffset(const char * value, const int8_t id) {
-    return set_temperature_value(value, id, HeatingCircuit::Mode::FLOWOFFSET);
+    float   f      = 0;
+    uint8_t hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
+    if (Helpers::value2temperature(value, f, true)) {
+        return set_temperature(f, HeatingCircuit::Mode::FLOWOFFSET, hc_num);
+    } else {
+        LOG_WARNING(F("Set temperature: Invalid value"));
+        return false;
+    }
 }
 
 bool Thermostat::set_maxflowtemp(const char * value, const int8_t id) {
@@ -2134,7 +2141,14 @@ bool Thermostat::set_minflowtemp(const char * value, const int8_t id) {
 }
 
 bool Thermostat::set_roominfluence(const char * value, const int8_t id) {
-    return set_temperature_value(value, id, HeatingCircuit::Mode::ROOMINFLUENCE);
+    float   f      = 0;
+    uint8_t hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
+    if (Helpers::value2temperature(value, f, true)) {
+        return set_temperature(f, HeatingCircuit::Mode::ROOMINFLUENCE, hc_num);
+    } else {
+        LOG_WARNING(F("Set temperature: Invalid value"));
+        return false;
+    }
 }
 
 // register main device values, top level for all thermostats (excluding heating circuits)
@@ -2312,7 +2326,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->offsettemp, DeviceValueType::INT, nullptr, FL_(offsettemp), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_offsettemp));
         register_device_value(tag, &hc->minflowtemp, DeviceValueType::UINT, nullptr, FL_(minflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_minflowtemp));
         register_device_value(tag, &hc->maxflowtemp, DeviceValueType::UINT, nullptr, FL_(maxflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_maxflowtemp));
-        register_device_value(tag, &hc->roominfluence, DeviceValueType::UINT, nullptr, FL_(roominfluence), DeviceValueUOM::NONE, MAKE_CF_CB(set_roominfluence));
+        register_device_value(tag, &hc->roominfluence, DeviceValueType::UINT, nullptr, FL_(roominfluence), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_roominfluence));
         register_device_value(tag, &hc->nofrosttemp, DeviceValueType::INT, nullptr, FL_(nofrosttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nofrosttemp));
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT, nullptr, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
         register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE);
@@ -2355,7 +2369,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->summermode, DeviceValueType::BOOL, nullptr, FL_(summermode), DeviceValueUOM::NONE);
         register_device_value(tag, &hc->holidaymode, DeviceValueType::BOOL, nullptr, FL_(holidaymode), DeviceValueUOM::NONE, MAKE_CF_CB(set_holiday));
         register_device_value(tag, &hc->nofrosttemp, DeviceValueType::INT, nullptr, FL_(nofrosttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nofrosttemp));
-        register_device_value(tag, &hc->roominfluence, DeviceValueType::UINT, nullptr, FL_(roominfluence), DeviceValueUOM::NONE, MAKE_CF_CB(set_roominfluence));
+        register_device_value(tag, &hc->roominfluence, DeviceValueType::UINT, nullptr, FL_(roominfluence), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_roominfluence));
         register_device_value(tag, &hc->minflowtemp, DeviceValueType::UINT, nullptr, FL_(minflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_minflowtemp));
         register_device_value(tag, &hc->maxflowtemp, DeviceValueType::UINT, nullptr, FL_(maxflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_maxflowtemp));
         register_device_value(tag, &hc->flowtempoffset, DeviceValueType::UINT, nullptr, FL_(flowtempoffset), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_flowtempoffset));

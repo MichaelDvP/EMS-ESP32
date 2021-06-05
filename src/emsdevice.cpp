@@ -530,7 +530,7 @@ void EMSdevice::register_device_value(uint8_t                             tag,
 
 // publish a single value on change
 void EMSdevice::publish_value(void * value_p) {
-    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE) {
+    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE || value_p == nullptr) {
         return;
     }
     for (auto & dv : devicevalues_) {
@@ -552,7 +552,7 @@ void EMSdevice::publish_value(void * value_p) {
                            uuid::read_flash_string(dv.short_name).c_str());
             }
             uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
-            char payload[30];
+            char payload[30] = {'\0'};
             uint8_t fahrenheit = 0;
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
                 fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES) ? 2 : 0;
@@ -598,8 +598,9 @@ void EMSdevice::publish_value(void * value_p) {
                 }
                 break;
             }
-
-            Mqtt::publish(topic, payload);
+            if (payload != nullptr && payload[0] != '\0') {
+                Mqtt::publish(topic, payload);
+            }
         }
     }
 }

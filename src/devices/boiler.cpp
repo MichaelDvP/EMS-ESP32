@@ -187,7 +187,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(
         TAG_DEVICE_DATA_WW, &wWComfort_, DeviceValueType::ENUM, FL_(enum_comfort), FL_(wWComfort), DeviceValueUOM::NONE, MAKE_CF_CB(set_warmwater_mode));
     register_device_value(
-        TAG_DEVICE_DATA_WW, &wWFlowTempOffset_, DeviceValueType::UINT, nullptr, FL_(wWFlowTempOffset), DeviceValueUOM::NONE, MAKE_CF_CB(set_wWFlowTempOffset));
+        TAG_DEVICE_DATA_WW, &wWFlowTempOffset_, DeviceValueType::UINT, nullptr, FL_(wWFlowTempOffset), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_wWFlowTempOffset));
     register_device_value(
         TAG_DEVICE_DATA_WW, &wWMaxPower_, DeviceValueType::UINT, nullptr, FL_(wWMaxPower), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_warmwater_maxpower));
     register_device_value(
