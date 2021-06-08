@@ -533,7 +533,7 @@ void EMSdevice::register_device_value(uint8_t                             tag,
 
 // publish a single value on change
 void EMSdevice::publish_value(void * value_p) {
-    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE || value_p == nullptr || !Mqtt::connected()) {
+    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE || value_p == nullptr) {
         return;
     }
     for (auto & dv : devicevalues_) {
