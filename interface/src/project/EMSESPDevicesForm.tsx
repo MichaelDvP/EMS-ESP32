@@ -120,9 +120,9 @@ const pluralize = (count: number, noun: string, suffix = 's') =>
 function formatValue(value: any, uom: number) {
   switch (uom) {
     case DeviceValueUOM.HOURS:
-      return formatDuration(value * 60);
+      return value ? formatDuration(value * 60) : '0 hours';
     case DeviceValueUOM.MINUTES:
-      return formatDuration(value);
+      return value ? formatDuration(value) : '0 minutes';
     case DeviceValueUOM.NONE:
       return value;
     case DeviceValueUOM.NUM:
@@ -145,16 +145,16 @@ class EMSESPDevicesForm extends Component<
     processing: false
   };
 
-  handleValueChange = (name: keyof DeviceValue) => (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    this.setState({
-      edit_devicevalue: {
-        ...this.state.edit_devicevalue!,
-        [name]: extractEventValue(event)
-      }
-    });
-  };
+  handleValueChange =
+    (name: keyof DeviceValue) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      this.setState({
+        edit_devicevalue: {
+          ...this.state.edit_devicevalue!,
+          [name]: extractEventValue(event)
+        }
+      });
+    };
 
   cancelEditingValue = () => {
     this.setState({ edit_devicevalue: undefined });

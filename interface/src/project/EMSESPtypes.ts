@@ -21,7 +21,7 @@ export interface EMSESPSettings {
   pbutton_gpio: number;
   trace_raw: boolean;
   board_profile: string;
-  fahrenheit:boolean;
+  fahrenheit: boolean;
 }
 
 export enum busConnectionStatus {
@@ -58,7 +58,7 @@ export interface Sensor {
   no: number;
   id: string;
   data: string;
-  uom:number;
+  uom: number;
 }
 
 export interface EMSESPDevices {

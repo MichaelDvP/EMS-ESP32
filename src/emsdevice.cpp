@@ -533,7 +533,7 @@ void EMSdevice::register_device_value(uint8_t                             tag,
 
 // publish a single value on change
 void EMSdevice::publish_value(void * value_p) {
-    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE || value_p == nullptr) {
+    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE || value_p == nullptr || !Mqtt::connected()) {
         return;
     }
     for (auto & dv : devicevalues_) {
@@ -563,41 +563,41 @@ void EMSdevice::publish_value(void * value_p) {
             });
             switch (dv.type) {
             case DeviceValueType::ENUM: {
-                if (Helpers::hasValue((uint8_t)(*(uint8_t *)(dv.value_p)))) {
+                if (Helpers::hasValue((uint8_t)(*(uint8_t *)(value_p)))) {
                     if (Mqtt::bool_format() == BOOL_FORMAT_10) {
-                        Helpers::render_value(payload, *(uint8_t *)(dv.value_p), 0);
+                        Helpers::render_value(payload, *(uint8_t *)(value_p), 0);
                     } else {
-                        strlcpy(payload, uuid::read_flash_string(dv.options[*(uint8_t *)(dv.value_p)]).c_str(), sizeof(payload));
+                        strlcpy(payload, uuid::read_flash_string(dv.options[*(uint8_t *)(value_p)]).c_str(), sizeof(payload));
                     }
                 }
                 break;
             }
             case DeviceValueType::USHORT:
-                Helpers::render_value(payload, *(uint16_t *)(dv.value_p), divider, fahrenheit);
+                Helpers::render_value(payload, *(uint16_t *)(value_p), divider, fahrenheit);
                 break;
             case DeviceValueType::UINT:
-                Helpers::render_value(payload, *(uint8_t *)(dv.value_p), divider, fahrenheit);
+                Helpers::render_value(payload, *(uint8_t *)(value_p), divider, fahrenheit);
                 break;
             case DeviceValueType::SHORT:
-                Helpers::render_value(payload, *(int16_t *)(dv.value_p), divider, fahrenheit);
+                Helpers::render_value(payload, *(int16_t *)(value_p), divider, fahrenheit);
                 break;
             case DeviceValueType::INT:
-                Helpers::render_value(payload, *(int8_t *)(dv.value_p), divider, fahrenheit);
+                Helpers::render_value(payload, *(int8_t *)(value_p), divider, fahrenheit);
                 break;
             case DeviceValueType::ULONG:
-                Helpers::render_value(payload, *(uint32_t *)(dv.value_p), divider, fahrenheit);
+                Helpers::render_value(payload, *(uint32_t *)(value_p), divider, fahrenheit);
                 break;
             case DeviceValueType::BOOL: {
-                Helpers::render_boolean(payload, (bool)(*(uint8_t *)(dv.value_p)));
+                Helpers::render_boolean(payload, (bool)(*(uint8_t *)(value_p)));
                 break;
             }
             case DeviceValueType::TIME:
-                Helpers::render_value(payload, *(uint32_t *)(dv.value_p), divider);
+                Helpers::render_value(payload, *(uint32_t *)(value_p), divider);
                 break;
             case DeviceValueType::TEXT:
             default:
-                if (Helpers::hasValue((char *)(dv.value_p))) {
-                    strlcpy(payload, (char *)(dv.value_p), sizeof(payload));
+                if (Helpers::hasValue((char *)(value_p))) {
+                    strlcpy(payload, (char *)(value_p), sizeof(payload));
                 }
                 break;
             }
