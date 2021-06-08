@@ -192,7 +192,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         TAG_DEVICE_DATA_WW, &wWMaxPower_, DeviceValueType::UINT, nullptr, FL_(wWMaxPower), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_warmwater_maxpower));
     register_device_value(
         TAG_DEVICE_DATA_WW, &wWCircPump_, DeviceValueType::BOOL, nullptr, FL_(wWCircPump), DeviceValueUOM::NONE, MAKE_CF_CB(set_warmwater_circulation_pump));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWChargeType_, DeviceValueType::BOOL, FL_(enum_charge), FL_(wWChargeType), DeviceValueUOM::NONE);
+    register_device_value(TAG_DEVICE_DATA_WW, &wWChargeType_, DeviceValueType::ENUM, FL_(enum_charge), FL_(wWChargeType), DeviceValueUOM::NONE);
     register_device_value(TAG_DEVICE_DATA_WW,
                           &wWDisinfectionTemp_,
                           DeviceValueType::UINT,
@@ -401,7 +401,7 @@ void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, wWCircPump_, 6);       // 0xFF means on
     has_update(telegram, wWCircMode_, 7);       // 1=1x3min 6=6x3min 7=continuous
     has_update(telegram, wWDisinfectionTemp_, 8);
-    has_update(telegram, wWChargeType_, 10); // 0 = charge pump, 0xff = 3-way valve
+    has_bitupdate(telegram, wWChargeType_, 10, 0); // 0 = charge pump, 0xff = 3-way valve
 
     uint8_t wWComfort;
     telegram->read_value(wWComfort, 9);
@@ -1198,7 +1198,7 @@ bool Boiler::set_warmwater_circulation_pump(const char * value, const int8_t id)
     return true;
 }
 
-// Set the mode of circulation, 1x3min, ... 6x3min, continuos
+// Set the mode of circulation, 1x3min, ... 6x3min, continuous
 // true = on, false = off
 bool Boiler::set_warmwater_circulation_mode(const char * value, const int8_t id) {
     int v = 0;
@@ -1210,7 +1210,7 @@ bool Boiler::set_warmwater_circulation_mode(const char * value, const int8_t id)
     if (v < 7) {
         LOG_INFO(F("Setting warm water circulation mode %dx3min"), v);
     } else if (v == 7) {
-        LOG_INFO(F("Setting warm water circulation mode continuos"));
+        LOG_INFO(F("Setting warm water circulation mode continuous"));
     } else {
         LOG_WARNING(F("Set warm water circulation mode: Invalid value"));
         return false;

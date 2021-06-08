@@ -1590,9 +1590,6 @@ bool Thermostat::set_mode_n(const uint8_t mode, const uint8_t hc_num) {
         validate_typeid = monitor_typeids[hc_p];
         if (mode == HeatingCircuit::Mode::AUTO) {
             set_mode_value = 0xFF; // special value for auto
-        } else if (mode == HeatingCircuit::Mode::OFF) { // HA thermostat mode off
-            set_mode_value = 0;
-            write_command(set_typeids[hc->hc_num() - 1], 0x0A, 0); // temperature 0
         } else {
             set_mode_value = 0; // everything else, like manual/day etc..
         }
@@ -1810,7 +1807,7 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
             offset = 0x0A; // manual offset
             break;
         case HeatingCircuit::Mode::TEMPAUTO:
-            offset = 0x08; // manual offset
+            offset = 0x08; // temporary temp offset
             if (temperature == -1) {
                 factor = 0xFF; // use factor as value
             }

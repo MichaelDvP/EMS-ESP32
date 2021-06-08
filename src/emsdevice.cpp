@@ -648,13 +648,8 @@ bool EMSdevice::generate_values_json_web(JsonObject & json) {
         if (dv.full_name != nullptr) {
             // handle Booleans (true, false)
             if ((dv.type == DeviceValueType::BOOL) && Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
-                // see if we have options for the bool's
-                if (dv.options_size == 2) {
-                    data.add(*(uint8_t *)(dv.value_p) ? dv.options[0] : dv.options[1]);
-                } else {
-                    // always render booleans as on or off
-                    data.add(*(uint8_t *)(dv.value_p) ? F_(on) : F_(off));
-                }
+                // always render booleans as on or off
+                data.add(*(uint8_t *)(dv.value_p) ? F_(on) : F_(off));
             }
 
             // handle TEXT strings
@@ -864,9 +859,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 break;
             case DeviceValueType::BOOL: {
                 if (Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
-                    if (dv.options_size == 2) {
-                        json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? dv.options[0] : dv.options[1];
-                    } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF) {
+                    if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF) {
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? F_(on) : F_(off);
                     } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? F_(ON) : F_(OFF);
@@ -983,30 +976,24 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
 
             // handle Booleans (true, false)
             if ((dv.type == DeviceValueType::BOOL) && Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
-                // see if we have options for the bool's
-                if (dv.options_size == 2 && Mqtt::bool_format() != BOOL_FORMAT_10) {
-                    json[name] = *(uint8_t *)(dv.value_p) ? dv.options[0] : dv.options[1];
+                // see how to render the value depending on the setting
+                // when in console mode we always use on and off
+                if ((Mqtt::bool_format() == BOOL_FORMAT_ONOFF) || console) {
+                    // on or off as strings
+                    json[name] = *(uint8_t *)(dv.value_p) ? F_(on) : F_(off);
+                    has_value  = true;
+                } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
+                    // on or off as strings
+                    json[name] = *(uint8_t *)(dv.value_p) ? F_(ON) : F_(OFF);
+                    has_value  = true;
+                } else if (Mqtt::bool_format() == BOOL_FORMAT_TRUEFALSE) {
+                    // true or false values (as real booleans, not strings)
+                    json[name] = (bool)(*(uint8_t *)(dv.value_p)) ? true : false;
                     has_value  = true;
                 } else {
-                    // see how to render the value depending on the setting
-                    // when in console mode we always use on and off
-                    if ((Mqtt::bool_format() == BOOL_FORMAT_ONOFF) || console) {
-                        // on or off as strings
-                        json[name] = *(uint8_t *)(dv.value_p) ? F_(on) : F_(off);
-                        has_value  = true;
-                    } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
-                        // on or off as strings
-                        json[name] = *(uint8_t *)(dv.value_p) ? F_(ON) : F_(OFF);
-                        has_value  = true;
-                    } else if (Mqtt::bool_format() == BOOL_FORMAT_TRUEFALSE) {
-                        // true or false values (as real booleans, not strings)
-                        json[name] = (bool)(*(uint8_t *)(dv.value_p)) ? true : false;
-                        has_value  = true;
-                    } else {
-                        // numerical 1 or 0
-                        json[name] = (uint8_t)(*(uint8_t *)(dv.value_p)) ? 1 : 0;
-                        has_value  = true;
-                    }
+                    // numerical 1 or 0
+                    json[name] = (uint8_t)(*(uint8_t *)(dv.value_p)) ? 1 : 0;
+                    has_value  = true;
                 }
             }
 
