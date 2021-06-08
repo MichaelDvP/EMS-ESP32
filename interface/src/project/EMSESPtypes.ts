@@ -58,6 +58,7 @@ export interface Sensor {
   no: number;
   id: string;
   data: string;
+  uom:number;
 }
 
 export interface EMSESPDevices {
@@ -65,15 +66,60 @@ export interface EMSESPDevices {
   sensors: Sensor[];
 }
 
-export interface EMSESPDeviceData {
-  name: string;
-  data: string[];
+export interface DeviceValue {
+  v: any;
+  u: number;
+  n: string;
+  c: string;
 }
 
-export interface DeviceValue {
-  id: number;
-  data: string;
-  uom: string;
+export interface EMSESPDeviceData {
   name: string;
-  cmd: string;
+  data: DeviceValue[];
 }
+
+export enum DeviceValueUOM {
+  NONE = 0,
+  DEGREES,
+  DEGREES_R,
+  PERCENT,
+  LMIN,
+  KWH,
+  WH,
+  HOURS,
+  MINUTES,
+  UA,
+  BAR,
+  KW,
+  W,
+  KB,
+  SECONDS,
+  DBM,
+  NUM,
+  BOOLEAN,
+  FAHRENHEIT,
+  MV
+}
+
+export const DeviceValueUOM_s = [
+  '',
+  '°C',
+  '°C',
+  '%',
+  'l/min',
+  'kWh',
+  'Wh',
+  'hours',
+  'minutes',
+  'uA',
+  'bar',
+  'kW',
+  'W',
+  'KB',
+  'seconds',
+  'dBm',
+  'number',
+  'on/off',
+  '°F',
+  'mV'
+];

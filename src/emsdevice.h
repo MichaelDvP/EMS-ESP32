@@ -50,23 +50,26 @@ enum DeviceValueType : uint8_t {
 // sequence is important!
 enum DeviceValueUOM : uint8_t {
 
-    NONE = 0,
-    DEGREES,
-    DEGREES_R,
-    PERCENT,
-    LMIN,
-    KWH,
-    WH,
-    HOURS,
-    MINUTES,
-    UA,
-    BAR,
-    KW,
-    W,
-    KB,
-    SECONDS,
-    DBM,
-    NUM
+    NONE = 0,  // 0
+    DEGREES,   // 1
+    DEGREES_R, // 2
+    PERCENT,   // 3
+    LMIN,      // 4
+    KWH,       // 5
+    WH,        // 6
+    HOURS,     // 7
+    MINUTES,   // 8
+    UA,        // 9
+    BAR,       // 10
+    KW,        // 11
+    W,         // 12
+    KB,        // 13
+    SECONDS,   // 14
+    DBM,       // 15
+    NUM,       // 16
+    BOOLEAN,   // 17
+    FAHRENHEIT,// 18
+    MV         // 19
 
 };
 
@@ -273,7 +276,7 @@ class EMSdevice {
     bool        get_catalog(JsonObject & root);
     bool        get_value_info(JsonObject & root, const char * cmd, const int8_t id);
     bool        generate_values_json(JsonObject & json, const uint8_t tag_filter, const bool nested, const bool verbose = false, const bool console = false);
-    bool        generate_values_json_web(JsonObject & json);
+    void        generate_values_json_web(JsonObject & json);
 
     void register_device_value(uint8_t                             tag,
                                void *                              value_p,
