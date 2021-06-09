@@ -114,7 +114,7 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
     // scan for prefix hc.
     for (uint8_t i = DeviceValueTAG::TAG_HC1; i <= DeviceValueTAG::TAG_HC4; i++) {
         const char * tag = EMSdevice::tag_to_string(i).c_str();
-        uint8_t len = strlen(tag);
+        uint8_t      len = strlen(tag);
         if (strncmp(cmd, tag, len) == 0) {
             if (cmd[len] != '\0') {
                 strcpy(cmd, &cmd[len + 1]);
@@ -129,7 +129,7 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
     // scan for prefix wwc.
     for (uint8_t i = DeviceValueTAG::TAG_WWC1; i <= DeviceValueTAG::TAG_WWC4; i++) {
         const char * tag = EMSdevice::tag_to_string(i).c_str();
-        uint8_t len = strlen(tag);
+        uint8_t      len = strlen(tag);
         if (strncmp(cmd, tag, len) == 0) {
             if (cmd[len] != '\0') {
                 strcpy(cmd, &cmd[len + 1]);
@@ -146,7 +146,7 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
         strlcpy(cmd, "info", 20);
     }
 
-    return find_command(device_type ,cmd);
+    return find_command(device_type, cmd);
 }
 
 // add a command to the list, which does not return json
@@ -261,34 +261,31 @@ void Command::show(uuid::console::Shell & shell, uint8_t device_type, bool verbo
 
     // verbose mode
     shell.println();
-    for (auto & cl : sorted_cmds) {
-        // find and print the description
-        for (const auto & cf : cmdfunctions_) {
-            if ((cf.device_type_ == device_type) && !cf.hidden_ && cf.description_ && (cl == uuid::read_flash_string(cf.cmd_))) {
-                uint8_t i = cl.length();
-                shell.print("  ");
-                if (cf.flag_ == FLAG_HC) {
-                    shell.print("[hc] ");
-                    i += 5;
-                } else if (cf.flag_ == FLAG_WWC) {
-                    shell.print("[wwc] ");
-                    i += 6;
-                }
-                shell.print(cl);
-                // pad with spaces
-                while (i++ < 22) {
-                    shell.print(' ');
-                }
-                shell.print(COLOR_BRIGHT_CYAN);
-                if (cf.flag_ == FLAG_WW) {
-                    shell.print(EMSdevice::tag_to_string(TAG_DEVICE_DATA_WW));
-                    shell.print(' ');
-                }
-                shell.print(uuid::read_flash_string(cf.description_));
-                shell.print(COLOR_RESET);
+    for (const auto & cf : cmdfunctions_) {
+        if ((cf.device_type_ == device_type) && !cf.hidden_ && cf.description_ ) {
+            std::string cl = uuid::read_flash_string(cf.cmd_);
+            uint8_t     i  = cl.length();
+            shell.print("  ");
+            if (cf.flag_ == FLAG_HC) {
+                shell.print("[hc] ");
+                i += 5;
+            } else if (cf.flag_ == FLAG_WWC) {
+                shell.print("[wwc] ");
+                i += 6;
             }
+            shell.print(cl);
+            // pad with spaces
+            while (i++ < 22) {
+                shell.print(' ');
+            }
+            shell.print(COLOR_BRIGHT_CYAN);
+            if (cf.flag_ == FLAG_WW) {
+                shell.print(EMSdevice::tag_to_string(TAG_DEVICE_DATA_WW));
+                shell.print(' ');
+            }
+            shell.print(uuid::read_flash_string(cf.description_));
+            shell.println(COLOR_RESET);
         }
-        shell.println();
     }
 
     shell.println();

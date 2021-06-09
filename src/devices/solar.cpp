@@ -100,7 +100,7 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         register_device_value(TAG_NONE, &energyLastHour_, DeviceValueType::ULONG, FL_(div10), FL_(energyLastHour), DeviceValueUOM::WH);
         register_device_value(TAG_NONE, &maxFlow_, DeviceValueType::UINT, FL_(div10), FL_(maxFlow), DeviceValueUOM::LMIN, MAKE_CF_CB(set_SM10MaxFlow));
         register_device_value(TAG_DEVICE_DATA_WW, &wwMinTemp_, DeviceValueType::UINT, nullptr, FL_(wwMinTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwMinTemp));
-        register_device_value(TAG_NONE, &solarIsEnabled_, DeviceValueType::BOOL, nullptr, FL_(activated), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_solarEnabled));
+        register_device_value(TAG_NONE, &solarIsEnabled_, DeviceValueType::BOOL, nullptr, FL_(solarIsEnabled), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_solarEnabled));
 
         register_device_value(TAG_NONE, &data11_, DeviceValueType::UINT, nullptr, FL_(data11), DeviceValueUOM::NONE);
         register_device_value(TAG_NONE, &data12_, DeviceValueType::UINT, nullptr, FL_(data12), DeviceValueUOM::NONE);

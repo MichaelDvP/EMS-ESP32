@@ -41,6 +41,7 @@ void WebAPIService::webAPIService_get(AsyncWebServerRequest * request) {
     std::string value("");
 
     parse(request, device, cmd, id, value); // pass it defaults
+    EMSESP::logger().debug(F("API GET %s %s %s"), device.c_str(), cmd.c_str(), value.c_str());
 }
 
 // For POSTS with an optional JSON body
@@ -77,6 +78,7 @@ void WebAPIService::webAPIService_post(AsyncWebServerRequest * request, JsonVari
 
     // now parse the URL. The URL is always leading and will overwrite anything provided in the json body
     parse(request, device, cmd, id, value); // pass it defaults
+    EMSESP::logger().debug(F("API POST %s %s %s"), device.c_str(), cmd.c_str(), value.c_str());
 }
 
 // parse the URL looking for query or path parameters

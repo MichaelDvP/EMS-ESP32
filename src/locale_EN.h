@@ -602,7 +602,7 @@ MAKE_PSTR_LIST(heatTransferSystem, F("heattransfersystem"), F("heattransfer syst
 MAKE_PSTR_LIST(externalTank, F("externaltank"), F("external tank"))
 MAKE_PSTR_LIST(thermalDisinfect, F("thermaldisinfect"), F("thermal disinfection"))
 MAKE_PSTR_LIST(heatMetering, F("heatmetering"), F("heatmetering"))
-// MAKE_PSTR_LIST(solarIsEnabled, F("solarenabled"), F(""))
+MAKE_PSTR_LIST(solarIsEnabled, F("solarenabled"), F("solarmodule enabled"))
 
 // telegram 0x035A
 MAKE_PSTR_LIST(solarPumpMode, F("solarpumpmode"), F("solar pump mode"))
