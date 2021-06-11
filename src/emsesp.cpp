@@ -587,7 +587,7 @@ bool EMSESP::get_catalog(uint8_t devicetype, JsonObject & root, const int8_t id)
     return (root.size() > 0);
 }
 
-// show info to each command or value
+// builds json with the detail of each value, for all specific device type or the dallas sensor
 bool EMSESP::get_device_value_info(JsonObject & root, const char * cmd, const int8_t id, const uint8_t devicetype) {
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice->device_type() == devicetype) {

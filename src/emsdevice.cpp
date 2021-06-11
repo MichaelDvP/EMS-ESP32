@@ -637,7 +637,7 @@ std::string EMSdevice::get_value_uom(const char * key) {
     return std::string{}; // not found
 }
 
-// prepare array of device values used for the Web UI
+// prepare array of device values used for the WebUI
 // v = value, u=uom, n=name, c=cmd
 void EMSdevice::generate_values_json_web(JsonObject & json) {
     json["name"]   = to_string_short();

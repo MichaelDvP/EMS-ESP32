@@ -409,10 +409,10 @@ void EMSESPShell::add_console_commands() {
                 return;
             }
 
-            // validate the command
+            // validate that a command is present
             if (arguments.size() < 2) {
                 shell.println(F("Missing command. Available commands are:"));
-                Command::show(shell, device_type, true); // non-verbose mode
+                Command::show(shell, device_type, true); // verbose mode
                 return;
             }
 
