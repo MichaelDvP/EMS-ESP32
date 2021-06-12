@@ -734,19 +734,6 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
     }
 }
 
-bool EMSdevice::get_catalog(JsonObject & root) {
-    std::string name    = device_type_2_device_name(device_type());
-    JsonArray   catalog = root.createNestedArray(name);
-    for (auto & dv : devicevalues_) {
-        if (dv.tag >= TAG_HC1) {
-            catalog.add(tag_to_mqtt(dv.tag) + "/" + uuid::read_flash_string(dv.short_name));
-        } else {
-            catalog.add(uuid::read_flash_string(dv.short_name));
-        }
-    }
-    return (root.size() > 0);
-}
-
 bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t id) {
     JsonObject json       = root;
     int8_t     tag        = id;
@@ -929,6 +916,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
 // For each value in the device create the json object pair and add it to given json
 // return false if empty
 // this is used to create both the MQTT payloads and Console messages (console = true)
+// verbose shows command-names without value, console shows full names
 bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter, const bool nested, const bool verbose, const bool console) {
     bool       has_values = false; // to see if we've added a value. it's faster than doing a json.size() at the end
     uint8_t    old_tag    = 255;   // NAN

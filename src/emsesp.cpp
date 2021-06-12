@@ -314,7 +314,7 @@ void EMSESP::show_device_values(uuid::console::Shell & shell) {
 
                 DynamicJsonDocument doc(EMSESP_JSON_SIZE_XLARGE_DYN); // use max size
                 JsonObject          json = doc.to<JsonObject>();
-                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, true, false, true); // console mode and nested
+                emsdevice->generate_values_json(json, DeviceValueTAG::TAG_NONE, true, false, true); // no cmds, console mode and nested
 
                 // print line
                 uint8_t id = 0;
@@ -559,32 +559,6 @@ void EMSESP::publish_response(std::shared_ptr<const Telegram> telegram) {
     }
 
     Mqtt::publish(F_(response), doc.as<JsonObject>());
-}
-
-// get all alues and commands as list
-bool EMSESP::get_catalog(uint8_t devicetype, JsonObject & root, const int8_t id) {
-    if (id != -1) {
-        return false;
-    }
-    for (const auto & emsdevice : emsdevices) {
-        if (emsdevice->device_type() == devicetype) {
-            return emsdevice->get_catalog(root);
-        }
-    }
-    if (devicetype == DeviceType::DALLASSENSOR) {
-        JsonArray catalog = root.createNestedArray(F_(sensor));
-        uint8_t   i       = 1;
-        for (const auto & sensor : EMSESP::sensor_devices()) {
-            char sensorID[10];
-            snprintf_P(sensorID, 10, PSTR("sensor%d"), i++);
-            if (Mqtt::dallas_format() == Mqtt::Dallas_Format::SENSORID) {
-                catalog.add(sensor.to_string());
-            } else {
-                catalog.add(sensorID);
-            }
-        }
-    }
-    return (root.size() > 0);
 }
 
 // builds json with the detail of each value, for all specific device type or the dallas sensor
@@ -1012,24 +986,13 @@ bool EMSESP::add_device(const uint8_t device_id, const uint8_t product_id, std::
     Command::add_with_json(
         device_type,
         F_(info),
-        [device_type](const char * value, const int8_t id, JsonObject & json) { return command_info(device_type, json, id, true); },
+        [device_type](const char * value, const int8_t id, JsonObject & json) { return command_info(device_type, json, id); },
         F_(info_cmd));
-    Command::add_with_json(
-        device_type,
-        F("info_short"),
-        [device_type](const char * value, const int8_t id, JsonObject & json) { return command_info(device_type, json, id, false); },
-        nullptr,
-        true); // this command is hidden
     Command::add_with_json(
         device_type,
         F_(commands),
         [device_type](const char * value, const int8_t id, JsonObject & json) { return command_commands(device_type, json, id); },
         F_(commands_cmd));
-    Command::add_with_json(
-        device_type,
-        F_(catalog),
-        [device_type](const char * value, const int8_t id, JsonObject & json) { return get_catalog(device_type, json, id); },
-        F_(catalog_cmd));
 
     return true;
 }
@@ -1042,7 +1005,7 @@ bool EMSESP::command_commands(uint8_t device_type, JsonObject & json, const int8
 // export all values to info command
 // value is ignored here
 // info command always shows in verbose mode, so full names are displayed
-bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t id, bool console) {
+bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t id) {
     bool    has_value = false;
     uint8_t tag;
     if (id >= 1 && id <= 4) {
@@ -1058,7 +1021,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
     for (const auto & emsdevice : emsdevices) {
         if (emsdevice && (emsdevice->device_type() == device_type)
             && ((device_type != DeviceType::THERMOSTAT) || (emsdevice->device_id() == EMSESP::actual_master_thermostat()))) {
-            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), true, console && (id == -1)); // nested for id -1,0 & console for id -1
+            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), true, false); // nested for id -1,0 & console for id -1
         }
     }
 

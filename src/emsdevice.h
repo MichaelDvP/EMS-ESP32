@@ -273,7 +273,6 @@ class EMSdevice {
     bool handle_telegram(std::shared_ptr<const Telegram> telegram);
 
     std::string get_value_uom(const char * key);
-    bool        get_catalog(JsonObject & root);
     bool        get_value_info(JsonObject & root, const char * cmd, const int8_t id);
     bool        generate_values_json(JsonObject & json, const uint8_t tag_filter, const bool nested, const bool verbose = false, const bool console = false);
     void        generate_values_json_web(JsonObject & json);

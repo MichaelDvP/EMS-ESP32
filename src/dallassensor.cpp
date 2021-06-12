@@ -48,11 +48,6 @@ void DallasSensor::start() {
             F_(info_cmd));
         Command::add_with_json(
             EMSdevice::DeviceType::DALLASSENSOR,
-            F_(catalog),
-            [&](const char * value, const int8_t id, JsonObject & json) { return EMSESP::get_catalog(EMSdevice::DeviceType::DALLASSENSOR, json, id); },
-            F_(catalog_cmd));
-        Command::add_with_json(
-            EMSdevice::DeviceType::DALLASSENSOR,
             F_(commands),
             [&](const char * value, const int8_t id, JsonObject & json) { return command_commands(value, id, json); },
             F_(commands_cmd));

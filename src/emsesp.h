@@ -112,7 +112,6 @@ class EMSESP {
     static uint8_t check_master_device(const uint8_t device_id, const uint16_t type_id, const bool read);
 
     static bool get_device_value_info(JsonObject & root, const char * cmd, const int8_t id, const uint8_t devicetype);
-    static bool get_catalog(uint8_t devicetype, JsonObject & root, const int8_t id);
 
     static void show_device_values(uuid::console::Shell & shell);
     static void show_sensor_values(uuid::console::Shell & shell);
@@ -220,7 +219,7 @@ class EMSESP {
     static void process_version(std::shared_ptr<const Telegram> telegram);
     static void publish_response(std::shared_ptr<const Telegram> telegram);
     static void publish_all_loop();
-    static bool command_info(uint8_t device_type, JsonObject & json, const int8_t id, bool console = false);
+    static bool command_info(uint8_t device_type, JsonObject & json, const int8_t id);
     static bool command_commands(uint8_t device_type, JsonObject & json, const int8_t id);
 
     static constexpr uint32_t EMS_FETCH_FREQUENCY = 60000; // check every minute

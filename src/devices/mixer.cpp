@@ -202,13 +202,14 @@ void Mixer::process_MMConfigMessage(std::shared_ptr<const Telegram> telegram) {
 // e.g. Thermostat -> Mixer Module, type 0xAC, telegram: 10 21 AC 00 1E 64 01 AB
 void Mixer::process_MMSetMessage(std::shared_ptr<const Telegram> telegram) {
     // pos 0: flowtemp setpoint 1E = 30°C
-    // pos 1: position in %
+    // pos 1: pump in %
+    // pos 2 flags (mostly 01)
 }
 
 // Thermostat(0x10) -> Mixer(0x21), ?(0x23), data: 1A 64 00 90 21 23 00 1A 64 00 89
 void Mixer::process_IPMSetMessage(std::shared_ptr<const Telegram> telegram) {
     // pos 0: flowtemp setpoint 1A = 26°C
-    // pos 1: position in %?
+    // pos 1: pump in %?
 }
 
 #pragma GCC diagnostic pop
