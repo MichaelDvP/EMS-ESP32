@@ -173,7 +173,7 @@ void Mqtt::loop() {
     }
 
     // dallas publish on change
-    if (!publish_time_sensor_) {
+    if (get_publish_onchange(EMSdevice::DeviceType::DALLASSENSOR)) {
         EMSESP::publish_sensor_values(false);
     }
 
@@ -595,6 +595,9 @@ void Mqtt::set_publish_time_sensor(uint16_t publish_time) {
 }
 
 bool Mqtt::get_publish_onchange(uint8_t device_type) {
+    if (subscribe_format_ != Subscribe_Format::DEVICE) {
+        return false;
+    }
     if (device_type == EMSdevice::DeviceType::BOILER) {
         if (!publish_time_boiler_) {
             return true;
@@ -609,6 +612,10 @@ bool Mqtt::get_publish_onchange(uint8_t device_type) {
         }
     } else if (device_type == EMSdevice::DeviceType::MIXER) {
         if (!publish_time_mixer_) {
+            return true;
+        }
+    } else if (device_type == EMSdevice::DeviceType::DALLASSENSOR) {
+        if (!publish_time_sensor_) {
             return true;
         }
     } else if (!publish_time_other_) {

@@ -92,10 +92,17 @@ void WebDevicesService::all_devices(AsyncWebServerRequest * request) {
     }
     if (EMSESP::system_.analog_enabled()) {
         JsonObject obj = sensors.createNestedObject();
-        obj["no"]   = i;
-        obj["id"]   = F("analog input");
-        obj["data"] = EMSESP::system_.analog();
-        obj["uom"]  = DeviceValueUOM::MV;
+        obj["no"]      = i++;
+        obj["id"]      = F("analog input");
+        obj["data"]    = EMSESP::system_.analog();
+        obj["uom"]     = DeviceValueUOM::MV;
+        /*
+        JsonObject obj1 = sensors.createNestedObject();
+        obj1["no"]      = i++;
+        obj1["id"]      = F("counter");
+        obj1["data"]    = EMSESP::system_.get_io_counter();
+        obj1["uom"]     = DeviceValueUOM::NONE;
+        */
     }
 
     response->setLength();

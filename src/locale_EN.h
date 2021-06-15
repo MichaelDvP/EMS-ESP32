@@ -572,7 +572,7 @@ MAKE_PSTR_LIST(cylinderPumpModulation, F("cylinderpumpmodulation"), F("cylinder 
 
 MAKE_PSTR_LIST(solarPump, F("solarpump"), F("pump (PS1)"))
 MAKE_PSTR_LIST(valveStatus, F("valvestatus"), F("valve status"))
-MAKE_PSTR_LIST(tankHeated, F("tankheated"), F("tank heated"))
+MAKE_PSTR_LIST(tankHeated, F("tankheated"), F("tank heated shutdown"))
 MAKE_PSTR_LIST(collectorShutdown, F("collectorshutdown"), F("collector shutdown"))
 
 MAKE_PSTR_LIST(pumpWorkTime, F("pumpworktime"), F("pump working time"))

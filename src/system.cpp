@@ -219,6 +219,7 @@ void System::get_settings() {
 
         // ADC
         analog_enabled_ = settings.analog_enabled;
+        pinMode(27, INPUT_PULLUP);
 
         // Syslog
         syslog_enabled_       = settings.syslog_enabled;
@@ -418,6 +419,7 @@ void System::loop() {
     system_check(); // check system health
     if (analog_enabled_) {
         measure_analog();
+        io_counter();
     }
 
     // send out heartbeat
@@ -484,15 +486,16 @@ bool System::heartbeat_json(JsonObject & doc) {
     doc["max_alloc_heap"] = ESP.getMaxAllocHeap() / 1000UL;
 #endif
     if (analog_enabled_) {
-        doc["adc"]  = analog_;
-        doc["io17"] = digitalRead(17);
-        doc["io19"] = digitalRead(19);
-        doc["io21"] = digitalRead(21);
-        doc["io22"] = digitalRead(22);
-        doc["io26"] = digitalRead(26);
-        doc["io27"] = digitalRead(27);
-        doc["io32"] = digitalRead(32);
-        doc["io33"] = digitalRead(33);
+        doc["adc"]   = analog_;
+        doc["count"] = io_counter_;
+        doc["io17"]  = digitalRead(17);
+        doc["io19"]  = digitalRead(19);
+        doc["io21"]  = digitalRead(21);
+        doc["io22"]  = digitalRead(22);
+        doc["io26"]  = digitalRead(26);
+        doc["io27"]  = digitalRead(27);
+        doc["io32"]  = digitalRead(32);
+        doc["io33"]  = digitalRead(33);
     }
 
 #ifndef EMSESP_STANDALONE
@@ -517,6 +520,24 @@ void System::send_heartbeat() {
 
     if (heartbeat_json(json)) {
         Mqtt::publish(F_(heartbeat), doc.as<JsonObject>()); // send to MQTT with retain off. This will add to MQTT queue.
+    }
+}
+
+void System::io_counter() {
+    static uint32_t pinchange = 0;
+    static uint8_t pin_old    = 1;
+    static uint8_t pin        = 1;
+    if (pin != digitalRead(27)) {
+        pinchange = uuid::get_uptime();
+        pin       = digitalRead(27);
+    }
+    if (uuid::get_uptime() - pinchange >= 15) { // debounce
+        if (pin_old != pin) { // remember new state
+            pin_old = pin;
+            if (!pin) { // count on active (low) signal
+                io_counter_ ++;
+            }
+        } 
     }
 }
 

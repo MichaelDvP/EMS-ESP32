@@ -569,7 +569,7 @@ MAKE_PSTR_LIST(cylinderPumpModulation, F("cylinderpumpmodulation"), F("Speicherp
 
 MAKE_PSTR_LIST(solarPump, F("solarpump"), F("Pumpe (PS1)"))
 MAKE_PSTR_LIST(valveStatus, F("valvestatus"), F("ventilstatus"))
-MAKE_PSTR_LIST(tankHeated, F("tankheated"), F("Speicher heiss"))
+MAKE_PSTR_LIST(tankHeated, F("tankheated"), F("Speichertemperatur erreicht"))
 MAKE_PSTR_LIST(collectorShutdown, F("collectorshutdown"), F("Kollektorabschaltung"))
 
 MAKE_PSTR_LIST(pumpWorkTime, F("pumpworktime"), F("Pumpenlaufzeit"))

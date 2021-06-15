@@ -558,7 +558,7 @@ void DallasSensor::publish_values(const bool force) {
                     // std::string topicname = sensor.to_string();
                     // std::replace(topicname.begin(), topicname.end(), '-', '_');
                     // Helpers::toLower(topic);
-                    snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/sensor%s/config"), Mqtt::base().c_str(), sensor.to_string().c_str());
+                    snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/sensor_%s/config"), Mqtt::base().c_str(), sensor.to_string().c_str());
                 } else {
                     snprintf_P(topic, sizeof(topic), PSTR("sensor/%s/sensor%d/config"), Mqtt::base().c_str(), sensor_no);
                 }

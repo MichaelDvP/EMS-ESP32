@@ -96,6 +96,7 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         register_device_value(
             TAG_NONE, &collectorMinTemp_, DeviceValueType::UINT, nullptr, FL_(collectorMinTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_CollectorMinTemp));
         register_device_value(TAG_NONE, &collectorShutdown_, DeviceValueType::BOOL, nullptr, FL_(collectorShutdown), DeviceValueUOM::BOOLEAN);
+        register_device_value(TAG_NONE, &tankHeated_, DeviceValueType::BOOL, nullptr, FL_(tankHeated), DeviceValueUOM::BOOLEAN);
         register_device_value(TAG_NONE, &solarPower_, DeviceValueType::ULONG, nullptr, FL_(solarPower), DeviceValueUOM::W);
         register_device_value(TAG_NONE, &energyLastHour_, DeviceValueType::ULONG, FL_(div10), FL_(energyLastHour), DeviceValueUOM::WH);
         register_device_value(TAG_NONE, &maxFlow_, DeviceValueType::UINT, FL_(div10), FL_(maxFlow), DeviceValueUOM::LMIN, MAKE_CF_CB(set_SM10MaxFlow));
@@ -247,12 +248,12 @@ void Solar::process_SM10Monitor(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, data11_, 11);
     has_update(telegram, data12_, 12);
 
-    has_bitupdate(telegram, collectorShutdown_, 0, 3);
-    // has_bitupdate(telegram, tankHeated_, 0, x); // tank full, to be determined
-    has_update(telegram, collectorTemp_, 2);       // collector temp from SM10, is *10
-    has_update(telegram, solarPumpModulation_, 4); // modulation solar pump
-    has_update(telegram, tankBottomTemp_, 5);      // tank bottom temp from SM10, is *10
-    has_bitupdate(telegram, solarPump_, 7, 1);
+    has_bitupdate(telegram, collectorShutdown_, 0, 3); // collectorMaxTemp reached
+    has_bitupdate(telegram, tankHeated_, 0, 2);        // tankMaxTemp reached
+    has_update(telegram, collectorTemp_, 2);           // collector temp from SM10, is *10
+    has_update(telegram, solarPumpModulation_, 4);     // modulation solar pump
+    has_update(telegram, tankBottomTemp_, 5);          // tank bottom temp from SM10, is *10
+    has_bitupdate(telegram, solarPump_, 7, 1);         // pump onoff
     has_update(telegram, pumpWorkTime_, 8, 3);
 
     // mask out pump-boosts

@@ -105,6 +105,10 @@ class System {
         return analog_;
     }
 
+    uint32_t get_io_counter() {
+        return io_counter_;
+    }
+
     bool network_connected() {
 #ifndef EMSESP_STANDALONE
         return (ethernet_connected_ || WiFi.isConnected());
@@ -146,6 +150,7 @@ class System {
     void set_led_speed(uint32_t speed);
     void system_check();
     void measure_analog();
+    void io_counter();
 
     int8_t wifi_quality(int8_t dBm);
 
@@ -156,6 +161,7 @@ class System {
     bool     upload_status_      = false; // true if we're in the middle of a OTA firmware upload
     bool     ethernet_connected_ = false;
     uint16_t analog_             = 0;
+    uint32_t io_counter_         = 0;
 
     // settings
     std::string hostname_ = "ems-esp";
