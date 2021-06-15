@@ -13,6 +13,7 @@ class AsyncWebServerResponse;
 class AsyncJsonResponse;
 class PrettyAsyncJsonResponse;
 class MsgpackAsyncJsonResponse;
+class AsyncEventSource;
 
 class AsyncWebParameter {
   private:
@@ -76,6 +77,7 @@ class AsyncWebServerRequest {
     void * _tempObject;
 
     AsyncWebServerRequest(AsyncWebServer *, AsyncClient *){};
+    AsyncWebServerRequest(){};
     ~AsyncWebServerRequest(){};
 
     AsyncClient * client() {
@@ -119,6 +121,10 @@ class AsyncWebServerRequest {
         return false;
     }
 
+    bool hasParam(const char * name) const {
+        return false;
+    }
+
     bool hasParam(const __FlashStringHelper * data) const {
         return false;
     }
@@ -136,6 +142,10 @@ class AsyncWebServerRequest {
     }
 
     AsyncWebParameter * getParam(const __FlashStringHelper * data) const {
+        return nullptr;
+    }
+
+    AsyncWebParameter * getParam(const char * name) const {
         return nullptr;
     }
 
@@ -188,6 +198,10 @@ class AsyncWebHandler {
     virtual bool isRequestHandlerTrivial() {
         return true;
     }
+
+    AsyncWebHandler & setFilter(ArRequestFilterFunction fn) {
+        return *this;
+    }
 };
 
 class AsyncWebServerResponse {
@@ -218,6 +232,19 @@ class AsyncWebServer {
     }
 
     void on(const char * uri, WebRequestMethodComposite method, ArRequestHandlerFunction onRequest){};
+};
+
+
+class AsyncEventSource : public AsyncWebHandler {
+  public:
+    AsyncEventSource(const String & url){};
+    ~AsyncEventSource(){};
+
+    size_t count() const {
+        return 1;
+    }
+
+    void send(const char * message, const char * event = NULL, uint32_t id = 0, uint32_t reconnect = 0){};
 };
 
 

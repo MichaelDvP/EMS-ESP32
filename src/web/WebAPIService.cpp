@@ -84,9 +84,9 @@ void WebAPIService::webAPIService_post(AsyncWebServerRequest * request, JsonVari
 // parse the URL looking for query or path parameters
 // reporting back any errors
 void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_s, std::string & cmd_s, int id, std::string & value_s) {
-#ifndef EMSESP_STANDALONE
     // parse URL for the path names
     SUrlParser p;
+
     p.parse(request->url().c_str());
 
     // remove the /api from the path
@@ -197,6 +197,13 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
     response->setLength();
     request->send(response); // send json response
 
+#if defined(EMSESP_STANDALONE)
+    Serial.print(COLOR_YELLOW);
+    if (json.size() != 0) {
+        serializeJsonPretty(json, Serial);
+    }
+    Serial.println();
+    Serial.print(COLOR_RESET);
 #endif
 }
 
