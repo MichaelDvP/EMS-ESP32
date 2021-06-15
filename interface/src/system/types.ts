@@ -39,13 +39,16 @@ export interface OTASettings {
 
 export enum LogLevel {
   ERR = 3,
+  WARN = 4,
   NOTICE = 5,
   INFO = 6,
-  DEBUG = 7
+  DEBUG = 7,
+  TRACE = 8
 }
 
 export interface LogEvent {
   time: string;
   level: LogLevel;
+  name: string;
   message: string;
 }

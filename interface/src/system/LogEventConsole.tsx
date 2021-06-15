@@ -37,6 +37,9 @@ const useStyles = makeStyles((theme: Theme) => ({
     letterSpacing: 'normal',
     whiteSpace: 'nowrap'
   },
+  trace: {
+    color: '#00ffff'
+  },
   debug: {
     color: '#0000ff'
   },
@@ -48,6 +51,9 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   err: {
     color: '#ff0000'
+  },
+  warn: {
+    color: '#ff4040'
   },
   unknown: {
     color: '#ffffff'
@@ -61,13 +67,17 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
 
   const styleLevel = (level: LogLevel) => {
     switch (level) {
+      case LogLevel.TRACE:
+        return classes.trace;
       case LogLevel.DEBUG:
         return classes.debug;
       case LogLevel.INFO:
         return classes.info;
       case LogLevel.NOTICE:
         return classes.notice;
-      case LogLevel.ERR:
+        case LogLevel.WARN:
+          return classes.warn;
+        case LogLevel.ERR:
         return classes.err;
       default:
         return classes.unknown;
@@ -76,6 +86,8 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
 
   const levelLabel = (level: LogLevel) => {
     switch (level) {
+      case LogLevel.TRACE:
+        return 'TRACE';
       case LogLevel.DEBUG:
         return 'DEBUG';
       case LogLevel.INFO:
@@ -84,7 +96,9 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
         return 'ERR';
       case LogLevel.NOTICE:
         return 'NOTICE';
-      default:
+        case LogLevel.WARN:
+          return 'WARN';
+        default:
         return '?';
     }
   };
@@ -102,6 +116,7 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
           <span className={styleLevel(e.level)}>
             {paddedLevelLabel(e.level)}{' '}
           </span>
+          <span>{e.name}{` `}</span>
           <span>{e.message}</span>
         </div>
       ))}

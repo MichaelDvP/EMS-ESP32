@@ -35,7 +35,7 @@ void WebLogService::forbidden(AsyncWebServerRequest * request) {
 }
 
 void WebLogService::start() {
-    uuid::log::Logger::register_handler(this, uuid::log::Level::INFO); // default is INFO
+    uuid::log::Logger::register_handler(this, uuid::log::Level::ALL); // default is INFO
 }
 
 uuid::log::Level WebLogService::log_level() const {
@@ -98,7 +98,7 @@ void WebLogService::loop() {
 
 bool WebLogService::can_transmit() {
     const uint64_t now = uuid::get_uptime_ms();
-    if (now < last_transmit_ || now - last_transmit_ < 100) {
+    if (now - last_transmit_ < 100) {
         return false;
     }
     return true;
@@ -110,6 +110,7 @@ void WebLogService::transmit(const QueuedLogMessage & message) {
     JsonObject          logEvent     = jsonDocument.to<JsonObject>();
     logEvent["time"]                 = uuid::log::format_timestamp_ms(message.content_->uptime_ms, 3);
     logEvent["level"]                = message.content_->level;
+    logEvent["name"]                 = message.content_->name;
     logEvent["message"]              = message.content_->text;
 
     size_t len    = measureJson(jsonDocument);
