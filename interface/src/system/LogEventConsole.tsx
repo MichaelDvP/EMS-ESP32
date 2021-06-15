@@ -75,9 +75,9 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
         return classes.info;
       case LogLevel.NOTICE:
         return classes.notice;
-        case LogLevel.WARN:
-          return classes.warn;
-        case LogLevel.ERR:
+      case LogLevel.WARN:
+        return classes.warn;
+      case LogLevel.ERR:
         return classes.err;
       default:
         return classes.unknown;
@@ -96,9 +96,9 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
         return 'ERR';
       case LogLevel.NOTICE:
         return 'NOTICE';
-        case LogLevel.WARN:
-          return 'WARN';
-        default:
+      case LogLevel.WARN:
+        return 'WARN';
+      default:
         return '?';
     }
   };
@@ -116,7 +116,6 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
           <span className={styleLevel(e.level)}>
             {paddedLevelLabel(e.level)}{' '}
           </span>
-          <span>{e.name}{` `}</span>
           <span>{e.message}</span>
         </div>
       ))}
