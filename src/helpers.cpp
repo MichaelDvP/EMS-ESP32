@@ -213,17 +213,15 @@ char * Helpers::render_value(char * result, const float value, const uint8_t for
     return ret;
 }
 
-// int16: convert short (two bytes) to text string and returns string
+// int32: convert signed 32bit to text string and returns string
 // format: 0=no division, other divide by the value given and render with a decimal point
-char * Helpers::render_value(char * result, const int16_t value, const uint8_t format, uint8_t fahrenheit) {
-    if (!hasValue(value)) {
-        return nullptr;
-    }
+char * Helpers::render_value(char * result, const int32_t value, const uint8_t format, uint8_t fahrenheit) {
 
-    int16_t new_value = fahrenheit ? format ? value * 1.8 + 32 * format : value * 1.8 + 32: value;
+    int32_t new_value = fahrenheit ? format ? value * 1.8 + 32 * format * (fahrenheit - 1) : value * 1.8 + 32 * (fahrenheit - 1): value;
+    char    s[10]     = {0};
     // just print it if no conversion required (format = 0)
     if (!format) {
-        itoa(result, new_value, 10);
+        strlcpy(result, ltoa(new_value, s, 10), sizeof(s)); // format is 0
         return result;
     }
 
@@ -231,26 +229,34 @@ char * Helpers::render_value(char * result, const int16_t value, const uint8_t f
 
     // check for negative values
     if (new_value < 0) {
-        strlcpy(result, "-", 10);
+        strlcpy(result, "-", sizeof(s));
         new_value *= -1; // convert to positive
     } else {
-        strlcpy(result, "", 10);
+        strlcpy(result, "", sizeof(s));
     }
 
     // do floating point
-    char s2[10] = {0};
     if (format == 2) {
         // divide by 2
-        strlcat(result, itoa(s2, new_value / 2, 10), 10);
+        strlcat(result, ltoa(new_value / 2, s, 10), sizeof(s));
         strlcat(result, ".", 10);
-        strlcat(result, ((new_value & 0x01) ? "5" : "0"), 10);
+        strlcat(result, ((new_value & 0x01) ? "5" : "0"), sizeof(s));
     } else {
-        strlcat(result, itoa(s2, new_value / format, 10), 10);
+        strlcat(result, ltoa(new_value / format, s, 10), sizeof(s));
         strlcat(result, ".", 10);
-        strlcat(result, itoa(s2, new_value % format, 10), 10);
+        strlcat(result, ltoa(new_value % format, s, 10), sizeof(s));
     }
 
     return result;
+}
+
+// int16: convert short (two bytes) to text string and prints it
+char * Helpers::render_value(char * result, const int16_t value, const uint8_t format, uint8_t fahrenheit) {
+    if (!hasValue(value)) {
+        return nullptr;
+    }
+
+    return (render_value(result, (int32_t)value, format, fahrenheit)); // use same code, force it to a signed int
 }
 
 // uint16: convert unsigned short (two bytes) to text string and prints it
@@ -259,7 +265,7 @@ char * Helpers::render_value(char * result, const uint16_t value, const uint8_t 
         return nullptr;
     }
 
-    return (render_value(result, (int16_t)value, format, fahrenheit)); // use same code, force it to a signed int
+    return (render_value(result, (int32_t)value, format, fahrenheit)); // use same code, force it to a signed int
 }
 
 // int8: convert signed byte to text string and prints it
@@ -268,7 +274,7 @@ char * Helpers::render_value(char * result, const int8_t value, const uint8_t fo
         return nullptr;
     }
 
-    return (render_value(result, (int16_t)value, format, fahrenheit)); // use same code, force it to a signed int
+    return (render_value(result, (int32_t)value, format, fahrenheit)); // use same code, force it to a signed int
 }
 
 // uint32: render long (4 byte) unsigned values
@@ -276,26 +282,26 @@ char * Helpers::render_value(char * result, const uint32_t value, const uint8_t 
     if (!hasValue(value)) {
         return nullptr;
     }
-    uint32_t new_value = fahrenheit ? format ? value * 1.8 + 32 * format : value * 1.8 + 32: value;
-    result[0] = '\0';
-    char s[20];
+    result[0]         = '\0';
+    int32_t new_value = fahrenheit ? format ? value * 1.8 + 32 * format * (fahrenheit - 1) : value * 1.8 + 32 * (fahrenheit - 1): value;
+    char    s[10]     = {0};
 
 #ifndef EMSESP_STANDALONE
     if (!format) {
-        strlcpy(result, ltoa(new_value, s, 10), 20); // format is 0
+        strlcpy(result, ltoa(new_value, s, 10), sizeof(s)); // format is 0
     } else {
-        strlcpy(result, ltoa(new_value / format, s, 10), 20);
-        strlcat(result, ".", 20);
-        strlcat(result, ltoa(new_value % format, s, 10), 20);
+        strlcpy(result, ltoa(new_value / format, s, 10), sizeof(s));
+        strlcat(result, ".", sizeof(s));
+        strlcat(result, ltoa(new_value % format, s, 10), sizeof(s));
     }
 
 #else
     if (!format) {
-        strlcpy(result, ultostr(s, new_value, 10), 20); // format is 0
+        strlcpy(result, ultostr(s, new_value, 10), sizeof(s)); // format is 0
     } else {
-        strncpy(result, ultostr(s, new_value / format, 10), 20);
+        strncpy(result, ultostr(s, new_value / format, 10), sizeof(s));
         strlcat(result, ".", 20);
-        strncat(result, ultostr(s, new_value % format, 10), 20);
+        strncat(result, ultostr(s, new_value % format, 10), sizeof(s));
     }
 #endif
 
