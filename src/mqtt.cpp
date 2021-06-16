@@ -117,7 +117,7 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
         queue_subscribe_message(topic);
         topic = cmd_topic + "/hc4/" + uuid::read_flash_string(cmd);
         queue_subscribe_message(topic);
-    } else if (subscribe_format_ == Subscribe_Format::COMMAND && flag != MqttSubFlag::FLAG_NOSUB) {
+    } else if (subscribe_format_ != Subscribe_Format::DEVICE && flag != MqttSubFlag::FLAG_NOSUB) {
         topic = cmd_topic + "/" + uuid::read_flash_string(cmd);
         queue_subscribe_message(topic);
     }
@@ -150,7 +150,7 @@ void Mqtt::resubscribe() {
             queue_subscribe_message(topic);
             topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/hc4/" + uuid::read_flash_string(cf.cmd_);
             queue_subscribe_message(topic);
-        } else if (subscribe_format_ == Subscribe_Format::COMMAND && cf.flag_ != MqttSubFlag::FLAG_NOSUB) {
+        } else if (subscribe_format_ != Subscribe_Format::DEVICE && cf.flag_ != MqttSubFlag::FLAG_NOSUB) {
             topic = EMSdevice::device_type_2_device_name(cf.device_type_) + "/" + uuid::read_flash_string(cf.cmd_);
             queue_subscribe_message(topic);
         }
@@ -595,7 +595,7 @@ void Mqtt::set_publish_time_sensor(uint16_t publish_time) {
 }
 
 bool Mqtt::get_publish_onchange(uint8_t device_type) {
-    if (subscribe_format_ != Subscribe_Format::DEVICE) {
+    if (subscribe_format_ != Subscribe_Format::DEVICE && !ha_enabled_) {
         return false;
     }
     if (device_type == EMSdevice::DeviceType::BOILER) {
@@ -740,7 +740,7 @@ void Mqtt::ha_status() {
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx writes"), EMSdevice::DeviceType::SYSTEM, F("txwrite"), DeviceValueUOM::NUM);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Tx fails"), EMSdevice::DeviceType::SYSTEM, F("txfails"), DeviceValueUOM::NUM);
     publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("# Sensor fails"), EMSdevice::DeviceType::SYSTEM, F("sensorfails"), DeviceValueUOM::NUM);
-    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"));
+    publish_mqtt_ha_sensor(DeviceValueType::INT, DeviceValueTAG::TAG_HEARTBEAT, F("ADC input mV"), EMSdevice::DeviceType::SYSTEM, F("adc"), DeviceValueUOM::MV);
 
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 17"), EMSdevice::DeviceType::SYSTEM, F("io17"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 19"), EMSdevice::DeviceType::SYSTEM, F("io19"));
@@ -1034,6 +1034,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
 
         switch (uom) {
         case DeviceValueUOM::DEGREES:
+        case DeviceValueUOM::DEGREES_R:
             doc["ic"] = F_(icondegrees);
             break;
         case DeviceValueUOM::PERCENT:
