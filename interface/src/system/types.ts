@@ -38,8 +38,8 @@ export interface OTASettings {
 }
 
 export enum LogLevel {
-  ERR = 3,
-  WARN = 4,
+  ERROR = 3,
+  WARNING = 4,
   NOTICE = 5,
   INFO = 6,
   DEBUG = 7,
@@ -47,8 +47,13 @@ export enum LogLevel {
 }
 
 export interface LogEvent {
-  time: string;
+  t: string;
+  l: LogLevel;
+  n: string;
+  m: string;
+}
+
+export interface LogSettings {
   level: LogLevel;
-  name: string;
-  message: string;
+  max_messages: number;
 }

@@ -27,12 +27,14 @@
 #include <uuid/log.h>
 
 #define EVENT_SOURCE_LOG_PATH "/es/log"
+#define FETCH_LOG_PATH "/rest/fetchLog"
+#define LOG_SETTINGS_PATH "/rest/logSettings"
 
 namespace emsesp {
 
 class WebLogService : public uuid::log::Handler {
   public:
-    static constexpr size_t MAX_LOG_MESSAGES = 50;
+    static constexpr size_t MAX_LOG_MESSAGES = 30;
 
     WebLogService(AsyncWebServer * server, SecurityManager * securityManager);
 
@@ -59,13 +61,17 @@ class WebLogService : public uuid::log::Handler {
     };
 
     void forbidden(AsyncWebServerRequest * request);
-    void remove_queued_messages(uuid::log::Level level);
-    bool can_transmit();
     void transmit(const QueuedLogMessage & message);
+    void fetchLog(AsyncWebServerRequest * request);
+    void getLevel(AsyncWebServerRequest * request);
+
+    void                        setLevel(AsyncWebServerRequest * request, JsonVariant & json);
+    AsyncCallbackJsonWebHandler _setLevel; // for POSTs
 
     uint64_t                    last_transmit_        = 0;                // Last transmit time
     size_t                      maximum_log_messages_ = MAX_LOG_MESSAGES; // Maximum number of log messages to buffer before they are output
     unsigned long               log_message_id_       = 0;                // The next identifier to use for queued log messages
+    unsigned long               log_message_id_tail_  = 0;                // last event shown on the screen after fetch
     std::list<QueuedLogMessage> log_messages_;                            // Queued log messages, in the order they were received
 };
 

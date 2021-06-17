@@ -14,6 +14,55 @@ const server = express()
 const es_port = 3090
 const ES_ENDPOINT_ROOT = '/es/'
 
+// LOG
+const LOG_SETTINGS_ENDPOINT = REST_ENDPOINT_ROOT + 'logSettings'
+const log_settings = {
+  level: 6,
+  max_messages: 25,
+}
+
+const FETCH_LOG_ENDPOINT = REST_ENDPOINT_ROOT + 'fetchLog'
+const fetch_log = {
+  events: [
+    {
+      t: '000+00:00:00.001',
+      l: 3,
+      n: 'system',
+      m: 'this is message 3',
+    },
+    {
+      t: '000+00:00:00.002',
+      l: 4,
+      n: 'system',
+      m: 'this is message 4',
+    },
+    {
+      t: '000+00:00:00.002',
+      l: 5,
+      n: 'system',
+      m: 'this is message 5',
+    },
+    {
+      t: '000+00:00:00.002',
+      l: 6,
+      n: 'system',
+      m: 'this is message 6',
+    },
+    {
+      t: '000+00:00:00.002',
+      l: 7,
+      n: 'emsesp',
+      m: 'this is message 7',
+    },
+    {
+      t: '000+00:00:00.002',
+      l: 8,
+      n: 'mqtt',
+      m: 'this is message 8',
+    },
+  ],
+}
+
 // NTP
 const NTP_STATUS_ENDPOINT = REST_ENDPOINT_ROOT + 'ntpStatus'
 const NTP_SETTINGS_ENDPOINT = REST_ENDPOINT_ROOT + 'ntpSettings'
@@ -703,6 +752,23 @@ const emsesp_devicedata_3 = {
   data: [],
 }
 
+// LOG
+app.get(FETCH_LOG_ENDPOINT, (req, res) => {
+  const encoded = msgpack.encode(fetch_log)
+  res.write(encoded, 'binary')
+  res.end(null, 'binary')
+})
+app.get(LOG_SETTINGS_ENDPOINT, (req, res) => {
+  res.json(log_settings)
+})
+app.post(LOG_SETTINGS_ENDPOINT, (req, res) => {
+  console.log('New log level is ' + req.body.level)
+  const data = {
+    level: req.body.level,
+  }
+  res.json(data)
+})
+
 // NETWORK
 app.get(NETWORK_STATUS_ENDPOINT, (req, res) => {
   res.json(network_status)
@@ -943,7 +1009,8 @@ const streamLog = (req, res) => {
 
     const data = {
       time: '000+00:00:00.000',
-      level: 4,
+      level: 3,
+      name: 'system',
       message: 'this is message #' + count,
     }
 
