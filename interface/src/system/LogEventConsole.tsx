@@ -21,7 +21,7 @@ const leftOffset = () =>
 
 const useStyles = makeStyles((theme: Theme) => ({
   console: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(1),
     position: 'absolute',
     left: (offsets: Offsets) => offsets.leftOffset(),
     right: 24,

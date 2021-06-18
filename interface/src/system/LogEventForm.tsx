@@ -5,11 +5,9 @@ import {
   SelectValidator
 } from 'react-material-ui-form-validator';
 
-import { Typography } from '@material-ui/core';
+import { Typography, Grid } from '@material-ui/core';
 
 import MenuItem from '@material-ui/core/MenuItem';
-
-import Grid from '@material-ui/core/Grid';
 
 import {
   redirectingAuthorizedFetch,
@@ -69,17 +67,16 @@ class LogEventForm extends Component<LogEventFormProps> {
       <ValidatorForm onSubmit={saveData}>
         <Grid
           container
-          spacing={1}
+          spacing={0}
           direction="row"
           justify="flex-start"
-          alignItems="flex-start"
+          alignItems="center"
         >
           <Grid item xs={2}>
             <SelectValidator
               name="level"
               label="Log Level"
               value={data.level}
-              fullWidth
               variant="outlined"
               onChange={this.changeLevel}
               margin="normal"
@@ -94,11 +91,10 @@ class LogEventForm extends Component<LogEventFormProps> {
             </SelectValidator>
           </Grid>
           <Grid item md>
-            <Typography color="primary" variant="body2" align="center">
-              <br></br>
+            <Typography color="primary" variant="body2">
               <i>
-                (the last {data.max_messages} messages are buffered. New log
-                events are shown in real-time.)
+                (the last {data.max_messages} messages are buffered and new log
+                events are shown in real time)
               </i>
             </Typography>
           </Grid>
