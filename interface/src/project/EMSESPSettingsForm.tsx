@@ -515,7 +515,7 @@ class EMSESPSettingsForm extends React.Component<EMSESPSettingsFormProps> {
                 margin="normal"
               >
                 <MenuItem value={-1}>OFF</MenuItem>
-                <MenuItem value={3}>ERR</MenuItem>
+                <MenuItem value={3}>ERROR</MenuItem>
                 <MenuItem value={5}>NOTICE</MenuItem>
                 <MenuItem value={6}>INFO</MenuItem>
                 <MenuItem value={7}>DEBUG</MenuItem>

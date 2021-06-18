@@ -9,6 +9,8 @@ import { Typography } from '@material-ui/core';
 
 import MenuItem from '@material-ui/core/MenuItem';
 
+import Grid from '@material-ui/core/Grid';
+
 import {
   redirectingAuthorizedFetch,
   withAuthenticatedContext,
@@ -65,22 +67,42 @@ class LogEventForm extends Component<LogEventFormProps> {
     const { data, saveData } = this.props;
     return (
       <ValidatorForm onSubmit={saveData}>
-        <SelectValidator
-          name="level"
-          label="Log Level"
-          value={data.level}
-          variant="outlined"
-          onChange={this.changeLevel}
-          margin="normal"
+        <Grid
+          container
+          spacing={1}
+          direction="row"
+          justify="flex-start"
+          alignItems="flex-start"
         >
-          <MenuItem value={-1}>OFF</MenuItem>
-          <MenuItem value={3}>ERROR</MenuItem>
-          <MenuItem value={4}>WARNING</MenuItem>
-          <MenuItem value={5}>NOTICE</MenuItem>
-          <MenuItem value={6}>INFO</MenuItem>
-          <MenuItem value={7}>DEBUG</MenuItem>
-          <MenuItem value={8}>TRACE</MenuItem>
-        </SelectValidator>
+          <Grid item xs={2}>
+            <SelectValidator
+              name="level"
+              label="Log Level"
+              value={data.level}
+              fullWidth
+              variant="outlined"
+              onChange={this.changeLevel}
+              margin="normal"
+            >
+              <MenuItem value={-1}>OFF</MenuItem>
+              <MenuItem value={3}>ERROR</MenuItem>
+              <MenuItem value={4}>WARNING</MenuItem>
+              <MenuItem value={5}>NOTICE</MenuItem>
+              <MenuItem value={6}>INFO</MenuItem>
+              <MenuItem value={7}>DEBUG</MenuItem>
+              <MenuItem value={8}>ALL</MenuItem>
+            </SelectValidator>
+          </Grid>
+          <Grid item md>
+            <Typography color="primary" variant="body2" align="center">
+              <br></br>
+              <i>
+                (the last {data.max_messages} messages are buffered. New log
+                events are shown in real-time.)
+              </i>
+            </Typography>
+          </Grid>
+        </Grid>
       </ValidatorForm>
     );
   }

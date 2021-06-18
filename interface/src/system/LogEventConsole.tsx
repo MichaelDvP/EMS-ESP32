@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   entry: {
     color: '#bbbbbb',
     fontFamily: 'Courier New, monospace',
-    fontSize: '14px',
+    fontSize: '13px',
     letterSpacing: 'normal',
     whiteSpace: 'nowrap'
   },
@@ -86,7 +86,7 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
       case LogLevel.NOTICE:
         return 'NOTICE';
       case LogLevel.WARNING:
-        return 'WARNING';
+        return 'WARN';
       case LogLevel.TRACE:
         return 'TRACE';
       default:
@@ -96,12 +96,12 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
 
   const paddedLevelLabel = (level: LogLevel) => {
     const label = levelLabel(level);
-    return label.padStart(8, '\xa0');
+    return label.padStart(6, '\xa0');
   };
 
   const paddedNameLabel = (name: string) => {
     const label = '[' + name + ']';
-    return label.padStart(8, '\xa0');
+    return label.padStart(10, '\xa0');
   };
 
   return (
@@ -109,8 +109,8 @@ const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
       {events.map((e) => (
         <div className={classes.entry}>
           <span>{e.t}</span>
-          <span className={styleLevel(e.l)}>{paddedLevelLabel(e.l)} </span>
-          <span>{paddedNameLabel(e.n)} </span>
+          <span className={styleLevel(e.l)}>{paddedLevelLabel(e.l)}</span>
+          <span>{paddedNameLabel(e.n)}</span>
           <span>{e.m}</span>
         </div>
       ))}
