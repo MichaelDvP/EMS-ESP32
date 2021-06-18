@@ -923,6 +923,7 @@ bool System::command_settings(const char * value, const int8_t id, JsonObject & 
         node["analog_enabled"]       = settings.analog_enabled;
         node["pbutton_gpio"]         = settings.pbutton_gpio;
         node["board_profile"]        = settings.board_profile;
+        node["weblog_level"]         = settings.weblog_level;
     });
 
     return true;

@@ -81,9 +81,6 @@ class LogEventForm extends Component<LogEventFormProps> {
           <MenuItem value={7}>DEBUG</MenuItem>
           <MenuItem value={8}>TRACE</MenuItem>
         </SelectValidator>
-        <Typography color="primary" variant="body2">
-          <i>Only the last {data.max_messages} messages are shown</i>
-        </Typography>
       </ValidatorForm>
     );
   }

@@ -48,7 +48,13 @@ void WebLogService::forbidden(AsyncWebServerRequest * request) {
 }
 
 void WebLogService::start() {
-    uuid::log::Logger::register_handler(this, uuid::log::Level::INFO); // default is INFO
+    uuid::log::Level level = uuid::log::Level::OFF;
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        if (settings.weblog_level) {
+            level = (uuid::log::Level)settings.weblog_level;
+        }
+    });
+    uuid::log::Logger::register_handler(this, level);
 }
 
 uuid::log::Level WebLogService::log_level() const {
@@ -149,6 +155,14 @@ void WebLogService::setLevel(AsyncWebServerRequest * request, JsonVariant & json
     auto &&          body  = json.as<JsonObject>();
     uuid::log::Level level = body["level"];
     log_level(level);
+    if (level == uuid::log::Level::OFF) {
+        log_messages_.clear();
+    }
+
+    EMSESP::webSettingsService.update([&](WebSettings & settings) {
+        settings.weblog_level = (int8_t)level;
+        return StateUpdateResult::CHANGED;
+    }, "local");
 
     // send the value back
     AsyncJsonResponse * response = new AsyncJsonResponse(false, EMSESP_JSON_SIZE_SMALL);

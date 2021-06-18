@@ -42,6 +42,7 @@ void WebSettings::read(WebSettings & settings, JsonObject & root) {
     root["ems_bus_id"]           = settings.ems_bus_id;
     root["syslog_enabled"]       = settings.syslog_enabled;
     root["syslog_level"]         = settings.syslog_level;
+    root["weblog_level"]         = settings.weblog_level;
     root["trace_raw"]            = settings.trace_raw;
     root["syslog_mark_interval"] = settings.syslog_mark_interval;
     root["syslog_host"]          = settings.syslog_host;
@@ -78,7 +79,9 @@ void WebSettings::read(WebSettings & settings, JsonObject & root) {
 StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings) {
     // load default GPIO configuration based on board profile
     std::vector<uint8_t> data; // led, dallas, rx, tx, button
-    settings.board_profile = root["board_profile"] | EMSESP_DEFAULT_BOARD_PROFILE;
+
+    String old_board_profile = settings.board_profile;
+    settings.board_profile   = root["board_profile"] | EMSESP_DEFAULT_BOARD_PROFILE;
     if (!System::load_board_profile(data, settings.board_profile.c_str())) {
         settings.board_profile = EMSESP_DEFAULT_BOARD_PROFILE; // invalid board configuration, override the default in case it has been misspelled
     }
@@ -89,12 +92,14 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     uint8_t default_tx_gpio      = data[3];
     uint8_t default_pbutton_gpio = data[4];
 
-    EMSESP::logger().info(F("EMS-ESP version %s"), EMSESP_APP_VERSION);
-    // check to see if we have a settings file, if not it's a fresh install
-    if (!root.size()) {
-        EMSESP::logger().info(F("Initializing configuration with board profile %s"), settings.board_profile.c_str());
-    } else {
-        EMSESP::logger().info(F("Using configuration from board profile %s"), settings.board_profile.c_str());
+    if (old_board_profile != settings.board_profile) {
+        // EMSESP::logger().info(F("EMS-ESP version %s"), EMSESP_APP_VERSION);
+        // check to see if we have a settings file, if not it's a fresh install
+        if (!root.size()) {
+            EMSESP::logger().info(F("Initializing configuration with board profile %s"), settings.board_profile.c_str());
+        } else {
+            EMSESP::logger().info(F("Using configuration from board profile %s"), settings.board_profile.c_str());
+        }
     }
 
     int prev;
@@ -184,6 +189,7 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     settings.notoken_api   = root["notoken_api"] | EMSESP_DEFAULT_NOTOKEN_API;
     settings.solar_maxflow = root["solar_maxflow"] | EMSESP_DEFAULT_SOLAR_MAXFLOW;
     settings.fahrenheit    = root["fahrenheit"] | false;
+    settings.weblog_level  = root["weblog_level"] | EMSESP_DEFAULT_WEBLOG_LEVEL;
 
     for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
         char buf[20];
