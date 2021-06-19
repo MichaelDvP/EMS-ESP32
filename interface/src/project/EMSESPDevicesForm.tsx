@@ -118,7 +118,7 @@ export const formatDuration = (duration_min: number) => {
 const pluralize = (count: number, noun: string, suffix = 's') =>
   ` ${count} ${noun}${count !== 1 ? suffix : ''} `;
 
-function formatValue(value: any, uom: number) {
+function formatValue(value: any, uom: number, digit: number) {
   switch (uom) {
     case DeviceValueUOM.HOURS:
       return value ? formatDuration(value * 60) : '0 hours';
@@ -134,7 +134,7 @@ function formatValue(value: any, uom: number) {
     case DeviceValueUOM.DEGREES_R:
     case DeviceValueUOM.FAHRENHEIT:
       return (
-        new Intl.NumberFormat(undefined, { minimumFractionDigits: 1 }).format(
+        new Intl.NumberFormat(undefined, { minimumFractionDigits: digit }).format(
           value
         ) +
         ' ' +
@@ -320,7 +320,7 @@ class EMSESPDevicesForm extends Component<
                     {sensorData.id}
                   </TableCell>
                   <TableCell align="right">
-                    {formatValue(sensorData.data, sensorData.uom)}
+                    {formatValue(sensorData.data, sensorData.uom, 1)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -483,7 +483,7 @@ class EMSESPDevicesForm extends Component<
                       {item.n}
                     </TableCell>
                     <TableCell padding="none" align="right">
-                      {formatValue(item.v, item.u)}
+                      {formatValue(item.v, item.u, 0)}
                     </TableCell>
                   </TableRow>
                 ))}
