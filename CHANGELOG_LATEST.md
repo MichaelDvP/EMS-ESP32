@@ -9,10 +9,12 @@ Difference to dev build:
 - add commands without value to web
 - optional show temperatures in Fahrenheit
 - show analog input in web (sensors)
+- new command called `commands` which lists all available commands. `ems-esp/api/{device}/commands`
+- More Home Assistant icons to match the UOMs
+- new API. Using secure access tokens and OpenAPI standard. See `doc/EMS-ESP32 API.md` and [#50](https://github.com/emsesp/EMS-ESP32/issues/50)
+- show log messages in Web UI [#71](https://github.com/emsesp/EMS-ESP32/issues/71)
 
 ## Fixed
-
-- HA thermostat OFF-mode for RC100/300 sets manual 0°C
 
 ## Changed
 
@@ -23,7 +25,7 @@ Difference to dev build:
 
 ## Changed
 
-- `info` command always shows full names in API. For short names query the device or name directly, e.g. `http://ems-esp/api/boiler`
+- `info` command always shows short names in API.
 - free memory is shown in kilobytes
 - boiler's warm water entities have ww added to the Home Assistant entity name [#67](https://github.com/emsesp/EMS-ESP32/issues/67)
 - improved layout and rendering of device values in the WebUI, also the edit value screen
