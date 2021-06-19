@@ -130,6 +130,16 @@ function formatValue(value: any, uom: number) {
       return new Intl.NumberFormat().format(value);
     case DeviceValueUOM.BOOLEAN:
       return value ? 'on' : 'off';
+    case DeviceValueUOM.DEGREES:
+    case DeviceValueUOM.DEGREES_R:
+    case DeviceValueUOM.FAHRENHEIT:
+      return (
+        new Intl.NumberFormat(undefined, { minimumFractionDigits: 1 }).format(
+          value
+        ) +
+        ' ' +
+        DeviceValueUOM_s[uom]
+      );
     default:
       return (
         new Intl.NumberFormat().format(value) + ' ' + DeviceValueUOM_s[uom]
