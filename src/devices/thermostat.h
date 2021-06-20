@@ -155,6 +155,7 @@ class Thermostat : public EMSdevice {
     int8_t  ibaMinExtTemperature_; // min ext temp for heating curve, in deg., 0xF6=-10, 0x0 = 0, 0xFF=-1
     uint8_t ibaBuildingType_;      // building type: 0 = light, 1 = medium, 2 = heavy
     uint8_t ibaClockOffset_;       // offset (in sec) to clock, 0xff = -1 s, 0x02 = 2 s
+    uint8_t ibaDamping_;           // damping 0-off, 0xff-on
 
     int8_t   dampedoutdoortemp_;
     uint16_t tempsensor1_;
@@ -344,6 +345,7 @@ class Thermostat : public EMSdevice {
     bool set_calinttemp(const char * value, const int8_t id);
     bool set_display(const char * value, const int8_t id);
     bool set_building(const char * value, const int8_t id);
+    bool set_damping(const char * value, const int8_t id);
     bool set_language(const char * value, const int8_t id);
 };
 

@@ -491,6 +491,7 @@ MAKE_PSTR_LIST(ibaClockOffset, F("clockoffset"), F("clock offset"))
 MAKE_PSTR_LIST(ibaBuildingType, F("building"), F("building"))
 MAKE_PSTR_LIST(ibaCalIntTemperature, F("intoffset"), F("offset internal temperature"))
 MAKE_PSTR_LIST(ibaMinExtTemperature, F("minexttemp"), F("minimal external temperature"))
+MAKE_PSTR_LIST(damping, F("damping"), F("damping outdoor temperature"))
 
 MAKE_PSTR_LIST(tempsensor1, F("inttemp1"), F("temperature sensor 1"))
 MAKE_PSTR_LIST(tempsensor2, F("inttemp2"), F("temperature sensor 2"))

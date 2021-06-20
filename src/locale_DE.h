@@ -174,7 +174,10 @@ MAKE_PSTR(w, "W")
 MAKE_PSTR(kb, "KB")
 MAKE_PSTR(seconds, "seconds")
 MAKE_PSTR(dbm, "dBm")
-MAKE_PSTR(num, " ") // this is hack so HA renders numbers correctly
+MAKE_PSTR(num, " ")  // this is hack so HA renders numbers correctly
+MAKE_PSTR(bool, " ") // this is hack so HA renders numbers correctly
+MAKE_PSTR(fahrenheit, "°F")
+MAKE_PSTR(mv, "mV")
 
 // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
 // use empty string if want to suppress showing tags
@@ -325,10 +328,10 @@ MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))
 MAKE_PSTR_LIST(enum_mode4, F_(blank), F_(manual), F_(auto), F_(holiday))
 MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))
 
-// MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(off))
-MAKE_PSTR_LIST(enum_hamode1, F_(heat), F_(auto))
-MAKE_PSTR_LIST(enum_hamode2, F_(off), F_(heat), F_(auto), F_(off))
-MAKE_PSTR_LIST(enum_hamode5, F_(auto), F_(off))
+MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(off))
+// MAKE_PSTR_LIST(enum_hamode1, F_(heat), F_(auto))
+// MAKE_PSTR_LIST(enum_hamode2, F_(off), F_(heat), F_(auto), F_(off))
+// MAKE_PSTR_LIST(enum_hamode5, F_(auto), F_(off))
 
 MAKE_PSTR_LIST(enum_modetype, F_(eco), F_(comfort))
 MAKE_PSTR_LIST(enum_modetype2, F_(day))
@@ -488,6 +491,7 @@ MAKE_PSTR_LIST(ibaClockOffset, F("clockoffset"), F("Uhrkorrektur"))
 MAKE_PSTR_LIST(ibaBuildingType, F("building"), F("Gebäude"))
 MAKE_PSTR_LIST(ibaCalIntTemperature, F("intoffset"), F("Korrektur interner Temperatur"))
 MAKE_PSTR_LIST(ibaMinExtTemperature, F("minexttemp"), F("min Aussentemperatur"))
+MAKE_PSTR_LIST(damping, F("damping"), F("Dämpfung der Außentemperatur"))
 
 MAKE_PSTR_LIST(tempsensor1, F("inttemp1"), F("Temperatursensor 1"))
 MAKE_PSTR_LIST(tempsensor2, F("inttemp2"), F("Temperatursensor 2"))

@@ -757,6 +757,7 @@ void Thermostat::process_IBASettings(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, ibaBuildingType_, 6);      // building type: 0 = light, 1 = medium, 2 = heavy
     has_update(telegram, ibaMinExtTemperature_, 5); // min ext temp for heating curve, in deg., 0xF6=-10, 0x0 = 0, 0xFF=-1
     has_update(telegram, ibaClockOffset_, 12);      // offset (in sec) to clock, 0xff = -1 s, 0x02 = 2 s
+    has_update(telegram, ibaDamping_, 21);          // damping 0-off, 0xff-on
 }
 
 // Settings WW 0x37 - RC35
@@ -1227,6 +1228,18 @@ bool Thermostat::set_building(const char * value, const int8_t id) {
         }
     }
     LOG_WARNING(F("Set building: Invalid value"));
+    return false;
+}
+
+// 0xA5 - Set the building settings
+bool Thermostat::set_damping(const char * value, const int8_t id) {
+    bool dmp;
+    if (Helpers::value2bool(value, dmp)) {
+        LOG_INFO(F("Setting damping %s"), dmp ? "on" : "off");
+        write_command(EMS_TYPE_IBASettings, 21, dmp ? 0xFF : 0, EMS_TYPE_IBASettings);
+        return true;
+    }
+    LOG_WARNING(F("Set damping: Invalid value"));
     return false;
 }
 
@@ -2235,6 +2248,7 @@ void Thermostat::register_device_values() {
                               FL_(ibaMinExtTemperature),
                               DeviceValueUOM::DEGREES,
                               MAKE_CF_CB(set_minexttemp));
+        register_device_value(TAG_THERMOSTAT_DATA, &ibaDamping_, DeviceValueType::BOOL, nullptr, FL_(damping), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_damping));
         register_device_value(TAG_THERMOSTAT_DATA, &tempsensor1_, DeviceValueType::USHORT, FL_(div10), FL_(tempsensor1), DeviceValueUOM::DEGREES);
         register_device_value(TAG_THERMOSTAT_DATA, &tempsensor2_, DeviceValueType::USHORT, FL_(div10), FL_(tempsensor2), DeviceValueUOM::DEGREES);
         register_device_value(TAG_THERMOSTAT_DATA, &dampedoutdoortemp_, DeviceValueType::INT, nullptr, FL_(dampedoutdoortemp), DeviceValueUOM::DEGREES);

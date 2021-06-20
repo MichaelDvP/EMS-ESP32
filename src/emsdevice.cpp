@@ -854,8 +854,8 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                     }
                 }
                 json[type]      = F("boolean");
-                json[min]       = 0;
-                json[max]       = 1;
+                // json[min]       = 0;
+                // json[max]       = 1;
                 JsonArray enum_ = json.createNestedArray(F_(enum));
 
                 if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF) {
@@ -894,7 +894,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 json[type] = F_(unknown);
                 break;
             }
-            if (dv.uom != DeviceValueUOM::NONE) {
+            if ((dv.uom != DeviceValueUOM::NONE) && (dv.uom != DeviceValueUOM::NUM) && (dv.uom != DeviceValueUOM::BOOLEAN)) {
                 if (fahrenheit) {
                     json["unit"] = F("°F");
                 } else {

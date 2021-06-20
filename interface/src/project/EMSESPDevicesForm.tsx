@@ -134,9 +134,9 @@ function formatValue(value: any, uom: number, digit: number) {
     case DeviceValueUOM.DEGREES_R:
     case DeviceValueUOM.FAHRENHEIT:
       return (
-        new Intl.NumberFormat(undefined, { minimumFractionDigits: digit }).format(
-          value
-        ) +
+        new Intl.NumberFormat(undefined, {
+          minimumFractionDigits: digit
+        }).format(value) +
         ' ' +
         DeviceValueUOM_s[uom]
       );
