@@ -388,12 +388,12 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
         <BlockFormControlLabel
           control={
             <Checkbox
-              checked={data.notoken_api}
-              onChange={handleValueChange('notoken_api')}
-              value="notoken_api"
+              checked={data.analog_enabled}
+              onChange={handleValueChange('analog_enabled')}
+              value="analog_enabled"
             />
           }
-          label="Bypass Access Token authorization on API calls"
+          label="Enable ADC"
         />
         <BlockFormControlLabel
           control={
@@ -404,16 +404,6 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
             />
           }
           label="Show temperature values in Fahrenheit"
-        />
-        <BlockFormControlLabel
-          control={
-            <Checkbox
-              checked={data.analog_enabled}
-              onChange={handleValueChange('analog_enabled')}
-              value="analog_enabled"
-            />
-          }
-          label="Enable ADC"
         />
         <Grid
           container
@@ -442,6 +432,61 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
             }
             label="Enable Shower Alert"
           />
+        </Grid>
+
+        <br></br>
+        <Typography variant="h6" color="primary">
+          API and MQTT formats
+        </Typography>
+
+        <BlockFormControlLabel
+          control={
+            <Checkbox
+              checked={data.notoken_api}
+              onChange={handleValueChange('notoken_api')}
+              value="notoken_api"
+            />
+          }
+          label="Bypass Access Token authorization on API calls"
+        />
+        <Grid
+          container
+          spacing={1}
+          direction="row"
+          justify="flex-start"
+          alignItems="flex-start"
+        >
+          <Grid item xs={6}>
+            <SelectValidator
+              name="bool_format"
+              label="Boolean and Enum Format"
+              value={data.bool_format}
+              fullWidth
+              variant="outlined"
+              onChange={handleValueChange('bool_format')}
+              margin="normal"
+            >
+              <MenuItem value={1}>"on"/"off"</MenuItem>
+              <MenuItem value={2}>"ON"/"OFF"</MenuItem>
+              <MenuItem value={3}>true/false</MenuItem>
+              <MenuItem value={4}>1/0 (only bool)</MenuItem>
+              <MenuItem value={5}>1/0 (bool &amp; enum)</MenuItem>
+            </SelectValidator>
+          </Grid>
+          <Grid item xs={6}>
+            <SelectValidator
+              name="dallas_format"
+              label="Sensor Payload Grouping"
+              value={data.dallas_format}
+              fullWidth
+              variant="outlined"
+              onChange={handleValueChange('dallas_format')}
+              margin="normal"
+            >
+              <MenuItem value={1}>by Sensor ID</MenuItem>
+              <MenuItem value={2}>by Number</MenuItem>
+            </SelectValidator>
+          </Grid>
         </Grid>
 
         <br></br>

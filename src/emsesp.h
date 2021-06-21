@@ -68,6 +68,8 @@
 #define MAKE_PF_CB(__f) [&](std::shared_ptr<const Telegram> t) { __f(t); }                  // for process function callbacks to register_telegram_type()
 #define MAKE_CF_CB(__f) [&](const char * value, const int8_t id) { return __f(value, id); } // for command function callbacks to register_mqtt_cmd()
 
+enum { BOOL_FORMAT_ONOFF = 1, BOOL_FORMAT_ONOFF_CAP, BOOL_FORMAT_TRUEFALSE, BOOL_FORMAT_10, BOOL_FORMAT_10E }; // matches Web UI settings
+
 namespace emsesp {
 
 class Shower; // forward declaration for compiler
@@ -142,6 +144,14 @@ class EMSESP {
 
     static bool dallas_enabled() {
         return (dallassensor_.dallas_enabled());
+    }
+
+    static uint8_t bool_format() {
+        return bool_format_;
+    }
+
+    static void bool_format(uint8_t bool_format) {
+        bool_format_ = bool_format;
     }
 
     enum Watch : uint8_t { WATCH_OFF, WATCH_ON, WATCH_RAW, WATCH_UNKNOWN };
@@ -246,6 +256,7 @@ class EMSESP {
     static uint8_t  unique_id_count_;
     static bool     trace_raw_;
     static uint64_t tx_delay_;
+    static uint8_t  bool_format_;
 };
 
 } // namespace emsesp

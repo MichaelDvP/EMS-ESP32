@@ -22,6 +22,8 @@ export interface EMSESPSettings {
   trace_raw: boolean;
   board_profile: string;
   fahrenheit: boolean;
+  bool_format: number;
+  dallas_format: number;
 }
 
 export enum busConnectionStatus {

@@ -164,13 +164,13 @@ void Shower::shower_alert_start() {
 void Shower::publish_values() {
     StaticJsonDocument<EMSESP_JSON_SIZE_SMALL> doc;
 
-    if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF) {
+    if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF) {
         doc["shower_timer"] = shower_timer_ ? "on" : "off";
         doc["shower_alert"] = shower_alert_ ? "on" : "off";
-    } else if (Mqtt::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
+    } else if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
         doc["shower_timer"] = shower_timer_ ? "ON" : "OFF";
         doc["shower_alert"] = shower_alert_ ? "ON" : "OFF";
-    } else if (Mqtt::bool_format() == BOOL_FORMAT_TRUEFALSE) {
+    } else if (EMSESP::bool_format() == BOOL_FORMAT_TRUEFALSE) {
         doc["shower_timer"] = shower_timer_;
         doc["shower_alert"] = shower_alert_;
     } else {

@@ -2248,9 +2248,9 @@ void Thermostat::register_device_values() {
                               FL_(ibaMinExtTemperature),
                               DeviceValueUOM::DEGREES,
                               MAKE_CF_CB(set_minexttemp));
-        register_device_value(TAG_THERMOSTAT_DATA, &ibaDamping_, DeviceValueType::BOOL, nullptr, FL_(damping), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_damping));
         register_device_value(TAG_THERMOSTAT_DATA, &tempsensor1_, DeviceValueType::USHORT, FL_(div10), FL_(tempsensor1), DeviceValueUOM::DEGREES);
         register_device_value(TAG_THERMOSTAT_DATA, &tempsensor2_, DeviceValueType::USHORT, FL_(div10), FL_(tempsensor2), DeviceValueUOM::DEGREES);
+        register_device_value(TAG_THERMOSTAT_DATA, &ibaDamping_, DeviceValueType::BOOL, nullptr, FL_(damping), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_damping));
         register_device_value(TAG_THERMOSTAT_DATA, &dampedoutdoortemp_, DeviceValueType::INT, nullptr, FL_(dampedoutdoortemp), DeviceValueUOM::DEGREES);
         register_device_value(TAG_THERMOSTAT_DATA,
                               &ibaBuildingType_,

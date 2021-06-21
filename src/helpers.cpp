@@ -17,7 +17,6 @@
  */
 
 #include "helpers.h"
-#include "mqtt.h"
 #include "emsesp.h"
 
 namespace emsesp {
@@ -125,7 +124,7 @@ char * Helpers::smallitoa(char * result, const uint16_t value) {
 
 // work out how to display booleans
 char * Helpers::render_boolean(char * result, bool value) {
-    uint8_t bool_format_ = Mqtt::bool_format();
+    uint8_t bool_format_ = EMSESP::bool_format();
     if (bool_format_ == BOOL_FORMAT_ONOFF) {
         strlcpy(result, value ? uuid::read_flash_string(F_(on)).c_str() : uuid::read_flash_string(F_(off)).c_str(), 5);
     } else if (bool_format_ == BOOL_FORMAT_ONOFF_CAP) {
@@ -515,8 +514,8 @@ bool Helpers::value2enum(const char * v, uint8_t & value, const __FlashStringHel
     std::string str = toLower(v);
     for (value = 0; strs[value]; value++) {
         std::string str1 = toLower(uuid::read_flash_string(strs[value]));
-        if ((str1 == uuid::read_flash_string(F_(off)) && str == "false") || (str1 == uuid::read_flash_string(F_(on)) && str == "true") || (str == str1)
-            || (v[0] == ('0' + value) && v[1] == '\0')) {
+        if ((str1 != "") && ((str1 == uuid::read_flash_string(F_(off)) && str == "false") || (str1 == uuid::read_flash_string(F_(on)) && str == "true") || (str == str1)
+            || (v[0] == ('0' + value) && v[1] == '\0'))) {
             return true;
         }
     }

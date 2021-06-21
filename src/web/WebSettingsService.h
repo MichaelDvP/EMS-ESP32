@@ -59,6 +59,8 @@ class WebSettings {
     uint8_t  solar_maxflow;
     String   board_profile;
     bool     fahrenheit;
+    uint8_t  dallas_format;
+    uint8_t  bool_format;
 
     struct {
       String  id;

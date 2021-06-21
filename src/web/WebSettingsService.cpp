@@ -62,6 +62,8 @@ void WebSettings::read(WebSettings & settings, JsonObject & root) {
     root["solar_maxflow"]        = settings.solar_maxflow;
     root["board_profile"]        = settings.board_profile;
     root["fahrenheit"]           = settings.fahrenheit;
+    root["dallas_format"]        = settings.dallas_format;
+    root["bool_format"]          = settings.bool_format;
 
     for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
         char buf[20];
@@ -190,6 +192,12 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     settings.solar_maxflow = root["solar_maxflow"] | EMSESP_DEFAULT_SOLAR_MAXFLOW;
     settings.fahrenheit    = root["fahrenheit"] | false;
     settings.weblog_level  = root["weblog_level"] | EMSESP_DEFAULT_WEBLOG_LEVEL;
+    settings.dallas_format = root["dallas_format"] | EMSESP_DEFAULT_DALLAS_FORMAT;
+    settings.bool_format   = root["bool_format"] | EMSESP_DEFAULT_BOOL_FORMAT;
+
+    EMSESP::dallassensor_.dallas_format(settings.dallas_format);
+    EMSESP::bool_format(settings.bool_format);
+
 
     for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
         char buf[20];
