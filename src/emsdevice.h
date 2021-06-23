@@ -39,7 +39,7 @@ enum DeviceValueType : uint8_t {
     ULONG,
     TIME, // same as ULONG (32 bits)
     ENUM,
-    ENUMTXT, // same as ENUM, but no number option
+    ENUMTXT, // same as ENUM, but no number option, used for 'hamode'
     TEXT,
     CMD // command only, no value
 
@@ -69,7 +69,8 @@ enum DeviceValueUOM : uint8_t {
     NUM,       // 16
     BOOLEAN,   // 17
     FAHRENHEIT,// 18
-    MV         // 19
+    MV,        // 19
+    LIST       // 20
 
 };
 

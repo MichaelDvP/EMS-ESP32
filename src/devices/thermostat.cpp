@@ -2181,14 +2181,14 @@ void Thermostat::register_device_values() {
                               DeviceValueType::ENUM,
                               FL_(enum_ibaBuildingType),
                               FL_(ibaBuildingType),
-                              DeviceValueUOM::NONE,
+                              DeviceValueUOM::LIST,
                               MAKE_CF_CB(set_building));
         register_device_value(TAG_DEVICE_DATA_WW, &wwSetTemp_, DeviceValueType::UINT, nullptr, FL_(wwSetTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemp));
-        register_device_value(TAG_DEVICE_DATA_WW, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode), FL_(wwMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwmode));
+        register_device_value(TAG_DEVICE_DATA_WW, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode), FL_(wwMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwmode));
         register_device_value(
             TAG_DEVICE_DATA_WW, &wwSetTempLow_, DeviceValueType::UINT, nullptr, FL_(wwSetTempLow), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemplow));
         register_device_value(
-            TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wWCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+            TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wWCircMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwcircmode));
         register_device_value(TAG_DEVICE_DATA_WW, &wwExtra1_, DeviceValueType::UINT, nullptr, FL_(wwExtra1), DeviceValueUOM::DEGREES);
         register_device_value(TAG_DEVICE_DATA_WW, &wwExtra2_, DeviceValueType::UINT, nullptr, FL_(wwExtra2), DeviceValueUOM::DEGREES);
         break;
@@ -2198,8 +2198,8 @@ void Thermostat::register_device_values() {
         break;
     case EMS_DEVICE_FLAG_RC30_N:
         register_device_value(TAG_THERMOSTAT_DATA, &dateTime_, DeviceValueType::TEXT, nullptr, FL_(dateTime), DeviceValueUOM::NONE); // can't set datetime
-        register_device_value(TAG_THERMOSTAT_DATA, &ibaMainDisplay_, DeviceValueType::ENUM, FL_(enum_ibaMainDisplay), FL_(ibaMainDisplay), DeviceValueUOM::NONE);
-        register_device_value(TAG_THERMOSTAT_DATA, &ibaLanguage_, DeviceValueType::ENUM, FL_(enum_ibaLanguage), FL_(ibaLanguage), DeviceValueUOM::NONE);
+        register_device_value(TAG_THERMOSTAT_DATA, &ibaMainDisplay_, DeviceValueType::ENUM, FL_(enum_ibaMainDisplay), FL_(ibaMainDisplay), DeviceValueUOM::LIST);
+        register_device_value(TAG_THERMOSTAT_DATA, &ibaLanguage_, DeviceValueType::ENUM, FL_(enum_ibaLanguage), FL_(ibaLanguage), DeviceValueUOM::LIST);
         register_device_value(TAG_THERMOSTAT_DATA,
                               &ibaClockOffset_,
                               DeviceValueType::UINT,
@@ -2226,11 +2226,11 @@ void Thermostat::register_device_values() {
                               DeviceValueType::ENUM,
                               FL_(enum_ibaBuildingType2),
                               FL_(ibaBuildingType),
-                              DeviceValueUOM::NONE,
+                              DeviceValueUOM::LIST,
                               MAKE_CF_CB(set_building));
-        register_device_value(TAG_DEVICE_DATA_WW, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode2), FL_(wwMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwmode));
+        register_device_value(TAG_DEVICE_DATA_WW, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode2), FL_(wwMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwmode));
         register_device_value(
-            TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode2), FL_(wWCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+            TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode2), FL_(wWCircMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwcircmode));
         break;
     case EMS_DEVICE_FLAG_RC35:
         register_device_value(TAG_THERMOSTAT_DATA, &dateTime_, DeviceValueType::TEXT, FL_(tpl_datetime), FL_(dateTime), DeviceValueUOM::NONE, MAKE_CF_CB(set_datetime));
@@ -2257,11 +2257,11 @@ void Thermostat::register_device_values() {
                               DeviceValueType::ENUM,
                               FL_(enum_ibaBuildingType2),
                               FL_(ibaBuildingType),
-                              DeviceValueUOM::NONE,
+                              DeviceValueUOM::LIST,
                               MAKE_CF_CB(set_building));
-        register_device_value(TAG_DEVICE_DATA_WW, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode2), FL_(wwMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwmode));
+        register_device_value(TAG_DEVICE_DATA_WW, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode2), FL_(wwMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwmode));
         register_device_value(
-            TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode2), FL_(wWCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+            TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode2), FL_(wWCircMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwcircmode));
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
         register_device_value(TAG_THERMOSTAT_DATA, &dateTime_, DeviceValueType::TEXT, FL_(tpl_datetime), FL_(dateTime), DeviceValueUOM::NONE, MAKE_CF_CB(set_datetime));
@@ -2326,9 +2326,9 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
     switch (model) {
     case EMS_DEVICE_FLAG_RC100:
     case EMS_DEVICE_FLAG_RC300:
-        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode1), FL_(hamode), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
-        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype), FL_(modetype), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode1), FL_(hamode), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode), FL_(mode), DeviceValueUOM::LIST, MAKE_CF_CB(set_mode));
+        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype), FL_(modetype), DeviceValueUOM::LIST);
         register_device_value(tag, &hc->nighttemp, DeviceValueType::UINT, FL_(div2), FL_(ecotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_ecotemp));
         register_device_value(tag, &hc->manualtemp, DeviceValueType::UINT, FL_(div2), FL_(manualtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_manualtemp));
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(comforttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_comforttemp));
@@ -2340,38 +2340,38 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->roominfluence, DeviceValueType::UINT, nullptr, FL_(roominfluence), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_roominfluence));
         register_device_value(tag, &hc->nofrosttemp, DeviceValueType::INT, nullptr, FL_(nofrosttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nofrosttemp));
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT, nullptr, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
-        register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE);
+        register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::LIST);
         register_device_value(
-            tag, &hc->summer_setmode, DeviceValueType::ENUM, FL_(enum_summermode), FL_(summersetmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_summermode));
+            tag, &hc->summer_setmode, DeviceValueType::ENUM, FL_(enum_summermode), FL_(summersetmode), DeviceValueUOM::LIST, MAKE_CF_CB(set_summermode));
         register_device_value(tag, &hc->summermode, DeviceValueType::BOOL, nullptr, FL_(summermode), DeviceValueUOM::BOOLEAN);
         register_device_value(
-            tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
+            tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode), FL_(controlmode), DeviceValueUOM::LIST, MAKE_CF_CB(set_controlmode));
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, MAKE_CF_CB(set_program));
         register_device_value(tag, &hc->tempautotemp, DeviceValueType::UINT, FL_(div2), FL_(tempautotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_tempautotemp));
         break;
     case EMS_DEVICE_FLAG_CRF:
-        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode5), FL_(hamode), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode5), FL_(mode), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype5), FL_(modetype), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode5), FL_(hamode), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode5), FL_(mode), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype5), FL_(modetype), DeviceValueUOM::LIST);
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT, nullptr, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
         break;
     case EMS_DEVICE_FLAG_RC20:
-        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::LIST, MAKE_CF_CB(set_mode));
         break;
     case EMS_DEVICE_FLAG_RC20_N:
-        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
-        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype2), FL_(modetype), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::LIST, MAKE_CF_CB(set_mode));
+        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype2), FL_(modetype), DeviceValueUOM::LIST);
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(daytemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_daytemp));
         register_device_value(tag, &hc->nighttemp, DeviceValueType::UINT, FL_(div2), FL_(nighttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nighttemp));
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, MAKE_CF_CB(set_program));
         break;
     case EMS_DEVICE_FLAG_RC30_N:
     case EMS_DEVICE_FLAG_RC35:
-        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode3), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
-        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype3), FL_(modetype), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode3), FL_(mode), DeviceValueUOM::LIST, MAKE_CF_CB(set_mode));
+        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype3), FL_(modetype), DeviceValueUOM::LIST);
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(daytemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_daytemp));
         register_device_value(tag, &hc->nighttemp, DeviceValueType::UINT, FL_(div2), FL_(nighttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nighttemp));
         register_device_value(tag, &hc->designtemp, DeviceValueType::UINT, nullptr, FL_(designtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_designtemp));
@@ -2386,10 +2386,10 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->minflowtemp, DeviceValueType::UINT, nullptr, FL_(minflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_minflowtemp));
         register_device_value(tag, &hc->maxflowtemp, DeviceValueType::UINT, nullptr, FL_(maxflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_maxflowtemp));
         register_device_value(tag, &hc->flowtempoffset, DeviceValueType::UINT, nullptr, FL_(flowtempoffset), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_flowtempoffset));
-        register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->reducemode, DeviceValueType::ENUM, FL_(enum_reducemode), FL_(reducemode), DeviceValueUOM::NONE, MAKE_CF_CB(set_reducemode));
-        register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode2), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
-        register_device_value(tag, &hc->control, DeviceValueType::ENUM, FL_(enum_control), FL_(control), DeviceValueUOM::NONE, MAKE_CF_CB(set_control));
+        register_device_value(tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->reducemode, DeviceValueType::ENUM, FL_(enum_reducemode), FL_(reducemode), DeviceValueUOM::LIST, MAKE_CF_CB(set_reducemode));
+        register_device_value(tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode2), FL_(controlmode), DeviceValueUOM::LIST, MAKE_CF_CB(set_controlmode));
+        register_device_value(tag, &hc->control, DeviceValueType::ENUM, FL_(enum_control), FL_(control), DeviceValueUOM::LIST, MAKE_CF_CB(set_control));
         register_device_value(tag, &hc->program, DeviceValueType::UINT, nullptr, FL_(program), DeviceValueUOM::NONE, MAKE_CF_CB(set_program));
         register_device_value(tag, &hc->pause, DeviceValueType::UINT, nullptr, FL_(pause), DeviceValueUOM::HOURS, MAKE_CF_CB(set_pause));
         register_device_value(tag, &hc->party, DeviceValueType::UINT, nullptr, FL_(party), DeviceValueUOM::HOURS, MAKE_CF_CB(set_party));
@@ -2399,9 +2399,9 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &dummy_, DeviceValueType::CMD, FL_(tpl_switchtime), FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime));
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
-        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::NONE);
-        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode4), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
-        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype4), FL_(modetype), DeviceValueUOM::NONE);
+        // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::LIST);
+        register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode4), FL_(mode), DeviceValueUOM::LIST, MAKE_CF_CB(set_mode));
+        register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype4), FL_(modetype), DeviceValueUOM::LIST);
         register_device_value(tag, &hc->daytemp, DeviceValueType::UINT, FL_(div2), FL_(heattemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_heattemp));
         register_device_value(tag, &hc->nighttemp, DeviceValueType::UINT, FL_(div2), FL_(ecotemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_ecotemp));
         register_device_value(tag, &hc->nofrosttemp, DeviceValueType::INT, FL_(div2), FL_(nofrosttemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nofrosttemp));

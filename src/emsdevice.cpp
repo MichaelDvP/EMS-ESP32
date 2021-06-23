@@ -25,6 +25,7 @@ namespace emsesp {
 // must be an int of 4 bytes, 32bit aligned
 static const __FlashStringHelper * DeviceValueUOM_s[] __attribute__((__aligned__(sizeof(uint32_t)))) PROGMEM = {
 
+    F_(blank),
     F_(degrees),
     F_(degrees),
     F_(percent),
@@ -43,7 +44,8 @@ static const __FlashStringHelper * DeviceValueUOM_s[] __attribute__((__aligned__
     F_(num),
     F_(bool),
     F_(fahrenheit),
-    F_(mv)
+    F_(mv),
+    F_(blank)
 
 };
 
@@ -127,10 +129,7 @@ const std::string EMSdevice::tag_to_mqtt(uint8_t tag) {
 }
 
 const std::string EMSdevice::uom_to_string(uint8_t uom) {
-    if (uom == DeviceValueUOM::NONE) {
-        return std::string{};
-    }
-    return uuid::read_flash_string(DeviceValueUOM_s[uom - 1]); // offset by 1 to account for NONE
+    return uuid::read_flash_string(DeviceValueUOM_s[uom]);
 }
 
 const std::vector<EMSdevice::DeviceValue> EMSdevice::devicevalues() const {
@@ -731,14 +730,15 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                 }
 
                 // add enum and text option settings
-                if ((dv.type == DeviceValueType::TEXT || dv.type == DeviceValueType::ENUM || dv.type == DeviceValueType::ENUMTXT) && dv.has_cmd) {
-                    std::string opt = " : [";
-                    uint8_t     min = uuid::read_flash_string(dv.options[0]).empty() ? 1 : 0;
+                if ((dv.uom == DeviceValueUOM::LIST) && dv.has_cmd) {
+                    uint8_t   min = uuid::read_flash_string(dv.options[0]).empty() ? 1 : 0;
+                    JsonArray l   = obj.createNestedArray("l");
                     for (uint8_t i = min; i < dv.options_size; i++) {
-                        opt += uuid::read_flash_string(dv.options[i]);
-                        opt += (i < dv.options_size - 1) ? " | " : "]";
+                        l.add(uuid::read_flash_string(dv.options[i]));
                     }
-                    obj["o"] = opt;
+                }
+                if ((dv.type == DeviceValueType::TEXT || dv.type == DeviceValueType::CMD) && dv.has_cmd && dv.options[0] != nullptr) {
+                    obj["o"] = dv.options[0];
                 } else {
                     obj["o"] = "";
                 }
@@ -764,11 +764,13 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
     // search device value with this tag
     for (auto & dv : devicevalues_) {
         if (strcmp(cmd, Helpers::toLower(uuid::read_flash_string(dv.short_name)).c_str()) == 0 && (tag <= 0 || tag == dv.tag)) {
-            uint8_t      divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
-            const char * type    = "type";
-            const char * min     = "min";
-            const char * max     = "max";
-            const char * value   = "value";
+            uint8_t      divider  = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
+            const char * type     = "type";
+            const char * min      = "min";
+            const char * max      = "max";
+            const char * value    = "value";
+            const char * fullname = "fullname";
+            const char * unit     = "unit";
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
                 fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES) ? 2 : 0;
                 fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES_R) ? 1 : fahrenheit;
@@ -777,9 +779,9 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
             json["name"] = dv.short_name;
             if (dv.full_name != nullptr) {
                 if (dv.tag == TAG_DEVICE_DATA_WW) {
-                    json["fullname"] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
+                    json[fullname] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
                 } else {
-                    json["fullname"] = dv.full_name;
+                    json[fullname] = dv.full_name;
                 }
             }
             if (!tag_to_mqtt(dv.tag).empty()) {
@@ -907,11 +909,11 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 json[type] = F_(unknown);
                 break;
             }
-            if ((dv.uom != DeviceValueUOM::NONE) && (dv.uom != DeviceValueUOM::NUM) && (dv.uom != DeviceValueUOM::BOOLEAN)) {
+            if (!uom_to_string(dv.uom).empty() && uom_to_string(dv.uom) != " ") {
                 if (fahrenheit) {
-                    json["unit"] = F("°F");
+                    json[unit] = F("°F");
                 } else {
-                    json["unit"] = EMSdevice::uom_to_string(dv.uom);
+                    json[unit] = uom_to_string(dv.uom);
                 }
             }
             json["writeable"] = dv.has_cmd;

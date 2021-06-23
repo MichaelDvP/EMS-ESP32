@@ -240,7 +240,8 @@ MAKE_PSTR_WORD(maintenance)
 MAKE_PSTR_WORD(error)
 
 // boiler lists
-MAKE_PSTR_LIST(tpl_date, F("dd.mm.yyyy")) // template for text input
+MAKE_PSTR_LIST(tpl_date, F(" : < dd.mm.yyyy >")) // template for text input
+MAKE_PSTR_LIST(enum_bool, F_(off), F_(on))
 MAKE_PSTR_LIST(enum_off_time_date, F_(off), F_(time), F_(date))
 MAKE_PSTR_LIST(enum_freq, F_(off), F_(1x3min), F_(2x3min), F_(3x3min), F_(4x3min), F_(5x3min), F_(6x3min), F_(continuos))
 MAKE_PSTR_LIST(enum_charge, F_(chargepump), F_(3wayvalve))
@@ -302,8 +303,8 @@ MAKE_PSTR(functioning_mode, "functioning mode")
 MAKE_PSTR(smoke_temperature, "Abgastemperatur")
 
 // thermostat lists
-MAKE_PSTR_LIST(tpl_datetime, F("hh:mm:ss dd/mm/yyyy-dw-dst"), F("NTP"))
-MAKE_PSTR_LIST(tpl_switchtime, F("nn.d.o.hh:mm"))
+MAKE_PSTR_LIST(tpl_datetime, F(" : < hh:mm:ss dd/mm/yyyy-dw-dst | NTP >"))
+MAKE_PSTR_LIST(tpl_switchtime, F(" : < nn.d.o.hh:mm >"))
 MAKE_PSTR_LIST(enum_ibaMainDisplay,
                F_(internal_temperature),
                F_(internal_setpoint),
