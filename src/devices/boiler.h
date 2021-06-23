@@ -219,6 +219,8 @@ class Boiler : public EMSdevice {
     bool set_pump_delay(const char * value, const int8_t id);
     bool set_reset(const char * value, const int8_t id);
     bool set_maintenance(const char * value, const int8_t id);
+    bool set_maintenancetime(const char * value, const int8_t id);
+    bool set_maintenancedate(const char * value, const int8_t id);
 };
 
 } // namespace emsesp

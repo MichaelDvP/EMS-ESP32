@@ -81,6 +81,7 @@ class ValueForm extends React.Component<ValueFormProps> {
             )}
             <FormHelperText id="outlined-value-helper-text">
               {devicevalue.n}
+              {devicevalue.o}
             </FormHelperText>
             <Box color="warning.main" p={0} pl={0} pr={0} mt={4} mb={0}>
               <Typography variant="body2">

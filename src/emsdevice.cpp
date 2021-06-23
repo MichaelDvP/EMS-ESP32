@@ -713,10 +713,10 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                 // add name, prefixing the tag if it exists
                 if ((dv.tag == DeviceValueTAG::TAG_NONE) || tag_to_string(dv.tag).empty()) {
                     obj["n"] = dv.full_name;
+                } else if (dv.tag < DeviceValueTAG::TAG_HC1) {
+                    obj["n"] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
                 } else {
-                    char name[50];
-                    snprintf_P(name, sizeof(name), "(%s) %s", tag_to_string(dv.tag).c_str(), uuid::read_flash_string(dv.full_name).c_str());
-                    obj["n"] = name;
+                    obj["n"] = "(" + tag_to_string(dv.tag) + ") " + uuid::read_flash_string(dv.full_name);
                 }
 
                 // add the name of the Command function if it exists
@@ -728,6 +728,19 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                     }
                 } else {
                     obj["c"] = "";
+                }
+
+                // add enum and text option settings
+                if ((dv.type == DeviceValueType::TEXT || dv.type == DeviceValueType::ENUM || dv.type == DeviceValueType::ENUMTXT) && dv.has_cmd) {
+                    std::string opt = " : [";
+                    uint8_t     min = uuid::read_flash_string(dv.options[0]).empty() ? 1 : 0;
+                    for (uint8_t i = min; i < dv.options_size; i++) {
+                        opt += uuid::read_flash_string(dv.options[i]);
+                        opt += (i < dv.options_size - 1) ? " | " : "]";
+                    }
+                    obj["o"] = opt;
+                } else {
+                    obj["o"] = "";
                 }
             }
         }

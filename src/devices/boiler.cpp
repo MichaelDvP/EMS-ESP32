@@ -137,7 +137,6 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_BOILER_DATA, &serviceCode_, DeviceValueType::TEXT, nullptr, FL_(serviceCode), DeviceValueUOM::NONE);
     register_device_value(TAG_BOILER_DATA, &serviceCodeNumber_, DeviceValueType::USHORT, nullptr, FL_(serviceCodeNumber), DeviceValueUOM::NONE);
     register_device_value(TAG_BOILER_DATA, &maintenanceMessage_, DeviceValueType::TEXT, nullptr, FL_(maintenanceMessage), DeviceValueUOM::NONE);
-    register_device_value(TAG_BOILER_DATA, &maintenanceDate_, DeviceValueType::TEXT, nullptr, FL_(maintenanceDate), DeviceValueUOM::NONE);
     register_device_value(TAG_BOILER_DATA,
                           &maintenanceType_,
                           DeviceValueType::ENUM,
@@ -145,7 +144,20 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
                           FL_(maintenanceType),
                           DeviceValueUOM::NONE,
                           MAKE_CF_CB(set_maintenance));
-    register_device_value(TAG_BOILER_DATA, &maintenanceTime_, DeviceValueType::USHORT, nullptr, FL_(maintenanceTime), DeviceValueUOM::HOURS);
+    register_device_value(TAG_BOILER_DATA,
+                          &maintenanceTime_,
+                          DeviceValueType::USHORT,
+                          nullptr,
+                          FL_(maintenanceTime),
+                          DeviceValueUOM::HOURS,
+                          MAKE_CF_CB(set_maintenancetime));
+    register_device_value(TAG_BOILER_DATA,
+                          &maintenanceDate_,
+                          DeviceValueType::TEXT,
+                          FL_(tpl_date),
+                          FL_(maintenanceDate),
+                          DeviceValueUOM::NONE,
+                          MAKE_CF_CB(set_maintenancedate));
     // heatpump info
     if (model() == EMS_DEVICE_FLAG_HEATPUMP) {
         register_device_value(TAG_BOILER_DATA, &upTimeControl_, DeviceValueType::TIME, FL_(div60), FL_(upTimeControl), DeviceValueUOM::MINUTES);
@@ -1287,6 +1299,41 @@ bool Boiler::set_maintenance(const char * value, const int8_t id) {
     if (Helpers::value2enum(value, num, FL_(enum_off_time_date))) {
         LOG_INFO(F("Setting maintenance type to %s"), value);
         write_command(0x15, 0, num, 0x15);
+        return true;
+    }
+
+    LOG_WARNING(F("Setting maintenance: wrong format"));
+    return false;
+}
+//maintenance
+bool Boiler::set_maintenancetime(const char * value, const int8_t id) {
+    int hrs;
+    if (Helpers::value2number(value, hrs)) {
+        if (hrs > 99 && hrs < 25600) {
+            LOG_INFO(F("Setting maintenance time %d hours"), hrs);
+            uint8_t data[2] = {1, (uint8_t)(hrs / 100)};
+            write_command(0x15, 0, data, 2, 0x15);
+            return true;
+        }
+    }
+    LOG_WARNING(F("Setting maintenance: wrong format"));
+    return false;
+}
+
+//maintenance
+bool Boiler::set_maintenancedate(const char * value, const int8_t id) {
+    if (strlen(value) == 10) { // date
+        uint8_t day   = (value[0] - '0') * 10 + (value[1] - '0');
+        uint8_t month = (value[3] - '0') * 10 + (value[4] - '0');
+        uint8_t year  = (uint8_t)(Helpers::atoint(&value[6]) - 2000);
+        if (day > 0 && day < 32 && month > 0 && month < 13) {
+            LOG_INFO(F("Setting maintenance date to %02d.%02d.%04d"), day, month, year + 2000);
+            uint8_t data[5] = {2, (uint8_t)(maintenanceTime_ / 100), day, month, year};
+            write_command(0x15, 0, data, 5, 0x15);
+        } else {
+            LOG_WARNING(F("Setting maintenance: wrong format %d.%d.%d"), day, month, year + 2000);
+            return false;
+        }
         return true;
     }
 

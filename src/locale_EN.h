@@ -240,6 +240,7 @@ MAKE_PSTR_WORD(maintenance)
 MAKE_PSTR_WORD(error)
 
 // boiler lists
+MAKE_PSTR_LIST(tpl_date, F("dd.mm.yyyy")) // template for text input
 MAKE_PSTR_LIST(enum_off_time_date, F_(off), F_(time), F_(date))
 MAKE_PSTR_LIST(enum_freq, F_(off), F_(1x3min), F_(2x3min), F_(3x3min), F_(4x3min), F_(5x3min), F_(6x3min), F_(continuous))
 MAKE_PSTR_LIST(enum_charge, F_(chargepump), F_(3wayvalve))
@@ -301,6 +302,8 @@ MAKE_PSTR(functioning_mode, "functioning mode")
 MAKE_PSTR(smoke_temperature, "smoke temperature")
 
 // thermostat lists
+MAKE_PSTR_LIST(tpl_datetime, F("hh:mm:ss dd/mm/yyyy-dw-dst"), F("NTP"))
+MAKE_PSTR_LIST(tpl_switchtime, F("nn.d.o.hh:mm"))
 MAKE_PSTR_LIST(enum_ibaMainDisplay,
                F_(internal_temperature),
                F_(internal_setpoint),
@@ -407,9 +410,9 @@ MAKE_PSTR_LIST(lastCode, F("lastcode"), F("last error code"))
 MAKE_PSTR_LIST(serviceCode, F("servicecode"), F("service code"))
 MAKE_PSTR_LIST(serviceCodeNumber, F("servicecodenumber"), F("service code number"))
 MAKE_PSTR_LIST(maintenanceMessage, F("maintenancemessage"), F("maintenance message"))
-MAKE_PSTR_LIST(maintenanceDate, F("maintenancedate"), F("maintenance set date"))
+MAKE_PSTR_LIST(maintenanceDate, F("maintenancedate"), F("next maintenance date"))
 MAKE_PSTR_LIST(maintenanceType, F_(maintenance), F("maintenance scheduled"))
-MAKE_PSTR_LIST(maintenanceTime, F("maintenancetime"), F("maintenance set time"))
+MAKE_PSTR_LIST(maintenanceTime, F("maintenancetime"), F("time to next maintenance"))
 
 MAKE_PSTR_LIST(upTimeControl, F("uptimecontrol"), F("operating time total heat"))
 MAKE_PSTR_LIST(upTimeCompHeating, F("uptimecompheating"), F("operating time compressor heating"))

@@ -73,6 +73,7 @@ export interface DeviceValue {
   u: number;
   n: string;
   c: string;
+  o: string;
 }
 
 export interface EMSESPDeviceData {
