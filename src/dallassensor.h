@@ -36,7 +36,7 @@
 
 namespace emsesp {
 
-enum Dallas_Format : uint8_t { SENSORID = 1, NUMBER };
+enum Dallas_Format : uint8_t { SENSORID = 1, NUMBER, NAME };
 
 class DallasSensor {
   public:

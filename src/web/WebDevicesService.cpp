@@ -73,11 +73,11 @@ void WebDevicesService::all_devices(AsyncWebServerRequest * request) {
         for (const auto & sensor : EMSESP::sensor_devices()) {
             JsonObject obj = sensors.createNestedObject();
             obj["no"]      = i++;
-            if (EMSESP::dallassensor_.dallas_format() == Dallas_Format::SENSORID) {
-                obj["id"] = sensor.to_string();
-            } else {
+            if (EMSESP::dallassensor_.dallas_format() == Dallas_Format::NUMBER) {
                 sprintf_P(s, PSTR("sensor %d"), i - 1);
                 obj["id"] = s;
+            } else {
+                obj["id"] = sensor.to_string();
             }
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
                 if (settings.fahrenheit) {
