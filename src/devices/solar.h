@@ -94,6 +94,8 @@ class Solar : public EMSdevice {
     uint8_t data1_;
     uint8_t data11_;
     uint8_t data12_;
+    uint8_t setting3_;
+    uint8_t setting4_;
 
     std::deque<uint16_t> energy;
 

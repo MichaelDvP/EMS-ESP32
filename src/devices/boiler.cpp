@@ -205,6 +205,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(
         TAG_DEVICE_DATA_WW, &wWCircPump_, DeviceValueType::BOOL, nullptr, FL_(wWCircPump), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_circulation_pump));
     register_device_value(TAG_DEVICE_DATA_WW, &wWChargeType_, DeviceValueType::ENUM, FL_(enum_charge), FL_(wWChargeType), DeviceValueUOM::LIST);
+    register_device_value(TAG_DEVICE_DATA_WW, &wWHystOn_, DeviceValueType::INT, nullptr, FL_(wWHystOn), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_ww_hyst_on));
+    register_device_value(TAG_DEVICE_DATA_WW, &wWHystOff_, DeviceValueType::INT, nullptr, FL_(wWHystOff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_ww_hyst_off));
     register_device_value(TAG_DEVICE_DATA_WW,
                           &wWDisinfectionTemp_,
                           DeviceValueType::UINT,
@@ -407,8 +409,8 @@ void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
     // has_bitupdate(telegram, wwEquipt_,0,3);  //  8=boiler has ww
     has_update(telegram, wWActivated_, 1); // 0xFF means on
     has_update(telegram, wWSelTemp_, 2);
-    // has_update(telegram, wW?_, 3);           // Hyst on (default -5)
-    // has_update(telegram, wW?_, 4);           // (0xFF) Maybe: Hyst off -1?
+    has_update(telegram, wWHystOn_, 3);         // Hyst on (default -5)
+    has_update(telegram, wWHystOff_, 4);        // Hyst off (default -1)
     has_update(telegram, wWFlowTempOffset_, 5); // default 40
     has_update(telegram, wWCircPump_, 6);       // 0xFF means on
     has_update(telegram, wWCircMode_, 7);       // 1=1x3min 6=6x3min 7=continuous
@@ -573,12 +575,15 @@ void Boiler::process_UBAParametersPlus(std::shared_ptr<const Telegram> telegram)
 }
 
 // 0xEA
+// Boiler(0x08) -> (0x0B), (0xEA), data: 00 00 00 00 00 00 3C FB 00 28 00 02 46 00 00 00 3C 3C 28
 void Boiler::process_UBAParameterWWPlus(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, wWActivated_, 5); // 0x01 means on
     has_update(telegram, wWCircPump_, 10); // 0x01 means yes
     has_update(telegram, wWCircMode_, 11); // 1=1x3min... 6=6x3min, 7=continuous
     has_update(telegram, wWDisinfectionTemp_, 12); // setting here, status in E9
     has_update(telegram, wWSelTemp_, 6); // setting here, status in E9
+    has_update(telegram, wWHystOn_, 7);
+    has_update(telegram, wWHystOff_, 8);
 }
 
 // 0xE9 - WW monitor ems+
@@ -938,6 +943,43 @@ bool Boiler::set_max_power(const char * value, const int8_t id) {
 
     return true;
 }
+
+// set ww on hysteresis
+bool Boiler::set_ww_hyst_on(const char * value, const int8_t id) {
+    int v = 0;
+    if (!Helpers::value2temperature(value, v, true)) {
+        LOG_WARNING(F("Set ww on hysteresis: Invalid value"));
+        return false;
+    }
+
+    LOG_INFO(F("Setting ww on hysteresis on to %d C"), v);
+    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+        write_command(EMS_TYPE_UBAParameterWWPlus, 7, v, EMS_TYPE_UBAParameterWWPlus);
+    } else {
+        write_command(EMS_TYPE_UBAParameterWW, 3, v, EMS_TYPE_UBAParameterWW);
+    }
+
+    return true;
+}
+
+// set ww off hysteresis
+bool Boiler::set_ww_hyst_off(const char * value, const int8_t id) {
+    int v = 0;
+    if (!Helpers::value2temperature(value, v, true)) {
+        LOG_WARNING(F("Set ww off hysteresis: Invalid value"));
+        return false;
+    }
+
+    LOG_INFO(F("Setting ww off hysteresis off to %d C"), v);
+    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+        write_command(EMS_TYPE_UBAParameterWWPlus, 8, v, EMS_TYPE_UBAParameterWWPlus);
+    } else {
+        write_command(EMS_TYPE_UBAParameterWW, 4, v, EMS_TYPE_UBAParameterWW);
+    }
+
+    return true;
+}
+
 
 // set warm water max power
 bool Boiler::set_warmwater_maxpower(const char * value, const int8_t id) {

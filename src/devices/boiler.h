@@ -83,6 +83,8 @@ class Boiler : public EMSdevice {
     uint32_t wWStarts_;           // Warm Water # starts
     uint32_t wWStarts2_;          // Warm water control starts
     uint32_t wWWorkM_;            // Warm Water # minutes
+    int8_t   wWHystOn_;
+    int8_t   wWHystOff_;
 
     uint16_t mixerTemp_;      // mixing temperature
     uint16_t tankMiddleTemp_; // Tank middle temperature (TS3)
@@ -221,6 +223,8 @@ class Boiler : public EMSdevice {
     bool set_maintenance(const char * value, const int8_t id);
     bool set_maintenancetime(const char * value, const int8_t id);
     bool set_maintenancedate(const char * value, const int8_t id);
+    bool set_ww_hyst_on(const char * value, const int8_t id);
+    bool set_ww_hyst_off(const char * value, const int8_t id);
 };
 
 } // namespace emsesp

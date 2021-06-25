@@ -94,9 +94,9 @@ Solar::Solar(uint8_t device_type, uint8_t device_id, uint8_t product_id, const s
         register_device_value(
             TAG_NONE, &solarPumpTurnoffDiff_, DeviceValueType::UINT, nullptr, FL_(solarPumpTurnoffDiff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_TurnoffDiff));
         register_device_value(
-            TAG_NONE, &collectorMaxTemp_, DeviceValueType::UINT, nullptr, FL_(collectorMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_CollectorMaxTemp));
+            TAG_NONE, &setting3_, DeviceValueType::UINT, nullptr, FL_(setting3), DeviceValueUOM::NONE, MAKE_CF_CB(set_CollectorMaxTemp));
         register_device_value(
-            TAG_NONE, &collectorMinTemp_, DeviceValueType::UINT, nullptr, FL_(collectorMinTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_CollectorMinTemp));
+            TAG_NONE, &setting4_, DeviceValueType::UINT, nullptr, FL_(setting4), DeviceValueUOM::NONE, MAKE_CF_CB(set_CollectorMinTemp));
         register_device_value(TAG_NONE, &solarPower_, DeviceValueType::ULONG, nullptr, FL_(solarPower), DeviceValueUOM::W);
         register_device_value(TAG_NONE, &energyLastHour_, DeviceValueType::ULONG, FL_(div10), FL_(energyLastHour), DeviceValueUOM::WH);
         register_device_value(TAG_NONE, &maxFlow_, DeviceValueType::UINT, FL_(div10), FL_(maxFlow), DeviceValueUOM::LMIN, MAKE_CF_CB(set_SM10MaxFlow));
@@ -221,6 +221,9 @@ bool Solar::publish_ha_config() {
 // Solar(0x30) -> All(0x00), (0x96), data: FF 18 19 0A 02 5A 27 0A 05 2D 1E 0F 64 28 0A
 void Solar::process_SM10Config(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, solarIsEnabled_, 0); // FF on
+    has_update(telegram, setting3_, 3);
+    has_update(telegram, setting4_, 4);
+    /*
     uint8_t colmax = collectorMaxTemp_ / 10;
     telegram->read_value(colmax, 3);
     if (collectorMaxTemp_ != colmax * 10) {
@@ -233,6 +236,7 @@ void Solar::process_SM10Config(std::shared_ptr<const Telegram> telegram) {
         collectorMinTemp_ = colmin * 10;
         has_update(true, &collectorMinTemp_);
     }
+    */
     has_update(telegram, solarPumpMinMod_, 2);
     has_update(telegram, solarPumpTurnonDiff_, 7);
     has_update(telegram, solarPumpTurnoffDiff_, 8);
@@ -265,8 +269,8 @@ void Solar::process_SM10Monitor(std::shared_ptr<const Telegram> telegram) {
     if (!Helpers::hasValue(maxFlow_)) {
         EMSESP::webSettingsService.read([&](WebSettings & settings) {
             maxFlow_ = settings.solar_maxflow;
-            has_update(true, &maxFlow_);
         });
+        has_update(true, &maxFlow_);
     }
 
     // solar publishes every minute, do not count reads by other devices
@@ -503,7 +507,7 @@ bool Solar::set_CollectorMaxTemp(const char * value, const int8_t id) {
         return false;
     }
     if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
-        write_command(0x96, 3, (uint8_t)temperature / 10, 0x96);
+        write_command(0x96, 3, (uint8_t)temperature, 0x96);
     } else {
         write_command(0x35A, 0, (uint8_t)temperature, 0x35A);
     }
@@ -517,7 +521,7 @@ bool Solar::set_CollectorMinTemp(const char * value, const int8_t id) {
         return false;
     }
     if (flags() == EMSdevice::EMS_DEVICE_FLAG_SM10) {
-        write_command(0x96, 4, (uint8_t)temperature / 10, 0x96);
+        write_command(0x96, 4, (uint8_t)temperature, 0x96);
     } else {
         write_command(0x35A, 4, (uint8_t)temperature, 0x35A);
     }

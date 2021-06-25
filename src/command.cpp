@@ -116,10 +116,10 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
         const char * tag = EMSdevice::tag_to_string(i).c_str();
         uint8_t      len = strlen(tag);
         if (strncmp(cmd, tag, len) == 0) {
-            if (cmd[len] != '\0') {
-                strcpy(cmd, &cmd[len + 1]);
+            if (cmd[len] == '\0') {
+                cmd[0] = '\0';
             } else {
-                strcpy(cmd, &cmd[len]);
+                strcpy(cmd, &cmd[len + 1]);
             }
             id = 1 + i - DeviceValueTAG::TAG_HC1;
             break;
@@ -131,10 +131,10 @@ Command::CmdFunction * Command::find_command(const uint8_t device_type, char * c
         const char * tag = EMSdevice::tag_to_string(i).c_str();
         uint8_t      len = strlen(tag);
         if (strncmp(cmd, tag, len) == 0) {
-            if (cmd[len] != '\0') {
-                strcpy(cmd, &cmd[len + 1]);
+            if (cmd[len] == '\0') {
+                cmd[0] = '\0';
             } else {
-                strcpy(cmd, &cmd[len]);
+                strcpy(cmd, &cmd[len + 1]);
             }
             id = 8 + i - DeviceValueTAG::TAG_WWC1;
             break;

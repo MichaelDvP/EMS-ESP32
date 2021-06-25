@@ -477,6 +477,8 @@ MAKE_PSTR_LIST(tankMiddleTemp, F("tankmiddletemp"), F("tank middle temperature (
 MAKE_PSTR_LIST(wWStarts, F("wwstarts"), F("# starts"))
 MAKE_PSTR_LIST(wWStarts2, F("wwstarts2"), F("# control starts"))
 MAKE_PSTR_LIST(wWWorkM, F("wwworkm"), F("active time"))
+MAKE_PSTR_LIST(wWHystOn, F("wwhyston"), F("hysteresis on temperature"))
+MAKE_PSTR_LIST(wWHystOff, F("wwhystoff"), F("hysteresis off temperature"))
 
 // thermostat
 // extra commands, no long name, does not show on web
@@ -627,3 +629,5 @@ MAKE_PSTR_LIST(data12, F("data12"), F("unknown datafield 12"))
 MAKE_PSTR_LIST(data8, F("data8"), F("unknown datafield 8"))
 MAKE_PSTR_LIST(data0, F("data0"), F("unknown datafield 0"))
 MAKE_PSTR_LIST(data1, F("data1"), F("unknown datafield 1"))
+MAKE_PSTR_LIST(setting3, F("setting3"), F("unknown setting 3"))
+MAKE_PSTR_LIST(setting4, F("setting4"), F("unknown setting 4"))
