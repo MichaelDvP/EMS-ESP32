@@ -308,12 +308,6 @@ class EMSESPDevicesForm extends Component<
         </Typography>
         {!this.noSensors() && (
           <Table size="small" padding="default">
-            <TableHead>
-              <TableRow>
-                <StyledTableCell>Sensor ID</StyledTableCell>
-                <StyledTableCell align="right">Data</StyledTableCell>
-              </TableRow>
-            </TableHead>
             <TableBody>
               {data.sensors.map((sensorData) => (
                 <TableRow key={sensorData.no}>

@@ -725,22 +725,19 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                     } else {
                         obj["c"] = dv.short_name;
                     }
-                } else {
-                    obj["c"] = "";
                 }
 
                 // add enum and text option settings
                 if ((dv.uom == DeviceValueUOM::LIST) && dv.has_cmd) {
-                    uint8_t   min = uuid::read_flash_string(dv.options[0]).empty() ? 1 : 0;
                     JsonArray l   = obj.createNestedArray("l");
-                    for (uint8_t i = min; i < dv.options_size; i++) {
-                        l.add(uuid::read_flash_string(dv.options[i]));
+                    for (uint8_t i = 0; i < dv.options_size; i++) {
+                        if (!uuid::read_flash_string(dv.options[i]).empty()) {
+                            l.add(uuid::read_flash_string(dv.options[i]));
+                        }
                     }
                 }
                 if ((dv.type == DeviceValueType::TEXT || dv.type == DeviceValueType::CMD) && dv.has_cmd && dv.options[0] != nullptr) {
                     obj["o"] = dv.options[0];
-                } else {
-                    obj["o"] = "";
                 }
             }
         }
@@ -798,7 +795,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                     }
                 }
                 json[type]      = F_(enum);
-                uint8_t min_    = (uuid::read_flash_string(dv.options[0]) == "") ? 1 : 0;
+                uint8_t min_    = uuid::read_flash_string(dv.options[0]).empty() ? 1 : 0;
                 json[min]       = min_;
                 json[max]       = dv.options_size - 1;
                 JsonArray enum_ = json.createNestedArray(F_(enum));
@@ -856,7 +853,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 json[min]  = 0;
                 json[max]  = divider ? EMS_VALUE_ULONG_NOTSET / divider : EMS_VALUE_ULONG_NOTSET;
                 break;
-            case DeviceValueType::BOOL: {
+            case DeviceValueType::BOOL:
                 if (Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
                     if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF) {
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? F_(on) : F_(off);
@@ -868,26 +865,8 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? 1 : 0;
                     }
                 }
-                json[type]      = F("boolean");
-                // json[min]       = 0;
-                // json[max]       = 1;
-                JsonArray enum_ = json.createNestedArray(F_(enum));
-
-                if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF) {
-                    enum_.add(F_(off));
-                    enum_.add(F_(on));
-                } else if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
-                    enum_.add(F_(OFF));
-                    enum_.add(F_(ON));
-                } else if (EMSESP::bool_format() == BOOL_FORMAT_TRUEFALSE) {
-                    enum_.add(false);
-                    enum_.add(true);
-                } else {
-                    enum_.add(0);
-                    enum_.add(1);
-                }
+                json[type] = F("boolean");
                 break;
-            }
             case DeviceValueType::TIME:
                 if (Helpers::hasValue(*(uint32_t *)(dv.value_p))) {
                     json[value] = (divider) ? *(uint32_t *)(dv.value_p) / divider : *(uint32_t *)(dv.value_p);
@@ -910,11 +889,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 break;
             }
             if (!uom_to_string(dv.uom).empty() && uom_to_string(dv.uom) != " ") {
-                if (fahrenheit) {
-                    json[unit] = F("°F");
-                } else {
-                    json[unit] = uom_to_string(dv.uom);
-                }
+                json[unit] = fahrenheit ? "°F": uom_to_string(dv.uom);
             }
             json["writeable"] = dv.has_cmd;
             // if we have individual limits, overwrite the common limits
