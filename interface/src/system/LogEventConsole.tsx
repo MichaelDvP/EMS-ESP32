@@ -38,10 +38,10 @@ const useStyles = makeStyles((theme: Theme) => ({
     whiteSpace: 'nowrap'
   },
   debug: {
-    color: '#00FFFF'
+    color: '#00ffff'
   },
   trace: {
-    color: '#00FFFF'
+    color: '#ffffff'
   },
   info: {
     color: '#ffff00'
