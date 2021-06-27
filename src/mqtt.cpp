@@ -991,7 +991,7 @@ void Mqtt::publish_mqtt_ha_sensor(uint8_t                     type, // EMSdevice
     // name = <device> <tag> <name>
     char new_name[80];
     if (tag >= TAG_DEVICE_DATA_WW && !EMSdevice::tag_to_string(tag).empty()) {
-        snprintf_P(new_name, sizeof(new_name), PSTR("%s %s %s"), device_name, EMSdevice::tag_to_string(tag).c_str(), uuid::read_flash_string(name).c_str());
+        snprintf_P(new_name, sizeof(new_name), PSTR("%s %s %s"), device_name, EMSdevice::tag_to_mqtt(tag).c_str(), uuid::read_flash_string(name).c_str());
     } else {
         snprintf_P(new_name, sizeof(new_name), PSTR("%s %s"), device_name, uuid::read_flash_string(name).c_str());
     }
