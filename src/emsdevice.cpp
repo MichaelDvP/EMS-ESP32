@@ -942,7 +942,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
                 if (dv.tag != old_tag) {
                     old_tag = dv.tag;
                     if (nested && have_tag && dv.tag >= DeviceValueTAG::TAG_HC1) { // no nests for boiler tags
-                        json = root.createNestedObject(tag_to_string(dv.tag));
+                        json = root.createNestedObject(tag_to_mqtt(dv.tag));
                     }
                 }
             }
