@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { withStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { withStyles, Theme } from '@material-ui/core/styles';
 
 import parseMilliseconds from 'parse-ms';
 
@@ -55,18 +55,6 @@ import { ENDPOINT_ROOT } from '../api';
 export const SCANDEVICES_ENDPOINT = ENDPOINT_ROOT + 'scanDevices';
 export const DEVICE_DATA_ENDPOINT = ENDPOINT_ROOT + 'deviceData';
 export const WRITE_VALUE_ENDPOINT = ENDPOINT_ROOT + 'writeValue';
-
-const StyledTableCell = withStyles((theme: Theme) =>
-  createStyles({
-    head: {
-      backgroundColor: theme.palette.common.black,
-      color: theme.palette.common.white
-    },
-    body: {
-      fontSize: 14
-    }
-  })
-)(TableCell);
 
 const CustomTooltip = withStyles((theme: Theme) => ({
   tooltip: {
