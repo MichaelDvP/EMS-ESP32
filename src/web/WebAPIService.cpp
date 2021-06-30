@@ -24,6 +24,8 @@ using namespace std::placeholders; // for `_1` etc
 
 namespace emsesp {
 
+uint32_t WebAPIService::api_count_ = 0;
+
 WebAPIService::WebAPIService(AsyncWebServer * server, SecurityManager * securityManager)
     : _securityManager(securityManager)
     , _apiHandler("/api", std::bind(&WebAPIService::webAPIService_post, this, _1, _2), 256) { // for POSTS
@@ -188,6 +190,8 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
         send_message_response(request, 400, "Problems parsing elements"); // Bad Request
         return;
     }
+
+    api_count_++;
 
     if (!json.size()) {
         delete response;

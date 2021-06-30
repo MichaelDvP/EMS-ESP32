@@ -94,6 +94,7 @@ void WebStatusService::webStatusService(AsyncWebServerRequest * request) {
     root["sensor_reads"]   = EMSESP::sensor_reads();
     uint8_t sensor_quality = EMSESP::sensor_reads() > 0 ? 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads()) : 0;
     root["sensor_quality"] = sensor_quality;
+    root["api_calls"]      = WebAPIService::api_count();
 
     response->setLength();
     request->send(response);

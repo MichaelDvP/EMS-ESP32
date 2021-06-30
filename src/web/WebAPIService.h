@@ -63,12 +63,18 @@ class WebAPIService {
     void webAPIService_post(AsyncWebServerRequest * request, JsonVariant & json); // for POSTs
     void webAPIService_get(AsyncWebServerRequest * request);                      // for GETs
 
+    static uint32_t api_count() {
+      return api_count_;
+    }
+
   private:
     SecurityManager *           _securityManager;
     AsyncCallbackJsonWebHandler _apiHandler; // for POSTs
 
     void parse(AsyncWebServerRequest * request, std::string & device, std::string & cmd, int id, std::string & value);
     void send_message_response(AsyncWebServerRequest * request, uint16_t error_code, const char * error_message = nullptr);
+
+    static uint32_t api_count_;
 };
 
 } // namespace emsesp

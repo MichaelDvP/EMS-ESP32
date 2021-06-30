@@ -87,6 +87,12 @@ class EMSESPStatusForm extends Component<EMSESPStatusFormProps> {
                     {data.sensor_quality}%)
                   </TableCell>
                 </TableRow>
+                <TableRow>
+                  <TableCell># API Calls</TableCell>
+                  <TableCell align="right">
+                    {formatNumber(data.api_calls)}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
