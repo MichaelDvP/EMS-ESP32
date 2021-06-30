@@ -106,6 +106,8 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
         return;
     }
 
+    // register the individual commands too (e.g. ems-esp/boiler/wwonetime)
+    // https://github.com/emsesp/EMS-ESP32/issues/31
     std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
     if (subscribe_format_ == Subscribe_Format::HC_COMMAND && flag == MqttSubFlag::FLAG_HC) {
         topic = cmd_topic + "/hc1/" + uuid::read_flash_string(cmd);
