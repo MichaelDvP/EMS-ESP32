@@ -1135,11 +1135,11 @@ bool Boiler::set_warmwater_mode(const char * value, const int8_t id) {
 bool Boiler::set_warmwater_activated(const char * value, const int8_t id) {
     bool v = false;
     if (!Helpers::value2bool(value, v)) {
-        LOG_WARNING(F("Set boiler warm water active: Invalid value"));
+        LOG_WARNING(F("Set boiler warm water activated: Invalid value"));
         return false;
     }
 
-    LOG_INFO(F("Setting boiler warm water active %s"), v ? "on" : "off");
+    LOG_INFO(F("Setting boiler warm water activated %s"), v ? "on" : "off");
 
     // https://github.com/emsesp/EMS-ESP/issues/268
     uint8_t n;
