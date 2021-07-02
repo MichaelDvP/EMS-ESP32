@@ -961,6 +961,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
 
     if (EMSESP::bus_status() != EMSESP::BUS_STATUS_OFFLINE) {
         node["bus_protocol"]  = EMSbus::is_ht3() ? F("HT3") : F("Buderus");
+        // node["tx-mode"]       = EMSbus::tx_mode();
         node["rx_received"]   = EMSESP::rxservice_.telegram_count();
         node["tx_reads"]      = EMSESP::txservice_.telegram_read_count();
         node["tx_writes"]     = EMSESP::txservice_.telegram_write_count();
@@ -978,6 +979,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["sensor_reads"] = EMSESP::sensor_reads();
         node["sensor_fails"] = EMSESP::sensor_fails();
     }
+    node["api-calls"] = WebAPIService::api_count();
     if (EMSESP::system_.analog_enabled()) {
         node["analog"] = EMSESP::system_.analog();
     }
