@@ -46,7 +46,7 @@ bool System::command_pin(const char * value, const int8_t id) {
 
     bool        v  = false;
     std::string v1 = {7, '\0'};
-    int v2 = 0;
+    int         v2 = 0;
     if (id == 25 && Helpers::value2number(value, v2)) {
         if (v2 >= 0 && v2 <= 255) {
             dacWrite(id, v2);
@@ -75,6 +75,15 @@ bool System::command_send(const char * value, const int8_t id) {
     return true;
 }
 
+// send set / reset counter
+bool System::command_counter(const char * value, const int8_t id) {
+    int v;
+    if (Helpers::value2number(value, v)) {
+        EMSESP::system_.io_counter_ = v;
+        return true;
+    }
+    return false;
+}
 // fetch device values
 bool System::command_fetch(const char * value, const int8_t id) {
     std::string value_s(14, '\0');
@@ -534,6 +543,8 @@ void System::io_counter() {
             pin_old = pin;
             if (!pin) { // count on active (low) signal
                 io_counter_ ++;
+                char payload[8];
+                Mqtt::publish(F("system/counter"), Helpers::render_value(payload, io_counter_, 0));
             }
         } 
     }
@@ -676,6 +687,7 @@ void System::commands_init() {
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(send), System::command_send, F("send a telegram"));
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(publish), System::command_publish, F("force a MQTT publish"));
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(fetch), System::command_fetch, F("refresh all EMS values"));
+    Command::add(EMSdevice::DeviceType::SYSTEM, F_(counter), System::command_counter, F("set counter"));
     Command::add_with_json(EMSdevice::DeviceType::SYSTEM, F_(info), System::command_info, F("system status"));
     Command::add_with_json(EMSdevice::DeviceType::SYSTEM, F_(settings), System::command_settings, F("list system settings"));
     Command::add_with_json(EMSdevice::DeviceType::SYSTEM, F_(commands), System::command_commands, F("list system commands"));

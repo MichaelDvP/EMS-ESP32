@@ -69,6 +69,7 @@ MAKE_PSTR_WORD(pin)
 MAKE_PSTR_WORD(publish)
 MAKE_PSTR_WORD(timeout)
 MAKE_PSTR_WORD(board_profile)
+MAKE_PSTR_WORD(counter)
 
 // for commands
 MAKE_PSTR_WORD(call)
