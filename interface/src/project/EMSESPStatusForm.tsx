@@ -88,7 +88,7 @@ class EMSESPStatusForm extends Component<EMSESPStatusFormProps> {
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell># API Calls</TableCell>
+                  <TableCell># API Calls / Failed (Quality)</TableCell>
                   <TableCell align="right">
                     {formatNumber(data.api_calls)}&nbsp;/&nbsp;
                     {formatNumber(data.api_fails)}&nbsp;(
