@@ -337,15 +337,18 @@ void Solar::process_SM100SolarCircuitConfig(std::shared_ptr<const Telegram> tele
  * e.g. B0 0B F9 00 00 02 5A 00 00 6E
  */
 void Solar::process_SM100ParamCfg(std::shared_ptr<const Telegram> telegram) {
-    uint16_t t_id;
-    uint8_t  of;
-    int32_t  min, def, max, cur;
-    has_update(telegram, t_id, 1);
-    has_update(telegram, of, 3);
-    has_update(telegram, min, 5);
-    has_update(telegram, def, 9);
-    has_update(telegram, max, 13);
-    has_update(telegram, cur, 17);
+    uint16_t t_id = EMS_VALUE_USHORT_NOTSET;
+    uint8_t  of   = EMS_VALUE_UINT_NOTSET;
+    int32_t  min  = EMS_VALUE_USHORT_NOTSET;
+    int32_t  def  = EMS_VALUE_USHORT_NOTSET;
+    int32_t  max  = EMS_VALUE_USHORT_NOTSET;
+    int32_t  cur  = EMS_VALUE_USHORT_NOTSET;
+    has_update(telegram->read_value(t_id, 1));
+    has_update(telegram->read_value(of, 3));
+    has_update(telegram->read_value(min, 5));
+    has_update(telegram->read_value(def, 9));
+    has_update(telegram->read_value(max, 13));
+    has_update(telegram->read_value(cur, 17));
 
     // LOG_DEBUG(F("SM100ParamCfg param=0x%04X, offset=%d, min=%d, default=%d, max=%d, current=%d"), t_id, of, min, def, max, cur));
 }
