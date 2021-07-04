@@ -25,6 +25,7 @@ using namespace std::placeholders; // for `_1` etc
 namespace emsesp {
 
 uint32_t WebAPIService::api_count_ = 0;
+uint32_t WebAPIService::api_fails_ = 0;
 
 WebAPIService::WebAPIService(AsyncWebServer * server, SecurityManager * securityManager)
     : _securityManager(securityManager)
@@ -151,11 +152,13 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
 
     // device check
     if (device_s.empty()) {
+        api_fails_++;
         send_message_response(request, 422, "Missing device"); // Unprocessable Entity
         return;
     }
     device_type = EMSdevice::device_name_2_device_type(device_s.c_str());
     if (device_type == EMSdevice::DeviceType::UNKNOWN) {
+        api_fails_++;
         send_message_response(request, 422, "Invalid call"); // Unprocessable Entity
         return;
     }
@@ -173,6 +176,7 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
 
     if ((method != HTTP_GET) || ((method == HTTP_GET) && have_data)) {
         if (!admin_allowed) {
+            api_fails_++;
             send_message_response(request, 401, "Bad credentials"); // Unauthorized
             return;
         }
@@ -187,6 +191,7 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
     // check for errors
     if (!ok) {
         delete response;
+        api_fails_++;
         send_message_response(request, 400, "Problems parsing elements"); // Bad Request
         return;
     }

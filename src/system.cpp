@@ -992,6 +992,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["sensor_fails"] = EMSESP::sensor_fails();
     }
     node["api-calls"] = WebAPIService::api_count();
+    node["api-fails"] = WebAPIService::api_fails();
     if (EMSESP::system_.analog_enabled()) {
         node["analog"] = EMSESP::system_.analog();
     }

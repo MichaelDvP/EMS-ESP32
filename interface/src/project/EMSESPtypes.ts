@@ -45,6 +45,8 @@ export interface EMSESPStatus {
   sensor_reads: number;
   sensor_quality: number;
   api_calls: number;
+  api_fails: number;
+  api_quality: number;
 }
 
 export interface Device {

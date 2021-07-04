@@ -92,9 +92,11 @@ void WebStatusService::webStatusService(AsyncWebServerRequest * request) {
     root["tx_fails"]       = EMSESP::txservice_.telegram_fail_count();
     root["sensor_fails"]   = EMSESP::sensor_fails();
     root["sensor_reads"]   = EMSESP::sensor_reads();
-    uint8_t sensor_quality = EMSESP::sensor_reads() > 0 ? 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads()) : 0;
+    uint8_t sensor_quality = EMSESP::sensor_reads() == 0 ? 100 : 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads());
     root["sensor_quality"] = sensor_quality;
     root["api_calls"]      = WebAPIService::api_count();
+    root["api_fails"]      = WebAPIService::api_fails();
+    root["api_quality"]    = WebAPIService::api_count() == 0 ? 100 : 100 - (WebAPIService::api_fails() * 100) / (WebAPIService::api_count() + WebAPIService::api_fails());
 
     response->setLength();
     request->send(response);

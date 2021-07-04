@@ -67,6 +67,10 @@ class WebAPIService {
       return api_count_;
     }
 
+    static uint32_t api_fails() {
+      return api_fails_;
+    }
+
   private:
     SecurityManager *           _securityManager;
     AsyncCallbackJsonWebHandler _apiHandler; // for POSTs
@@ -75,6 +79,7 @@ class WebAPIService {
     void send_message_response(AsyncWebServerRequest * request, uint16_t error_code, const char * error_message = nullptr);
 
     static uint32_t api_count_;
+    static uint32_t api_fails_;
 };
 
 } // namespace emsesp
