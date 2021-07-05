@@ -269,10 +269,10 @@ void System::wifi_tweak() {
     bool         s1 = WiFi.getSleep();
     WiFi.setSleep(false); // turn off sleep - WIFI_PS_NONE
     bool s2 = WiFi.getSleep();
-    LOG_DEBUG(F("Adjusting WiFi - Tx power %d->%d, Sleep %d->%d"), p1, p2, s1, s2);
+    LOG_DEBUG(F("[DEBUG] Adjusting WiFi - Tx power %d->%d, Sleep %d->%d"), p1, p2, s1, s2);
 #endif
-#if defined(EMSESP_WIFI_BW_HT20)
-    esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT20);
+#if defined(EMSESP_WIFI_LOW_POWER)
+    (void)WiFi.setTxPower(WIFI_POWER_15dBm);
 #endif
 }
 
@@ -443,11 +443,13 @@ void System::loop() {
 
 #ifndef EMSESP_STANDALONE
 #if defined(EMSESP_DEBUG)
+/*
     static uint32_t last_memcheck_ = 0;
     if (currentMillis - last_memcheck_ > 10000) { // 10 seconds
         last_memcheck_ = currentMillis;
         show_mem("core");
     }
+    */
 #endif
 #endif
 
