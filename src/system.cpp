@@ -250,12 +250,12 @@ void System::get_settings() {
 // this for problem solving mesh and connection issues, and also get EMS bus-powered more stable by lowering power
 void System::wifi_tweak() {
 #if defined(EMSESP_WIFI_TWEAK)
-    // Default Tx Power is 80 = 20dBm <-- default
+    // Default Tx Power is 80 = 20dBm <-- default => 240 mA
     // WIFI_POWER_19_5dBm = 78,// 19.5dBm
     // WIFI_POWER_19dBm = 76,// 19dBm
     // WIFI_POWER_18_5dBm = 74,// 18.5dBm
     // WIFI_POWER_17dBm = 68,// 17dBm
-    // WIFI_POWER_15dBm = 60,// 15dBm
+    // WIFI_POWER_15dBm = 60,// 15dBm => 185 mA
     // WIFI_POWER_13dBm = 52,// 13dBm
     // WIFI_POWER_11dBm = 44,// 11dBm
     // WIFI_POWER_8_5dBm = 34,// 8.5dBm
@@ -270,6 +270,13 @@ void System::wifi_tweak() {
     WiFi.setSleep(false); // turn off sleep - WIFI_PS_NONE
     bool s2 = WiFi.getSleep();
     LOG_DEBUG(F("Adjusting WiFi - Tx power %d->%d, Sleep %d->%d"), p1, p2, s1, s2);
+#endif
+#if defined(EMSESP_WIFI_BW_HT20)
+    esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT20);
+#endif
+#if defined(EMSESP_WIFI_LOW_POWER)
+    // Added MichaelDvP personal default
+    (void)WiFi.setTxPower(WIFI_POWER_15dBm);
 #endif
 }
 

@@ -48,7 +48,7 @@ void WebLogService::forbidden(AsyncWebServerRequest * request) {
 }
 
 void WebLogService::start() {
-    uuid::log::Level level = uuid::log::Level::OFF;
+    uuid::log::Level level = uuid::log::Level::INFO;
     EMSESP::webSettingsService.read([&](WebSettings & settings) {
         if (settings.weblog_level) {
             level = (uuid::log::Level)settings.weblog_level;
@@ -86,6 +86,13 @@ void WebLogService::operator<<(std::shared_ptr<uuid::log::Message> message) {
         log_messages_.pop_front();
     }
     log_messages_.emplace_back(log_message_id_++, std::move(message));
+    if (!time_offset_) {
+        EMSESP::esp8266React.getNTPSettingsService()->read([&](NTPSettings & settings) {
+            if (settings.enabled && (time(nullptr) > 1500000000UL)) {
+                time_offset_ = time(nullptr) - uuid::get_uptime_sec();
+            }
+        });
+    }
 }
 
 void WebLogService::loop() {
@@ -107,14 +114,26 @@ void WebLogService::loop() {
     }
 }
 
+char * WebLogService::messagetime(char * out, const uint64_t t) {
+    if (!time_offset_) {
+        strcpy(out, uuid::log::format_timestamp_ms(t, 3).c_str());
+    } else {
+        time_t t1 = time_offset_ + t / 1000ULL;
+        strftime(out, 25, "%F %T", localtime(&t1));
+        snprintf_P(out, 25, "%s.%03d", out, (uint16_t)(t % 1000));
+    }
+    return out;
+}
+
 // send to web eventsource
 void WebLogService::transmit(const QueuedLogMessage & message) {
     DynamicJsonDocument jsonDocument = DynamicJsonDocument(EMSESP_JSON_SIZE_SMALL);
     JsonObject          logEvent     = jsonDocument.to<JsonObject>();
-    logEvent["t"]                    = uuid::log::format_timestamp_ms(message.content_->uptime_ms, 3);
-    logEvent["l"]                    = message.content_->level;
-    logEvent["n"]                    = message.content_->name;
-    logEvent["m"]                    = message.content_->text;
+    char                time_string[25];
+    logEvent["t"] = messagetime(time_string, message.content_->uptime_ms);
+    logEvent["l"] = message.content_->level;
+    logEvent["n"] = message.content_->name;
+    logEvent["m"] = message.content_->text;
 
     size_t len    = measureJson(jsonDocument);
     char * buffer = new char[len + 1];
@@ -135,10 +154,11 @@ void WebLogService::fetchLog(AsyncWebServerRequest * request) {
     for (const auto & msg : log_messages_) {
         JsonObject logEvent = log.createNestedObject();
         auto       message  = std::move(msg);
-        logEvent["t"]       = uuid::log::format_timestamp_ms(message.content_->uptime_ms, 3);
-        logEvent["l"]       = message.content_->level;
-        logEvent["n"]       = message.content_->name;
-        logEvent["m"]       = message.content_->text;
+        char       time_string[25];
+        logEvent["t"] = messagetime(time_string, message.content_->uptime_ms);
+        logEvent["l"] = message.content_->level;
+        logEvent["n"] = message.content_->name;
+        logEvent["m"] = message.content_->text;
     }
 
     log_message_id_tail_ = log_messages_.back().id_;
