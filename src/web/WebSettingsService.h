@@ -46,7 +46,6 @@ class WebSettings {
     String   syslog_host;
     uint16_t syslog_port;
     bool     trace_raw;
-    int8_t   weblog_level; // uuid::log::Level
     uint8_t  rx_gpio;
     uint8_t  tx_gpio;
     uint8_t  dallas_gpio;

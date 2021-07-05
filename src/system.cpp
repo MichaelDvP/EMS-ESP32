@@ -274,10 +274,6 @@ void System::wifi_tweak() {
 #if defined(EMSESP_WIFI_BW_HT20)
     esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT20);
 #endif
-#if defined(EMSESP_WIFI_LOW_POWER)
-    // Added MichaelDvP personal default
-    (void)WiFi.setTxPower(WIFI_POWER_15dBm);
-#endif
 }
 
 // check for valid ESP32 pins. This is very dependent on which ESP32 board is being used.
@@ -942,7 +938,6 @@ bool System::command_settings(const char * value, const int8_t id, JsonObject & 
         node["analog_enabled"]       = settings.analog_enabled;
         node["pbutton_gpio"]         = settings.pbutton_gpio;
         node["board_profile"]        = settings.board_profile;
-        node["weblog_level"]         = settings.weblog_level;
     });
 
     return true;
@@ -998,7 +993,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["sensor_reads"] = EMSESP::sensor_reads();
         node["sensor_fails"] = EMSESP::sensor_fails();
     }
-    node["api-calls"] = WebAPIService::api_count();
+    node["api-calls"] = WebAPIService::api_count(); // + WebAPIService::api_fails();
     node["api-fails"] = WebAPIService::api_fails();
     if (EMSESP::system_.analog_enabled()) {
         node["analog"] = EMSESP::system_.analog();

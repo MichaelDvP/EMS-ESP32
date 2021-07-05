@@ -42,7 +42,6 @@ void WebSettings::read(WebSettings & settings, JsonObject & root) {
     root["ems_bus_id"]           = settings.ems_bus_id;
     root["syslog_enabled"]       = settings.syslog_enabled;
     root["syslog_level"]         = settings.syslog_level;
-    root["weblog_level"]         = settings.weblog_level;
     root["trace_raw"]            = settings.trace_raw;
     root["syslog_mark_interval"] = settings.syslog_mark_interval;
     root["syslog_host"]          = settings.syslog_host;
@@ -191,7 +190,6 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     settings.notoken_api   = root["notoken_api"] | EMSESP_DEFAULT_NOTOKEN_API;
     settings.solar_maxflow = root["solar_maxflow"] | EMSESP_DEFAULT_SOLAR_MAXFLOW;
     settings.fahrenheit    = root["fahrenheit"] | false;
-    settings.weblog_level  = root["weblog_level"] | EMSESP_DEFAULT_WEBLOG_LEVEL;
     settings.dallas_format = root["dallas_format"] | EMSESP_DEFAULT_DALLAS_FORMAT;
     settings.bool_format   = root["bool_format"] | EMSESP_DEFAULT_BOOL_FORMAT;
 

@@ -49,11 +49,6 @@ void WebLogService::forbidden(AsyncWebServerRequest * request) {
 
 void WebLogService::start() {
     uuid::log::Level level = uuid::log::Level::INFO;
-    EMSESP::webSettingsService.read([&](WebSettings & settings) {
-        if (settings.weblog_level) {
-            level = (uuid::log::Level)settings.weblog_level;
-        }
-    });
     uuid::log::Logger::register_handler(this, level);
 }
 
@@ -86,13 +81,13 @@ void WebLogService::operator<<(std::shared_ptr<uuid::log::Message> message) {
         log_messages_.pop_front();
     }
     log_messages_.emplace_back(log_message_id_++, std::move(message));
-    if (!time_offset_) {
-        EMSESP::esp8266React.getNTPSettingsService()->read([&](NTPSettings & settings) {
-            if (settings.enabled && (time(nullptr) > 1500000000UL)) {
-                time_offset_ = time(nullptr) - uuid::get_uptime_sec();
-            }
-        });
-    }
+    EMSESP::esp8266React.getNTPSettingsService()->read([&](NTPSettings & settings) {
+        if (!settings.enabled || (time(nullptr) < 1500000000UL)) {
+            time_offset_ = 0;
+        } else if (!time_offset_) {
+            time_offset_ = time(nullptr) - uuid::get_uptime_sec();
+        }
+    });
 }
 
 void WebLogService::loop() {
@@ -178,11 +173,6 @@ void WebLogService::setLevel(AsyncWebServerRequest * request, JsonVariant & json
     if (level == uuid::log::Level::OFF) {
         log_messages_.clear();
     }
-
-    EMSESP::webSettingsService.update([&](WebSettings & settings) {
-        settings.weblog_level = (int8_t)level;
-        return StateUpdateResult::CHANGED;
-    }, "local");
 
     // send the value back
     AsyncJsonResponse * response = new AsyncJsonResponse(false, EMSESP_JSON_SIZE_SMALL);

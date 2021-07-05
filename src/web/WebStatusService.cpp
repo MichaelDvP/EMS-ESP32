@@ -94,7 +94,7 @@ void WebStatusService::webStatusService(AsyncWebServerRequest * request) {
     root["sensor_reads"]   = EMSESP::sensor_reads();
     uint8_t sensor_quality = EMSESP::sensor_reads() == 0 ? 100 : 100 - (uint8_t)((100 *EMSESP::sensor_fails()) / EMSESP::sensor_reads());
     root["sensor_quality"] = sensor_quality;
-    root["api_calls"]      = WebAPIService::api_count() + WebAPIService::api_fails();
+    root["api_calls"]      = WebAPIService::api_count(); // + WebAPIService::api_fails();
     root["api_fails"]      = WebAPIService::api_fails();
     root["api_quality"]    = WebAPIService::api_count() == 0 ? 100 : 100 - (WebAPIService::api_fails() * 100) / (WebAPIService::api_count() + WebAPIService::api_fails());
 
