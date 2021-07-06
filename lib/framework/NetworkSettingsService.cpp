@@ -1,4 +1,5 @@
 #include <NetworkSettingsService.h>
+#include <esp_wifi.h>
 
 using namespace std::placeholders; // for `_1` etc
 
@@ -18,12 +19,6 @@ NetworkSettingsService::NetworkSettingsService(AsyncWebServer * server, FS * fs,
 
     WiFi.mode(WIFI_MODE_MAX);
     WiFi.mode(WIFI_MODE_NULL);
-
-#if defined(EMSESP_WIFI_BW_HT20)
-    // https: //www.esp32.com/viewtopic.php?t=12055
-    esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT20);
-    esp_wifi_set_bandwidth(ESP_IF_WIFI_AP, WIFI_BW_HT20);
-#endif
 
     WiFi.onEvent(std::bind(&NetworkSettingsService::WiFiEvent, this, _1));
 
@@ -68,6 +63,15 @@ void NetworkSettingsService::manageSTA() {
         }
 
         WiFi.setHostname(_state.hostname.c_str());                // set hostname
+        // www.esp32.com/viewtopic.php?t=12055
+        read([&](NetworkSettings & networkSettings) {
+            if (networkSettings.bandwidth20) {
+                esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT20);
+            } else {
+                esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40);
+            }
+            esp_wifi_set_max_tx_power(networkSettings.tx_power * 4);
+        });
         WiFi.begin(_state.ssid.c_str(), _state.password.c_str()); // attempt to connect to the network
     }
 }

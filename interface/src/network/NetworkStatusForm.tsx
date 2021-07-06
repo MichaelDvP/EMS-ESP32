@@ -40,7 +40,7 @@ class NetworkStatusForm extends Component<NetworkStatusFormProps> {
     if (!status.dns_ip_1) {
       return 'none';
     }
-    return status.dns_ip_1 + (status.dns_ip_2 ? ',' + status.dns_ip_2 : '');
+    return status.dns_ip_1 + (status.dns_ip_2 ? ', ' + status.dns_ip_2 : '');
   }
 
   createListItems() {
@@ -77,7 +77,10 @@ class NetworkStatusForm extends Component<NetworkStatusFormProps> {
               <ListItemAvatar>
                 <Avatar>IP</Avatar>
               </ListItemAvatar>
-              <ListItemText primary="IP Address" secondary={data.local_ip} />
+              <ListItemText
+                primary="IP Address"
+                secondary={data.local_ip + ', ' + data.local_ipv6}
+              />
             </ListItem>
             <Divider variant="inset" component="li" />
             <ListItem>

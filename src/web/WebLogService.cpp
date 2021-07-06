@@ -48,8 +48,7 @@ void WebLogService::forbidden(AsyncWebServerRequest * request) {
 }
 
 void WebLogService::start() {
-    uuid::log::Level level = uuid::log::Level::INFO;
-    uuid::log::Logger::register_handler(this, level);
+    uuid::log::Logger::register_handler(this, uuid::log::Level::INFO); // default is INFO
 }
 
 uuid::log::Level WebLogService::log_level() const {

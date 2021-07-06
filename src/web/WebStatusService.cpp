@@ -41,7 +41,7 @@ void WebStatusService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
 #ifndef EMSESP_STANDALONE
         EMSESP::logger().info(F("WiFi Connected with IP=%s, hostname=%s"), WiFi.localIP().toString().c_str(), WiFi.getHostname());
 #endif
-        EMSESP::system_.wifi_tweak();
+        // EMSESP::system_.wifi_tweak();
         EMSESP::system_.send_heartbeat();
         EMSESP::system_.syslog_start();
         break;
@@ -72,6 +72,32 @@ void WebStatusService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) {
         EMSESP::logger().info(F("Ethernet Stopped"));
         EMSESP::system_.ethernet_connected(false);
         break;
+
+#ifndef EMSESP_STANDALONE
+    case SYSTEM_EVENT_STA_CONNECTED:
+        EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
+            if (networkSettings.enableIPv6) {
+                WiFi.enableIpV6();
+            }
+        });
+        break;
+
+    case SYSTEM_EVENT_ETH_CONNECTED:
+        EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
+            if (networkSettings.enableIPv6) {
+                ETH.enableIpV6();
+            }
+        });
+        break;
+
+    case SYSTEM_EVENT_GOT_IP6:
+        if (EMSESP::system_.ethernet_connected()) {
+            EMSESP::logger().info(F("Ethernet Connected with IP=%s, speed %d Mbps"), ETH.localIPv6().toString().c_str(), ETH.linkSpeed());
+        } else {
+            EMSESP::logger().info(F("WiFi Connected with IP=%s, hostname=%s"), WiFi.localIPv6().toString().c_str(), WiFi.getHostname());
+        }
+        break;
+#endif
 
     default:
         break;
