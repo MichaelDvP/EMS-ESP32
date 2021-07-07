@@ -198,8 +198,15 @@ void System::syslog_init(bool refresh) {
 
 #ifndef EMSESP_STANDALONE
     // check for empty or invalid hostname
-    IPAddress addr;
-    if (!addr.fromString(syslog_host_.c_str())) {
+    IPAddress   addr;
+    IPv6Address addrv6;
+    uint8_t     ipv = 0;
+    if (addr.fromString(syslog_host_.c_str())) {
+        ipv = 4;
+    } else if (addrv6.fromString(syslog_host_.c_str())) {
+        ipv = 6;
+    }
+    if (ipv != 4) {
         syslog_enabled_ = false;
     }
 
@@ -209,13 +216,18 @@ void System::syslog_init(bool refresh) {
         syslog_.log_level((uuid::log::Level)-1);
         syslog_.mark_interval(0);
         syslog_.destination((IPAddress)((uint32_t)0));
+        EMSESP::logger().info(F("Stopping Syslog"));
         return;
     }
 
     // start & configure syslog
     syslog_.log_level((uuid::log::Level)syslog_level_);
     syslog_.mark_interval(syslog_mark_interval_);
-    syslog_.destination(addr, syslog_port_);
+    if (ipv == 4) {
+        syslog_.destination(addr, syslog_port_);
+    } else {
+        // syslog_.destination(addrv6, syslog_port_); // not yet supported
+    }
     syslog_.hostname(hostname().c_str());
 #endif
 }

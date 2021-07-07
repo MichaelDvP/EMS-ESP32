@@ -149,9 +149,7 @@ class NetworkSettingsForm extends React.Component<NetworkStatusFormProps> {
           margin="normal"
         />
         <TextValidator
-          validators={[
-            'required', 'isNumber', 'minNumber:0', 'maxNumber:20'
-          ]}
+          validators={['required', 'isNumber', 'minNumber:0', 'maxNumber:20']}
           errorMessages={[
             'Tx Power is required',
             'Must be a number',
