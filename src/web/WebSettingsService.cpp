@@ -186,7 +186,7 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     // these need reboots to be applied
     settings.ems_bus_id        = root["ems_bus_id"] | EMSESP_DEFAULT_EMS_BUS_ID;
     settings.master_thermostat = root["master_thermostat"] | EMSESP_DEFAULT_MASTER_THERMOSTAT;
-    settings.low_clock     = root["low_clock"] | false;;
+    settings.low_clock         = root["low_clock"] | false;;
 
     // doesn't need any follow-up actions
     settings.notoken_api   = root["notoken_api"] | EMSESP_DEFAULT_NOTOKEN_API;
