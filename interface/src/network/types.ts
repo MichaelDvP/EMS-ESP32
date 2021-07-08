@@ -40,6 +40,7 @@ export interface NetworkSettings {
   static_ip_config: boolean;
   enableIPv6: boolean;
   bandwidth20: boolean;
+  nosleep: boolean;
   tx_power: number;
   local_ip?: string;
   gateway_ip?: string;

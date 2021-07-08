@@ -1,5 +1,4 @@
 #include <NetworkSettingsService.h>
-#include <esp_wifi.h>
 
 using namespace std::placeholders; // for `_1` etc
 
@@ -71,6 +70,10 @@ void NetworkSettingsService::manageSTA() {
                 esp_wifi_set_bandwidth(ESP_IF_WIFI_STA, WIFI_BW_HT40);
             }
             esp_wifi_set_max_tx_power(networkSettings.tx_power * 4);
+            if (networkSettings.nosleep) {
+                WiFi.setSleep(false); // turn off sleep - WIFI_PS_NONE
+            }
+
         });
         WiFi.begin(_state.ssid.c_str(), _state.password.c_str()); // attempt to connect to the network
     }

@@ -66,7 +66,7 @@ class System {
     bool upload_status();
     void show_mem(const char * note);
     void get_settings();
-    void wifi_tweak();
+    // void wifi_tweak();
     void syslog_start();
     bool check_upgrade();
     bool heartbeat_json(JsonObject & json);
@@ -97,7 +97,6 @@ class System {
     void ethernet_connected(bool b) {
         ethernet_connected_ = b;
     }
-
     bool analog_enabled() {
         return analog_enabled_;
     }
@@ -110,9 +109,14 @@ class System {
         return io_counter_;
     }
 
+    void network_connected(bool b) {
+        network_connected_ = b;
+    }
+
     bool network_connected() {
 #ifndef EMSESP_STANDALONE
-        return (ethernet_connected_ || WiFi.isConnected());
+        // return (ethernet_connected_ || WiFi.isConnected());
+        return network_connected_;
 #else
         return true;
 #endif
@@ -161,6 +165,7 @@ class System {
     uint32_t last_system_check_  = 0;
     bool     upload_status_      = false; // true if we're in the middle of a OTA firmware upload
     bool     ethernet_connected_ = false;
+    bool     network_connected_  = false;
     uint16_t analog_             = 0;
     uint32_t io_counter_         = 0;
 
@@ -170,6 +175,7 @@ class System {
     uint8_t     led_gpio_;
     bool        syslog_enabled_;
     bool        analog_enabled_;
+    bool        low_clock_;
     String      board_profile_;
     uint8_t     pbutton_gpio_;
     int8_t      syslog_level_;

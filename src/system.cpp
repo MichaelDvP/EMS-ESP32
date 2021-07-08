@@ -240,7 +240,10 @@ void System::get_settings() {
 
         // ADC
         analog_enabled_ = settings.analog_enabled;
-        pinMode(27, INPUT_PULLUP);
+        pinMode(27, INPUT_PULLUP); // counter
+
+        // Sysclock
+        low_clock_ = settings.low_clock;
 
         // Syslog
         syslog_enabled_       = settings.syslog_enabled;
@@ -258,7 +261,7 @@ void System::get_settings() {
     });
 }
 
-// adjust WiFi settings
+/*/ adjust WiFi settings
 // this for problem solving mesh and connection issues, and also get EMS bus-powered more stable by lowering power
 void System::wifi_tweak() {
 #if defined(EMSESP_WIFI_TWEAK)
@@ -284,6 +287,7 @@ void System::wifi_tweak() {
     LOG_DEBUG(F("[DEBUG] Adjusting WiFi - Tx power %d->%d, Sleep %d->%d"), p1, p2, s1, s2);
 #endif
 }
+*/
 
 // check for valid ESP32 pins. This is very dependent on which ESP32 board is being used.
 // Typically you can't use 1, 6-11, 12, 14, 15, 20, 24, 28-31 and 40+
@@ -311,6 +315,12 @@ void System::start(uint32_t heap_start) {
     // load in all the settings first
     get_settings();
 
+#ifndef EMSESP_STANDALONE
+    if (low_clock_) {
+        setCpuFrequencyMhz(160);
+    }
+#endif
+
     EMSESP::esp8266React.getNetworkSettingsService()->read([&](NetworkSettings & networkSettings) {
         hostname(networkSettings.hostname.c_str()); // sets the hostname
         LOG_INFO(F("System name: %s"), hostname().c_str());
@@ -332,12 +342,15 @@ void System::adc_init(bool refresh) {
         get_settings();
     }
 #ifndef EMSESP_STANDALONE
-    // setCpuFrequencyMhz(160); // default is 240
-
     // disable bluetooth & ADC
+    // see https://github.com/espressif/esp-idf/blob/8e3e65a47b7d9b5dc4f52eb56660a748fda1884e/components/bt/include/esp32/include/esp_bt.h#L438
     /*
-    btStop();
+    esp_bluedroid_disable();
+    esp_bluedroid_deinit();
     esp_bt_controller_disable();
+    esp_bt_controller_deinit();
+    esp_bt_mem_release(ESP_BT_MODE_BTDM);
+
     if (!analog_enabled_) {
         adc_power_release(); // turn off ADC to save power if not needed
     }

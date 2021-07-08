@@ -136,8 +136,7 @@ AsyncMqttClient& AsyncMqttClient::setServer(const char* host, uint16_t port) {
   if (_ipv6.fromString(host)) {
     _useIpv6 = true;
     _useIp   = false;
-  }
-  if (_ip.fromString(host)) {
+  } else if (_ip.fromString(host)) {
     _useIpv6 = false;
     _useIp   = true;
   }

@@ -54,7 +54,8 @@ class NetworkSettingsForm extends React.Component<NetworkStatusFormProps> {
         static_ip_config: false,
         enableIPv6: false,
         bandwidth20: false,
-        tx_power: 20
+        tx_power: 20,
+        nosleep: false
       };
       props.setData(networkSettings);
     }
@@ -157,7 +158,7 @@ class NetworkSettingsForm extends React.Component<NetworkStatusFormProps> {
             'Max value is 20dBm'
           ]}
           name="tx_power"
-          label="Tx Power (dBm)"
+          label="WiFi Tx Power (dBm)"
           fullWidth
           variant="outlined"
           value={data.tx_power}
@@ -183,7 +184,17 @@ class NetworkSettingsForm extends React.Component<NetworkStatusFormProps> {
               onChange={handleValueChange('bandwidth20')}
             />
           }
-          label="Use 20MHz Bandwidth"
+          label="WiFi Low Bandwidth"
+        />
+        <BlockFormControlLabel
+          control={
+            <Checkbox
+              value="nosleep"
+              checked={data.nosleep}
+              onChange={handleValueChange('nosleep')}
+            />
+          }
+          label="Disable Wifi Sleepmode"
         />
         <BlockFormControlLabel
           control={

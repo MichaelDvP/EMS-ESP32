@@ -398,6 +398,16 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
         <BlockFormControlLabel
           control={
             <Checkbox
+              checked={data.low_clock}
+              onChange={handleValueChange('low_clock')}
+              value="low_clock"
+            />
+          }
+          label="Low Clockrate (160MHz, changed on next reboot)"
+        />
+        <BlockFormControlLabel
+          control={
+            <Checkbox
               checked={data.fahrenheit}
               onChange={handleValueChange('fahrenheit')}
               value="fahrenheit"
