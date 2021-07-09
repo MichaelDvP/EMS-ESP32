@@ -562,7 +562,7 @@ void EMSdevice::publish_value(void * value_p) {
             });
             switch (dv.type) {
             case DeviceValueType::ENUM: {
-                if (Helpers::hasValue((uint8_t)(*(uint8_t *)(value_p)))) {
+                if ((*(uint8_t *)(value_p)) < dv.options_size) {
                     if (EMSESP::bool_format() == BOOL_FORMAT_10E) {
                         Helpers::render_value(payload, *(uint8_t *)(value_p), 0);
                     } else {
@@ -787,7 +787,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
             switch (dv.type) {
             case DeviceValueType::ENUMTXT:
             case DeviceValueType::ENUM: {
-                if (Helpers::hasValue((uint8_t)(*(uint8_t *)(dv.value_p)))) {
+                if ((*(uint8_t *)(dv.value_p)) < dv.options_size) {
                     if (dv.type == DeviceValueType::ENUM && EMSESP::bool_format() == BOOL_FORMAT_10E) {
                         json[value] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {
@@ -795,11 +795,10 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                     }
                 }
                 json[type]      = F_(enum);
-                uint8_t min_    = uuid::read_flash_string(dv.options[0]).empty() ? 1 : 0;
-                json[min]       = min_;
+                json[min]       = 0;
                 json[max]       = dv.options_size - 1;
                 JsonArray enum_ = json.createNestedArray(F_(enum));
-                for (uint8_t i = min_; i < dv.options_size; i++) {
+                for (uint8_t i = 0; i < dv.options_size; i++) {
                     enum_.add(dv.options[i]);
                 }
                 break;

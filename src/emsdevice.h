@@ -233,26 +233,31 @@ class EMSdevice {
     }
 
     inline void has_update(bool has_update, void * value) {
-        has_update_ |= has_update;
         if (has_update) {
+            has_update_ = true;
             publish_value(value);
+        }
+    }
+
+    inline void has_enumupdate(std::shared_ptr<const Telegram> telegram, uint8_t & value, const uint8_t index, uint8_t s = 0) {
+        if (telegram->read_enumvalue(value, index, s)) {
+            has_update_ = true;
+            publish_value((void *) &value);
         }
     }
 
     template <typename Value>
     inline void has_update(std::shared_ptr<const Telegram> telegram, Value & value, const uint8_t index, uint8_t s = 0) {
-        bool has_update = telegram->read_value(value, index, s);
-        has_update_ |= has_update;
-        if (has_update) {
+        if (telegram->read_value(value, index, s)) {
+            has_update_ = true;
             publish_value((void *) &value);
         }
     }
 
    template <typename BitValue>
    inline void has_bitupdate(std::shared_ptr<const Telegram> telegram, BitValue & value, const uint8_t index, uint8_t b) {
-        bool has_update = telegram->read_bitvalue(value, index, b);
-        has_update_ |= has_update;
-        if (has_update) {
+        if (telegram->read_bitvalue(value, index, b)) {
+            has_update_ = true;
             publish_value((void *) &value);
         }
     }

@@ -778,9 +778,9 @@ void Thermostat::process_JunkersMonitor(std::shared_ptr<const Telegram> telegram
     has_update(telegram, hc->roomTemp, 4); // value is * 10
     has_update(telegram, hc->selTemp, 2);  // value is * 10
 
-    has_update(telegram, hc->modetype, 0); // 1 = nofrost, 2 = eco, 3 = heat
-    has_update(telegram, hc->mode, 1);     // 1 = manual, 2 = auto
-    hc->hamode = hc->mode;                 // set special HA mode
+    has_enumupdate(telegram, hc->modetype, 0, 1); // 1 = nofrost, 2 = eco, 3 = heat
+    has_enumupdate(telegram, hc->mode, 1, 1);     // 1 = manual, 2 = auto
+    hc->hamode = hc->mode + 1;                    // set special HA mode
 }
 
 // type 0x02A5 - data from Worchester CRF200
@@ -922,7 +922,7 @@ void Thermostat::process_RC300OutdoorTemp(std::shared_ptr<const Telegram> telegr
 
 // 0x240 RC300 parameter
 void Thermostat::process_RC300Settings(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram, ibaBuildingType_, 9); // 1=light, 2=medium, 3=heavy
+    has_enumupdate(telegram, ibaBuildingType_, 9, 1); // 1=light, 2=medium, 3=heavy
     has_update(telegram, ibaMinExtTemperature_, 10);
 }
 
@@ -1211,11 +1211,11 @@ bool Thermostat::set_building(const char * value, const int8_t id) {
     if ((model() == EMS_DEVICE_FLAG_RC300) || (model() == EMS_DEVICE_FLAG_RC100)) {
         if (Helpers::value2enum(value, bd, FL_(enum_ibaBuildingType))) {
             LOG_INFO(F("Setting building to %s"), value);
-            write_command(0x240, 9, bd, 0x240);
+            write_command(0x240, 9, bd + 1, 0x240);
             return true;
         }
     } else {
-        if (Helpers::value2enum(value, bd, FL_(enum_ibaBuildingType2))) {
+        if (Helpers::value2enum(value, bd, FL_(enum_ibaBuildingType))) {
             LOG_INFO(F("Setting building to %s"), value);
             write_command(EMS_TYPE_IBASettings, 6, bd, EMS_TYPE_IBASettings);
             return true;
@@ -2218,7 +2218,7 @@ void Thermostat::register_device_values() {
         register_device_value(TAG_THERMOSTAT_DATA,
                               &ibaBuildingType_,
                               DeviceValueType::ENUM,
-                              FL_(enum_ibaBuildingType2),
+                              FL_(enum_ibaBuildingType),
                               FL_(ibaBuildingType),
                               DeviceValueUOM::LIST,
                               MAKE_CF_CB(set_building));
@@ -2249,7 +2249,7 @@ void Thermostat::register_device_values() {
         register_device_value(TAG_THERMOSTAT_DATA,
                               &ibaBuildingType_,
                               DeviceValueType::ENUM,
-                              FL_(enum_ibaBuildingType2),
+                              FL_(enum_ibaBuildingType),
                               FL_(ibaBuildingType),
                               DeviceValueUOM::LIST,
                               MAKE_CF_CB(set_building));

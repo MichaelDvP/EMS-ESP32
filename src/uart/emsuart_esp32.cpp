@@ -52,7 +52,7 @@ void EMSuart::emsuart_recvTask(void * para) {
  * UART interrupt, on break read the fifo and put the whole telegram to ringbuffer
  */
 void IRAM_ATTR EMSuart::emsuart_rx_intr_handler(void * para) {
-    portENTER_CRITICAL(&mux_);
+    // portENTER_CRITICAL(&mux_);
     if (EMS_UART.int_st.brk_det) {
         EMS_UART.int_clr.brk_det = 1; // clear flag
         uint8_t rxbuf[EMS_MAXBUFFERSIZE];
@@ -78,7 +78,7 @@ void IRAM_ATTR EMSuart::emsuart_rx_intr_handler(void * para) {
         }
         drop_next_rx_ = false;
     }
-    portEXIT_CRITICAL(&mux_);
+    // portEXIT_CRITICAL(&mux_);
 }
 
 /*
@@ -91,7 +91,7 @@ void EMSuart::start(const uint8_t tx_mode, const uint8_t rx_gpio, const uint8_t 
         return;
     }
     tx_mode_ = tx_mode;
-    portENTER_CRITICAL(&mux_);
+    // portENTER_CRITICAL(&mux_);
     uart_config_t uart_config = {
         .baud_rate = EMSUART_BAUD,
         .data_bits = UART_DATA_8_BITS,
@@ -115,7 +115,7 @@ void EMSuart::start(const uint8_t tx_mode, const uint8_t rx_gpio, const uint8_t 
     buf_handle_ = xRingbufferCreate(128, RINGBUF_TYPE_NOSPLIT);
     uart_isr_register(EMSUART_UART, emsuart_rx_intr_handler, NULL, ESP_INTR_FLAG_IRAM, NULL);
     xTaskCreate(emsuart_recvTask, "emsuart_recvTask", 2048, NULL, configMAX_PRIORITIES - 3, NULL);
-    portEXIT_CRITICAL(&mux_);
+    // portEXIT_CRITICAL(&mux_);
     restart();
 }
 
@@ -123,23 +123,23 @@ void EMSuart::start(const uint8_t tx_mode, const uint8_t rx_gpio, const uint8_t 
  * Stop, disable interrupt
  */
 void EMSuart::stop() {
-    portENTER_CRITICAL(&mux_);
+    // portENTER_CRITICAL(&mux_);
     EMS_UART.int_ena.val = 0; // disable all intr.
-    portEXIT_CRITICAL(&mux_);
+    // portEXIT_CRITICAL(&mux_);
 };
 
 /*
  * Restart uart and make mode dependent configs.
  */
 void EMSuart::restart() {
-    portENTER_CRITICAL(&mux_);
+    // portENTER_CRITICAL(&mux_);
     if (EMS_UART.int_raw.brk_det) {      // we received a break in the meantime
         EMS_UART.int_clr.brk_det = 1;    // clear flag
         drop_next_rx_            = true; // and drop first frame
     }
     EMS_UART.int_ena.brk_det = 1; // activate only break
     EMS_UART.conf0.txd_brk   = (tx_mode_ == EMS_TXMODE_HW) ? 1 : 0;
-    portEXIT_CRITICAL(&mux_);
+    // portEXIT_CRITICAL(&mux_);
 }
 
 /*
