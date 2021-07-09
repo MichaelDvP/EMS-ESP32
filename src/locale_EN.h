@@ -326,11 +326,11 @@ MAKE_PSTR_LIST(enum_wwCircMode2, F_(off), F_(on), F_(auto))
 MAKE_PSTR_LIST(enum_heatingtype, F_(off), F_(radiator), F_(convector), F_(floor))
 MAKE_PSTR_LIST(enum_summermode, F_(summer), F_(auto), F_(winter))
 
-MAKE_PSTR_LIST(enum_mode, F_(manual), F_(auto))                          // RC100, RC300, RC310
-MAKE_PSTR_LIST(enum_mode2, F_(off), F_(manual), F_(auto))                // RC20
-MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))                 // RC35, RC30
+MAKE_PSTR_LIST(enum_mode, F_(manual), F_(auto))               // RC100, RC300, RC310
+MAKE_PSTR_LIST(enum_mode2, F_(off), F_(manual), F_(auto))     // RC20
+MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))      // RC35, RC30
 MAKE_PSTR_LIST(enum_mode4, F_(manual), F_(auto), F_(holiday)) // JUNKERS
-MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))                            // CRF
+MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))                 // CRF
 
 MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(off))
 // MAKE_PSTR_LIST(enum_hamode1, F_(heat), F_(auto))
