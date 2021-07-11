@@ -479,7 +479,7 @@ MAKE_PSTR_LIST(wWHystOff, F("wwhystoff"), F("hysteresis off temperature"))
 // thermostat
 // extra commands
 MAKE_PSTR_LIST(switchtime, F("switchtime"), F("single program switchtime"))
-// extra commands, no long name, does not show on web
+// extra commands, with no long name so they don't show up in WebUI
 MAKE_PSTR_LIST(temp, F("temp"))
 MAKE_PSTR_LIST(hatemp, F("hatemp"))
 MAKE_PSTR_LIST(hamode, F("hamode"))

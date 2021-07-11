@@ -315,6 +315,7 @@ void System::start(uint32_t heap_start) {
     get_settings();
 
 #ifndef EMSESP_STANDALONE
+    // disable bluetooth module
     periph_module_disable(PERIPH_BT_MODULE);
     if (low_clock_) {
         setCpuFrequencyMhz(160);
@@ -342,6 +343,7 @@ void System::adc_init(bool refresh) {
         get_settings();
     }
 #ifndef EMSESP_STANDALONE
+    // disable ADC
     /*
     if (!analog_enabled_) {
         adc_power_release(); // turn off ADC to save power if not needed

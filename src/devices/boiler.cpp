@@ -971,7 +971,6 @@ bool Boiler::set_ww_hyst_off(const char * value, const int8_t id) {
     return true;
 }
 
-
 // set warm water max power
 bool Boiler::set_warmwater_maxpower(const char * value, const int8_t id) {
     int v = 0;
@@ -1173,7 +1172,7 @@ bool Boiler::set_tapwarmwater_activated(const char * value, const int8_t id) {
     // a setting of 0x00 puts it back into normal operating mode
     // when in test mode we're able to mess around with the 3-way valve settings
     if (!v) {
-        // on
+        // DHW off
         message_data[0] = 0x5A; // test mode on
         message_data[1] = 0x00; // burner output 0%
         message_data[3] = 0x64; // boiler pump capacity 100%

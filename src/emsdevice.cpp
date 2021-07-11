@@ -739,6 +739,7 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                         }
                     }
                 }
+
                 if ((dv.type == DeviceValueType::TEXT || dv.type == DeviceValueType::CMD) && dv.has_cmd && dv.options[0] != nullptr) {
                     obj["o"] = dv.options[0];
                 }
@@ -790,7 +791,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
             switch (dv.type) {
             case DeviceValueType::ENUM: {
                 if ((*(uint8_t *)(dv.value_p)) < dv.options_size) {
-                    if (dv.type == DeviceValueType::ENUM && EMSESP::bool_format() == BOOL_FORMAT_10E) {
+                    if (EMSESP::bool_format() == BOOL_FORMAT_10E) {
                         json[value] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {
                         json[value] = dv.options[*(uint8_t *)(dv.value_p)]; // text
