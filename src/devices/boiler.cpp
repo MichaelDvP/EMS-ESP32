@@ -86,7 +86,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     }
     // MQTT commands for boiler topic
     register_device_value(
-        TAG_BOILER_DATA, &dummy_, DeviceValueType::CMD, FL_(enum_bool), FL_(wwtapactivated), DeviceValueUOM::LIST, MAKE_CF_CB(set_tapwarmwater_activated), 0, 1);
+        TAG_BOILER_DATA, &wWTapActivated_, DeviceValueType::BOOL, nullptr, FL_(wwtapactivated), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_tapwarmwater_activated));
     register_device_value(
         TAG_BOILER_DATA, &dummy_, DeviceValueType::CMD, FL_(enum_reset), FL_(reset), DeviceValueUOM::LIST, MAKE_CF_CB(set_reset), 0, 1);
 
@@ -304,6 +304,11 @@ void Boiler::check_active(const bool force) {
         Mqtt::publish(F_(heating_active), Helpers::render_boolean(s, b));
     }
 
+    // check if we can use tapactivated in flow systems
+    if ((wWType_ == 1) && !Helpers::hasValue(wWTapActivated_, EMS_VALUE_BOOL)) {
+        wWTapActivated_= 1;
+    }
+
     // check if tap water is active, bits 1 and 4 must be set
     // also check if there is a flowsensor and flow-type
     static bool flowsensor = false;
@@ -358,10 +363,7 @@ void Boiler::process_UBAMonitorFast(std::shared_ptr<const Telegram> telegram) {
         serviceCode[0] = (serviceCode[0] == (char)0xF0) ? '~' : serviceCode[0];
         telegram->read_value(serviceCode[1], 19);
         serviceCode[2] = '\0'; // null terminate string
-        if (strcmp(serviceCode_, serviceCode) != 0) {
-            strcpy(serviceCode_, serviceCode);
-            has_update(true, serviceCode_);
-        }
+        has_update(serviceCode_, serviceCode);
     }
 
     has_update(telegram, serviceCodeNumber_, 20);
@@ -428,10 +430,7 @@ void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
     } else {
         wWComfort = EMS_VALUE_UINT_NOTSET;
     }
-    if (wWComfort != wWComfort_) {
-        wWComfort_ = wWComfort;
-        has_update(true, &wWComfort_);
-    }
+    has_update(wWComfort_, wWComfort);
 }
 
 /*
@@ -488,10 +487,7 @@ void Boiler::process_UBAMonitorFastPlus(std::shared_ptr<const Telegram> telegram
         telegram->read_value(serviceCode[1], 2);
         telegram->read_value(serviceCode[2], 3);
         serviceCode[3] = '\0';
-        if (strcmp(serviceCode_, serviceCode) != 0) {
-            strcpy(serviceCode_, serviceCode);
-            has_update(true, serviceCode_);
-        }
+        has_update(serviceCode_, serviceCode);
     }
 
     has_update(telegram, serviceCodeNumber_, 4);
@@ -718,12 +714,12 @@ void Boiler::process_UBAFlags(std::shared_ptr<const Telegram> telegram) {
 void Boiler::process_UBAMaintenanceStatus(std::shared_ptr<const Telegram> telegram) {
     // 5. byte: Maintenance due (0 = no, 3 = yes, due to operating hours, 8 = yes, due to date)
     uint8_t message_code = maintenanceMessage_[2] - '0';
-    has_update(telegram->read_value(message_code, 5));
+    telegram->read_value(message_code, 5);
 
     // ignore if 0, which means all is ok
     if (Helpers::hasValue(message_code) && message_code > 0 && message_code != (maintenanceMessage_[2] - '0')) {
         snprintf_P(maintenanceMessage_, sizeof(maintenanceMessage_), PSTR("H%02d"), message_code);
-        has_update(true, maintenanceMessage_);
+        has_update(maintenanceMessage_);
     }
 }
 
@@ -752,7 +748,7 @@ void Boiler::process_UBAErrorMessage(std::shared_ptr<const Telegram> telegram) {
         if (date > lastCodeDate_) {
             snprintf_P(lastCode_, sizeof(lastCode_), PSTR("%s(%d) %02d.%02d.%d %02d:%02d"), code, codeNo, day, month, year, hour, min);
             lastCodeDate_ = date;
-            has_update(true, lastCode_);
+            has_update(lastCode_);
         }
     }
 }
@@ -771,11 +767,9 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
     if (Helpers::hasValue(time)) {
         if (time * 100 != maintenanceTime_) {
             maintenanceTime_ = time * 100;
-            has_update(true, &maintenanceTime_);
+            has_update(&maintenanceTime_);
         }
     }
-    // telegram->read_value(maintenanceTime_, 1, 1);
-    // maintenanceTime_ = maintenanceTime * 100;
 
     // date only
     uint8_t day   = telegram->message_data[2];
@@ -784,10 +778,7 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
     if (day > 0 && month > 0) {
         char date[20];
         snprintf_P(date, sizeof(date), PSTR("%02d.%02d.%04d"), day, month, year + 2000);
-        if (strcmp(maintenanceDate_, date) != 0) {
-            strcpy(maintenanceDate_, date);
-            has_update(true, maintenanceDate_);
-        }
+        has_update(maintenanceDate_, date);
     }
 }
 
@@ -1161,6 +1152,11 @@ bool Boiler::set_warmwater_activated(const char * value, const int8_t id) {
 // Activate / De-activate the Warm Tap Water
 // Note: Using the type 0x1D to put the boiler into Test mode. This may be shown on the boiler with a flashing 'T'
 bool Boiler::set_tapwarmwater_activated(const char * value, const int8_t id) {
+    if (!Helpers::hasValue(wWTapActivated_, EMS_VALUE_BOOL)) {
+        LOG_WARNING(F("Set warm tap water not possible"));
+        return false;
+    }
+
     bool v = false;
     if (!Helpers::value2bool(value, v)) {
         LOG_WARNING(F("Set warm tap water: Invalid value"));
@@ -1182,9 +1178,11 @@ bool Boiler::set_tapwarmwater_activated(const char * value, const int8_t id) {
         message_data[1] = 0x00; // burner output 0%
         message_data[3] = 0x64; // boiler pump capacity 100%
         message_data[4] = 0xFF; // 3-way valve hot water only
+        wWTapActivated_= 0;
     } else {
         // get out of test mode. Send all zeros.
         // telegram: 0B 08 1D 00 00
+        wWTapActivated_= 1;
     }
 
     write_command(EMS_TYPE_UBAFunctionTest, 0, message_data, sizeof(message_data), 0);

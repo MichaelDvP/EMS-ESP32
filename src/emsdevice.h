@@ -39,7 +39,6 @@ enum DeviceValueType : uint8_t {
     ULONG,
     TIME, // same as ULONG (32 bits)
     ENUM,
-    ENUMTXT, // same as ENUM, but no number option, used for 'hamode'
     TEXT,
     CMD // command only, no value
 
@@ -228,14 +227,28 @@ class EMSdevice {
         return has_update_;
     }
 
-    inline void has_update(bool has_update) {
-        has_update_ |= has_update;
+    inline void has_update(bool flag) {
+        has_update_ = flag;
     }
 
-    inline void has_update(bool has_update, void * value) {
-        if (has_update) {
+    inline void has_update(void * value) {
+        has_update_ = true;
+        publish_value(value);
+    }
+
+    inline void has_update(char * value, char * newvalue) {
+        if (strcmp(value, newvalue) != 0) {
+            strcpy(value, newvalue);
             has_update_ = true;
             publish_value(value);
+        }
+    }
+
+    inline void has_update(uint8_t & value, uint8_t newvalue) {
+        if (value != newvalue) {
+            value = newvalue;
+            has_update_ = true;
+            publish_value((void *) &value);
         }
     }
 

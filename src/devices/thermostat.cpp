@@ -702,6 +702,8 @@ void Thermostat::process_JunkersSet(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, hc->daytemp, 17);     // is * 2
     has_update(telegram, hc->nighttemp, 16);   // is * 2
     has_update(telegram, hc->nofrosttemp, 15); // is * 2
+    has_enumupdate(telegram, hc->mode, 14, 1); // 0 = nofrost, 1 = eco, 2 = heat, 3 = auto
+    hc->hamode = hc->mode ? hc->mode - 1 : 0;  // set special HA mode: off, on, auto
 }
 
 // type 0x0179, ff
@@ -714,6 +716,8 @@ void Thermostat::process_JunkersSet2(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, hc->daytemp, 7);     // is * 2
     has_update(telegram, hc->nighttemp, 6);   // is * 2
     has_update(telegram, hc->nofrosttemp, 5); // is * 2
+    has_enumupdate(telegram, hc->mode, 4, 1); // 0 = nofrost, 1 = eco, 2 = heat, 3 = auto
+    hc->hamode = hc->mode ? hc->mode - 1 : 0; // set special HA mode: off, on, auto
 }
 
 // type 0xA3 - for external temp settings from the the RC* thermostats (e.g. RC35)
@@ -781,8 +785,13 @@ void Thermostat::process_JunkersMonitor(std::shared_ptr<const Telegram> telegram
     has_update(telegram, hc->selTemp, 2);  // value is * 10
 
     has_enumupdate(telegram, hc->modetype, 0, 1); // 1 = nofrost, 2 = eco, 3 = heat
-    has_enumupdate(telegram, hc->mode, 1, 1);     // 1 = manual, 2 = auto
-    hc->hamode = hc->mode + 1;                    // set special HA mode
+    /* mode handled in set
+    uint8_t mode = hc->mode == 3 ? 2 : 1;
+    telegram->read_value(mode, 1); // 1 = manual, 2 = auto
+    mode = mode == 2 ? 3 : hc->modetype; // 0 = nofrost, 1 = eco, 2 = heat, 3 = auto
+    has_update(hc->mode, mode);
+    hc->hamode = hc->mode ? hc->mode - 1 : 0; // set special HA mode: off, on, auto
+    */
 }
 
 // type 0x02A5 - data from Worchester CRF200
@@ -1072,10 +1081,7 @@ void Thermostat::process_RCTime(std::shared_ptr<const Telegram> telegram) {
                Helpers::smallitoa(buf5, telegram->message_data[1]),  // month
                Helpers::itoa(buf6, telegram->message_data[0] + 2000) // year
     );
-    if (strcmp(dateTime_, date) != 0){
-        strcpy(dateTime_, date);
-        has_update(true, dateTime_);
-    }
+    has_update(dateTime_, date);
 }
 
 // process_RCError - type 0xA2 - error message - 14 bytes long
@@ -1092,10 +1098,7 @@ void Thermostat::process_RCError(std::shared_ptr<const Telegram> telegram) {
     code[1] = telegram->message_data[1];
     code[2] = telegram->message_data[2];
     snprintf_P(&code[3], sizeof(code) - 3, PSTR("(%d)"), errorNumber_);
-    if (strcmp(errorCode_, code) != 0) {
-        strcpy(errorCode_, code);
-        has_update(true, errorCode_);
-    }
+    has_update(errorCode_, code);
 }
 
 // 0x12 error log
@@ -1117,10 +1120,7 @@ void Thermostat::process_RCErrorMessage(std::shared_ptr<const Telegram> telegram
         uint8_t  hour  = telegram->message_data[6];
         uint8_t  min   = telegram->message_data[8];
         snprintf_P(&code[2], sizeof(code) - 2, PSTR("(%d) %02d.%02d.%d %02d:%02d"), codeNo, day, month, year, hour, min);
-        if (strcmp(lastCode_, code) != 0) {
-            strcpy(lastCode_, code);
-            has_update(true, lastCode_);
-        }
+        has_update(lastCode_, code);
     }
 }
 
@@ -1518,6 +1518,7 @@ bool Thermostat::set_mode(const char * value, const int8_t id) {
             mode = uuid::read_flash_string(FL_(enum_mode5)[num]);
             break;
         default:
+            LOG_WARNING(F("Set mode: Invalid mode"));
             return false;
         }
     } else if (!Helpers::value2string(value, mode)) {
@@ -1630,12 +1631,13 @@ bool Thermostat::set_mode_n(const uint8_t mode, const uint8_t hc_num) {
         } else {
             offset = EMS_OFFSET_JunkersSetMessage_set_mode;
         }
-        validate_typeid = monitor_typeids[hc_p];
+        // validate_typeid = monitor_typeids[hc_p];
+        validate_typeid = set_typeids[hc_p];
         if (mode == HeatingCircuit::Mode::NOFROST) {
             set_mode_value = 0x01;
         } else if (mode == HeatingCircuit::Mode::ECO || (mode == HeatingCircuit::Mode::NIGHT)) {
             set_mode_value = 0x02;
-        } else if ((mode == HeatingCircuit::Mode::DAY) || (mode == HeatingCircuit::Mode::HEAT)) {
+        } else if ((mode == HeatingCircuit::Mode::HEAT) || (mode == HeatingCircuit::Mode::DAY)) {
             set_mode_value = 0x03; // comfort
         } else if (mode == HeatingCircuit::Mode::AUTO) {
             set_mode_value = 0x04;
@@ -2337,7 +2339,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         // manual & day = heat
         // night & off = off
         // everything else auto
-        register_device_value(tag, &hc->hamode, DeviceValueType::ENUMTXT, FL_(enum_hamode), FL_(hamode), DeviceValueUOM::NONE);
+        register_device_value(tag, &hc->hamode, DeviceValueType::ENUM, FL_(enum_hamode), FL_(hamode), DeviceValueUOM::NONE);
     }
 
     switch (model) {

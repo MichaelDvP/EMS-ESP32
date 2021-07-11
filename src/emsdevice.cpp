@@ -661,11 +661,17 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
             }
 
             // handle ENUMs
-            else if ((dv.type == DeviceValueType::ENUM || dv.type == DeviceValueType::ENUMTXT) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
+            else if ((dv.type == DeviceValueType::ENUM) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
                 if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                     obj      = data.createNestedObject();
                     obj["v"] = dv.options[*(uint8_t *)(dv.value_p)];
                 }
+            }
+
+            // handle commands without value
+            else if(dv.type == DeviceValueType::CMD) {
+                obj      = data.createNestedObject();
+                obj["v"] = "";
             }
 
             else {
@@ -698,9 +704,6 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                     uint32_t time_value = *(uint32_t *)(dv.value_p);
                     obj                 = data.createNestedObject();
                     obj["v"]            = (divider) ? time_value / divider : time_value; // sometimes we need to divide by 60
-                } else if(dv.type == DeviceValueType::CMD) {
-                    obj      = data.createNestedObject();
-                    obj["v"] = "";
                 }
             }
 
@@ -729,7 +732,7 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
 
                 // add enum and text option settings
                 if ((dv.uom == DeviceValueUOM::LIST) && dv.has_cmd) {
-                    JsonArray l   = obj.createNestedArray("l");
+                    JsonArray l = obj.createNestedArray("l");
                     for (uint8_t i = 0; i < dv.options_size; i++) {
                         if (!uuid::read_flash_string(dv.options[i]).empty()) {
                             l.add(uuid::read_flash_string(dv.options[i]));
@@ -785,7 +788,6 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 json["circuit"] = tag_to_mqtt(dv.tag);
             }
             switch (dv.type) {
-            case DeviceValueType::ENUMTXT:
             case DeviceValueType::ENUM: {
                 if ((*(uint8_t *)(dv.value_p)) < dv.options_size) {
                     if (dv.type == DeviceValueType::ENUM && EMSESP::bool_format() == BOOL_FORMAT_10E) {
@@ -977,9 +979,10 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
             }
 
             // handle ENUMs
-            else if ((dv.type == DeviceValueType::ENUM || dv.type == DeviceValueType::ENUMTXT) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
+            else if ((dv.type == DeviceValueType::ENUM) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
                 if (*(uint8_t *)(dv.value_p) < dv.options_size) {
-                    if (EMSESP::bool_format() == BOOL_FORMAT_10E && dv.type == DeviceValueType::ENUM) {
+                    // check for numeric enum-format, but "hamode" always as text
+                    if ((EMSESP::bool_format() == BOOL_FORMAT_10E) && (dv.short_name != FL_(hamode)[0])) {
                         json[name] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {
                         json[name] = dv.options[*(uint8_t *)(dv.value_p)];

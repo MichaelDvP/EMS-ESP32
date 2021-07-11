@@ -69,6 +69,7 @@ MAKE_PSTR_WORD(pin)
 MAKE_PSTR_WORD(publish)
 MAKE_PSTR_WORD(timeout)
 MAKE_PSTR_WORD(board_profile)
+MAKE_PSTR_WORD(counter)
 
 // for commands
 MAKE_PSTR_WORD(call)
@@ -176,6 +177,7 @@ MAKE_PSTR(seconds, "seconds")
 MAKE_PSTR(dbm, "dBm")
 MAKE_PSTR(num, " ")  // this is hack so HA renders numbers correctly
 MAKE_PSTR(bool, " ") // this is hack so HA renders numbers correctly
+MAKE_PSTR(blank, " ") // this is hack so HA renders numbers correctly
 MAKE_PSTR(fahrenheit, "°F")
 MAKE_PSTR(mv, "mV")
 
@@ -241,7 +243,6 @@ MAKE_PSTR_WORD(error)
 
 // boiler lists
 MAKE_PSTR_LIST(tpl_date, F(" : < dd.mm.yyyy >")) // template for text input
-MAKE_PSTR_LIST(enum_bool, F_(off), F_(on))
 MAKE_PSTR_LIST(enum_off_time_date, F_(off), F_(time), F_(date))
 MAKE_PSTR_LIST(enum_freq, F_(off), F_(1x3min), F_(2x3min), F_(3x3min), F_(4x3min), F_(5x3min), F_(6x3min), F_(continuos))
 MAKE_PSTR_LIST(enum_charge, F_(chargepump), F_(3wayvalve))
@@ -254,7 +255,6 @@ MAKE_PSTR(light, "Leicht")
 MAKE_PSTR(medium, "Mittel")
 MAKE_PSTR(heavy, "Schwer")
 MAKE_PSTR(own_prog, "Eigenprog")
-MAKE_PSTR(blank, "")
 MAKE_PSTR_WORD(start)
 MAKE_PSTR(heat, "Heizen")
 MAKE_PSTR(hold, "Halten")
@@ -328,13 +328,10 @@ MAKE_PSTR_LIST(enum_summermode, F_(summer), F_(auto), F_(winter))
 MAKE_PSTR_LIST(enum_mode, F_(manual), F_(auto))
 MAKE_PSTR_LIST(enum_mode2, F_(off), F_(manual), F_(auto))
 MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))
-MAKE_PSTR_LIST(enum_mode4, F_(manual), F_(auto), F_(holiday))
+MAKE_PSTR_LIST(enum_mode4, F_(nofrost), F_(eco), F_(heat), F_(auto)) // JUNKERS
 MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))
 
 MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(off))
-// MAKE_PSTR_LIST(enum_hamode1, F_(heat), F_(auto))
-// MAKE_PSTR_LIST(enum_hamode2, F_(off), F_(heat), F_(auto), F_(off))
-// MAKE_PSTR_LIST(enum_hamode5, F_(auto), F_(off))
 
 MAKE_PSTR_LIST(enum_modetype, F_(eco), F_(comfort))
 MAKE_PSTR_LIST(enum_modetype2, F_(day))
@@ -476,10 +473,13 @@ MAKE_PSTR_LIST(tankMiddleTemp, F("tankmiddletemp"), F("Speicher mittel temperatu
 MAKE_PSTR_LIST(wWStarts, F("wwstarts"), F("Anzahl starts"))
 MAKE_PSTR_LIST(wWStarts2, F("wwstarts2"), F("Kreis 2 Anzahl Starts"))
 MAKE_PSTR_LIST(wWWorkM, F("wwworkm"), F("aktive Zeit"))
+MAKE_PSTR_LIST(wWHystOn, F("wwhyston"), F("Hysterese Einschalttemperatur"))
+MAKE_PSTR_LIST(wWHystOff, F("wwhystoff"), F("Hysterese Ausschalttemperatur"))
 
 // thermostat
-// extra commands, no publish on web
-MAKE_PSTR_LIST(switchtime, F("switchtime"))
+// extra commands
+MAKE_PSTR_LIST(switchtime, F("switchtime"), F("einzelne programm schaltzeit"))
+// extra commands, no long name, does not show on web
 MAKE_PSTR_LIST(temp, F("temp"))
 MAKE_PSTR_LIST(hatemp, F("hatemp"))
 MAKE_PSTR_LIST(hamode, F("hamode"))

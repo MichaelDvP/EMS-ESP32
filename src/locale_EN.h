@@ -177,6 +177,7 @@ MAKE_PSTR(seconds, "seconds")
 MAKE_PSTR(dbm, "dBm")
 MAKE_PSTR(num, " ")  // this is hack so HA renders numbers correctly
 MAKE_PSTR(bool, " ") // this is hack so HA renders numbers correctly
+MAKE_PSTR(blank, " ") // this is hack so HA renders numbers correctly
 MAKE_PSTR(fahrenheit, "°F")
 MAKE_PSTR(mv, "mV")
 
@@ -242,7 +243,6 @@ MAKE_PSTR_WORD(error)
 
 // boiler lists
 MAKE_PSTR_LIST(tpl_date, F(" : < dd.mm.yyyy >")) // template for text input
-MAKE_PSTR_LIST(enum_bool, F_(off), F_(on))
 MAKE_PSTR_LIST(enum_off_time_date, F_(off), F_(time), F_(date))
 MAKE_PSTR_LIST(enum_freq, F_(off), F_(1x3min), F_(2x3min), F_(3x3min), F_(4x3min), F_(5x3min), F_(6x3min), F_(continuous))
 MAKE_PSTR_LIST(enum_charge, F_(chargepump), F_(3wayvalve))
@@ -255,7 +255,6 @@ MAKE_PSTR_WORD(light)
 MAKE_PSTR_WORD(medium)
 MAKE_PSTR_WORD(heavy)
 MAKE_PSTR_WORD(own_prog)
-MAKE_PSTR(blank, "")
 MAKE_PSTR_WORD(start)
 MAKE_PSTR_WORD(heat)
 MAKE_PSTR_WORD(hold)
@@ -326,16 +325,13 @@ MAKE_PSTR_LIST(enum_wwCircMode2, F_(off), F_(on), F_(auto))
 MAKE_PSTR_LIST(enum_heatingtype, F_(off), F_(radiator), F_(convector), F_(floor))
 MAKE_PSTR_LIST(enum_summermode, F_(summer), F_(auto), F_(winter))
 
-MAKE_PSTR_LIST(enum_mode, F_(manual), F_(auto))               // RC100, RC300, RC310
-MAKE_PSTR_LIST(enum_mode2, F_(off), F_(manual), F_(auto))     // RC20
-MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))      // RC35, RC30
-MAKE_PSTR_LIST(enum_mode4, F_(manual), F_(auto), F_(holiday)) // JUNKERS
-MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))                 // CRF
+MAKE_PSTR_LIST(enum_mode, F_(manual), F_(auto))                      // RC100, RC300, RC310
+MAKE_PSTR_LIST(enum_mode2, F_(off), F_(manual), F_(auto))            // RC20
+MAKE_PSTR_LIST(enum_mode3, F_(night), F_(day), F_(auto))             // RC35, RC30
+MAKE_PSTR_LIST(enum_mode4, F_(nofrost), F_(eco), F_(heat), F_(auto)) // JUNKERS
+MAKE_PSTR_LIST(enum_mode5, F_(auto), F_(off))                        // CRF
 
 MAKE_PSTR_LIST(enum_hamode, F_(off), F_(heat), F_(auto), F_(off))
-// MAKE_PSTR_LIST(enum_hamode1, F_(heat), F_(auto))
-// MAKE_PSTR_LIST(enum_hamode2, F_(off), F_(heat), F_(auto), F_(off))
-// MAKE_PSTR_LIST(enum_hamode5, F_(auto), F_(off))
 
 MAKE_PSTR_LIST(enum_modetype, F_(eco), F_(comfort))
 MAKE_PSTR_LIST(enum_modetype2, F_(day))
@@ -481,8 +477,9 @@ MAKE_PSTR_LIST(wWHystOn, F("wwhyston"), F("hysteresis on temperature"))
 MAKE_PSTR_LIST(wWHystOff, F("wwhystoff"), F("hysteresis off temperature"))
 
 // thermostat
-// extra commands, no long name, does not show on web
+// extra commands
 MAKE_PSTR_LIST(switchtime, F("switchtime"), F("single program switchtime"))
+// extra commands, no long name, does not show on web
 MAKE_PSTR_LIST(temp, F("temp"))
 MAKE_PSTR_LIST(hatemp, F("hatemp"))
 MAKE_PSTR_LIST(hamode, F("hamode"))

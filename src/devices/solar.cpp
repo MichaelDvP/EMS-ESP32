@@ -226,16 +226,10 @@ void Solar::process_SM10Config(std::shared_ptr<const Telegram> telegram) {
     /*
     uint8_t colmax = collectorMaxTemp_ / 10;
     telegram->read_value(colmax, 3);
-    if (collectorMaxTemp_ != colmax * 10) {
-        collectorMaxTemp_ = colmax * 10;
-        has_update(true, &collectorMaxTemp_);
-    }
+    has_update(collectorMaxTemp_, colmax * 10);
     uint8_t colmin = collectorMinTemp_ / 10;
     telegram->read_value(colmin, 4);
-    if (collectorMinTemp_ != colmin * 10) {
-        collectorMinTemp_ = colmin * 10;
-        has_update(true, &collectorMinTemp_);
-    }
+    has_update(collectorMinTemp_, colmin * 10);
     */
     has_update(telegram, solarPumpMinMod_, 2);
     has_update(telegram, solarPumpTurnonDiff_, 7);
@@ -270,7 +264,7 @@ void Solar::process_SM10Monitor(std::shared_ptr<const Telegram> telegram) {
         EMSESP::webSettingsService.read([&](WebSettings & settings) {
             maxFlow_ = settings.solar_maxflow;
         });
-        has_update(true, &maxFlow_);
+        has_update(&maxFlow_);
     }
 
     // solar publishes every minute, do not count reads by other devices
@@ -287,8 +281,8 @@ void Solar::process_SM10Monitor(std::shared_ptr<const Telegram> telegram) {
             sum += e;
         }
         energyLastHour_ = sum / 6; // counts in 0.1 Wh
-        has_update(true, &solarPower_);
-        has_update(true, &energyLastHour_);
+        has_update(&solarPower_);
+        has_update(&energyLastHour_);
     }
 }
 
@@ -343,12 +337,12 @@ void Solar::process_SM100ParamCfg(std::shared_ptr<const Telegram> telegram) {
     int32_t  def  = EMS_VALUE_USHORT_NOTSET;
     int32_t  max  = EMS_VALUE_USHORT_NOTSET;
     int32_t  cur  = EMS_VALUE_USHORT_NOTSET;
-    has_update(telegram->read_value(t_id, 1));
-    has_update(telegram->read_value(of, 3));
-    has_update(telegram->read_value(min, 5));
-    has_update(telegram->read_value(def, 9));
-    has_update(telegram->read_value(max, 13));
-    has_update(telegram->read_value(cur, 17));
+    telegram->read_value(t_id, 1);
+    telegram->read_value(of, 3);
+    telegram->read_value(min, 5);
+    telegram->read_value(def, 9);
+    telegram->read_value(max, 13);
+    telegram->read_value(cur, 17);
 
     // LOG_DEBUG(F("SM100ParamCfg param=0x%04X, offset=%d, min=%d, default=%d, max=%d, current=%d"), t_id, of, min, def, max, cur));
 }
@@ -484,7 +478,7 @@ void Solar::process_ISM1StatusMessage(std::shared_ptr<const Telegram> telegram) 
     telegram->read_value(Wh, 2); // Solar Energy produced in last hour only ushort, is not * 10
     if (energyLastHour_ != Wh * 10) {
         energyLastHour_ = Wh * 10;
-        has_update(true, &energyLastHour_);
+        has_update(&energyLastHour_);
     }
 
     has_bitupdate(telegram, solarPump_, 8, 0);         // PS1 Solar pump on (1) or off (0)
