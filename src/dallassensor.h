@@ -46,6 +46,7 @@ class DallasSensor {
         ~Sensor() = default;
 
         uint64_t    id() const;
+        std::string id_string() const;
         std::string to_string() const;
         int16_t     offset() const;
 

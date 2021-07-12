@@ -122,19 +122,6 @@ void EMSESPShell::add_console_commands() {
                                   shell.println();
                               } else if (arguments.front() == uuid::read_flash_string(F_(users))) {
                                   EMSESP::system_.show_users(shell);
-                              } else if (arguments.front() == uuid::read_flash_string(F_(sensor))) {
-                                  EMSESP::webSettingsService.read([&](WebSettings & settings) {
-                                      for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
-                                          if (!settings.sensor[i].id.isEmpty()) {
-                                              shell.print(settings.sensor[i].id);
-                                              shell.print(" : ");
-                                              shell.print(settings.sensor[i].name);
-                                              shell.print(" : ");
-                                              char buf[10];
-                                              shell.println(Helpers::render_value(buf, settings.sensor[i].offset, 10));
-                                          }
-                                      }
-                                  });
                               } else {
                                     shell.println(F("Invalid parameter"));
                               }
@@ -745,21 +732,46 @@ void Console::load_system_commands(unsigned int context) {
     EMSESPShell::commands
         ->add_command(context,
                       CommandFlags::ADMIN,
-                      flash_string_vector{F_(sensor), F_(name)},
-                      flash_string_vector{F_(id_mandatory), F_(name_mandatory), F_(offset_optional)},
+                      flash_string_vector{F_(sensor)},
+                      flash_string_vector{F_(sensorid_optional), F_(name_optional), F_(offset_optional)},
                       [](Shell & shell, const std::vector<std::string> & arguments) {
+                          if (arguments.size() == 0) {
+                              EMSESP::webSettingsService.read([&](WebSettings & settings) {
+                                  for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
+                                      if (!settings.sensor[i].id.isEmpty()) {
+                                          shell.print(settings.sensor[i].id);
+                                          shell.print(" : ");
+                                          shell.print(settings.sensor[i].name);
+                                          shell.print(" : ");
+                                          char buf[10];
+                                          shell.println(Helpers::render_value(buf, settings.sensor[i].offset, 10));
+                                      }
+                                  }
+                              });
+                              return;
+                          }
+                          if (arguments.size() == 1) {
+                             EMSESP::dallassensor_.add_name(arguments.front().c_str(), "", 0);
+                              // shell.println(EMSESP::dallassensor_.get_name(arguments.front().c_str()));
+                              return;
+                          }
                           int16_t offset = 0;
+                          if (arguments.size() == 2) { 
+                              float val;
+                              if (Helpers::value2float(arguments.back().c_str(), val)) {
+                                offset = (10 * val);
+                                EMSESP::dallassensor_.add_name(arguments.front().c_str(), "", offset);
+                                return;
+                              }
+                              EMSESP::dallassensor_.add_name(arguments.front().c_str(), arguments.back().c_str(), 0);
+                          }
                           if (arguments.size() == 3) {
                               float val;
                               if (Helpers::value2float(arguments.back().c_str(), val)) {
                                 offset = (10 * val);
                               }
                           }
-                          if (arguments[1] == "?") {
-                              shell.println(EMSESP::dallassensor_.get_name(arguments.front().c_str()));
-                          } else {
-                              EMSESP::dallassensor_.add_name(arguments.front().c_str(), arguments[1].c_str(), offset);
-                          }
+                          EMSESP::dallassensor_.add_name(arguments.front().c_str(), arguments[1].c_str(), offset);
                       });
 
     EMSESPShell::commands

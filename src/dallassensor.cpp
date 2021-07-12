@@ -321,7 +321,7 @@ int16_t DallasSensor::Sensor::offset() const {
     return offset;
 }
 
-std::string DallasSensor::Sensor::to_string() const {
+std::string DallasSensor::Sensor::id_string() const {
     std::string str(20, '\0');
     snprintf_P(&str[0],
                str.capacity() + 1,
@@ -330,7 +330,11 @@ std::string DallasSensor::Sensor::to_string() const {
                (unsigned int)(id_ >> 32) & 0xFFFF,
                (unsigned int)(id_ >> 16) & 0xFFFF,
                (unsigned int)(id_)&0xFFFF);
+    return str;
+}
 
+std::string DallasSensor::Sensor::to_string() const {
+    std::string str = id_string();
     EMSESP::webSettingsService.read([&](WebSettings & settings) {
         if (settings.dallas_format == Dallas_Format::NAME) {
             for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
@@ -391,7 +395,7 @@ void DallasSensor::add_name(const char * id, const char * name, int16_t offset) 
         for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
             bool found = false;
             for (const auto & sensor : sensors_) {
-                if (strcmp(sensor.to_string().c_str(), settings.sensor[i].id.c_str()) == 0) {
+                if (strcmp(sensor.id_string().c_str(), settings.sensor[i].id.c_str()) == 0) {
                     found = true;
                 }
             }
