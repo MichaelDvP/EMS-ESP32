@@ -1493,7 +1493,11 @@ bool Thermostat::set_datetime(const char * value, const int8_t id) {
 // sets the thermostat working mode, where mode is a string
 // converts string mode to HeatingCircuit::Mode
 bool Thermostat::set_mode(const char * value, const int8_t id) {
-    std::string mode(10, '\0');
+    std::string mode(20, '\0');
+    if (strlen(value) >= 20) {
+        LOG_WARNING(F("Set mode: Invalid mode"));
+        return false;
+    }
 
     if (value[0] >= '0' && value[0] <= '9') {
         uint8_t num = value[0] - '0';
@@ -2083,10 +2087,10 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
     return false;
 }
 
-bool Thermostat::set_temperature_value(const char * value, const int8_t id, const uint8_t mode) {
+bool Thermostat::set_temperature_value(const char * value, const int8_t id, const uint8_t mode, bool relative) {
     float   f      = 0;
     uint8_t hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
-    if (Helpers::value2temperature(value, f)) {
+    if (Helpers::value2temperature(value, f, relative)) {
         return set_temperature(f, mode, hc_num);
     } else {
         LOG_WARNING(F("Set temperature: Invalid value"));
@@ -2151,14 +2155,7 @@ bool Thermostat::set_noreducetemp(const char * value, const int8_t id) {
 }
 
 bool Thermostat::set_flowtempoffset(const char * value, const int8_t id) {
-    float   f      = 0;
-    uint8_t hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
-    if (Helpers::value2temperature(value, f, true)) {
-        return set_temperature(f, HeatingCircuit::Mode::FLOWOFFSET, hc_num);
-    } else {
-        LOG_WARNING(F("Set temperature: Invalid value"));
-        return false;
-    }
+    return set_temperature_value(value, id, HeatingCircuit::Mode::FLOWOFFSET, true);
 }
 
 bool Thermostat::set_maxflowtemp(const char * value, const int8_t id) {
@@ -2170,14 +2167,7 @@ bool Thermostat::set_minflowtemp(const char * value, const int8_t id) {
 }
 
 bool Thermostat::set_roominfluence(const char * value, const int8_t id) {
-    float   f      = 0;
-    uint8_t hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
-    if (Helpers::value2temperature(value, f, true)) {
-        return set_temperature(f, HeatingCircuit::Mode::ROOMINFLUENCE, hc_num);
-    } else {
-        LOG_WARNING(F("Set temperature: Invalid value"));
-        return false;
-    }
+    return set_temperature_value(value, id, HeatingCircuit::Mode::ROOMINFLUENCE, true);
 }
 
 // register main device values, top level for all thermostats (excluding heating circuits)
