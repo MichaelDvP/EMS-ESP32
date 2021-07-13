@@ -94,7 +94,12 @@ class SystemStatusForm extends Component<
               <TimerIcon />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary="System Uptime" secondary={data.uptime} />
+          <ListItemText
+            primary="System Uptime (Reset Reason)"
+            secondary={
+              data.uptime + ' (' + data.reset1 + ' / ' + data.reset2 + ')'
+            }
+          />
         </ListItem>
         <Divider variant="inset" component="li" />
         <ListItem>

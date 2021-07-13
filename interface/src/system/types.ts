@@ -16,6 +16,8 @@ interface ESPSystemStatus {
   fs_total: number;
   uptime: string;
   free_mem: number;
+  reset1: string;
+  reset2: string;
 }
 
 export interface ESP32SystemStatus extends ESPSystemStatus {

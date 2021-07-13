@@ -19,6 +19,8 @@ class SystemStatus {
 
   private:
     void systemStatus(AsyncWebServerRequest * request);
+
+    const __FlashStringHelper * show_reset_reason(uint8_t reason);
 };
 
 #endif // end SystemStatus_h
