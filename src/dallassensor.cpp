@@ -366,7 +366,6 @@ std::string DallasSensor::get_name(const char * id) {
 }
 
 void DallasSensor::add_name(const char * id, const char * name, int16_t offset) {
-    LOG_INFO(F("Setting name of sensor %s to %s"), id, name);
     EMSESP::webSettingsService.update([&](WebSettings & settings) {
         // check for new name of stored id
         for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
@@ -375,9 +374,11 @@ void DallasSensor::add_name(const char * id, const char * name, int16_t offset) 
                     settings.sensor[i].id     = "";
                     settings.sensor[i].name   = "";
                     settings.sensor[i].offset = 0;
+                    LOG_INFO(F("Deleting entry of sensor %s"), id);
                 } else {
                     settings.sensor[i].name   = (strlen(name) == 0) ? id : name;
                     settings.sensor[i].offset = offset;
+                    LOG_INFO(F("Setting name of sensor %s to %s"), id, name);
                 }
                 return StateUpdateResult::CHANGED;
             }
@@ -388,6 +389,7 @@ void DallasSensor::add_name(const char * id, const char * name, int16_t offset) 
                 settings.sensor[i].id     = id;
                 settings.sensor[i].name   = (strlen(name) == 0) ? id : name;
                 settings.sensor[i].offset = offset;
+                LOG_INFO(F("Setting name of sensor %s to %s"), id, name);
                 return StateUpdateResult::CHANGED;
             }
         }
@@ -403,6 +405,7 @@ void DallasSensor::add_name(const char * id, const char * name, int16_t offset) 
                 settings.sensor[i].id     = id;
                 settings.sensor[i].name   = (strlen(name) == 0) ? id : name;
                 settings.sensor[i].offset = offset;
+                LOG_INFO(F("Setting name of sensor %s to %s"), id, name);
                 return StateUpdateResult::CHANGED;
             }
         }

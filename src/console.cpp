@@ -763,7 +763,6 @@ void Console::load_system_commands(unsigned int context) {
                                 EMSESP::dallassensor_.add_name(arguments.front().c_str(), "", offset);
                                 return;
                               }
-                              EMSESP::dallassensor_.add_name(arguments.front().c_str(), arguments.back().c_str(), 0);
                           }
                           if (arguments.size() == 3) {
                               float val;
