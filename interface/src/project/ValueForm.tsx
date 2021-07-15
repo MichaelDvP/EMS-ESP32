@@ -47,6 +47,9 @@ class ValueForm extends React.Component<ValueFormProps> {
         >
           <DialogTitle id="user-form-dialog-title">Change Value</DialogTitle>
           <DialogContent dividers>
+            <FormHelperText id="outlined-value-name-text">
+              {devicevalue.n}
+            </FormHelperText>
             {devicevalue.u === DeviceValueUOM.LIST && (
               <TextField
                 id="outlined-select-value"
@@ -75,7 +78,7 @@ class ValueForm extends React.Component<ValueFormProps> {
                       {DeviceValueUOM_s[devicevalue.u]}
                     </InputAdornment>
                   }
-                  aria-describedby="outlined-value-helper-text"
+                  aria-describedby="outlined-value-name-text"
                   inputProps={{
                     'aria-label': 'value'
                   }}
@@ -96,7 +99,6 @@ class ValueForm extends React.Component<ValueFormProps> {
               </TextField>
             )}
             <FormHelperText id="outlined-value-helper-text">
-              {devicevalue.n}
               {devicevalue.o}
             </FormHelperText>
             <Box color="warning.main" p={0} pl={0} pr={0} mt={4} mb={0}>

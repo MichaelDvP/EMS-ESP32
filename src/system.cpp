@@ -567,7 +567,7 @@ void System::io_counter() {
                 char payload[8];
                 Mqtt::publish(F("system/counter"), Helpers::render_value(payload, io_counter_, 0));
             }
-        } 
+        }
     }
 }
 
