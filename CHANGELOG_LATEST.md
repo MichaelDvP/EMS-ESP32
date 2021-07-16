@@ -19,6 +19,7 @@
 - optional low clockrate (160 MHz) (#83)
 - selectbox for enumerated values in web
 - settings for water hysteresis on/off
+- sensorname console-command, replace sensorid with a unique name
 
 ## Fixed
 
@@ -33,5 +34,6 @@
 - added debug target to PlatformIO build to help hunt down system crashes
 - enumerated values always start at zero
 - maintenance settings for time/date as extra setting
+- move api/mqtt formats to `settings`, add `enum format`
 
 ## Removed

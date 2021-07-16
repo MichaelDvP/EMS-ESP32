@@ -72,7 +72,6 @@ class WebSettings {
       int16_t offset;
     } sensor[NUM_SENSOR_NAMES];
 
-
     static void              read(WebSettings & settings, JsonObject & root);
     static StateUpdateResult update(JsonObject & root, WebSettings & settings);
 

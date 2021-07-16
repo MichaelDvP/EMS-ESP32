@@ -790,7 +790,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
             }
             switch (dv.type) {
             case DeviceValueType::ENUM: {
-                if ((*(uint8_t *)(dv.value_p)) < dv.options_size) {
+                if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                     if (EMSESP::enum_format() == ENUM_FORMAT_NUMBER) {
                         json[value] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {

@@ -75,7 +75,6 @@ void WebSettings::read(WebSettings & settings, JsonObject & root) {
         snprintf_P(buf, sizeof(buf), PSTR("sensor_offset%d"), i);
         root[buf] = settings.sensor[i].offset;
     }
-
 }
 
 // call on initialization and also when settings are updated via web or console
@@ -96,7 +95,8 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
     uint8_t default_pbutton_gpio = data[4];
 
     if (old_board_profile != settings.board_profile) {
-        // EMSESP::logger().info(F("EMS-ESP version %s"), EMSESP_APP_VERSION);
+        EMSESP::logger().info(F("EMS-ESP version %s"), EMSESP_APP_VERSION);
+
         // check to see if we have a settings file, if not it's a fresh install
         if (!root.size()) {
             EMSESP::logger().info(F("Initializing configuration with board profile %s"), settings.board_profile.c_str());
@@ -245,6 +245,7 @@ void WebSettingsService::onUpdate() {
     if (WebSettings::has_flags(WebSettings::ChangeFlags::LED)) {
         EMSESP::system_.led_init(true); // reload settings
     }
+
     WebSettings::reset_flags();
 }
 
