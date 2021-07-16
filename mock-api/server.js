@@ -307,6 +307,7 @@ const emsesp_settings = {
   board_profile: 'S32',
   dallas_format: 1,
   bool_format: 1,
+  enum_format: 1,
 }
 const emsesp_alldevices = {
   devices: [

@@ -163,14 +163,19 @@ void Shower::shower_alert_start() {
 // returns true if added to MQTT queue went ok
 void Shower::publish_values() {
     StaticJsonDocument<EMSESP_JSON_SIZE_SMALL> doc;
-
-    if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF) {
+    /*
+    char result[10];
+    doc["shower_timer"] = Helpers::render_boolean(result, shower_timer_);
+    doc["shower_alert"] = Helpers::render_boolean(result, shower_alert_);
+    */
+   uint8_t bool_format = EMSESP::bool_format();
+    if (bool_format == BOOL_FORMAT_ONOFF) {
         doc["shower_timer"] = shower_timer_ ? "on" : "off";
         doc["shower_alert"] = shower_alert_ ? "on" : "off";
-    } else if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
+    } else if (bool_format == BOOL_FORMAT_ONOFF_CAP) {
         doc["shower_timer"] = shower_timer_ ? "ON" : "OFF";
         doc["shower_alert"] = shower_alert_ ? "ON" : "OFF";
-    } else if (EMSESP::bool_format() == BOOL_FORMAT_TRUEFALSE) {
+    } else if (bool_format == BOOL_FORMAT_TRUEFALSE) {
         doc["shower_timer"] = shower_timer_;
         doc["shower_alert"] = shower_alert_;
     } else {

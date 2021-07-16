@@ -563,7 +563,7 @@ void EMSdevice::publish_value(void * value_p) {
             switch (dv.type) {
             case DeviceValueType::ENUM: {
                 if ((*(uint8_t *)(value_p)) < dv.options_size) {
-                    if (EMSESP::bool_format() == BOOL_FORMAT_10E) {
+                    if (EMSESP::enum_format() == ENUM_FORMAT_NUMBER) {
                         Helpers::render_value(payload, *(uint8_t *)(value_p), 0);
                     } else {
                         strlcpy(payload, uuid::read_flash_string(dv.options[*(uint8_t *)(value_p)]).c_str(), sizeof(payload));
@@ -791,7 +791,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
             switch (dv.type) {
             case DeviceValueType::ENUM: {
                 if ((*(uint8_t *)(dv.value_p)) < dv.options_size) {
-                    if (EMSESP::bool_format() == BOOL_FORMAT_10E) {
+                    if (EMSESP::enum_format() == ENUM_FORMAT_NUMBER) {
                         json[value] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {
                         json[value] = dv.options[*(uint8_t *)(dv.value_p)]; // text
@@ -857,11 +857,12 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 break;
             case DeviceValueType::BOOL:
                 if (Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
-                    if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF) {
+                    uint8_t bool_format = EMSESP::bool_format();
+                    if (bool_format == BOOL_FORMAT_ONOFF) {
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? F_(on) : F_(off);
-                    } else if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
+                    } else if (bool_format == BOOL_FORMAT_ONOFF_CAP) {
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? F_(ON) : F_(OFF);
-                    } else if (EMSESP::bool_format() == BOOL_FORMAT_TRUEFALSE) {
+                    } else if (bool_format == BOOL_FORMAT_TRUEFALSE) {
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? true : false;
                     } else {
                         json[value] = (bool)(*(uint8_t *)(dv.value_p)) ? 1 : 0;
@@ -953,24 +954,17 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
             if ((dv.type == DeviceValueType::BOOL) && Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
                 // see how to render the value depending on the setting
                 // when in console mode we always use on and off
-                if ((EMSESP::bool_format() == BOOL_FORMAT_ONOFF) || console) {
-                    // on or off as strings
+                uint8_t bool_format = EMSESP::bool_format();
+                if ((bool_format == BOOL_FORMAT_ONOFF) || console) {
                     json[name] = *(uint8_t *)(dv.value_p) ? F_(on) : F_(off);
-                    has_value  = true;
-                } else if (EMSESP::bool_format() == BOOL_FORMAT_ONOFF_CAP) {
-                    // on or off as strings
+                } else if (bool_format == BOOL_FORMAT_ONOFF_CAP) {
                     json[name] = *(uint8_t *)(dv.value_p) ? F_(ON) : F_(OFF);
-                    has_value  = true;
-                } else if (EMSESP::bool_format() == BOOL_FORMAT_TRUEFALSE) {
-                    // true or false values (as real booleans, not strings)
+                } else if (bool_format == BOOL_FORMAT_TRUEFALSE) {
                     json[name] = (bool)(*(uint8_t *)(dv.value_p)) ? true : false;
-                    has_value  = true;
                 } else {
-                    // numerical 1 or 0
                     json[name] = (uint8_t)(*(uint8_t *)(dv.value_p)) ? 1 : 0;
-                    has_value  = true;
                 }
-
+                has_value  = true;
             }
 
             // handle TEXT strings
@@ -983,7 +977,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
             else if ((dv.type == DeviceValueType::ENUM) && Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
                 if (*(uint8_t *)(dv.value_p) < dv.options_size) {
                     // check for numeric enum-format, but "hamode" always as text
-                    if ((EMSESP::bool_format() == BOOL_FORMAT_10E) && (dv.short_name != FL_(hamode)[0])) {
+                    if ((EMSESP::enum_format() == ENUM_FORMAT_NUMBER) && (dv.short_name != FL_(hamode)[0])) {
                         json[name] = (uint8_t)(*(uint8_t *)(dv.value_p));
                     } else {
                         json[name] = dv.options[*(uint8_t *)(dv.value_p)];

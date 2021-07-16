@@ -446,7 +446,7 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
 
         <br></br>
         <Typography variant="h6" color="primary">
-          API and MQTT formats
+          API and MQTT Options
         </Typography>
 
         <BlockFormControlLabel
@@ -466,10 +466,10 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
           justify="flex-start"
           alignItems="flex-start"
         >
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <SelectValidator
               name="bool_format"
-              label="Boolean and Enum Format"
+              label="Boolean Format"
               value={data.bool_format}
               fullWidth
               variant="outlined"
@@ -479,14 +479,27 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
               <MenuItem value={1}>"on"/"off"</MenuItem>
               <MenuItem value={2}>"ON"/"OFF"</MenuItem>
               <MenuItem value={3}>true/false</MenuItem>
-              <MenuItem value={4}>1/0 (only bool)</MenuItem>
-              <MenuItem value={5}>1/0 (bool &amp; enum)</MenuItem>
+              <MenuItem value={4}>1/0</MenuItem>
             </SelectValidator>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
+            <SelectValidator
+              name="enum_format"
+              label="Enum Format"
+              value={data.enum_format}
+              fullWidth
+              variant="outlined"
+              onChange={handleValueChange('enum_format')}
+              margin="normal"
+            >
+              <MenuItem value={1}>Text</MenuItem>
+              <MenuItem value={2}>Number</MenuItem>
+            </SelectValidator>
+          </Grid>
+          <Grid item xs={4}>
             <SelectValidator
               name="dallas_format"
-              label="Sensor Payload Grouping"
+              label="Sensor Publishing"
               value={data.dallas_format}
               fullWidth
               variant="outlined"

@@ -70,6 +70,7 @@ MAKE_PSTR_WORD(publish)
 MAKE_PSTR_WORD(timeout)
 MAKE_PSTR_WORD(board_profile)
 MAKE_PSTR_WORD(counter)
+MAKE_PSTR_WORD(sensorname)
 
 // for commands
 MAKE_PSTR_WORD(call)

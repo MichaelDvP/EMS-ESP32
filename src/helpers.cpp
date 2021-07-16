@@ -124,17 +124,16 @@ char * Helpers::smallitoa(char * result, const uint16_t value) {
 
 // work out how to display booleans
 char * Helpers::render_boolean(char * result, bool value) {
-    uint8_t bool_format_ = EMSESP::bool_format();
-    if (bool_format_ == BOOL_FORMAT_ONOFF) {
+    uint8_t bool_format = EMSESP::bool_format();
+    if (bool_format == BOOL_FORMAT_ONOFF) {
         strlcpy(result, value ? uuid::read_flash_string(F_(on)).c_str() : uuid::read_flash_string(F_(off)).c_str(), 5);
-    } else if (bool_format_ == BOOL_FORMAT_ONOFF_CAP) {
+    } else if (bool_format == BOOL_FORMAT_ONOFF_CAP) {
         strlcpy(result, value ? uuid::read_flash_string(F_(ON)).c_str() : uuid::read_flash_string(F_(OFF)).c_str(), 5);
-    } else if (bool_format_ == BOOL_FORMAT_TRUEFALSE) {
+    } else if (bool_format == BOOL_FORMAT_TRUEFALSE) {
         strlcpy(result, value ? "true" : "false", 7);
     } else {
         strlcpy(result, value ? "1" : "0", 2);
     }
-
     return result;
 }
 

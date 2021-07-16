@@ -732,7 +732,7 @@ void Console::load_system_commands(unsigned int context) {
     EMSESPShell::commands
         ->add_command(context,
                       CommandFlags::ADMIN,
-                      flash_string_vector{F_(sensor)},
+                      flash_string_vector{F_(sensorname)},
                       flash_string_vector{F_(sensorid_optional), F_(name_optional), F_(offset_optional)},
                       [](Shell & shell, const std::vector<std::string> & arguments) {
                           if (arguments.size() == 0) {
@@ -756,16 +756,14 @@ void Console::load_system_commands(unsigned int context) {
                               return;
                           }
                           int16_t offset = 0;
+                          float   val;
                           if (arguments.size() == 2) { 
-                              float val;
                               if (Helpers::value2float(arguments.back().c_str(), val)) {
                                 offset = (10 * val);
                                 EMSESP::dallassensor_.add_name(arguments.front().c_str(), "", offset);
                                 return;
                               }
-                          }
-                          if (arguments.size() == 3) {
-                              float val;
+                          } else if (arguments.size() == 3) {
                               if (Helpers::value2float(arguments.back().c_str(), val)) {
                                 offset = (10 * val);
                               }

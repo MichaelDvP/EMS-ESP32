@@ -25,6 +25,7 @@ export interface EMSESPSettings {
   fahrenheit: boolean;
   bool_format: number;
   dallas_format: number;
+  enum_format: number;
 }
 
 export enum busConnectionStatus {

@@ -959,6 +959,7 @@ bool System::command_settings(const char * value, const int8_t id, JsonObject & 
         node["fahrenheit"]           = settings.fahrenheit;
         node["dallas_format"]        = settings.dallas_format;
         node["bool_format"]          = settings.bool_format;
+        node["enum_format"]          = settings.enum_format;
         node["analog_enabled"]       = settings.analog_enabled;
         node["pbutton_gpio"]         = settings.pbutton_gpio;
         node["board_profile"]        = settings.board_profile;

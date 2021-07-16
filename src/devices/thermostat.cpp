@@ -1092,7 +1092,7 @@ void Thermostat::process_RCError(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
-    has_update(telegram, errorNumber_, 3);
+    telegram->read_value(errorNumber_, 3);
     char code[15];
     code[0] = telegram->message_data[0];
     code[1] = telegram->message_data[1];
