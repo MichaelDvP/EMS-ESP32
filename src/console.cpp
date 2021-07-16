@@ -757,7 +757,7 @@ void Console::load_system_commands(unsigned int context) {
                           }
                           int16_t offset = 0;
                           float   val;
-                          if (arguments.size() == 2) { 
+                          if (arguments.size() == 2) {
                               if (Helpers::value2float(arguments.back().c_str(), val)) {
                                 offset = (10 * val);
                                 EMSESP::dallassensor_.add_name(arguments.front().c_str(), "", offset);

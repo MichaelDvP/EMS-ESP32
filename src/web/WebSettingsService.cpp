@@ -200,7 +200,7 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
 
     settings.enum_format   = root["enum_format"] | EMSESP_DEFAULT_ENUM_FORMAT;
     EMSESP::enum_format(settings.enum_format);
- 
+
     for (uint8_t i = 0; i < NUM_SENSOR_NAMES; i++) {
         char buf[20];
         snprintf_P(buf, sizeof(buf), PSTR("sensor_id%d"), i);
