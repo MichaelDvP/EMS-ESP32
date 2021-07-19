@@ -97,6 +97,7 @@ class System {
     void ethernet_connected(bool b) {
         ethernet_connected_ = b;
     }
+
     bool analog_enabled() {
         return analog_enabled_;
     }

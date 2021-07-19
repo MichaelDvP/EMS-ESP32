@@ -71,6 +71,7 @@ export interface Sensor {
 export interface EMSESPDevices {
   devices: Device[];
   sensors: Sensor[];
+  analog: number;
 }
 
 export interface DeviceValue {

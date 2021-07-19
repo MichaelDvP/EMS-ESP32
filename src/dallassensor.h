@@ -89,7 +89,7 @@ class DallasSensor {
         dallas_format_ = dallas_format;
     }
 
-    void        add_name(const char * id, const char * name, int16_t offset);
+    bool        add_name(const char * id, const char * name, int16_t offset);
     std::string get_name(const char * id);
 
   private:

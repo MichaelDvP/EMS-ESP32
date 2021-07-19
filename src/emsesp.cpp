@@ -339,6 +339,11 @@ void EMSESP::show_device_values(uuid::console::Shell & shell) {
 
                     // if there is a uom print it
                     std::string uom = emsdevice->get_value_uom(key);
+                    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+                        if (uom == "°C" && settings.fahrenheit) {
+                            uom = "°F";
+                        }
+                    });
                     if (!uom.empty()) {
                         shell.print(' ');
                         shell.print(uom);
@@ -363,8 +368,18 @@ void EMSESP::show_sensor_values(uuid::console::Shell & shell) {
     shell.printfln(F("Temperature sensors:"));
     uint8_t i = 1;
     char    s[7];
+    uint8_t fahrenheit = 0;
+
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        fahrenheit = settings.fahrenheit ? 2 : 0;
+    });
     for (const auto & device : sensor_devices()) {
-        shell.printfln(F("  Sensor %d, ID: %s, Temperature: %s °C"), i++, device.to_string().c_str(), Helpers::render_value(s, device.temperature_c, 10));
+        shell.printfln(F("  Sensor %d, ID: %s, Name: %s, Temperature: %s °%c"),
+                       i++,
+                       device.id_string().c_str(),
+                       device.to_string().c_str(),
+                       Helpers::render_value(s, device.temperature_c, 10, fahrenheit),
+                       (fahrenheit == 0) ? 'C' : 'F');
     }
     shell.println();
 }

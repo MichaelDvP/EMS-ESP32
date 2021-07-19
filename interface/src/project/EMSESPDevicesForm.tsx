@@ -45,16 +45,19 @@ import {
   Device,
   DeviceValue,
   DeviceValueUOM,
-  DeviceValueUOM_s
+  DeviceValueUOM_s,
+  Sensor
 } from './EMSESPtypes';
 
 import ValueForm from './ValueForm';
+import SensorForm from './SensorForm';
 
 import { ENDPOINT_ROOT } from '../api';
 
 export const SCANDEVICES_ENDPOINT = ENDPOINT_ROOT + 'scanDevices';
 export const DEVICE_DATA_ENDPOINT = ENDPOINT_ROOT + 'deviceData';
 export const WRITE_VALUE_ENDPOINT = ENDPOINT_ROOT + 'writeValue';
+export const WRITE_SENSOR_ENDPOINT = ENDPOINT_ROOT + 'writeSensor';
 
 const CustomTooltip = withStyles((theme: Theme) => ({
   tooltip: {
@@ -82,6 +85,7 @@ interface EMSESPDevicesFormState {
   deviceData?: EMSESPDeviceData;
   selectedDevice?: number;
   edit_devicevalue?: DeviceValue;
+  edit_sensorname?: Sensor;
 }
 
 type EMSESPDevicesFormProps = RestFormProps<EMSESPDevices> &
@@ -205,6 +209,64 @@ class EMSESPDevicesForm extends Component<
     this.setState({ edit_devicevalue: dv });
   };
 
+  handleSensorChange =
+    (name: keyof Sensor) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      this.setState({
+        edit_sensorname: {
+          ...this.state.edit_sensorname!,
+          [name]: extractEventValue(event)
+        }
+      });
+    };
+
+  cancelEditingSensor = () => {
+    this.setState({ edit_sensorname: undefined });
+  };
+
+  doneEditingSensor = () => {
+    const { edit_sensorname } = this.state;
+
+    redirectingAuthorizedFetch(WRITE_SENSOR_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify({
+        sensorname: edit_sensorname
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          this.props.enqueueSnackbar('Sensorname set', {
+            variant: 'success'
+          });
+        } else if (response.status === 204) {
+          this.props.enqueueSnackbar('Sensorname not set', {
+            variant: 'error'
+          });
+        } else if (response.status === 403) {
+          this.props.enqueueSnackbar('Write access denied', {
+            variant: 'error'
+          });
+        } else {
+          throw Error('Unexpected response code: ' + response.status);
+        }
+      })
+      .catch((error) => {
+        this.props.enqueueSnackbar(error.message || 'Problem writing value', {
+          variant: 'error'
+        });
+      });
+
+    if (edit_sensorname) {
+      this.setState({ edit_sensorname: undefined });
+    }
+  };
+
+  sendSensor = (sn: Sensor) => {
+    this.setState({ edit_sensorname: sn });
+  };
+
   noDevices = () => {
     return this.props.data.devices.length === 0;
   };
@@ -298,9 +360,21 @@ class EMSESPDevicesForm extends Component<
           <Table size="small" padding="default">
             <TableBody>
               {data.sensors.map((sensorData) => (
-                <TableRow key={sensorData.no}>
+                <TableRow key={sensorData.no} hover>
                   <TableCell component="th" scope="row">
-                    {sensorData.id}
+                    <CustomTooltip
+                      title="Edit Sensor Name"
+                      placement="right-end"
+                    >
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => this.sendSensor(sensorData)}
+                      >
+                        {sensorData.no}
+                      </Button>
+                    </CustomTooltip>
+                    &nbsp;&nbsp;{sensorData.id}
                   </TableCell>
                   <TableCell align="right">
                     {formatValue(sensorData.data, sensorData.uom, 1)}
@@ -316,6 +390,28 @@ class EMSESPDevicesForm extends Component<
               <i>no external temperature sensors were detected</i>
             </Typography>
           </Box>
+        )}
+      </TableContainer>
+    );
+  }
+
+  renderAnalog() {
+    const { data } = this.props;
+    return (
+      <TableContainer>
+        {data.analog > 0 && (
+          <Table size="small" padding="default">
+            <TableBody>
+              <TableRow>
+                <TableCell component="th" scope="row">
+                  Analog Input
+                </TableCell>
+                <TableCell align="right">
+                  {formatValue(data.analog, DeviceValueUOM.MV, 0)}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         )}
       </TableContainer>
     );
@@ -486,13 +582,14 @@ class EMSESPDevicesForm extends Component<
   }
 
   render() {
-    const { edit_devicevalue } = this.state;
+    const { edit_devicevalue, edit_sensorname } = this.state;
     return (
       <Fragment>
         <br></br>
         {this.renderDeviceItems()}
         {this.renderDeviceData()}
         {this.renderSensorItems()}
+        {this.renderAnalog()}
         <br></br>
         <Box display="flex" flexWrap="wrap">
           <Box flexGrow={1} padding={1}>
@@ -522,6 +619,14 @@ class EMSESPDevicesForm extends Component<
             onDoneEditing={this.doneEditingValue}
             onCancelEditing={this.cancelEditingValue}
             handleValueChange={this.handleValueChange}
+          />
+        )}
+        {edit_sensorname && (
+          <SensorForm
+            sensor={edit_sensorname}
+            onDoneEditing={this.doneEditingSensor}
+            onCancelEditing={this.cancelEditingSensor}
+            handleSensorChange={this.handleSensorChange}
           />
         )}
       </Fragment>
