@@ -750,7 +750,7 @@ void Console::load_system_commands(unsigned int context) {
                                                return;
                                            }
                                            if (arguments.size() == 1) {
-                                               EMSESP::dallassensor_.add_name(arguments.front().c_str(), "", 0);
+                                               EMSESP::dallassensor_.update(arguments.front().c_str(), "", 0);
                                                // shell.println(EMSESP::dallassensor_.get_name(arguments.front().c_str()));
                                                return;
                                            }
@@ -759,7 +759,7 @@ void Console::load_system_commands(unsigned int context) {
                                            if (arguments.size() == 2) {
                                                if (Helpers::value2float(arguments.back().c_str(), val)) {
                                                    offset = (10 * val);
-                                                   EMSESP::dallassensor_.add_name(arguments.front().c_str(), "", offset);
+                                                   EMSESP::dallassensor_.update(arguments.front().c_str(), "", offset);
                                                    return;
                                                }
                                            } else if (arguments.size() == 3) {
@@ -767,7 +767,7 @@ void Console::load_system_commands(unsigned int context) {
                                                    offset = (10 * val);
                                                }
                                            }
-                                           EMSESP::dallassensor_.add_name(arguments.front().c_str(), arguments[1].c_str(), offset);
+                                           EMSESP::dallassensor_.update(arguments.front().c_str(), arguments[1].c_str(), offset);
                                        });
 
     EMSESPShell::commands

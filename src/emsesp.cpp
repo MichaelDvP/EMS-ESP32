@@ -37,10 +37,10 @@ ESP8266React       EMSESP::esp8266React(&webServer, &LITTLEFS);
 WebSettingsService EMSESP::webSettingsService = WebSettingsService(&webServer, &LITTLEFS, EMSESP::esp8266React.getSecurityManager());
 #endif
 
-WebStatusService  EMSESP::webStatusService  = WebStatusService(&webServer, EMSESP::esp8266React.getSecurityManager());
-WebDevicesService EMSESP::webDevicesService = WebDevicesService(&webServer, EMSESP::esp8266React.getSecurityManager());
-WebAPIService     EMSESP::webAPIService     = WebAPIService(&webServer, EMSESP::esp8266React.getSecurityManager());
-WebLogService     EMSESP::webLogService     = WebLogService(&webServer, EMSESP::esp8266React.getSecurityManager());
+WebStatusService EMSESP::webStatusService = WebStatusService(&webServer, EMSESP::esp8266React.getSecurityManager());
+WebDataService   EMSESP::webDataService   = WebDataService(&webServer, EMSESP::esp8266React.getSecurityManager());
+WebAPIService    EMSESP::webAPIService    = WebAPIService(&webServer, EMSESP::esp8266React.getSecurityManager());
+WebLogService    EMSESP::webLogService    = WebLogService(&webServer, EMSESP::esp8266React.getSecurityManager());
 
 using DeviceFlags = EMSdevice;
 using DeviceType  = EMSdevice::DeviceType;
@@ -368,18 +368,20 @@ void EMSESP::show_sensor_values(uuid::console::Shell & shell) {
     shell.printfln(F("Temperature sensors:"));
     uint8_t i = 1;
     char    s[7];
+    char    s2[7];
     uint8_t fahrenheit = 0;
 
     EMSESP::webSettingsService.read([&](WebSettings & settings) {
         fahrenheit = settings.fahrenheit ? 2 : 0;
     });
     for (const auto & device : sensor_devices()) {
-        shell.printfln(F("  Sensor %d, ID: %s, Name: %s, Temperature: %s °%c"),
+        shell.printfln(F("  Sensor %d, ID: %s, Name: %s, Temperature: %s °%c (offset %s"),
                        i++,
                        device.id_string().c_str(),
                        device.to_string().c_str(),
                        Helpers::render_value(s, device.temperature_c, 10, fahrenheit),
-                       (fahrenheit == 0) ? 'C' : 'F');
+                       (fahrenheit == 0) ? 'C' : 'F',
+                       Helpers::render_value(s2, device.offset(), 10));
     }
     shell.println();
 }

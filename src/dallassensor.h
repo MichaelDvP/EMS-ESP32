@@ -89,8 +89,8 @@ class DallasSensor {
         dallas_format_ = dallas_format;
     }
 
-    bool        add_name(const char * idstr, const char * name, int16_t offset);
-    std::string get_name(const char * id);
+    bool        update(const char * idstr, const char * name, int16_t offset);
+    std::string get_name(const char * idstr);
 
   private:
     static constexpr uint8_t MAX_SENSORS = 20;

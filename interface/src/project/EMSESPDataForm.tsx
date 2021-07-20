@@ -40,7 +40,7 @@ import {
 import { RestFormProps, FormButton, extractEventValue } from '../components';
 
 import {
-  EMSESPDevices,
+  EMSESPData,
   EMSESPDeviceData,
   Device,
   DeviceValue,
@@ -79,16 +79,16 @@ function compareDevices(a: Device, b: Device) {
   return 0;
 }
 
-interface EMSESPDevicesFormState {
+interface EMSESPDataFormState {
   confirmScanDevices: boolean;
   processing: boolean;
   deviceData?: EMSESPDeviceData;
   selectedDevice?: number;
   edit_devicevalue?: DeviceValue;
-  edit_sensorname?: Sensor;
+  edit_Sensor?: Sensor;
 }
 
-type EMSESPDevicesFormProps = RestFormProps<EMSESPDevices> &
+type EMSESPDataFormProps = RestFormProps<EMSESPData> &
   AuthenticatedContextProps &
   WithWidthProps;
 
@@ -140,16 +140,16 @@ function formatValue(value: any, uom: number, digit: number) {
   }
 }
 
-class EMSESPDevicesForm extends Component<
-  EMSESPDevicesFormProps,
-  EMSESPDevicesFormState
+class EMSESPDataForm extends Component<
+  EMSESPDataFormProps,
+  EMSESPDataFormState
 > {
-  state: EMSESPDevicesFormState = {
+  state: EMSESPDataFormState = {
     confirmScanDevices: false,
     processing: false
   };
 
-  handleValueChange =
+  handleDeviceValueChange =
     (name: keyof DeviceValue) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
       this.setState({
@@ -160,11 +160,11 @@ class EMSESPDevicesForm extends Component<
       });
     };
 
-  cancelEditingValue = () => {
+  cancelEditingDeviceValue = () => {
     this.setState({ edit_devicevalue: undefined });
   };
 
-  doneEditingValue = () => {
+  doneEditingDeviceValue = () => {
     const { edit_devicevalue, selectedDevice } = this.state;
 
     redirectingAuthorizedFetch(WRITE_VALUE_ENDPOINT, {
@@ -212,24 +212,24 @@ class EMSESPDevicesForm extends Component<
   handleSensorChange =
     (name: keyof Sensor) => (event: React.ChangeEvent<HTMLInputElement>) => {
       this.setState({
-        edit_sensorname: {
-          ...this.state.edit_sensorname!,
+        edit_Sensor: {
+          ...this.state.edit_Sensor!,
           [name]: extractEventValue(event)
         }
       });
     };
 
   cancelEditingSensor = () => {
-    this.setState({ edit_sensorname: undefined });
+    this.setState({ edit_Sensor: undefined });
   };
 
   doneEditingSensor = () => {
-    const { edit_sensorname } = this.state;
+    const { edit_Sensor } = this.state;
 
     redirectingAuthorizedFetch(WRITE_SENSOR_ENDPOINT, {
       method: 'POST',
       body: JSON.stringify({
-        sensorname: edit_sensorname
+        sensor: edit_Sensor
       }),
       headers: {
         'Content-Type': 'application/json'
@@ -237,11 +237,11 @@ class EMSESPDevicesForm extends Component<
     })
       .then((response) => {
         if (response.status === 200) {
-          this.props.enqueueSnackbar('Sensorname set', {
+          this.props.enqueueSnackbar('Sensor updated', {
             variant: 'success'
           });
         } else if (response.status === 204) {
-          this.props.enqueueSnackbar('Sensorname not set', {
+          this.props.enqueueSnackbar('Sensor change failed', {
             variant: 'error'
           });
         } else if (response.status === 403) {
@@ -258,13 +258,13 @@ class EMSESPDevicesForm extends Component<
         });
       });
 
-    if (edit_sensorname) {
-      this.setState({ edit_sensorname: undefined });
+    if (edit_Sensor) {
+      this.setState({ edit_Sensor: undefined });
     }
   };
 
   sendSensor = (sn: Sensor) => {
-    this.setState({ edit_sensorname: sn });
+    this.setState({ edit_Sensor: sn });
   };
 
   noDevices = () => {
@@ -364,7 +364,7 @@ class EMSESPDevicesForm extends Component<
                 <TableRow key={sensorData.no} hover>
                   <TableCell padding="checkbox" style={{ width: 18 }}>
                     {me.admin && (
-                      <CustomTooltip title="change name" placement="left-end">
+                      <CustomTooltip title="edit" placement="left-end">
                         <IconButton
                           edge="start"
                           size="small"
@@ -585,7 +585,7 @@ class EMSESPDevicesForm extends Component<
   }
 
   render() {
-    const { edit_devicevalue, edit_sensorname } = this.state;
+    const { edit_devicevalue, edit_Sensor } = this.state;
     return (
       <Fragment>
         <br></br>
@@ -619,14 +619,14 @@ class EMSESPDevicesForm extends Component<
         {edit_devicevalue && (
           <ValueForm
             devicevalue={edit_devicevalue}
-            onDoneEditing={this.doneEditingValue}
-            onCancelEditing={this.cancelEditingValue}
-            handleValueChange={this.handleValueChange}
+            onDoneEditing={this.doneEditingDeviceValue}
+            onCancelEditing={this.cancelEditingDeviceValue}
+            handleValueChange={this.handleDeviceValueChange}
           />
         )}
-        {edit_sensorname && (
+        {edit_Sensor && (
           <SensorForm
-            sensor={edit_sensorname}
+            sensor={edit_Sensor}
             onDoneEditing={this.doneEditingSensor}
             onCancelEditing={this.cancelEditingSensor}
             handleSensorChange={this.handleSensorChange}
@@ -637,4 +637,4 @@ class EMSESPDevicesForm extends Component<
   }
 }
 
-export default withAuthenticatedContext(withWidth()(EMSESPDevicesForm));
+export default withAuthenticatedContext(withWidth()(EMSESPDataForm));
