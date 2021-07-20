@@ -1,12 +1,11 @@
 import React, { RefObject } from 'react';
-import { ValidatorForm } from 'react-material-ui-form-validator';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  FormHelperText,
-  OutlinedInput
+  FormHelperText
 } from '@material-ui/core';
 
 import { FormButton } from '../components';
@@ -44,19 +43,19 @@ class SensorForm extends React.Component<SensorFormProps> {
             Change Sensor Name
           </DialogTitle>
           <DialogContent dividers>
-            <FormHelperText id="outlined-value-name-text">
-              Name of sensor #{sensor.no}
-            </FormHelperText>
-            <OutlinedInput
-              id="outlined-adornment-value"
-              value={sensor.id}
-              autoFocus
+            <TextValidator
+              validators={[
+                'matchRegexp:^([a-zA-Z0-9_.-]{0,19}( -?[0-9](.[0-9])?)?)$'
+              ]}
+              errorMessages={['Not a valid sensorname']}
+              name="sensorname"
+              label={'Name of Sensor#' + sensor.no}
               fullWidth
+              autoFocus
+              variant="outlined"
+              value={sensor.id}
               onChange={handleSensorChange('id')}
-              aria-describedby="outlined-value-name-text"
-              inputProps={{
-                'aria-label': 'id'
-              }}
+              margin="normal"
             />
             <FormHelperText>
               (optional 'offset' separated by space)
