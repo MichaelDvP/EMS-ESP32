@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogActions,
   FormHelperText,
-  OutlinedInput,
   InputAdornment
 } from '@material-ui/core';
 
@@ -45,31 +44,33 @@ class SensorForm extends React.Component<SensorFormProps> {
             Editing Sensor #{sensor.no}
           </DialogTitle>
           <DialogContent dividers>
+            <FormHelperText>Name</FormHelperText>
             <TextValidator
-              validators={[
-                'matchRegexp:^([a-zA-Z0-9_.-]{0,19})$'
-              ]}
+              validators={['matchRegexp:^([a-zA-Z0-9_.-]{0,19})$']}
               errorMessages={['Not a valid sensorname']}
-              name="sensorname"
-              label={'Name of Sensor#' + sensor.no}
+              id="id"
+              name="id"
               fullWidth
               autoFocus
               variant="outlined"
               value={sensor.id}
               onChange={handleSensorChange('id')}
-              margin="normal"
             />
-
             <FormHelperText>Custom Offset</FormHelperText>
-            <OutlinedInput
+            <TextValidator
+              validators={['matchRegexp:^(-?[0-9](.[0-9])?)$']}
+              errorMessages={['Not a valid offset']}
               id="offset"
+              name="offset"
               value={sensor.offset}
               fullWidth
-              type="number"
+              variant="outlined"
               onChange={handleSensorChange('offset')}
-              endAdornment={<InputAdornment position="end">
-                {DeviceValueUOM_s[sensor.uom]}
-              </InputAdornment>}
+              endAdornment={
+                <InputAdornment position="end">
+                  {DeviceValueUOM_s[sensor.uom]}
+                </InputAdornment>
+              }
             />
           </DialogContent>
           <DialogActions>
