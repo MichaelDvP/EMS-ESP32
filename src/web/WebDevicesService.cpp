@@ -78,7 +78,7 @@ void WebDevicesService::all_devices(AsyncWebServerRequest * request) {
         for (const auto & sensor : EMSESP::sensor_devices()) {
             JsonObject obj = sensors.createNestedObject();
             obj["no"]      = i++;
-            obj["id"]      = sensor.to_string();
+            obj["id"]      = sensor.to_string(true);
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
                 if (settings.fahrenheit) {
                     obj["data"] = (float)sensor.temperature_c * 0.18 + 32;
@@ -175,7 +175,7 @@ void WebDevicesService::write_sensor(AsyncWebServerRequest * request, JsonVarian
 
         strlcpy(name, id.c_str(), sizeof(name));
         if (no > 0 && no < 100) {
-            itoa(no, nostr, 10);
+            Helpers::itoa(nostr, no, 10);
             char * c = strchr(name, ' '); // find space
             if (c != nullptr) {
                 *c = '\0';
@@ -185,7 +185,7 @@ void WebDevicesService::write_sensor(AsyncWebServerRequest * request, JsonVarian
                 }
             }
             ok = EMSESP::dallassensor_.add_name(nostr, name, offset);
-         }
+        }
     }
 
     AsyncWebServerResponse * response = request->beginResponse(ok ? 200 : 204);

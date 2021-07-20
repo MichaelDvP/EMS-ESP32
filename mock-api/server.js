@@ -108,6 +108,8 @@ const network_settings = {
   ssid: 'myWifi',
   password: 'myPassword',
   hostname: 'ems-esp',
+  nosleep: true,
+  tx_power: 20,
   static_ip_config: false,
 }
 const network_status = {
@@ -905,6 +907,17 @@ app.post(WRITE_VALUE_ENDPOINT, (req, res) => {
 
   console.log(id)
   console.log(devicevalue)
+
+  res.sendStatus(200)
+})
+
+app.post(WRITE_SENSOR_ENDPOINT, (req, res) => {
+  const sensorname = req.body.sensorname
+  const id = sensorname.id
+  const no = sensorname.no
+
+  console.log(id)
+  console.log(no)
 
   res.sendStatus(200)
 })

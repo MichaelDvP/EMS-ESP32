@@ -1111,8 +1111,9 @@ void Thermostat::process_RCErrorMessage(std::shared_ptr<const Telegram> telegram
     if (telegram->message_data[4] & 0x80) { // valid date
         char     code[30];
         uint16_t codeNo = EMS_VALUE_USHORT_NOTSET;
-        code[0] = telegram->message_data[0];
-        code[1] = telegram->message_data[1];
+        code[0]         = telegram->message_data[0];
+        code[1]         = telegram->message_data[1];
+        code[2]         = 0;
         telegram->read_value(codeNo, 2);
         uint16_t year  = (telegram->message_data[4] & 0x7F) + 2000;
         uint8_t  month = telegram->message_data[5];
@@ -2192,6 +2193,13 @@ void Thermostat::register_device_values() {
                               FL_(ibaBuildingType),
                               DeviceValueUOM::LIST,
                               MAKE_CF_CB(set_building));
+        register_device_value(TAG_THERMOSTAT_DATA,
+                              &ibaMinExtTemperature_,
+                              DeviceValueType::INT,
+                              nullptr,
+                              FL_(ibaMinExtTemperature),
+                              DeviceValueUOM::DEGREES,
+                              MAKE_CF_CB(set_minexttemp));
         register_device_value(TAG_DEVICE_DATA_WW, &wwSetTemp_, DeviceValueType::UINT, nullptr, FL_(wwSetTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemp));
         register_device_value(TAG_DEVICE_DATA_WW, &wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode), FL_(wwMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwmode));
         register_device_value(

@@ -306,7 +306,7 @@ void Boiler::check_active(const bool force) {
 
     // check if we can use tapactivated in flow systems
     if ((wWType_ == 1) && !Helpers::hasValue(wWTapActivated_, EMS_VALUE_BOOL)) {
-        wWTapActivated_= 1;
+        wWTapActivated_ = 1;
     }
 
     // check if tap water is active, bits 1 and 4 must be set
@@ -1181,7 +1181,7 @@ bool Boiler::set_tapwarmwater_activated(const char * value, const int8_t id) {
     } else {
         // get out of test mode. Send all zeros.
         // telegram: 0B 08 1D 00 00
-        wWTapActivated_= 1;
+        wWTapActivated_ = 1;
     }
 
     write_command(EMS_TYPE_UBAFunctionTest, 0, message_data, sizeof(message_data), 0);

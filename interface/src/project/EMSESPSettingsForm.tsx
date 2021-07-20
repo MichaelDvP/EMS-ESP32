@@ -356,7 +356,7 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
 
         <br></br>
         <Typography variant="h6" color="primary">
-          Options
+          General Options
         </Typography>
 
         {data.led_gpio !== 0 && (
@@ -381,7 +381,7 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
                 value="dallas_parasite"
               />
             }
-            label="Enable Dallas parasite mode"
+            label="Use Dallas Sensor parasite power"
           />
         )}
 
@@ -403,7 +403,17 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
               value="low_clock"
             />
           }
-          label="Low Clockrate (160MHz, changed on next reboot)"
+          label="Use lower CPU clock speed (only applied after restart)"
+        />
+        <BlockFormControlLabel
+          control={
+            <Checkbox
+              checked={data.notoken_api}
+              onChange={handleValueChange('notoken_api')}
+              value="notoken_api"
+            />
+          }
+          label="Bypass Access Token authorization on API calls"
         />
         <BlockFormControlLabel
           control={
@@ -446,19 +456,9 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
 
         <br></br>
         <Typography variant="h6" color="primary">
-          API and MQTT Options
+          Formatting Options
         </Typography>
 
-        <BlockFormControlLabel
-          control={
-            <Checkbox
-              checked={data.notoken_api}
-              onChange={handleValueChange('notoken_api')}
-              value="notoken_api"
-            />
-          }
-          label="Bypass Access Token authorization on API calls"
-        />
         <Grid
           container
           spacing={1}
@@ -499,14 +499,14 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
           <Grid item xs={4}>
             <SelectValidator
               name="dallas_format"
-              label="Sensor Publishing"
+              label="Dallas Sensor Format"
               value={data.dallas_format}
               fullWidth
               variant="outlined"
               onChange={handleValueChange('dallas_format')}
               margin="normal"
             >
-              <MenuItem value={1}>by Sensor ID</MenuItem>
+              <MenuItem value={1}>by ID</MenuItem>
               <MenuItem value={2}>by Number</MenuItem>
               <MenuItem value={3}>by Name</MenuItem>
             </SelectValidator>
