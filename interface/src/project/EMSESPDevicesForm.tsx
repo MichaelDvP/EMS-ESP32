@@ -350,6 +350,7 @@ class EMSESPDevicesForm extends Component<
 
   renderSensorItems() {
     const { data } = this.props;
+    const me = this.props.authenticatedContext.me;
     return (
       <TableContainer>
         <p></p>
@@ -361,20 +362,22 @@ class EMSESPDevicesForm extends Component<
             <TableBody>
               {data.sensors.map((sensorData) => (
                 <TableRow key={sensorData.no} hover>
+                  <TableCell padding="checkbox" style={{ width: 18 }}>
+                    {me.admin && (
+                      <CustomTooltip title="change name" placement="left-end">
+                        <IconButton
+                          edge="start"
+                          size="small"
+                          aria-label="Edit"
+                          onClick={() => this.sendSensor(sensorData)}
+                        >
+                          <EditIcon color="primary" fontSize="small" />
+                        </IconButton>
+                      </CustomTooltip>
+                    )}
+                  </TableCell>
                   <TableCell component="th" scope="row">
-                    <CustomTooltip
-                      title="Edit Sensor Name"
-                      placement="right-end"
-                    >
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={() => this.sendSensor(sensorData)}
-                      >
-                        {sensorData.no}
-                      </Button>
-                    </CustomTooltip>
-                    &nbsp;&nbsp;{sensorData.id}
+                    {sensorData.no + ': ' + sensorData.id}
                   </TableCell>
                   <TableCell align="right">
                     {formatValue(sensorData.data, sensorData.uom, 1)}
