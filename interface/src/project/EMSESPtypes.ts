@@ -64,7 +64,7 @@ export interface Device {
 export interface Sensor {
   no: number;
   id: string;
-  data: string;
+  temp: string;
   uom: number;
   offset: number;
 }

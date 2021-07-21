@@ -81,14 +81,15 @@ void WebDataService::all_devices(AsyncWebServerRequest * request) {
             obj["id"]      = sensor.to_string(true);
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
                 if (settings.fahrenheit) {
-                    obj["data"] = (float)sensor.temperature_c * 0.18 + 32;
+                    obj["temp"] = (float)sensor.temperature_c * 0.18 + 32;
                     obj["uom"] = DeviceValueUOM::FAHRENHEIT;
+                    obj["offset"]  = (float)sensor.offset() * 0.18;
                 } else {
-                    obj["data"] = (float)sensor.temperature_c / 10;
+                    obj["temp"] = (float)sensor.temperature_c / 10;
                     obj["uom"] = DeviceValueUOM::DEGREES;
+                    obj["offset"]  = (float)(sensor.offset()) / 10;
                 }
             });
-            obj["offset"]  = (float)(sensor.offset()) / 10;
         }
     }
 
@@ -179,6 +180,11 @@ void WebDataService::write_sensor(AsyncWebServerRequest * request, JsonVariant &
             strlcpy(name, id.c_str(), sizeof(name));
             float   offset   = sensor["offset"]; // this will be a float value. We'll convert it to int and * 10 it
             int16_t offset10 = offset * 10;
+            EMSESP::webSettingsService.read([&](WebSettings & settings) {
+                if (settings.fahrenheit) {
+                    offset10 = offset / 0.18;
+                }
+            });
             char    idstr[3];
             ok = EMSESP::dallassensor_.update(Helpers::itoa(idstr, no, 10), name, offset10);
         }

@@ -4,9 +4,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  FormHelperText,
-  InputAdornment
+  DialogActions
 } from '@material-ui/core';
 
 import { FormButton } from '../components';
@@ -44,33 +42,33 @@ class SensorForm extends React.Component<SensorFormProps> {
             Editing Sensor #{sensor.no}
           </DialogTitle>
           <DialogContent dividers>
-            <FormHelperText>Name</FormHelperText>
             <TextValidator
               validators={['matchRegexp:^([a-zA-Z0-9_.-]{0,19})$']}
-              errorMessages={['Not a valid sensorname']}
-              id="id"
-              name="id"
+              errorMessages={['Not a valid name']}
               fullWidth
-              autoFocus
               variant="outlined"
               value={sensor.id}
               onChange={handleSensorChange('id')}
+              margin="normal"
+              label="Name"
+              name="id"
             />
-            <FormHelperText>Custom Offset</FormHelperText>
             <TextValidator
-              validators={['matchRegexp:^(-?[0-9](.[0-9])?)$']}
-              errorMessages={['Not a valid offset']}
-              id="offset"
+              validators={['isFloat', 'minFloat:-5', 'maxFloat:5']}
+              errorMessages={[
+                'Must be a number',
+                'Must be greater than -5',
+                'Max value is +5'
+              ]}
+              label={'Custom Offset (' + DeviceValueUOM_s[sensor.uom] + ')'}
               name="offset"
               value={sensor.offset}
+              type="number"
               fullWidth
               variant="outlined"
+              InputProps={{ inputProps: { min: '-5', max: '5', step: '0.1' } }}
+              margin="normal"
               onChange={handleSensorChange('offset')}
-              endAdornment={
-                <InputAdornment position="end">
-                  {DeviceValueUOM_s[sensor.uom]}
-                </InputAdornment>
-              }
             />
           </DialogContent>
           <DialogActions>
