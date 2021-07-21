@@ -351,10 +351,10 @@ void Mqtt::on_message(const char * fulltopic, const char * payload, size_t len) 
                 // LOG_INFO(F("devicetype= %d, topic = %s, cmd = %s, message =  %s), mf.device_type_, topic, cmd_only, message);
                 // call command, assume admin authentication is allowed
                 uint8_t cmd_return = Command::call(mf.device_type_, cmd_only, message, true);
-                if (cmd_return == 2) {
+                if (cmd_return == CommandRet::NOT_FOUND) {
                     LOG_ERROR(F("No matching cmd (%s) in topic %s"), cmd_only, topic);
                     Mqtt::publish(F_(response), "unknown");
-                } else if (cmd_return == 3) {
+                } else if (cmd_return == CommandRet::ERROR) {
                     LOG_ERROR(F("Invalid data with cmd (%s) in topic %s"), cmd_only, topic);
                     Mqtt::publish(F_(response), "unknown");
                 }
