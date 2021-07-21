@@ -52,6 +52,7 @@ export enum LogLevel {
 export interface LogEvent {
   t: string;
   l: LogLevel;
+  i: number;
   n: string;
   m: string;
 }

@@ -413,7 +413,7 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
               value="notoken_api"
             />
           }
-          label="Bypass Access Token authorization on API calls"
+          label="Bypass Access Token authorization on API calls (warning! security vulnerability)"
         />
         <BlockFormControlLabel
           control={

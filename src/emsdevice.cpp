@@ -444,7 +444,7 @@ void EMSdevice::register_telegram_type(const uint16_t telegram_type_id, const __
 //  type: one of DeviceValueType
 //  options: options for enum or a divider for int (e.g. F("10"))
 //  short_name: used in Mqtt as keys
-//  full name: used in Web and Console unless empty (nullptr)
+//  full_name: used in Web and Console unless empty (nullptr)
 //  uom: unit of measure from DeviceValueUOM
 void EMSdevice::register_device_value(uint8_t                             tag,
                                       void *                              value_p,
@@ -486,6 +486,7 @@ void EMSdevice::register_device_value(uint8_t                             tag,
 }
 
 // function with min and max values
+// adds a new command to the command list
 void EMSdevice::register_device_value(uint8_t                             tag,
                                       void *                              value_p,
                                       uint8_t                             type,
@@ -496,16 +497,20 @@ void EMSdevice::register_device_value(uint8_t                             tag,
                                       int32_t                             min,
                                       uint32_t                            max) {
     register_device_value(tag, value_p, type, options, name[0], name[1], uom, (f != nullptr), min, max);
-    if (f != nullptr) {
-        if (tag >= TAG_HC1 && tag <= TAG_HC4) {
-            Command::add(device_type_, name[0], f, name[1], FLAG_HC);
-        } else if (tag >= TAG_WWC1 && tag <= TAG_WWC4) {
-            Command::add(device_type_, name[0], f, name[1], FLAG_WWC);
-        } else if (tag == TAG_DEVICE_DATA_WW) {
-            Command::add(device_type_, name[0], f, name[1], FLAG_WW);
-        } else {
-            Command::add(device_type_, name[0], f, name[1], 0);
-        }
+
+    // add a new command if it has a function attached
+    if (f == nullptr) {
+        return;
+    }
+
+    if (tag >= TAG_HC1 && tag <= TAG_HC4) {
+        Command::add(device_type_, name[0], f, name[1], CommandFlag::MQTT_SUB_FLAG_HC | CommandFlag::ADMIN_ONLY);
+    } else if (tag >= TAG_WWC1 && tag <= TAG_WWC4) {
+        Command::add(device_type_, name[0], f, name[1], CommandFlag::MQTT_SUB_FLAG_WWC | CommandFlag::ADMIN_ONLY);
+    } else if (tag == TAG_DEVICE_DATA_WW) {
+        Command::add(device_type_, name[0], f, name[1], CommandFlag::MQTT_SUB_FLAG_WW | CommandFlag::ADMIN_ONLY);
+    } else {
+        Command::add(device_type_, name[0], f, name[1], CommandFlag::MQTT_SUB_FLAG_NORMAL | CommandFlag::ADMIN_ONLY);
     }
 }
 
@@ -532,13 +537,13 @@ void EMSdevice::register_device_value(uint8_t                             tag,
 
 // publish a single value on change
 void EMSdevice::publish_value(void * value_p) {
-    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::DEVICE || value_p == nullptr) {
+    if (Mqtt::subscribe_format() == Mqtt::Subscribe_Format::GENERAL || value_p == nullptr) {
         return;
     }
     for (auto & dv : devicevalues_) {
         if (dv.value_p == value_p) {
             char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
-            if ((Mqtt::subscribe_format() == Mqtt::Subscribe_Format::HC_COMMAND) &&
+            if ((Mqtt::subscribe_format() == Mqtt::Subscribe_Format::INDIVIDUAL_ALL_HC) &&
                ((dv.tag >= TAG_HC1 && dv.tag <= TAG_HC4) || (dv.tag >= TAG_WWC1 && dv.tag <= TAG_WWC4))) {
                 snprintf_P(topic,
                            sizeof(topic),
