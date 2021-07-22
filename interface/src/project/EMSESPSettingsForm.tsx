@@ -32,7 +32,7 @@ import {
   BlockFormControlLabel
 } from '../components';
 
-import { isIP, optional } from '../validators';
+import { isIP, optional, isHostname, or } from '../validators';
 
 import { EMSESPSettings } from './EMSESPtypes';
 
@@ -55,7 +55,7 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
   };
 
   componentDidMount() {
-    ValidatorForm.addValidationRule('isOptionalIP', optional(isIP));
+    ValidatorForm.addValidationRule('isOptionalIPorHost', optional(or(isIP, isHostname)));
   }
 
   changeBoardProfile = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -539,7 +539,7 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
           >
             <Grid item xs={6}>
               <TextValidator
-                validators={['isOptionalIP']}
+                validators={['isOptionalIPorHost']}
                 errorMessages={['Not a valid IP address']}
                 name="syslog_host"
                 label="IP"

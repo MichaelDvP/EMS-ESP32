@@ -205,9 +205,9 @@ void System::syslog_init(bool refresh) {
         ipv = 4;
     } else if (addrv6.fromString(syslog_host_.c_str())) {
         ipv = 6;
-    }
-    if (ipv != 4) {
-        syslog_enabled_ = false;
+    } else {
+        WiFi.hostByName(syslog_host_.c_str(), addr);
+        ipv = 4;
     }
 
     // in case service is still running, this flushes the queue
@@ -226,7 +226,7 @@ void System::syslog_init(bool refresh) {
     if (ipv == 4) {
         syslog_.destination(addr, syslog_port_);
     } else {
-        // syslog_.destination(addrv6, syslog_port_); // not yet supported
+        syslog_.destination((IPAddress)addrv6, syslog_port_);
     }
     syslog_.hostname(hostname().c_str());
 #endif

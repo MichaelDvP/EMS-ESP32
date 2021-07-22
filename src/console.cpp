@@ -407,7 +407,7 @@ void EMSESPShell::add_console_commands() {
             JsonObject          json = doc.to<JsonObject>();
             const char *        cmd  = arguments[1].c_str();
 
-            uint8_t cmd_return = CommandRet::OK; // OK
+            uint8_t cmd_return = CommandRet::OK;
 
             if (arguments.size() == 2) {
                 // no value specified, just the cmd
