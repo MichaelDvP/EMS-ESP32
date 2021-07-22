@@ -200,14 +200,14 @@ void System::syslog_init(bool refresh) {
     // check for empty or invalid hostname
     IPAddress   addr;
     IPv6Address addrv6;
-    uint8_t     ipv = 0;
     if (addr.fromString(syslog_host_.c_str())) {
-        ipv = 4;
     } else if (addrv6.fromString(syslog_host_.c_str())) {
-        ipv = 6;
+        addr = addrv6;
     } else {
         WiFi.hostByName(syslog_host_.c_str(), addr);
-        ipv = 4;
+    }
+    if ((uint32_t)addr == 0) {
+        syslog_enabled_ = false;
     }
 
     // in case service is still running, this flushes the queue
@@ -223,11 +223,7 @@ void System::syslog_init(bool refresh) {
     // start & configure syslog
     syslog_.log_level((uuid::log::Level)syslog_level_);
     syslog_.mark_interval(syslog_mark_interval_);
-    if (ipv == 4) {
-        syslog_.destination(addr, syslog_port_);
-    } else {
-        syslog_.destination((IPAddress)addrv6, syslog_port_);
-    }
+    syslog_.destination(addr, syslog_port_);
     syslog_.hostname(hostname().c_str());
 #endif
 }
