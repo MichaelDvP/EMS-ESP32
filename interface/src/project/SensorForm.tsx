@@ -52,6 +52,7 @@ class SensorForm extends React.Component<SensorFormProps> {
               margin="normal"
               label="Name"
               name="id"
+              autoFocus
             />
             <TextValidator
               validators={['isFloat', 'minFloat:-5', 'maxFloat:5']}

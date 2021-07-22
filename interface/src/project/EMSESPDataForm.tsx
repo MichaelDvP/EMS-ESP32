@@ -182,7 +182,7 @@ class EMSESPDataForm extends Component<
           this.props.enqueueSnackbar('Write command sent to device', {
             variant: 'success'
           });
-          this.props.loadData();
+          this.handleRowClick(selectedDevice);
         } else if (response.status === 204) {
           this.props.enqueueSnackbar('Write command failed', {
             variant: 'error'
@@ -305,7 +305,7 @@ class EMSESPDataForm extends Component<
                 <TableRow
                   hover
                   key={device.id}
-                  onClick={() => this.handleRowClick(device)}
+                  onClick={() => this.handleRowClick(device.id)}
                 >
                   <TableCell>
                     <CustomTooltip
@@ -494,10 +494,10 @@ class EMSESPDataForm extends Component<
   };
 
   handleRowClick = (device: any) => {
-    this.setState({ selectedDevice: device.id, deviceData: undefined });
+    this.setState({ selectedDevice: device, deviceData: undefined });
     redirectingAuthorizedFetch(DEVICE_DATA_ENDPOINT, {
       method: 'POST',
-      body: JSON.stringify({ id: device.id }),
+      body: JSON.stringify({ id: device }),
       headers: {
         'Content-Type': 'application/json'
       }
