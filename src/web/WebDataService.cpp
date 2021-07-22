@@ -109,6 +109,11 @@ void WebDataService::device_data(AsyncWebServerRequest * request, JsonVariant & 
         for (const auto & emsdevice : EMSESP::emsdevices) {
             if (emsdevice) {
                 if (emsdevice->unique_id() == json["id"]) {
+                    // wait max 2.5 sec for updated data (post_send_delay is 2 sec)
+                    for (uint16_t i = 0; i < 2500 && EMSESP::wait_validate(); i++) {
+                        delay(1);
+                    }
+                    EMSESP::wait_validate(0); // reset in case of timeout
 #ifndef EMSESP_STANDALONE
                     JsonObject root = response->getRoot();
                     emsdevice->generate_values_json_web(root);
