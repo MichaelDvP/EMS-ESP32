@@ -540,9 +540,9 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
             <Grid item xs={6}>
               <TextValidator
                 validators={['isOptionalIPorHost']}
-                errorMessages={['Not a valid IP address']}
+                errorMessages={['Not a valid IP address or hostname']}
                 name="syslog_host"
-                label="IP"
+                label="IP or Hostname"
                 fullWidth
                 variant="outlined"
                 value={data.syslog_host}

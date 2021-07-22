@@ -63,8 +63,8 @@ class SensorForm extends React.Component<SensorFormProps> {
               ]}
               label={'Custom Offset (' + DeviceValueUOM_s[sensor.uom] + ')'}
               name="offset"
-              value={sensor.offset}
               type="number"
+              value={sensor.offset}
               fullWidth
               variant="outlined"
               InputProps={{ inputProps: { min: '-5', max: '5', step: '0.1' } }}
