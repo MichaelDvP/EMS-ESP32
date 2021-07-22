@@ -521,7 +521,6 @@ bool System::heartbeat_json(JsonObject & doc) {
         doc["io21"]  = digitalRead(21);
         doc["io22"]  = digitalRead(22);
         doc["io26"]  = digitalRead(26);
-        doc["io27"]  = digitalRead(27);
         doc["io32"]  = digitalRead(32);
         doc["io33"]  = digitalRead(33);
     }

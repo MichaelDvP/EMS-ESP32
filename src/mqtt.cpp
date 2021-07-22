@@ -755,7 +755,6 @@ void Mqtt::ha_status() {
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 21"), EMSdevice::DeviceType::SYSTEM, F("io21"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 22"), EMSdevice::DeviceType::SYSTEM, F("io22"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 26"), EMSdevice::DeviceType::SYSTEM, F("io26"));
-    publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 27"), EMSdevice::DeviceType::SYSTEM, F("io27"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 32"), EMSdevice::DeviceType::SYSTEM, F("io32"));
     publish_mqtt_ha_sensor(DeviceValueType::BOOL, DeviceValueTAG::TAG_HEARTBEAT, F("GPIO 33"), EMSdevice::DeviceType::SYSTEM, F("io33"));
 }
