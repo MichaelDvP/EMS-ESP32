@@ -339,12 +339,11 @@ void System::adc_init(bool refresh) {
         get_settings();
     }
 #ifndef EMSESP_STANDALONE
-    // disable ADC
-    /*
-    if (!analog_enabled_) {
-        adc_power_release(); // turn off ADC to save power if not needed
+    if (analog_enabled_) {
+        analogSetPinAttenuation(36, ADC_2_5db); // 1500mV
+        // setting attentuator to 0 = 1100, 1500, 2200, 3900 mV
+        // analogSetPinAttenuation(36, analog_enabled_ - 1);
     }
-    */
 #endif
 }
 
@@ -573,7 +572,7 @@ void System::measure_analog() {
     if (!measure_last_ || (uint32_t)(uuid::get_uptime() - measure_last_) >= SYSTEM_MEASURE_ANALOG_INTERVAL) {
         measure_last_ = uuid::get_uptime();
 #if defined(ESP32)
-        uint16_t a = analogRead(36);
+        uint16_t a = analogReadMilliVolts(36);
 #else
         uint16_t a = 0; // standalone
 #endif
@@ -581,7 +580,7 @@ void System::measure_analog() {
         static uint16_t analog_old = 0xFFF0;
 
         if (!analog_) { // init first time
-            analog_ = analogRead(36);
+            analog_ = a;
             sum     = analog_ * 512UL;
         } else { // simple moving average filter
             sum    = (sum * 511) / 512 + a;
