@@ -138,7 +138,7 @@ StateUpdateResult WebSettings::update(JsonObject & root, WebSettings & settings)
 #ifndef EMSESP_STANDALONE
     String old_syslog_host = settings.syslog_host;
     settings.syslog_host   = root["syslog_host"] | EMSESP_DEFAULT_SYSLOG_HOST;
-    if (!old_syslog_host.equals(settings.syslog_host)) {
+    if (old_syslog_host != settings.syslog_host) {
         add_flags(ChangeFlags::SYSLOG);
     }
 #endif
@@ -233,8 +233,7 @@ void WebSettingsService::onUpdate() {
     }
 
     if (WebSettings::has_flags(WebSettings::ChangeFlags::SYSLOG)) {
-        EMSESP::system_.syslog_init(true); // reload settings
-        EMSESP::system_.syslog_start();    // re-start (or stop)
+        EMSESP::system_.syslog_start(); // reloads settings
     }
 
     if (WebSettings::has_flags(WebSettings::ChangeFlags::ADC)) {
