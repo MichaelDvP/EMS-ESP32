@@ -55,7 +55,10 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
   };
 
   componentDidMount() {
-    ValidatorForm.addValidationRule('isOptionalIPorHost', optional(or(isIP, isHostname)));
+    ValidatorForm.addValidationRule(
+      'isOptionalIPorHost',
+      optional(or(isIP, isHostname))
+    );
   }
 
   changeBoardProfile = (event: React.ChangeEvent<HTMLSelectElement>) => {
