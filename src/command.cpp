@@ -49,11 +49,11 @@ uint8_t Command::call(const uint8_t device_type, const char * cmd, const char * 
 
     std::string dname = EMSdevice::device_type_2_device_name(device_type);
     if (value == nullptr) {
-        LOG_INFO(F("Calling %s command '%s'"), dname.c_str(), cmd);
+        LOG_DEBUG(F("Calling %s command '%s'"), dname.c_str(), cmd);
     } else if (id == -1) {
-        LOG_INFO(F("Calling %s command '%s', value %s, id is default"), dname.c_str(), cmd, value);
+        LOG_DEBUG(F("Calling %s command '%s', value %s, id is default"), dname.c_str(), cmd, value);
     } else {
-        LOG_INFO(F("Calling %s command '%s', value %s, id is %d"), dname.c_str(), cmd, value, id);
+        LOG_DEBUG(F("Calling %s command '%s', value %s, id is %d"), dname.c_str(), cmd, value, id);
     }
 
     return ((cf->cmdfunction_)(value, id_new)) ? CommandRet::OK : CommandRet::ERROR;
@@ -67,33 +67,31 @@ uint8_t Command::call(const uint8_t device_type, const char * cmd, const char * 
     char   cmd_new[20] = {'\0'};
     strlcpy(cmd_new, cmd, 20);
 
-    auto cf = find_command(device_type, cmd_new, id_new);
-
-    // check if we're allowed to call it
-    if (cf != nullptr) {
-        if (cf->has_flags(CommandFlag::ADMIN_ONLY) && !authenticated && value != nullptr) {
-            LOG_WARNING(F("Command %s on %s not permitted. requires admin."), cmd, EMSdevice::device_type_2_device_name(device_type).c_str());
-            return CommandRet::NOT_ALLOWED;
-        }
-    }
-
-    std::string dname = EMSdevice::device_type_2_device_name(device_type);
-    if (value == nullptr) {
-        LOG_INFO(F("Calling %s command '%s'"), dname.c_str(), cmd);
-    } else if (id == -1) {
-        LOG_INFO(F("Calling %s command '%s', value %s, id is default"), dname.c_str(), cmd, value);
-    } else {
-        LOG_INFO(F("Calling %s command '%s', value %s, id is %d"), dname.c_str(), cmd, value, id);
-    }
-
     // check if json object is empty, if so quit
     if (json.isNull()) {
         LOG_WARNING(F("Ignore call for command %s in %s because it has no json body"), cmd, EMSdevice::device_type_2_device_name(device_type).c_str());
         return CommandRet::ERROR;
     }
 
+    // find the command
+    auto cf = find_command(device_type, cmd_new, id_new);
     if (cf == nullptr) {
         return EMSESP::get_device_value_info(json, cmd_new, id_new, device_type) ? CommandRet::OK : CommandRet::NOT_FOUND;
+    }
+
+    // check if we're allowed to call it
+    if (cf->has_flags(CommandFlag::ADMIN_ONLY) && !authenticated && value != nullptr) {
+        LOG_WARNING(F("Command %s on %s not permitted. requires admin."), cmd, EMSdevice::device_type_2_device_name(device_type).c_str());
+        return CommandRet::NOT_ALLOWED;
+    }
+
+    std::string dname = EMSdevice::device_type_2_device_name(device_type);
+    if (value == nullptr) {
+        LOG_DEBUG(F("Calling %s command '%s'"), dname.c_str(), cmd);
+    } else if (id == -1) {
+        LOG_DEBUG(F("Calling %s command '%s', value %s, id is default"), dname.c_str(), cmd, value);
+    } else {
+        LOG_DEBUG(F("Calling %s command '%s', value %s, id is %d"), dname.c_str(), cmd, value, id);
     }
 
     if (cf->cmdfunction_json_) {
