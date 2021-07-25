@@ -32,7 +32,7 @@ import {
   BlockFormControlLabel
 } from '../components';
 
-import { isIP, optional, isHostname, or } from '../validators';
+import { isIPv4, optional, isHostname, or } from '../validators';
 
 import { EMSESPSettings } from './EMSESPtypes';
 
@@ -57,7 +57,7 @@ class EMSESPSettingsForm extends Component<EMSESPSettingsFormProps> {
   componentDidMount() {
     ValidatorForm.addValidationRule(
       'isOptionalIPorHost',
-      optional(or(isIP, isHostname))
+      optional(or(isIPv4, isHostname))
     );
   }
 
