@@ -550,7 +550,7 @@ void Boiler::process_UBAMonitorSlowPlus(std::shared_ptr<const Telegram> telegram
 
 /*
  * UBAParametersPlus - type 0xE6
- * parameters originaly taken from
+ * parameters originally taken from
  * https://github.com/Th3M3/buderus_ems-wiki/blob/master/Einstellungen%20des%20Regelger%C3%A4ts%20MC110.md
  * 88 0B E6 00 01 46 00 00 46 0A 00 01 06 FA 0A 01 02 64 01 00 00 1E 00 3C 01 00 00 00 01 00 9A
  * from: issue #732

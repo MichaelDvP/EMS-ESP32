@@ -316,9 +316,9 @@ void System::adc_init(bool refresh) {
 #ifndef EMSESP_STANDALONE
     if (analog_enabled_) {
         analogSetAttenuation(ADC_2_5db);
-        analogSetPinAttenuation(36, ADC_2_5db); // 1500mV
+        analogSetPinAttenuation(ADC1_CHANNEL_0_GPIO_NUM, ADC_2_5db); // 1500mV
         // setting attentuator to 0 = 1100, 1500, 2200, 3900 mV
-        // analogSetAttenuation(36, analog_enabled_ - 1);
+        // analogSetAttenuation(ADC1_CHANNEL_0_GPIO_NUM, analog_enabled_ - 1);
     }
 #endif
 }
@@ -547,10 +547,10 @@ void System::measure_analog() {
 
     if (!measure_last_ || (uint32_t)(uuid::get_uptime() - measure_last_) >= SYSTEM_MEASURE_ANALOG_INTERVAL) {
         measure_last_ = uuid::get_uptime();
-#if defined(ESP32)
-        uint16_t a = analogReadMilliVolts(36);
+#if defined(EMSESP_STANDALONE)
+        uint16_t a = 0;
 #else
-        uint16_t a = 0; // standalone
+        uint16_t a = analogReadMilliVolts(ADC1_CHANNEL_0_GPIO_NUM);
 #endif
         static uint32_t sum        = 0;
         static uint16_t analog_old = 0xFFF0;

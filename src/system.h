@@ -117,7 +117,6 @@ class System {
 
     bool network_connected() {
 #ifndef EMSESP_STANDALONE
-        // return (ethernet_connected_ || WiFi.isConnected());
         return network_connected_;
 #else
         return true;
