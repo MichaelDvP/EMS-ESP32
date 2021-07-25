@@ -193,19 +193,21 @@ void System::syslog_start() {
 #ifndef EMSESP_STANDALONE
     if (syslog_enabled_) {
         // start & configure syslog
-        syslog_.start();
+        if (!was_enabled) {
+            syslog_.start();
+            EMSESP::logger().info(F("Starting Syslog"));
+        }
         syslog_.log_level((uuid::log::Level)syslog_level_);
         syslog_.mark_interval(syslog_mark_interval_);
         syslog_.destination(syslog_host_.c_str(), syslog_port_);
         syslog_.hostname(hostname().c_str());
-        EMSESP::logger().info(F("Starting Syslog"));
     } else if (was_enabled) {
         // in case service is still running, this flushes the queue
         // https://github.com/emsesp/EMS-ESP/issues/496
+        EMSESP::logger().info(F("Stopping Syslog"));
         syslog_.log_level((uuid::log::Level)-1);
         syslog_.mark_interval(0);
         syslog_.destination("");
-        EMSESP::logger().info(F("Stopping Syslog"));
     }
 #endif
 }
