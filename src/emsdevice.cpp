@@ -745,7 +745,8 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                     }
                 }
 
-                if ((dv.type == DeviceValueType::TEXT || dv.type == DeviceValueType::CMD) && dv.has_cmd && dv.options[0] != nullptr) {
+                if ((dv.type == DeviceValueType::TEXT || dv.type == DeviceValueType::CMD) &&
+                     dv.uom != DeviceValueUOM::LIST && dv.has_cmd && dv.options[0] != nullptr) {
                     obj["o"] = dv.options[0];
                 }
             }
