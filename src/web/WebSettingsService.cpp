@@ -233,7 +233,7 @@ void WebSettingsService::onUpdate() {
     }
 
     if (WebSettings::has_flags(WebSettings::ChangeFlags::SYSLOG)) {
-        EMSESP::system_.syslog_start(); // reloads settings
+        EMSESP::system_.syslog_start(); // re-start (or stop)
     }
 
     if (WebSettings::has_flags(WebSettings::ChangeFlags::ADC)) {
