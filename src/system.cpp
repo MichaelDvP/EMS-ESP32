@@ -816,13 +816,12 @@ void System::show_system(uuid::console::Shell & shell) {
     if (!syslog_enabled_) {
         shell.printfln(F("Syslog: disabled"));
     } else {
-        shell.printfln(F("Syslog:"));
+        shell.printfln(F("Syslog: %s"),syslog_.started() ? "started" : "stopped");
         shell.printfln(F_(host_fmt), !syslog_host_.isEmpty() ? syslog_host_.c_str() : uuid::read_flash_string(F_(unset)).c_str());
         shell.printfln(F("IP: %s"),uuid::printable_to_string(syslog_.ip()).c_str());
         shell.printfln(F_(port_fmt), syslog_port_);
         shell.printfln(F_(log_level_fmt), uuid::log::format_level_lowercase(static_cast<uuid::log::Level>(syslog_level_)));
         shell.printfln(F_(mark_interval_fmt), syslog_mark_interval_);
-        shell.printfln(F("Started: %s"),syslog_.started() ? "on" : "off");
         shell.printfln(F("Queued: %d"),syslog_.queued());
     }
 
@@ -1003,8 +1002,8 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
     }
 
     if (EMSESP::system_.syslog_enabled_) {
-        node["syslog_ip"]      = syslog_.ip();
         node["syslog_started"] = syslog_.started();
+        node["syslog_ip"]      = syslog_.ip();
         node["syslog_queue"]   = syslog_.queued();
     }
 
