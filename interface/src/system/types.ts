@@ -60,4 +60,5 @@ export interface LogEvent {
 export interface LogSettings {
   level: LogLevel;
   max_messages: number;
+  compact: boolean;
 }
