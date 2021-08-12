@@ -12,12 +12,21 @@ import {
   SelectValidator
 } from 'react-material-ui-form-validator';
 
-import { Grid, Slider, FormLabel, Checkbox, MenuItem } from '@material-ui/core';
+import {
+  Grid,
+  Slider,
+  FormLabel,
+  Checkbox,
+  MenuItem,
+  Button
+} from '@material-ui/core';
 
 import {
   addAccessTokenParameter,
   redirectingAuthorizedFetch
 } from '../authentication';
+
+import DownloadIcon from '@material-ui/icons/GetApp';
 
 import { ENDPOINT_ROOT, EVENT_SOURCE_ROOT } from '../api';
 export const FETCH_LOG_ENDPOINT = ENDPOINT_ROOT + 'fetchLog';
@@ -25,8 +34,7 @@ export const LOG_SETTINGS_ENDPOINT = ENDPOINT_ROOT + 'logSettings';
 export const LOG_EVENT_EVENT_SOURCE_URL = EVENT_SOURCE_ROOT + 'log';
 
 import LogEventConsole from './LogEventConsole';
-
-import { LogEvent, LogSettings } from './types';
+import { LogEvent, LogSettings, LogLevel } from './types';
 
 import { Decoder } from '@msgpack/msgpack';
 const decoder = new Decoder();
@@ -80,7 +88,11 @@ class LogEventController extends Component<
     this.setState({
       compact: checked
     });
-    this.send_data(this.state.level, this.state.max_messages, checked as boolean);
+    this.send_data(
+      this.state.level,
+      this.state.max_messages,
+      checked as boolean
+    );
   };
 
   fetchLog = () => {
@@ -111,7 +123,11 @@ class LogEventController extends Component<
         throw Error('Unexpected status code: ' + response.status);
       })
       .then((json) => {
-        this.setState({ level: json.level, max_messages: json.max_messages, compact: json.compact });
+        this.setState({
+          level: json.level,
+          max_messages: json.max_messages,
+          compact: json.compact
+        });
       })
       .catch((error) => {
         const errorMessage = error.message || 'Unknown error';
@@ -159,7 +175,11 @@ class LogEventController extends Component<
     this.setState({
       level: parseInt(event.target.value)
     });
-    this.send_data(parseInt(event.target.value), this.state.max_messages, this.state.compact);
+    this.send_data(
+      parseInt(event.target.value),
+      this.state.max_messages,
+      this.state.compact
+    );
   };
 
   send_data = (level: number, max_messages: number, compact: boolean) => {
@@ -185,6 +205,54 @@ class LogEventController extends Component<
           { variant: 'warning' }
         );
       });
+  };
+
+  levelLabel = (level: LogLevel) => {
+    switch (level) {
+      case LogLevel.ERROR:
+        return 'E';
+      case LogLevel.WARNING:
+        return 'W';
+      case LogLevel.NOTICE:
+        return 'N';
+      case LogLevel.INFO:
+        return 'I';
+      case LogLevel.DEBUG:
+        return 'D';
+      case LogLevel.TRACE:
+        return 'TRACE';
+      default:
+        return '';
+    }
+  };
+
+  onDownload = () => {
+    const { events, level } = this.state;
+    let result = '';
+    for (const i in events) {
+      if (events[i].l <= level) {
+        result +=
+          events[i].t +
+          ' ' +
+          this.levelLabel(events[i].l) +
+          ' ' +
+          events[i].i +
+          ': [' +
+          events[i].n +
+          '] ' +
+          events[i].m +
+          '\n';
+      }
+    }
+    const a = document.createElement('a');
+    a.setAttribute(
+      'href',
+      'data:text/plain;charset=utf-8,' + encodeURIComponent(result)
+    );
+    a.setAttribute('download', 'log.txt');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   render() {
@@ -246,6 +314,16 @@ class LogEventController extends Component<
                 }
                 label="Compact Layout"
               />
+            </Grid>
+            <Grid item md>
+              <Button
+                startIcon={<DownloadIcon />}
+                variant="contained"
+                color="primary"
+                onClick={this.onDownload}
+              >
+                Download
+              </Button>
             </Grid>
           </Grid>
         </ValidatorForm>

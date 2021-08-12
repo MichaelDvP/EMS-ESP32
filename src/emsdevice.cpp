@@ -423,7 +423,7 @@ void EMSdevice::show_mqtt_handlers(uuid::console::Shell & shell) {
     Mqtt::show_topic_handlers(shell, device_type_);
 }
 
-void EMSdevice::register_mqtt_topic(const std::string & topic, mqtt_subfunction_p f) {
+void EMSdevice::register_mqtt_topic(const std::string & topic, const mqtt_sub_function_p f) {
     Mqtt::subscribe(device_type_, topic, f);
 }
 
@@ -433,7 +433,7 @@ void EMSdevice::register_mqtt_topic(const std::string & topic, mqtt_subfunction_
 // }
 
 // register a callback function for a specific telegram type
-void EMSdevice::register_telegram_type(const uint16_t telegram_type_id, const __FlashStringHelper * telegram_type_name, bool fetch, process_function_p f) {
+void EMSdevice::register_telegram_type(const uint16_t telegram_type_id, const __FlashStringHelper * telegram_type_name, bool fetch, const process_function_p f) {
     telegram_functions_.emplace_back(telegram_type_id, telegram_type_name, fetch, f);
 }
 
@@ -493,7 +493,7 @@ void EMSdevice::register_device_value(uint8_t                             tag,
                                       const __FlashStringHelper * const * options,
                                       const __FlashStringHelper * const * name,
                                       uint8_t                             uom,
-                                      cmdfunction_p                       f,
+                                      const cmd_function_p                f,
                                       int32_t                             min,
                                       uint32_t                            max) {
     register_device_value(tag, value_p, type, options, name[0], name[1], uom, (f != nullptr), min, max);
@@ -521,7 +521,7 @@ void EMSdevice::register_device_value(uint8_t                             tag,
                                       const __FlashStringHelper * const * options,
                                       const __FlashStringHelper * const * name,
                                       uint8_t                             uom,
-                                      cmdfunction_p                       f) {
+                                      const cmd_function_p                f) {
     register_device_value(tag, value_p, type, options, name, uom, f, 0, 0);
 }
 
@@ -723,7 +723,7 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                 } else if (dv.tag < DeviceValueTAG::TAG_HC1) {
                     obj["n"] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
                 } else {
-                    obj["n"] = "(" + tag_to_string(dv.tag) + ") " + uuid::read_flash_string(dv.full_name);
+                    obj["n"] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
                 }
 
                 // add the name of the Command function if it exists
@@ -785,10 +785,10 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
 
             json["name"] = dv.short_name;
             if (dv.full_name != nullptr) {
-                if (dv.tag == TAG_DEVICE_DATA_WW) {
-                    json[fullname] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
-                } else {
+                if ((dv.tag == DeviceValueTAG::TAG_NONE) || tag_to_string(dv.tag).empty()) {
                     json[fullname] = dv.full_name;
+                } else {
+                    json[fullname] = tag_to_string(dv.tag) + " " + uuid::read_flash_string(dv.full_name);
                 }
             }
             if (!tag_to_mqtt(dv.tag).empty()) {
@@ -940,7 +940,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
             if (console) {
                 // prefix the tag in brackets, unless it's Boiler because we're naughty and use tag for the MQTT topic
                 if (have_tag) {
-                    snprintf_P(name, 80, "(%s) %s", tag_to_string(dv.tag).c_str(), uuid::read_flash_string(dv.full_name).c_str());
+                    snprintf_P(name, 80, "%s %s", tag_to_string(dv.tag).c_str(), uuid::read_flash_string(dv.full_name).c_str());
                 } else {
                     strcpy(name, uuid::read_flash_string(dv.full_name).c_str()); // use full name
                 }

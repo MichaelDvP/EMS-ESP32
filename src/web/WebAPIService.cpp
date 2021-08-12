@@ -36,20 +36,22 @@ WebAPIService::WebAPIService(AsyncWebServer * server, SecurityManager * security
 
 // GET /{device}
 // GET /{device}/{name}
-// GET /device={device}?cmd={name}?data={value}[?id={hc}
+// GET /device={device}?cmd={name}?data={value}[?id={hc}]
 void WebAPIService::webAPIService_get(AsyncWebServerRequest * request) {
-    std::string device("");
-    std::string cmd("");
+    // initialize parameters. These will be extracted from the URL
+    std::string device_s("");
+    std::string cmd_s("");
+    std::string value_s("");
     int         id = -1;
-    std::string value("");
 
-    parse(request, device, cmd, id, value); // pass it defaults
-    EMSESP::logger().debug(F("API GET %s %s %s"), device.c_str(), cmd.c_str(), value.c_str());
+    parse(request, device_s, cmd_s, id, value_s);
+    EMSESP::logger().debug(F("API GET %s %s %s"), device_s.c_str(), cmd_s.c_str(), value_s.c_str());
 }
 
 // For POSTS with an optional JSON body
 // HTTP_POST | HTTP_PUT | HTTP_PATCH
-// POST/PUT /{device}[/{hc}][/{name}]
+// POST /{device}[/{hc|id}][/{name}]
+// the body must have 'value'. Optional are device, name, hc and id
 void WebAPIService::webAPIService_post(AsyncWebServerRequest * request, JsonVariant & json) {
     // if no body then treat it as a secure GET
     if (not json.is<JsonObject>()) {
@@ -57,13 +59,34 @@ void WebAPIService::webAPIService_post(AsyncWebServerRequest * request, JsonVari
         return;
     }
 
-    // extract values from the json
-    // these will be used as default values
+    // extract values from the json. these will be used as default values
     auto && body = json.as<JsonObject>();
 
-    std::string device = body["name"].as<std::string>(); // note this was called device in the v2
-    std::string cmd    = body["cmd"].as<std::string>();
-    int         id     = -1;
+#if defined(EMSESP_STANDALONE)
+    Serial.println("webAPIService_post: ");
+    serializeJson(body, Serial);
+    Serial.println();
+#endif
+
+    // make sure we have a value. There must always be a value
+    if (!body.containsKey(F_(value))) {
+        send_message_response(request, 400, "Problems parsing JSON, missing value"); // Bad Request
+        return;
+    }
+
+    std::string value_s  = body["value"].as<std::string>(); // always convert value to string
+    std::string device_s = body["device"].as<std::string>();
+
+    // get the command. It can be either 'name' or 'cmd'
+    std::string cmd_s("");
+    if (body.containsKey("name")) {
+        cmd_s = body["name"].as<std::string>();
+    } else if (body.containsKey("cmd")) {
+        cmd_s = body["cmd"].as<std::string>();
+    }
+
+    // for id, it can be part of the hc or id keys in the json body
+    int id = -1;
     if (body.containsKey("id")) {
         id = body["id"];
     } else if (body.containsKey("hc")) {
@@ -72,16 +95,9 @@ void WebAPIService::webAPIService_post(AsyncWebServerRequest * request, JsonVari
         id = -1;
     }
 
-    // make sure we have a value. There must always be a value
-    if (!body.containsKey(F_(value))) {
-        send_message_response(request, 400, "Problems parsing JSON"); // Bad Request
-        return;
-    }
-    std::string value = body["value"].as<std::string>(); // always convert value to string
-
     // now parse the URL. The URL is always leading and will overwrite anything provided in the json body
-    parse(request, device, cmd, id, value); // pass it defaults
-    EMSESP::logger().debug(F("API POST %s %s %s"), device.c_str(), cmd.c_str(), value.c_str());
+    parse(request, device_s, cmd_s, id, value_s); // pass it defaults
+    EMSESP::logger().debug(F("API POST %s %s %s"), device_s.c_str(), cmd_s.c_str(), value_s.c_str());
 }
 
 // parse the URL looking for query or path parameters
@@ -102,7 +118,7 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
     uint8_t device_type;
     int8_t  id_n = -1; // default hc
 
-    // check for query parameters first
+    // check for query parameters first, the old style from v2
     // /device={device}?cmd={name}?data={value}[?id={hc}
     if (p.paths().size() == 0) {
         // get the device
@@ -131,28 +147,32 @@ void WebAPIService::parse(AsyncWebServerRequest * request, std::string & device_
             id_n = Helpers::atoint(request->getParam("hc")->value().c_str());
         }
     } else {
-        // parse paths and json data from the OpenAPI standard
-        // /{device}[/{hc}][/{name}]
-        // first param must be a valid device, which includes "system"
-        device_s = p.paths().front();
+        // parse paths and json data from the newer OpenAPI standard
+        // [/{device}][/{hc}][/{name}]
+        // all paths are optional. If not set then take the values from the json body (if available)
 
-        auto num_paths = p.paths().size();
-        if (num_paths == 1) {
-            // if there are no more paths parameters, default to 'info'
-            // cmd_s = "info_short";
-            // check empty command in Command::find_command and set the default there!
-        } else if (num_paths == 2) {
-            cmd_s = p.paths()[1];
-        } else if (num_paths > 2) {
-            // check in Command::find_command makes prefix to TAG
-            cmd_s = p.paths()[1] + "/" + p.paths()[2];
+        // see if we have a device in the path
+        size_t num_paths = p.paths().size();
+        if (num_paths) {
+            // assume the next path is the 'device'. Note this could also have the value of system.
+            device_s = p.paths().front();
+
+            if (num_paths == 2) {
+                // next path is the name or cmd
+                cmd_s = p.paths()[1];
+            } else if (num_paths > 2) {
+                // check in Command::find_command makes prefix to TAG
+                cmd_s = p.paths()[1] + "/" + p.paths()[2];
+            }
         }
     }
-    // now go and validate everything
+
+    // now go and verify the values
 
     // device check
     if (device_s.empty()) {
         api_fails_++;
+        // see if we have a device embedded in the json body, then use that
         send_message_response(request, 422, "Missing device"); // Unprocessable Entity
         return;
     }
@@ -242,6 +262,8 @@ void WebAPIService::send_message_response(AsyncWebServerRequest * request, uint1
         response->setContentType("application/json");
         request->send(response);
     }
+
+    EMSESP::logger().debug(F("API returns, code: %d, message: %s"), error_code, error_message);
 }
 
 /**

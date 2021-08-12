@@ -54,7 +54,7 @@ uuid::log::Logger Mqtt::logger_{F_(mqtt), uuid::log::Facility::DAEMON};
 
 // subscribe to an MQTT topic, and store the associated callback function
 // only if it already hasn't been added
-void Mqtt::subscribe(const uint8_t device_type, const std::string & topic, mqtt_subfunction_p cb) {
+void Mqtt::subscribe(const uint8_t device_type, const std::string & topic, mqtt_sub_function_p cb) {
     // check if we already have the topic subscribed, if so don't add it again
     if (!mqtt_subfunctions_.empty()) {
         for (auto & mqtt_subfunction : mqtt_subfunctions_) {
@@ -107,8 +107,8 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
 
     // register the individual commands too (e.g. ems-esp/boiler/wwonetime)
     // https://github.com/emsesp/EMS-ESP32/issues/31
-    std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
     if (subscribe_format_ == Subscribe_Format::INDIVIDUAL_ALL_HC && ((flags & CommandFlag::MQTT_SUB_FLAG_HC) == CommandFlag::MQTT_SUB_FLAG_HC)) {
+        std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
         topic = cmd_topic + "/hc1/" + uuid::read_flash_string(cmd);
         queue_subscribe_message(topic);
         topic = cmd_topic + "/hc2/" + uuid::read_flash_string(cmd);
@@ -118,6 +118,7 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
         topic = cmd_topic + "/hc4/" + uuid::read_flash_string(cmd);
         queue_subscribe_message(topic);
     } else if (subscribe_format_ != Subscribe_Format::GENERAL && ((flags & CommandFlag::MQTT_SUB_FLAG_NOSUB) == CommandFlag::MQTT_SUB_FLAG_NOSUB)) {
+        std::string topic(MQTT_TOPIC_MAX_SIZE, '\0');
         topic = cmd_topic + "/" + uuid::read_flash_string(cmd);
         queue_subscribe_message(topic);
     }
@@ -125,7 +126,7 @@ void Mqtt::register_command(const uint8_t device_type, const __FlashStringHelper
 
 // subscribe to an MQTT topic, and store the associated callback function
 // For generic functions not tied to a specific device
-void Mqtt::subscribe(const std::string & topic, mqtt_subfunction_p cb) {
+void Mqtt::subscribe(const std::string & topic, mqtt_sub_function_p cb) {
     subscribe(0, topic, cb); // no device_id needed if generic to EMS-ESP
 }
 

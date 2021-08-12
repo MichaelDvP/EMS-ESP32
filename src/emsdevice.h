@@ -286,7 +286,7 @@ class EMSdevice {
 
     using process_function_p = std::function<void(std::shared_ptr<const Telegram>)>;
 
-    void register_telegram_type(const uint16_t telegram_type_id, const __FlashStringHelper * telegram_type_name, bool fetch, process_function_p cb);
+    void register_telegram_type(const uint16_t telegram_type_id, const __FlashStringHelper * telegram_type_name, bool fetch, const process_function_p cb);
     bool handle_telegram(std::shared_ptr<const Telegram> telegram);
 
     std::string get_value_uom(const char * key);
@@ -310,7 +310,7 @@ class EMSdevice {
                                const __FlashStringHelper * const * options,
                                const __FlashStringHelper * const * name,
                                uint8_t                             uom,
-                               cmdfunction_p                       f,
+                               const cmd_function_p                f,
                                int32_t                             min,
                                uint32_t                            max);
     void register_device_value(uint8_t                             tag,
@@ -319,7 +319,7 @@ class EMSdevice {
                                const __FlashStringHelper * const * options,
                                const __FlashStringHelper * const * name,
                                uint8_t                             uom,
-                               cmdfunction_p                       f);
+                               const cmd_function_p                f);
     void register_device_value(uint8_t                             tag,
                                void *                              value_p,
                                uint8_t                             type,
@@ -334,7 +334,7 @@ class EMSdevice {
     void read_command(const uint16_t type_id, uint8_t offset = 0, uint8_t length = 0);
 
     void publish_value(void * value);
-    void register_mqtt_topic(const std::string & topic, mqtt_subfunction_p f);
+    void register_mqtt_topic(const std::string & topic, const mqtt_sub_function_p f);
 
     void publish_mqtt_ha_sensor();
 
@@ -452,7 +452,7 @@ class EMSdevice {
         bool                        fetch_;              // if this type_id be queried automatically
         process_function_p          process_function_;
 
-        TelegramFunction(uint16_t telegram_type_id, const __FlashStringHelper * telegram_type_name, bool fetch, process_function_p process_function)
+        TelegramFunction(uint16_t telegram_type_id, const __FlashStringHelper * telegram_type_name, bool fetch, const process_function_p process_function)
             : telegram_type_id_(telegram_type_id)
             , telegram_type_name_(telegram_type_name)
             , fetch_(fetch)

@@ -682,9 +682,9 @@ void System::commands_init() {
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(fetch), System::command_fetch, F("refresh all EMS values"), CommandFlag::ADMIN_ONLY);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(counter), System::command_counter, F("set counter"), CommandFlag::ADMIN_ONLY);
     Command::add(EMSdevice::DeviceType::SYSTEM, F_(restart), System::command_restart, F("restarts EMS-ESP"), CommandFlag::ADMIN_ONLY);
-    Command::add_returns_json(EMSdevice::DeviceType::SYSTEM, F_(info), System::command_info, F("system status"));
-    Command::add_returns_json(EMSdevice::DeviceType::SYSTEM, F_(settings), System::command_settings, F("list system settings"));
-    Command::add_returns_json(EMSdevice::DeviceType::SYSTEM, F_(commands), System::command_commands, F("list system commands"));
+    Command::add_json(EMSdevice::DeviceType::SYSTEM, F_(info), System::command_info, F("system status"));
+    Command::add_json(EMSdevice::DeviceType::SYSTEM, F_(settings), System::command_settings, F("list system settings"));
+    Command::add_json(EMSdevice::DeviceType::SYSTEM, F_(commands), System::command_commands, F("list system commands"));
 #if defined(EMSESP_DEBUG)
     Command::add(EMSdevice::DeviceType::SYSTEM, F("test"), System::command_test, F("run tests"));
 #endif
@@ -730,7 +730,7 @@ void System::show_users(uuid::console::Shell & shell) {
 
 #ifndef EMSESP_STANDALONE
     EMSESP::esp8266React.getSecuritySettingsService()->read([&](SecuritySettings & securitySettings) {
-        for (User user : securitySettings.users) {
+        for (const User & user : securitySettings.users) {
             shell.printfln(F(" username: %s, password: %s, is_admin: %s"), user.username.c_str(), user.password.c_str(), user.admin ? F("yes") : F("no"));
         }
     });
@@ -840,7 +840,7 @@ bool System::command_commands(const char * value, const int8_t id, JsonObject & 
 }
 
 // export all settings to JSON text
-// e.g. http://ems-esp/api?device=system&cmd=settings
+// http://ems-esp/api/system/settings
 // value and id are ignored
 bool System::command_settings(const char * value, const int8_t id, JsonObject & json) {
     JsonObject node;
@@ -945,8 +945,8 @@ bool System::command_settings(const char * value, const int8_t id, JsonObject & 
     return true;
 }
 
-// export status information including some basic settings
-// e.g. http://ems-esp/api?device=system&cmd=info
+// export status information including the device information
+// http://ems-esp/api/system/info
 bool System::command_info(const char * value, const int8_t id, JsonObject & json) {
     JsonObject node;
 
@@ -1007,12 +1007,12 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         node["syslog_queue"]   = syslog_.queued();
     }
 
-    JsonArray devices2 = json.createNestedArray("Devices");
-
+    // show EMS devices
+    JsonArray devices = json.createNestedArray("Devices");
     for (const auto & device_class : EMSFactory::device_handlers()) {
         for (const auto & emsdevice : EMSESP::emsdevices) {
             if ((emsdevice) && (emsdevice->device_type() == device_class.first)) {
-                JsonObject obj = devices2.createNestedObject();
+                JsonObject obj = devices.createNestedObject();
                 obj["type"]    = emsdevice->device_type_name();
                 obj["name"]    = emsdevice->to_string();
                 char result[200];
@@ -1021,7 +1021,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject & json
         }
     }
     if (EMSESP::sensor_devices().size()) {
-        JsonObject obj = devices2.createNestedObject();
+        JsonObject obj = devices.createNestedObject();
         obj["type"]    = F_(Sensor);
         obj["name"]    = F_(Sensor);
     }

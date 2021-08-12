@@ -84,18 +84,16 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_telegram_type(0x48D, F("HpPower"), false, MAKE_PF_CB(process_HpPower));
         register_telegram_type(0x48F, F("HpOutdoor"), false, MAKE_PF_CB(process_HpOutdoor));
     }
+
     // MQTT commands for boiler topic
-    register_device_value(
-        TAG_BOILER_DATA, &wWTapActivated_, DeviceValueType::BOOL, nullptr, FL_(wwtapactivated), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_tapwarmwater_activated));
+
+    register_device_value(TAG_BOILER_DATA, &id_, DeviceValueType::UINT, nullptr, FL_(ID), DeviceValueUOM::NONE);
+    id_ = product_id; // note, must set the value after it has been initialized to have affect
+
+    // first commands
+    // reset is a command, so uses a dummy variable which is unused. It will not be shown in MQTT, Web or Console
     register_device_value(
         TAG_BOILER_DATA, &dummy_, DeviceValueType::CMD, FL_(enum_reset), FL_(reset), DeviceValueUOM::LIST, MAKE_CF_CB(set_reset), 0, 1);
-
-    // add values
-    // reserve_device_values(90);
-
-    // main - boiler_data topic
-    register_device_value(TAG_BOILER_DATA, &id_, DeviceValueType::UINT, nullptr, FL_(ID), DeviceValueUOM::NONE);
-    id_ = product_id;
 
     register_device_value(TAG_BOILER_DATA, &heatingActive_, DeviceValueType::BOOL, nullptr, FL_(heatingActive), DeviceValueUOM::BOOLEAN);
     register_device_value(TAG_BOILER_DATA, &tapwaterActive_, DeviceValueType::BOOL, nullptr, FL_(tapwaterActive), DeviceValueUOM::BOOLEAN);
@@ -193,55 +191,57 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     }
 
     // warm water - boiler_data_ww topic
-    register_device_value(TAG_DEVICE_DATA_WW, &wWSelTemp_, DeviceValueType::UINT, nullptr, FL_(wWSelTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWSetTemp_, DeviceValueType::UINT, nullptr, FL_(wWSetTemp), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWType_, DeviceValueType::ENUM, FL_(enum_flow), FL_(wWType), DeviceValueUOM::NONE);
     register_device_value(
-        TAG_DEVICE_DATA_WW, &wWComfort_, DeviceValueType::ENUM, FL_(enum_comfort), FL_(wWComfort), DeviceValueUOM::LIST, MAKE_CF_CB(set_warmwater_mode));
+        TAG_DEVICE_DATA_WW, &wwTapActivated_, DeviceValueType::BOOL, nullptr, FL_(wwtapactivated), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_tapwarmwater_activated));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwSelTemp_, DeviceValueType::UINT, nullptr, FL_(wwSelTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwSetTemp_, DeviceValueType::UINT, nullptr, FL_(wwSetTemp), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwType_, DeviceValueType::ENUM, FL_(enum_flow), FL_(wwType), DeviceValueUOM::NONE);
     register_device_value(
-        TAG_DEVICE_DATA_WW, &wWFlowTempOffset_, DeviceValueType::UINT, nullptr, FL_(wWFlowTempOffset), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_wWFlowTempOffset));
+        TAG_DEVICE_DATA_WW, &wwComfort_, DeviceValueType::ENUM, FL_(enum_comfort), FL_(wwComfort), DeviceValueUOM::LIST, MAKE_CF_CB(set_warmwater_mode));
     register_device_value(
-        TAG_DEVICE_DATA_WW, &wWMaxPower_, DeviceValueType::UINT, nullptr, FL_(wWMaxPower), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_warmwater_maxpower));
+        TAG_DEVICE_DATA_WW, &wwFlowTempOffset_, DeviceValueType::UINT, nullptr, FL_(wwFlowTempOffset), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwFlowTempOffset));
     register_device_value(
-        TAG_DEVICE_DATA_WW, &wWCircPump_, DeviceValueType::BOOL, nullptr, FL_(wWCircPump), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_circulation_pump));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWChargeType_, DeviceValueType::ENUM, FL_(enum_charge), FL_(wWChargeType), DeviceValueUOM::LIST);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWHystOn_, DeviceValueType::INT, nullptr, FL_(wWHystOn), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_ww_hyst_on));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWHystOff_, DeviceValueType::INT, nullptr, FL_(wWHystOff), DeviceValueUOM::DEGREES_R, MAKE_CF_CB(set_ww_hyst_off));
+        TAG_DEVICE_DATA_WW, &wwMaxPower_, DeviceValueType::UINT, nullptr, FL_(wwMaxPower), DeviceValueUOM::PERCENT, MAKE_CF_CB(set_warmwater_maxpower));
+    register_device_value(
+        TAG_DEVICE_DATA_WW, &wwCircPump_, DeviceValueType::BOOL, nullptr, FL_(wwCircPump), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_circulation_pump));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwChargeType_, DeviceValueType::ENUM, FL_(enum_charge), FL_(wwChargeType), DeviceValueUOM::LIST);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwHystOn_, DeviceValueType::INT, nullptr, FL_(wwHystOn), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_ww_hyst_on));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwHystOff_, DeviceValueType::INT, nullptr, FL_(wwHystOff), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_ww_hyst_off));
     register_device_value(TAG_DEVICE_DATA_WW,
-                          &wWDisinfectionTemp_,
+                          &wwDisinfectionTemp_,
                           DeviceValueType::UINT,
                           nullptr,
-                          FL_(wWDisinfectionTemp),
+                          FL_(wwDisinfectionTemp),
                           DeviceValueUOM::DEGREES,
                           MAKE_CF_CB(set_disinfect_temp));
     register_device_value(TAG_DEVICE_DATA_WW,
-                          &wWCircMode_,
+                          &wwCircMode_,
                           DeviceValueType::ENUM,
                           FL_(enum_freq),
-                          FL_(wWCircMode),
+                          FL_(wwCircMode),
                           DeviceValueUOM::LIST,
                           MAKE_CF_CB(set_warmwater_circulation_mode));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWCirc_, DeviceValueType::BOOL, nullptr, FL_(wWCirc), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_circulation));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWCurTemp_, DeviceValueType::USHORT, FL_(div10), FL_(wWCurTemp), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWCurTemp2_, DeviceValueType::USHORT, FL_(div10), FL_(wWCurTemp2), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWCurFlow_, DeviceValueType::UINT, FL_(div10), FL_(wWCurFlow), DeviceValueUOM::LMIN);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWStorageTemp1_, DeviceValueType::USHORT, FL_(div10), FL_(wWStorageTemp1), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWStorageTemp2_, DeviceValueType::USHORT, FL_(div10), FL_(wWStorageTemp2), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwCirc_, DeviceValueType::BOOL, nullptr, FL_(wwCirc), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_circulation));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwCurTemp_, DeviceValueType::USHORT, FL_(div10), FL_(wwCurTemp), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwCurTemp2_, DeviceValueType::USHORT, FL_(div10), FL_(wwCurTemp2), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwCurFlow_, DeviceValueType::UINT, FL_(div10), FL_(wwCurFlow), DeviceValueUOM::LMIN);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwStorageTemp1_, DeviceValueType::USHORT, FL_(div10), FL_(wwStorageTemp1), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwStorageTemp2_, DeviceValueType::USHORT, FL_(div10), FL_(wwStorageTemp2), DeviceValueUOM::DEGREES);
     register_device_value(
-        TAG_DEVICE_DATA_WW, &wWActivated_, DeviceValueType::BOOL, nullptr, FL_(wWActivated), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_activated));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWOneTime_, DeviceValueType::BOOL, nullptr, FL_(wWOneTime), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_onetime));
-    register_device_value(TAG_DEVICE_DATA_WW, &wWDisinfecting_, DeviceValueType::BOOL, nullptr, FL_(wWDisinfecting), DeviceValueUOM::BOOLEAN);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWCharging_, DeviceValueType::BOOL, nullptr, FL_(wWCharging), DeviceValueUOM::BOOLEAN);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWRecharging_, DeviceValueType::BOOL, nullptr, FL_(wWRecharging), DeviceValueUOM::BOOLEAN);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWTempOK_, DeviceValueType::BOOL, nullptr, FL_(wWTempOK), DeviceValueUOM::BOOLEAN);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWActive_, DeviceValueType::BOOL, nullptr, FL_(wWActive), DeviceValueUOM::BOOLEAN);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWHeat_, DeviceValueType::BOOL, nullptr, FL_(wWHeat), DeviceValueUOM::BOOLEAN);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWSetPumpPower_, DeviceValueType::UINT, nullptr, FL_(wWSetPumpPower), DeviceValueUOM::PERCENT);
-    register_device_value(TAG_DEVICE_DATA_WW, &mixerTemp_, DeviceValueType::USHORT, FL_(div10), FL_(mixerTemp), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_DEVICE_DATA_WW, &tankMiddleTemp_, DeviceValueType::USHORT, FL_(div10), FL_(tankMiddleTemp), DeviceValueUOM::DEGREES);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWStarts_, DeviceValueType::ULONG, nullptr, FL_(wWStarts), DeviceValueUOM::NUM);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWStarts2_, DeviceValueType::ULONG, nullptr, FL_(wWStarts2), DeviceValueUOM::NUM);
-    register_device_value(TAG_DEVICE_DATA_WW, &wWWorkM_, DeviceValueType::TIME, nullptr, FL_(wWWorkM), DeviceValueUOM::MINUTES);
+        TAG_DEVICE_DATA_WW, &wwActivated_, DeviceValueType::BOOL, nullptr, FL_(wwActivated), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_activated));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwOneTime_, DeviceValueType::BOOL, nullptr, FL_(wwOneTime), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_warmwater_onetime));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwDisinfecting_, DeviceValueType::BOOL, nullptr, FL_(wwDisinfecting), DeviceValueUOM::BOOLEAN);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwCharging_, DeviceValueType::BOOL, nullptr, FL_(wwCharging), DeviceValueUOM::BOOLEAN);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwRecharging_, DeviceValueType::BOOL, nullptr, FL_(wwRecharging), DeviceValueUOM::BOOLEAN);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwTempOK_, DeviceValueType::BOOL, nullptr, FL_(wwTempOK), DeviceValueUOM::BOOLEAN);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwActive_, DeviceValueType::BOOL, nullptr, FL_(wwActive), DeviceValueUOM::BOOLEAN);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwHeat_, DeviceValueType::BOOL, nullptr, FL_(wwHeat), DeviceValueUOM::BOOLEAN);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwSetPumpPower_, DeviceValueType::UINT, nullptr, FL_(wwSetPumpPower), DeviceValueUOM::PERCENT);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwMixerTemp_, DeviceValueType::USHORT, FL_(div10), FL_(wwMixerTemp), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwTankMiddleTemp_, DeviceValueType::USHORT, FL_(div10), FL_(wwTankMiddleTemp), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwStarts_, DeviceValueType::ULONG, nullptr, FL_(wwStarts), DeviceValueUOM::NUM);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwStarts2_, DeviceValueType::ULONG, nullptr, FL_(wwStarts2), DeviceValueUOM::NUM);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwWorkM_, DeviceValueType::TIME, nullptr, FL_(wwWorkM), DeviceValueUOM::MINUTES);
 
     // fetch some initial data
     EMSESP::send_read_request(0x10,
@@ -265,7 +265,7 @@ bool Boiler::publish_ha_config() {
     doc["stat_t"] = stat_t;
 
     char name_s[40];
-    snprintf_P(name_s, sizeof(name_s), PSTR("* %s Product ID"), device_type_name().c_str());
+    snprintf(name_s, sizeof(name_s), FSTR_(productid_fmt), device_type_name().c_str());
     doc["name"] = name_s;
 
     doc["val_tpl"] = FJSON("{{value_json.id}}");
@@ -305,18 +305,18 @@ void Boiler::check_active(const bool force) {
     }
 
     // check if we can use tapactivated in flow systems
-    if ((wWType_ == 1) && !Helpers::hasValue(wWTapActivated_, EMS_VALUE_BOOL)) {
-        wWTapActivated_ = 1;
+    if ((wwType_ == 1) && !Helpers::hasValue(wwTapActivated_, EMS_VALUE_BOOL)) {
+        wwTapActivated_ = 1;
     }
 
     // check if tap water is active, bits 1 and 4 must be set
     // also check if there is a flowsensor and flow-type
     static bool flowsensor = false;
-    if (Helpers::hasValue(wWCurFlow_) && (wWCurFlow_ > 0) && (wWType_ == 1)) {
+    if (Helpers::hasValue(wwCurFlow_) && (wwCurFlow_ > 0) && (wwType_ == 1)) {
         flowsensor = true;
     }
     if (flowsensor) {
-        b = ((wWCurFlow_ > 0) && ((boilerState_ & 0x0A) == 0x0A));
+        b = ((wwCurFlow_ > 0) && ((boilerState_ & 0x0A) == 0x0A));
     } else {
         b = ((boilerState_ & 0x0A) == 0x0A);
     }
@@ -342,13 +342,13 @@ void Boiler::process_UBAMonitorFast(std::shared_ptr<const Telegram> telegram) {
     has_bitupdate(telegram, fanWork_, 7, 2);
     has_bitupdate(telegram, ignWork_, 7, 3);
     has_bitupdate(telegram, heatingPump_, 7, 5);
-    has_bitupdate(telegram, wWHeat_, 7, 6);
-    has_bitupdate(telegram, wWCirc_, 7, 7);
+    has_bitupdate(telegram, wwHeat_, 7, 6);
+    has_bitupdate(telegram, wwCirc_, 7, 7);
 
     // warm water storage sensors (if present)
-    // wWStorageTemp2 is also used by some brands as the boiler temperature - see https://github.com/emsesp/EMS-ESP/issues/206
-    has_update(telegram, wWStorageTemp1_, 9);  // 0x8300 if not available
-    has_update(telegram, wWStorageTemp2_, 11); // 0x8000 if not available - this is boiler temp
+    // wwStorageTemp2 is also used by some brands as the boiler temperature - see https://github.com/emsesp/EMS-ESP/issues/206
+    has_update(telegram, wwStorageTemp1_, 9);  // 0x8300 if not available
+    has_update(telegram, wwStorageTemp2_, 11); // 0x8000 if not available - this is boiler temp
 
     has_update(telegram, retTemp_, 13);
     has_update(telegram, flameCurr_, 15);
@@ -402,35 +402,35 @@ void Boiler::process_UBAParameters(std::shared_ptr<const Telegram> telegram) {
  * Boiler(0x08) -> Me(0x0B), ?(0x26), data: 01 05 00 0F 00 1E 58 5A
  */
 void Boiler::process_UBASettingsWW(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram, wWMaxPower_, 7);
+    has_update(telegram, wwMaxPower_, 7);
 }
 
 // 0x33
 //  Boiler(0x08) -> Me(0x0B), UBAParameterWW(0x33), data: 08 FF 30 FB FF 28 FF 07 46 00 00
 void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
     // has_bitupdate(telegram, wwEquipt_,0,3);  //  8=boiler has ww
-    has_update(telegram, wWActivated_, 1); // 0xFF means on
-    has_update(telegram, wWSelTemp_, 2);
-    has_update(telegram, wWHystOn_, 3);         // Hyst on (default -5)
-    has_update(telegram, wWHystOff_, 4);        // Hyst off (default -1)
-    has_update(telegram, wWFlowTempOffset_, 5); // default 40
-    has_update(telegram, wWCircPump_, 6);       // 0xFF means on
-    has_update(telegram, wWCircMode_, 7);       // 1=1x3min 6=6x3min 7=continuous
-    has_update(telegram, wWDisinfectionTemp_, 8);
-    has_bitupdate(telegram, wWChargeType_, 10, 0); // 0 = charge pump, 0xff = 3-way valve
+    has_update(telegram, wwActivated_, 1); // 0xFF means on
+    has_update(telegram, wwSelTemp_, 2);
+    has_update(telegram, wwHystOn_, 3);         // Hyst on (default -5)
+    has_update(telegram, wwHystOff_, 4);        // Hyst off (default -1)
+    has_update(telegram, wwFlowTempOffset_, 5); // default 40
+    has_update(telegram, wwCircPump_, 6);       // 0xFF means on
+    has_update(telegram, wwCircMode_, 7);       // 1=1x3min 6=6x3min 7=continuous
+    has_update(telegram, wwDisinfectionTemp_, 8);
+    has_bitupdate(telegram, wwChargeType_, 10, 0); // 0 = charge pump, 0xff = 3-way valve
 
-    uint8_t wWComfort;
-    telegram->read_value(wWComfort, 9);
-    if (wWComfort == 0) {
-        wWComfort = 0; // Hot
-    } else if (wWComfort == 0xD8) {
-        wWComfort = 1; // Eco
-    } else if (wWComfort == 0xEC) {
-        wWComfort = 2; // Intelligent
+    uint8_t wwComfort;
+    telegram->read_value(wwComfort, 9);
+    if (wwComfort == 0) {
+        wwComfort = 0; // Hot
+    } else if (wwComfort == 0xD8) {
+        wwComfort = 1; // Eco
+    } else if (wwComfort == 0xEC) {
+        wwComfort = 2; // Intelligent
     } else {
-        wWComfort = EMS_VALUE_UINT_NOTSET;
+        wwComfort = EMS_VALUE_UINT_NOTSET;
     }
-    has_update(wWComfort_, wWComfort);
+    has_update(wwComfort_, wwComfort);
 }
 
 /*
@@ -439,21 +439,21 @@ void Boiler::process_UBAParameterWW(std::shared_ptr<const Telegram> telegram) {
  * Boiler(0x08) -> Me(0x0B), UBAMonitorWW(0x34), data: 30 01 BA 7D 00 21 00 00 03 00 01 22 2B 00 19 5B
 */
 void Boiler::process_UBAMonitorWW(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram, wWSetTemp_, 0);
-    has_update(telegram, wWCurTemp_, 1);
-    has_update(telegram, wWCurTemp2_, 3);
+    has_update(telegram, wwSetTemp_, 0);
+    has_update(telegram, wwCurTemp_, 1);
+    has_update(telegram, wwCurTemp2_, 3);
 
-    has_update(telegram, wWType_, 8);
-    has_update(telegram, wWCurFlow_, 9);
-    has_update(telegram, wWWorkM_, 10, 3);  // force to 3 bytes
-    has_update(telegram, wWStarts_, 13, 3); // force to 3 bytes
+    has_update(telegram, wwType_, 8);
+    has_update(telegram, wwCurFlow_, 9);
+    has_update(telegram, wwWorkM_, 10, 3);  // force to 3 bytes
+    has_update(telegram, wwStarts_, 13, 3); // force to 3 bytes
 
-    has_bitupdate(telegram, wWOneTime_, 5, 1);
-    has_bitupdate(telegram, wWDisinfecting_, 5, 2);
-    has_bitupdate(telegram, wWCharging_, 5, 3);
-    has_bitupdate(telegram, wWRecharging_, 5, 4);
-    has_bitupdate(telegram, wWTempOK_, 5, 5);
-    has_bitupdate(telegram, wWActive_, 5, 6);
+    has_bitupdate(telegram, wwOneTime_, 5, 1);
+    has_bitupdate(telegram, wwDisinfecting_, 5, 2);
+    has_bitupdate(telegram, wwCharging_, 5, 3);
+    has_bitupdate(telegram, wwRecharging_, 5, 4);
+    has_bitupdate(telegram, wwTempOK_, 5, 5);
+    has_bitupdate(telegram, wwActive_, 5, 6);
 }
 
 /*
@@ -468,7 +468,7 @@ void Boiler::process_UBAMonitorFastPlus(std::shared_ptr<const Telegram> telegram
     has_update(telegram, selFlowTemp_, 6);
     has_bitupdate(telegram, burnGas_, 11, 0);
     //has_bitupdate(telegram, heatingPump_, 11, 1); // heating active? see SlowPlus
-    has_bitupdate(telegram, wWHeat_, 11, 2);
+    has_bitupdate(telegram, wwHeat_, 11, 2);
     has_update(telegram, curBurnPow_, 10);
     has_update(telegram, selBurnPow_, 9);
     has_update(telegram, curFlowTemp_, 7);
@@ -539,7 +539,7 @@ void Boiler::process_UBAMonitorSlowPlus(std::shared_ptr<const Telegram> telegram
     has_bitupdate(telegram, fanWork_, 2, 2);
     has_bitupdate(telegram, ignWork_, 2, 3);
     has_bitupdate(telegram, heatingPump_, 2, 5);
-    has_bitupdate(telegram, wWCirc_, 2, 7);
+    has_bitupdate(telegram, wwCirc_, 2, 7);
     has_update(telegram, exhaustTemp_, 6);
     has_update(telegram, burnStarts_, 10, 3);  // force to 3 bytes
     has_update(telegram, burnWorkMin_, 13, 3); // force to 3 bytes
@@ -573,35 +573,36 @@ void Boiler::process_UBAParametersPlus(std::shared_ptr<const Telegram> telegram)
 // 0xEA
 // Boiler(0x08) -> (0x0B), (0xEA), data: 00 00 00 00 00 00 3C FB 00 28 00 02 46 00 00 00 3C 3C 28
 void Boiler::process_UBAParameterWWPlus(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram, wWActivated_, 5); // 0x01 means on
-    has_update(telegram, wWCircPump_, 10); // 0x01 means yes
-    has_update(telegram, wWCircMode_, 11); // 1=1x3min... 6=6x3min, 7=continuous
-    has_update(telegram, wWDisinfectionTemp_, 12); // setting here, status in E9
-    has_update(telegram, wWSelTemp_, 6); // setting here, status in E9
-    has_update(telegram, wWHystOn_, 7);
-    has_update(telegram, wWHystOff_, 8);
+    has_update(telegram, wwActivated_, 5); // 0x01 means on
+    has_update(telegram, wwCircPump_, 10); // 0x01 means yes
+    has_update(telegram, wwCircMode_, 11); // 1=1x3min... 6=6x3min, 7=continuous
+    has_update(telegram, wwDisinfectionTemp_, 12); // setting here, status in E9
+    has_update(telegram, wwSelTemp_, 6); // setting here, status in E9
+    has_update(telegram, wwHystOn_, 7);
+    has_update(telegram, wwHystOff_, 8);
+    // has_update(telegram, wwSelTempLow_, 18);
 }
 
 // 0xE9 - WW monitor ems+
 // e.g. 08 00 E9 00 37 01 F6 01 ED 00 00 00 00 41 3C 00 00 00 00 00 00 00 00 00 00 00 00 37 00 00 00 (CRC=77) #data=27
 void Boiler::process_UBAMonitorWWPlus(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram, wWSetTemp_, 0);
-    has_update(telegram, wWCurTemp_, 1);
-    has_update(telegram, wWCurTemp2_, 3);
+    has_update(telegram, wwSetTemp_, 0);
+    has_update(telegram, wwCurTemp_, 1);
+    has_update(telegram, wwCurTemp2_, 3);
 
-    has_update(telegram, wWWorkM_, 14, 3);  // force to 3 bytes
-    has_update(telegram, wWStarts_, 17, 3); // force to 3 bytes
+    has_update(telegram, wwWorkM_, 14, 3);  // force to 3 bytes
+    has_update(telegram, wwStarts_, 17, 3); // force to 3 bytes
 
-    has_bitupdate(telegram, wWOneTime_, 12, 2);
-    has_bitupdate(telegram, wWDisinfecting_, 12, 3);
-    has_bitupdate(telegram, wWCharging_, 12, 4);
-    has_bitupdate(telegram, wWRecharging_, 13, 4);
-    has_bitupdate(telegram, wWTempOK_, 13, 5);
-    has_bitupdate(telegram, wWCirc_, 13, 2);
+    has_bitupdate(telegram, wwOneTime_, 12, 2);
+    has_bitupdate(telegram, wwDisinfecting_, 12, 3);
+    has_bitupdate(telegram, wwCharging_, 12, 4);
+    has_bitupdate(telegram, wwRecharging_, 13, 4);
+    has_bitupdate(telegram, wwTempOK_, 13, 5);
+    has_bitupdate(telegram, wwCirc_, 13, 2);
 
-    // has_update(telegram, wWActivated_, 20); // Activated is in 0xEA, this is something other 0/100%
-    // has_update(telegram, wWSelTemp_, 10); 
-    // has_update(telegram, wWDisinfectionTemp_, 9);
+    // has_update(telegram, wwActivated_, 20); // Activated is in 0xEA, this is something other 0/100%
+    // has_update(telegram, wwSelTemp_, 10);
+    // has_update(telegram, wwDisinfectionTemp_, 9);
 }
 
 /*
@@ -621,7 +622,7 @@ void Boiler::process_UBAInformation(std::shared_ptr<const Telegram> telegram) {
 
     has_update(telegram, heatingStarts_, 28);
     has_update(telegram, coolingStarts_, 36);
-    has_update(telegram, wWStarts2_, 24);
+    has_update(telegram, wwStarts2_, 24);
 
     has_update(telegram, nrgConsTotal_, 64);
 
@@ -673,8 +674,8 @@ void Boiler::process_HpOutdoor(std::shared_ptr<const Telegram> telegram) {
 // e.g. 88 00 2A 00 00 00 00 00 00 00 00 00 D2 00 00 80 00 00 01 08 80 00 02 47 00
 // see https://github.com/emsesp/EMS-ESP/issues/397
 void Boiler::process_MC110Status(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram, mixerTemp_, 14);
-    has_update(telegram, tankMiddleTemp_, 18);
+    has_update(telegram, wwMixerTemp_, 14);
+    has_update(telegram, wwTankMiddleTemp_, 18);
 }
 
 /*
@@ -688,7 +689,7 @@ void Boiler::process_UBAOutdoorTemp(std::shared_ptr<const Telegram> telegram) {
 void Boiler::process_UBASetPoints(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, setFlowTemp_, 0);    // boiler set temp from thermostat
     has_update(telegram, setBurnPow_, 1);     // max burner power in %
-    has_update(telegram, wWSetPumpPower_, 2); // ww pump speed/power?
+    has_update(telegram, wwSetPumpPower_, 2); // ww pump speed/power?
 }
 
 // 0x6DC, ff for cascaded heatsources (hs)
@@ -782,7 +783,7 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
     }
 }
 
-// Set the warm water temperature 0x33 (seltemp)
+// Set the warm water temperature 0x33/0x35 or 0xEA
 bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
     int v = 0;
     if (!Helpers::value2temperature(value, v)) {
@@ -795,9 +796,8 @@ bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 6, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
         // some boiler have it in 0x33, some in 0x35
-        write_command(EMS_TYPE_UBAFlags, 3, v, 0x34); // for i9000, see #397
-        write_command(EMS_TYPE_UBAParameterWW, 2, v,
-                      EMS_TYPE_UBAParameterWW); // read seltemp back
+        write_command(EMS_TYPE_UBAFlags, 3, v, 0x34);                          // for i9000, see #397
+        write_command(EMS_TYPE_UBAParameterWW, 2, v, EMS_TYPE_UBAParameterWW); // read seltemp back
     }
 
     return true;
@@ -850,7 +850,7 @@ bool Boiler::set_burn_power(const char * value, const int8_t id) {
 }
 
 // Set the warm water flow temperature offset 0x33
-bool Boiler::set_wWFlowTempOffset(const char * value, const int8_t id) {
+bool Boiler::set_wwFlowTempOffset(const char * value, const int8_t id) {
     int v = 0;
     if (!Helpers::value2temperature(value, v, true)) {
         LOG_WARNING(F("Set boiler warm water flow temperature offset: Invalid value"));
@@ -1146,7 +1146,7 @@ bool Boiler::set_warmwater_activated(const char * value, const int8_t id) {
 // Activate / De-activate the Warm Tap Water
 // Note: Using the type 0x1D to put the boiler into Test mode. This may be shown on the boiler with a flashing 'T'
 bool Boiler::set_tapwarmwater_activated(const char * value, const int8_t id) {
-    if (!Helpers::hasValue(wWTapActivated_, EMS_VALUE_BOOL)) {
+    if (!Helpers::hasValue(wwTapActivated_, EMS_VALUE_BOOL)) {
         LOG_WARNING(F("Set warm tap water not possible"));
         return false;
     }
@@ -1172,11 +1172,11 @@ bool Boiler::set_tapwarmwater_activated(const char * value, const int8_t id) {
         message_data[1] = 0x00; // burner output 0%
         message_data[3] = 0x64; // boiler pump capacity 100%
         message_data[4] = 0xFF; // 3-way valve hot water only
-        wWTapActivated_= 0;
+        wwTapActivated_ = 0;
     } else {
         // get out of test mode. Send all zeros.
         // telegram: 0B 08 1D 00 00
-        wWTapActivated_ = 1;
+        wwTapActivated_ = 1;
     }
 
     write_command(EMS_TYPE_UBAFunctionTest, 0, message_data, sizeof(message_data), 0);
