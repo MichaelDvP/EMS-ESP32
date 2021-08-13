@@ -156,11 +156,13 @@ MAKE_PSTR_WORD(2)
 MAKE_PSTR_WORD(10)
 MAKE_PSTR_WORD(100)
 MAKE_PSTR_WORD(60)
+MAKE_PSTR_WORD(15)
 
 MAKE_PSTR_LIST(div2, F_(2))
 MAKE_PSTR_LIST(div10, F_(10))
 MAKE_PSTR_LIST(div100, F_(100))
 MAKE_PSTR_LIST(div60, F_(60))
+MAKE_PSTR_LIST(mul15, F_(15))
 
 // Unit Of Measurement mapping - maps to DeviceValueUOM_s in emsdevice.cpp
 // uom - also used with HA see https://github.com/home-assistant/core/blob/d7ac4bd65379e11461c7ce0893d3533d8d8b8cbf/homeassistant/const.py#L384
@@ -449,6 +451,8 @@ MAKE_PSTR_LIST(hpPh1, F("hpph1"), F("high pressure side temperature (PH1)"))
 
 // the following are warm water for the boiler and automatically tagged with 'ww'
 MAKE_PSTR_LIST(wwSelTemp, F("wwseltemp"), F("selected temperature"))
+MAKE_PSTR_LIST(wwSelTempLow, F("wwseltemplow"), F("selected lower temperature"))
+MAKE_PSTR_LIST(wwSelTempSingle, F("wwseltempsingle"), F("single charge temperature"))
 MAKE_PSTR_LIST(wwSetTemp, F("wwsettemp"), F("set temperature"))
 MAKE_PSTR_LIST(wwType, F("wwtype"), F("type"))
 MAKE_PSTR_LIST(wwComfort, F("wwcomfort"), F("comfort"))
@@ -509,6 +513,7 @@ MAKE_PSTR_LIST(dampedoutdoortemp2, F("dampedoutdoortemp"), F("damped outdoor tem
 MAKE_PSTR_LIST(floordrytemp, F("floordrytemp"), F("floor drying temperature"))
 MAKE_PSTR_LIST(wwMode, F("wwmode"), F("mode"))
 MAKE_PSTR_LIST(wwSetTempLow, F("wwsettemplow"), F("set low temperature"))
+MAKE_PSTR_LIST(wwChargeDuration, F("wwchargeduration"), F("charge duration"))
 MAKE_PSTR_LIST(wwExtra1, F("wwextra1"), F("circuit 1 extra"))
 MAKE_PSTR_LIST(wwExtra2, F("wwextra2"), F("circuit 2 extra"))
 MAKE_PSTR_LIST(selRoomTemp, F("seltemp"), F("selected room temperature"))
@@ -538,6 +543,7 @@ MAKE_PSTR_LIST(control, F("control"), F("control device"))
 MAKE_PSTR_LIST(program, F("program"), F("program"))
 MAKE_PSTR_LIST(pause, F("pause"), F("pause time"))
 MAKE_PSTR_LIST(party, F("party"), F("party time"))
+MAKE_PSTR_LIST(wwprio, F("wwprio"), F("warm water priority"))
 
 MAKE_PSTR_LIST(holidaytemp, F("holidaytemp"), F("holiday temperature"))
 MAKE_PSTR_LIST(summermode, F("summermode"), F("summer mode"))

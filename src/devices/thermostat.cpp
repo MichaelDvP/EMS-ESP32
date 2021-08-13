@@ -908,8 +908,9 @@ void Thermostat::process_RC300WWmode(std::shared_ptr<const Telegram> telegram) {
     // circulation pump see: https://github.com/Th3M3/buderus_ems-wiki/blob/master/Einstellungen%20der%20Bedieneinheit%20RC310.md
     has_update(telegram, wwCircPump_, 1); // FF=off, 0=on ?
 
-    has_update(telegram, wwMode_, 2);     // 0=off, 1=low, 2=high, 3=auto, 4=own prog
-    has_update(telegram, wwCircMode_, 3); // 0=off, 1=on, 2=auto, 4=own?
+    has_update(telegram, wwMode_, 2);            // 0=off, 1=low, 2=high, 3=auto, 4=own prog
+    has_update(telegram, wwCircMode_, 3);        // 0=off, 1=on, 2=auto, 4=own?
+    has_update(telegram, wwChargeDuration_, 10); // value in steps of 15 min
 }
 
 // types 0x31D and 0x31E
@@ -1013,6 +1014,7 @@ void Thermostat::process_RC35Set(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, hc->mode, 7);          // night, day, auto
     hc->hamode = hc->mode;                      // set special HA mode
 
+    has_update(telegram, hc->wwprio, 21);         // 0xFF for on
     has_update(telegram, hc->summertemp, 22);     // is * 1
     has_update(telegram, hc->nofrosttemp, 23);    // is * 1
     has_update(telegram, hc->flowtempoffset, 24); // is * 1, only in mixed circuits
@@ -1319,6 +1321,41 @@ bool Thermostat::set_wwtemplow(const char * value, const int8_t id) {
     write_command(0x031B, 1, t, 0x031B);
     return true;
 }
+
+// Set ww charge duration in steps of 15 min, ems+
+bool Thermostat::set_wwchargeduration(const char * value, const int8_t id) {
+    int t = 0;
+    if (!Helpers::value2number(value, t)) {
+        LOG_WARNING(F("Set warm water charge duration: Invalid value"));
+        return false;
+    }
+    t = t / 15;
+    LOG_INFO(F("Setting warm water charge duration to %d min"), t * 15);
+    write_command(0x2F5, 10, t, 0x02F5);
+    return true;
+}
+
+// set ww prio
+bool Thermostat::set_wwprio(const char * value, const int8_t id) {
+    uint8_t                                     hc_num = (id == -1) ? AUTO_HEATING_CIRCUIT : id;
+    std::shared_ptr<Thermostat::HeatingCircuit> hc     = heating_circuit(hc_num);
+    if (hc == nullptr) {
+        LOG_WARNING(F("Set wwprio: Heating Circuit %d not found or activated for device ID 0x%02X"), hc_num, device_id());
+        return false;
+    }
+    bool b;
+    if (!Helpers::value2bool(value, b)) {
+        LOG_WARNING(F("Set wwprio: Invalid value"));
+        return false;
+    }
+
+    LOG_INFO(F("Setting wwprio: %s"), b ? "on" : "off");
+    write_command(set_typeids[hc->hc_num() - 1], 21, b ? 0xFF : 0x00, set_typeids[hc->hc_num() - 1]);
+
+    return true;
+}
+
+
 
 // Set ww onetime RC300, ems+
 bool Thermostat::set_wwonetime(const char * value, const int8_t id) {
@@ -2206,6 +2243,8 @@ void Thermostat::register_device_values() {
             TAG_DEVICE_DATA_WW, &wwSetTempLow_, DeviceValueType::UINT, nullptr, FL_(wwSetTempLow), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemplow));
         register_device_value(
             TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwcircmode));
+        register_device_value(
+            TAG_DEVICE_DATA_WW, &wwChargeDuration_, DeviceValueType::UINT, FL_(mul15), FL_(wwChargeDuration), DeviceValueUOM::MINUTES, MAKE_CF_CB(set_wwchargeduration));
         register_device_value(TAG_DEVICE_DATA_WW, &wwExtra1_, DeviceValueType::UINT, nullptr, FL_(wwExtra1), DeviceValueUOM::DEGREES);
         register_device_value(TAG_DEVICE_DATA_WW, &wwExtra2_, DeviceValueType::UINT, nullptr, FL_(wwExtra2), DeviceValueUOM::DEGREES);
         break;
@@ -2414,6 +2453,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->noreducetemp, DeviceValueType::INT, nullptr, FL_(noreducetemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_noreducetemp));
         register_device_value(tag, &hc->remotetemp, DeviceValueType::SHORT, FL_(div10), FL_(remotetemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_remotetemp));
         register_device_value(tag, &dummy_, DeviceValueType::CMD, FL_(tpl_switchtime), FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime));
+        register_device_value(tag, &hc->wwprio, DeviceValueType::BOOL, nullptr, FL_(wwprio), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_wwprio));
         break;
     case EMS_DEVICE_FLAG_JUNKERS:
         // register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_hamode2), FL_(hamode), DeviceValueUOM::LIST);
