@@ -369,6 +369,9 @@ uint16_t Helpers::atoint(const char * value) {
 double Helpers::round2(double value, const uint8_t divider, uint8_t fahrenheit) {
     uint8_t div = (divider ? divider : 1); // prevent div-by-zero
     double  val = ((value / div) * 100 + 0.5);
+    if (divider == 15) { // mul15 for minutes
+        val = value * 1500;
+    }
 
     if (value < 0) {
         val = val - 1;
