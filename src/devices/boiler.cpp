@@ -193,8 +193,10 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     // warm water - boiler_data_ww topic
     register_device_value(
         TAG_DEVICE_DATA_WW, &wwTapActivated_, DeviceValueType::BOOL, nullptr, FL_(wwtapactivated), DeviceValueUOM::BOOLEAN, MAKE_CF_CB(set_tapwarmwater_activated));
-    register_device_value(TAG_DEVICE_DATA_WW, &wwSelTemp_, DeviceValueType::UINT, nullptr, FL_(wwSelTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp));
     register_device_value(TAG_DEVICE_DATA_WW, &wwSetTemp_, DeviceValueType::UINT, nullptr, FL_(wwSetTemp), DeviceValueUOM::DEGREES);
+    register_device_value(TAG_DEVICE_DATA_WW, &wwSelTemp_, DeviceValueType::UINT, nullptr, FL_(wwSelTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwSelTempLow_, DeviceValueType::UINT, nullptr, FL_(wwSelTempLow), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp_low));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwSelTempSingle_, DeviceValueType::UINT, nullptr, FL_(wwSelTempSingle), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp_single));
     register_device_value(TAG_DEVICE_DATA_WW, &wwType_, DeviceValueType::ENUM, FL_(enum_flow), FL_(wwType), DeviceValueUOM::NONE);
     register_device_value(
         TAG_DEVICE_DATA_WW, &wwComfort_, DeviceValueType::ENUM, FL_(enum_comfort), FL_(wwComfort), DeviceValueUOM::LIST, MAKE_CF_CB(set_warmwater_mode));
@@ -580,7 +582,8 @@ void Boiler::process_UBAParameterWWPlus(std::shared_ptr<const Telegram> telegram
     has_update(telegram, wwSelTemp_, 6); // setting here, status in E9
     has_update(telegram, wwHystOn_, 7);
     has_update(telegram, wwHystOff_, 8);
-    // has_update(telegram, wwSelTempLow_, 18);
+    has_update(telegram, wwSelTempSingle_, 16);
+    has_update(telegram, wwSelTempLow_, 18);
 }
 
 // 0xE9 - WW monitor ems+
@@ -800,6 +803,31 @@ bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
         write_command(EMS_TYPE_UBAParameterWW, 2, v, EMS_TYPE_UBAParameterWW); // read seltemp back
     }
 
+    return true;
+}
+
+// Set the lower warm water temperature 0xEA
+bool Boiler::set_warmwater_temp_low(const char * value, const int8_t id) {
+    int v = 0;
+    if (!Helpers::value2temperature(value, v)) {
+        LOG_WARNING(F("Set boiler lower warm water temperature: Invalid value"));
+        return false;
+    }
+
+    LOG_INFO(F("Setting boiler lower warm water temperature to %d C"), v);
+    write_command(EMS_TYPE_UBAParameterWWPlus, 18, v, EMS_TYPE_UBAParameterWWPlus);
+    return true;
+}
+// Set the warm water single charge temperature 0xEA
+bool Boiler::set_warmwater_temp_single(const char * value, const int8_t id) {
+    int v = 0;
+    if (!Helpers::value2temperature(value, v)) {
+        LOG_WARNING(F("Set single charge warm water temperature: Invalid value"));
+        return false;
+    }
+
+    LOG_INFO(F("Setting single charge warm water temperature to %d C"), v);
+    write_command(EMS_TYPE_UBAParameterWWPlus, 16, v, EMS_TYPE_UBAParameterWWPlus);
     return true;
 }
 
