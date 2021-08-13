@@ -46,7 +46,12 @@ void WebLogService::forbidden(AsyncWebServerRequest * request) {
 
 // start event source service
 void WebLogService::start() {
-    uuid::log::Logger::register_handler(this, uuid::log::Level::INFO); // default is INFO
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        maximum_log_messages_ = settings.weblog_buffer;
+        compact_              = settings.weblog_compact;
+        uuid::log::Logger::register_handler(this, (uuid::log::Level)settings.weblog_level);
+    });
+    // uuid::log::Logger::register_handler(this, uuid::log::Level::INFO); // default is INFO
 }
 
 uuid::log::Level WebLogService::log_level() const {
@@ -54,6 +59,10 @@ uuid::log::Level WebLogService::log_level() const {
 }
 
 void WebLogService::log_level(uuid::log::Level level) {
+    EMSESP::webSettingsService.update([&](WebSettings & settings) {
+        settings.weblog_level = level;
+        return StateUpdateResult::CHANGED;
+     }, "local");
     uuid::log::Logger::register_handler(this, level);
 }
 
@@ -66,6 +75,10 @@ void WebLogService::maximum_log_messages(size_t count) {
     while (log_messages_.size() > maximum_log_messages_) {
         log_messages_.pop_front();
     }
+    EMSESP::webSettingsService.update([&](WebSettings & settings) {
+        settings.weblog_buffer = count;
+        return StateUpdateResult::CHANGED;
+     }, "local");
 }
 
 bool WebLogService::compact() {
@@ -74,6 +87,10 @@ bool WebLogService::compact() {
 
 void WebLogService::compact(bool compact) {
     compact_ = compact;
+    EMSESP::webSettingsService.update([&](WebSettings & settings) {
+        settings.weblog_compact = compact;
+        return StateUpdateResult::CHANGED;
+     }, "local");
 }
 
 WebLogService::QueuedLogMessage::QueuedLogMessage(unsigned long id, std::shared_ptr<uuid::log::Message> && content)
@@ -91,8 +108,11 @@ void WebLogService::operator<<(std::shared_ptr<uuid::log::Message> message) {
     EMSESP::esp8266React.getNTPSettingsService()->read([&](NTPSettings & settings) {
         if (!settings.enabled || (time(nullptr) < 1500000000L)) {
             time_offset_ = 0;
-        } else if (!time_offset_) {
-            time_offset_ = time(nullptr) - uuid::get_uptime_sec();
+        } else {
+            uint32_t offset = time(nullptr) - uuid::get_uptime_sec();
+            if (time_offset_ < offset - 1 || time_offset_ > offset + 1) {
+                time_offset_ = offset;
+            }
         }
     });
 }
