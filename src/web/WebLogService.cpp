@@ -124,7 +124,7 @@ void WebLogService::loop() {
 
     // put a small delay in
     const uint64_t now = uuid::get_uptime_ms();
-    if (now < last_transmit_ || now - last_transmit_ < REFRESH_SYNC) {
+    if (now - last_transmit_ < REFRESH_SYNC) {
         return;
     }
 
@@ -158,9 +158,9 @@ char * WebLogService::messagetime(char * out, const uint64_t t) {
 
 // send to web eventsource
 void WebLogService::transmit(const QueuedLogMessage & message) {
-    if (message.content_->level > log_level()) {
-        return;
-    }
+    // if (message.content_->level > log_level()) {
+    //     return;
+    // }
     DynamicJsonDocument jsonDocument = DynamicJsonDocument(EMSESP_JSON_SIZE_SMALL);
     JsonObject          logEvent     = jsonDocument.to<JsonObject>();
     char                time_string[25];
@@ -180,7 +180,7 @@ void WebLogService::transmit(const QueuedLogMessage & message) {
     delete[] buffer;
 }
 
-// send the complete log buffer to the API, filtering on log level
+// send the complete log buffer to the API, not filtering on log level
 void WebLogService::fetchLog(AsyncWebServerRequest * request) {
     MsgpackAsyncJsonResponse * response = new MsgpackAsyncJsonResponse(false, EMSESP_JSON_SIZE_XXLARGE_DYN); // 8kb buffer
     JsonObject                 root     = response->getRoot();
@@ -188,7 +188,7 @@ void WebLogService::fetchLog(AsyncWebServerRequest * request) {
     JsonArray log = root.createNestedArray("events");
 
     for (const auto & message : log_messages_) {
-        if (message.content_->level <= log_level()) {
+        // if (message.content_->level <= log_level()) {
             JsonObject logEvent = log.createNestedObject();
             char       time_string[25];
 
@@ -197,7 +197,7 @@ void WebLogService::fetchLog(AsyncWebServerRequest * request) {
             logEvent["i"] = message.id_;
             logEvent["n"] = message.content_->name;
             logEvent["m"] = message.content_->text;
-        }
+        // }
     }
 
     log_message_id_tail_ = log_messages_.back().id_;
