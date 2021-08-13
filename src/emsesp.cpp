@@ -1046,7 +1046,7 @@ bool EMSESP::command_info(uint8_t device_type, JsonObject & json, const int8_t i
         if (emsdevice && (emsdevice->device_type() == device_type)
             && ((device_type != DeviceType::THERMOSTAT) || (emsdevice->device_id() == EMSESP::actual_master_thermostat()))) {
             // has_value |= emsdevice->generate_values_json(json, tag, (id < 1), true, (id == -1)); // nested for id -1,0, show commands, fullnames for id -1
-            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), true, false); // nested for id -1,0, show commands, only shortnames
+            has_value |= emsdevice->generate_values_json(json, tag, (id < 1), (id == 0), (id == -1)); // nested for id -1,0, show commands for id 0, only shortnames
         }
     }
 

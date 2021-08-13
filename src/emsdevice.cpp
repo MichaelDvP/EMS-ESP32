@@ -558,7 +558,7 @@ void EMSdevice::publish_value(void * value_p) {
                            device_type_2_device_name(device_type_).c_str(),
                            uuid::read_flash_string(dv.short_name).c_str());
             }
-            uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
+            int8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
             char payload[30] = {'\0'};
             uint8_t fahrenheit = 0;
             EMSESP::webSettingsService.read([&](WebSettings & settings) {
@@ -684,7 +684,7 @@ void EMSdevice::generate_values_json_web(JsonObject & json) {
                 // If a divider is specified, do the division to 2 decimals places and send back as double/float
                 // otherwise force as an integer whole
                 // the nested if's is necessary due to the way the ArduinoJson templates are pre-processed by the compiler
-                uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
+                int8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
                 EMSESP::webSettingsService.read([&](WebSettings & settings) {
                     fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES) ? 2 : 0;
                     fahrenheit = settings.fahrenheit && (dv.uom == DeviceValueUOM::DEGREES_R) ? 1 : fahrenheit;
@@ -771,7 +771,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
     // search device value with this tag
     for (auto & dv : devicevalues_) {
         if (strcmp(cmd, Helpers::toLower(uuid::read_flash_string(dv.short_name)).c_str()) == 0 && (tag <= 0 || tag == dv.tag)) {
-            uint8_t      divider  = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
+            int8_t       divider  = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
             const char * type     = "type";
             const char * min      = "min";
             const char * max      = "max";
@@ -818,7 +818,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 }
                 json[type] = F_(number);
                 json[min]  = 0;
-                json[max]  = divider ? EMS_VALUE_USHORT_NOTSET / divider : EMS_VALUE_USHORT_NOTSET;
+                json[max]  = Helpers::round2(EMS_VALUE_USHORT_NOTSET, divider);
                 break;
             case DeviceValueType::UINT:
                 if (Helpers::hasValue(*(uint8_t *)(dv.value_p))) {
@@ -829,7 +829,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 if (dv.uom == DeviceValueUOM::PERCENT) {
                     json[max] = 100;
                 } else {
-                    json[max] = divider ? EMS_VALUE_UINT_NOTSET / divider : EMS_VALUE_UINT_NOTSET;
+                    json[max]  = Helpers::round2(EMS_VALUE_UINT_NOTSET, divider);
                 }
                 break;
             case DeviceValueType::SHORT:
@@ -837,8 +837,8 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                     json[value] = Helpers::round2(*(int16_t *)(dv.value_p), divider, fahrenheit);
                 }
                 json[type] = F_(number);
-                json[min]  = divider ? -EMS_VALUE_SHORT_NOTSET / divider : -EMS_VALUE_SHORT_NOTSET;
-                json[max]  = divider ? EMS_VALUE_SHORT_NOTSET / divider : EMS_VALUE_SHORT_NOTSET;
+                json[min]  = Helpers::round2(-EMS_VALUE_SHORT_NOTSET, divider);
+                json[max]  = Helpers::round2(EMS_VALUE_SHORT_NOTSET, divider);
                 break;
             case DeviceValueType::INT:
                 if (Helpers::hasValue(*(int8_t *)(dv.value_p))) {
@@ -849,8 +849,8 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                     json[min] = -100;
                     json[max] = 100;
                 } else {
-                    json[min] = divider ? -EMS_VALUE_INT_NOTSET / divider : -EMS_VALUE_INT_NOTSET;
-                    json[max] = divider ? EMS_VALUE_INT_NOTSET / divider : EMS_VALUE_INT_NOTSET;
+                    json[min]  = Helpers::round2(-EMS_VALUE_INT_NOTSET, divider);
+                    json[max]  = Helpers::round2(EMS_VALUE_INT_NOTSET, divider);
                 }
                 break;
             case DeviceValueType::ULONG:
@@ -859,7 +859,7 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 }
                 json[type] = F_(number);
                 json[min]  = 0;
-                json[max]  = divider ? EMS_VALUE_ULONG_NOTSET / divider : EMS_VALUE_ULONG_NOTSET;
+                json[max]  = Helpers::round2(EMS_VALUE_ULONG_NOTSET, divider);
                 break;
             case DeviceValueType::BOOL:
                 if (Helpers::hasValue(*(uint8_t *)(dv.value_p), EMS_VALUE_BOOL)) {
@@ -878,11 +878,11 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 break;
             case DeviceValueType::TIME:
                 if (Helpers::hasValue(*(uint32_t *)(dv.value_p))) {
-                    json[value] = (divider) ? *(uint32_t *)(dv.value_p) / divider : *(uint32_t *)(dv.value_p);
+                    json[value] = Helpers::round2(*(uint32_t *)(dv.value_p), divider);
                 }
                 json[type] = F_(number);
                 json[min]  = 0;
-                json[max]  = divider ? EMS_VALUE_ULONG_NOTSET / divider : EMS_VALUE_ULONG_NOTSET;
+                json[max]  = Helpers::round2(EMS_VALUE_ULONG_NOTSET, divider);
                 break;
             case DeviceValueType::TEXT:
                 if (Helpers::hasValue((char *)(dv.value_p))) {
@@ -892,6 +892,14 @@ bool EMSdevice::get_value_info(JsonObject & root, const char * cmd, const int8_t
                 break;
             case DeviceValueType::CMD:
                 json[type] = F_(command);
+                if (dv.options_size > 1) {
+                    json[min]       = 0;
+                    json[max]       = dv.options_size - 1;
+                    JsonArray enum_ = json.createNestedArray(F_(enum));
+                    for (uint8_t i = 0; i < dv.options_size; i++) {
+                        enum_.add(dv.options[i]);
+                    }
+                }
                 break;
             default:
                 json[type] = F_(unknown);
@@ -997,7 +1005,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
                 // If a divider is specified, do the division to 2 decimals places and send back as double/float
                 // otherwise force as an integer whole
                 // the nested if's is necessary due to the way the ArduinoJson templates are pre-processed by the compiler
-                uint8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
+                int8_t divider = (dv.options_size == 1) ? Helpers::atoint(uuid::read_flash_string(dv.options[0]).c_str()) : 0;
 
                 // INT
                 if ((dv.type == DeviceValueType::INT) && Helpers::hasValue(*(int8_t *)(dv.value_p))) {
@@ -1017,7 +1025,7 @@ bool EMSdevice::generate_values_json(JsonObject & root, const uint8_t tag_filter
                     has_value = true;
                 } else if ((dv.type == DeviceValueType::TIME) && Helpers::hasValue(*(uint32_t *)(dv.value_p))) {
                     uint32_t time_value = *(uint32_t *)(dv.value_p);
-                    time_value          = (divider) ? time_value / divider : time_value; // sometimes we need to divide by 60
+                    time_value          = Helpers::round2(time_value , divider); // sometimes we need to divide by 60
                     if (console) {
                         char time_s[40];
                         snprintf_P(time_s, sizeof(time_s), PSTR("%d days %d hours %d minutes"), (time_value / 1440), ((time_value % 1440) / 60), (time_value % 60));

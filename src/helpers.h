@@ -32,14 +32,14 @@ using flash_string_vector = std::vector<const __FlashStringHelper *>;
 
 class Helpers {
   public:
-    static char * render_value(char * result, const float value, const uint8_t format); // format is the precision
-    static char * render_value(char * result, const uint8_t value, const uint8_t format, uint8_t fahrenheit = 0);
-    static char * render_value(char * result, const int8_t value, const uint8_t format, uint8_t fahrenheit = 0);
-    static char * render_value(char * result, const uint16_t value, const uint8_t format, uint8_t fahrenheit = 0);
-    static char * render_value(char * result, const uint32_t value, const uint8_t format, uint8_t fahrenheit = 0);
-    static char * render_value(char * result, const int16_t value, const uint8_t format, uint8_t fahrenheit = 0);
-    static char * render_value(char * result, const int32_t value, const uint8_t format, uint8_t fahrenheit = 0);
-    static char * render_value(char * result, const char * value, uint8_t format);
+    static char * render_value(char * result, const float value, const int8_t format); // format is the precision
+    static char * render_value(char * result, const uint8_t value, const int8_t format, const uint8_t fahrenheit = 0);
+    static char * render_value(char * result, const int8_t value, const int8_t format, const uint8_t fahrenheit = 0);
+    static char * render_value(char * result, const uint16_t value, const int8_t format, const uint8_t fahrenheit = 0);
+    static char * render_value(char * result, const uint32_t value, const int8_t format, const uint8_t fahrenheit = 0);
+    static char * render_value(char * result, const int16_t value, const int8_t format, const uint8_t fahrenheit = 0);
+    static char * render_value(char * result, const int32_t value, const int8_t format, const uint8_t fahrenheit = 0);
+    static char * render_value(char * result, const char * value, const int8_t format);
     static char * render_boolean(char * result, bool value);
 
     static char *      hextoa(char * result, const uint8_t value);
@@ -48,10 +48,10 @@ class Helpers {
     static char *      smallitoa(char * result, const uint16_t value);
     static char *      itoa(char * result, int32_t value, const uint8_t base = 10);
     static uint32_t    hextoint(const char * hex);
-    static uint16_t    atoint(const char * value);
+    static int         atoint(const char * value);
     static bool        check_abs(const int32_t i);
     static uint32_t    abs(const int32_t i);
-    static double      round2(double value, const uint8_t divider, uint8_t fahrenheit = 0);
+    static double      round2(double value, const int8_t divider, const uint8_t fahrenheit = 0);
     static std::string toLower(std::string const & s);
     static std::string toUpper(std::string const & s);
 

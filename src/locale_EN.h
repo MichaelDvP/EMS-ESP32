@@ -156,13 +156,12 @@ MAKE_PSTR_WORD(2)
 MAKE_PSTR_WORD(10)
 MAKE_PSTR_WORD(100)
 MAKE_PSTR_WORD(60)
-MAKE_PSTR_WORD(15)
 
 MAKE_PSTR_LIST(div2, F_(2))
 MAKE_PSTR_LIST(div10, F_(10))
 MAKE_PSTR_LIST(div100, F_(100))
 MAKE_PSTR_LIST(div60, F_(60))
-MAKE_PSTR_LIST(mul15, F_(15))
+MAKE_PSTR_LIST(mul15, F("-15"))
 
 // Unit Of Measurement mapping - maps to DeviceValueUOM_s in emsdevice.cpp
 // uom - also used with HA see https://github.com/home-assistant/core/blob/d7ac4bd65379e11461c7ce0893d3533d8d8b8cbf/homeassistant/const.py#L384

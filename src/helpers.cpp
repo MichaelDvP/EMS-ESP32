@@ -140,14 +140,14 @@ char * Helpers::render_boolean(char * result, bool value) {
 }
 
 // render for native char strings
-char * Helpers::render_value(char * result, const char * value, uint8_t format __attribute__((unused))) {
+char * Helpers::render_value(char * result, const char * value, const int8_t format __attribute__((unused))) {
     strcpy(result, value);
     return result;
 }
 
 // convert unsigned int (single byte) to text value and returns it
 // format: 255(0xFF)=boolean, 0=no formatting, otherwise divide by format
-char * Helpers::render_value(char * result, uint8_t value, uint8_t format, uint8_t fahrenheit) {
+char * Helpers::render_value(char * result, uint8_t value, int8_t format, const uint8_t fahrenheit) {
     // special check if its a boolean
     if (format == EMS_VALUE_BOOL) {
         if (value == EMS_VALUE_BOOL_OFF) {
@@ -179,18 +179,20 @@ char * Helpers::render_value(char * result, uint8_t value, uint8_t format, uint8
         strlcat(result, ".", 5);
         strlcat(result, ((new_value & 0x01) ? "5" : "0"), 5);
         return result;
+    } else if (format > 0) {
+        strlcpy(result, itoa(s2, new_value / format, 10), 5);
+        strlcat(result, ".", 5);
+        strlcat(result, itoa(s2, new_value % format, 10), 5);
+    } else {
+        strlcpy(result, itoa(s2, new_value * format * -1, 10), 5);
     }
-
-    strlcpy(result, itoa(s2, new_value / format, 10), 5);
-    strlcat(result, ".", 5);
-    strlcat(result, itoa(s2, new_value % format, 10), 5);
 
     return result;
 }
 
 // float: convert float to char
 // format is the precision, 0 to 8
-char * Helpers::render_value(char * result, const float value, const uint8_t format) {
+char * Helpers::render_value(char * result, const float value, const int8_t format) {
     if (format > 8) {
         return nullptr;
     }
@@ -215,7 +217,7 @@ char * Helpers::render_value(char * result, const float value, const uint8_t for
 
 // int32: convert signed 32bit to text string and returns string
 // format: 0=no division, other divide by the value given and render with a decimal point
-char * Helpers::render_value(char * result, const int32_t value, const uint8_t format, uint8_t fahrenheit) {
+char * Helpers::render_value(char * result, const int32_t value, const int8_t format, const uint8_t fahrenheit) {
 
     int32_t new_value = fahrenheit ? format ? value * 1.8 + 32 * format * (fahrenheit - 1) : value * 1.8 + 32 * (fahrenheit - 1): value;
     char    s[10]     = {0};
@@ -241,17 +243,19 @@ char * Helpers::render_value(char * result, const int32_t value, const uint8_t f
         strlcat(result, ltoa(new_value / 2, s, 10), sizeof(s));
         strlcat(result, ".", 10);
         strlcat(result, ((new_value & 0x01) ? "5" : "0"), sizeof(s));
-    } else {
+    } else if (format > 0) {
         strlcat(result, ltoa(new_value / format, s, 10), sizeof(s));
         strlcat(result, ".", 10);
         strlcat(result, ltoa(new_value % format, s, 10), sizeof(s));
+    } else {
+        strlcat(result, ltoa(new_value * format * -1, s, 10), sizeof(s));
     }
 
     return result;
 }
 
 // int16: convert short (two bytes) to text string and prints it
-char * Helpers::render_value(char * result, const int16_t value, const uint8_t format, uint8_t fahrenheit) {
+char * Helpers::render_value(char * result, const int16_t value, const int8_t format, const uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -260,7 +264,7 @@ char * Helpers::render_value(char * result, const int16_t value, const uint8_t f
 }
 
 // uint16: convert unsigned short (two bytes) to text string and prints it
-char * Helpers::render_value(char * result, const uint16_t value, const uint8_t format, uint8_t fahrenheit) {
+char * Helpers::render_value(char * result, const uint16_t value, const int8_t format, const uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -269,7 +273,7 @@ char * Helpers::render_value(char * result, const uint16_t value, const uint8_t 
 }
 
 // int8: convert signed byte to text string and prints it
-char * Helpers::render_value(char * result, const int8_t value, const uint8_t format, uint8_t fahrenheit) {
+char * Helpers::render_value(char * result, const int8_t value, const int8_t format, const uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -278,7 +282,7 @@ char * Helpers::render_value(char * result, const int8_t value, const uint8_t fo
 }
 
 // uint32: render long (4 byte) unsigned values
-char * Helpers::render_value(char * result, const uint32_t value, const uint8_t format, uint8_t fahrenheit) {
+char * Helpers::render_value(char * result, const uint32_t value, const int8_t format, const uint8_t fahrenheit) {
     if (!hasValue(value)) {
         return nullptr;
     }
@@ -289,10 +293,12 @@ char * Helpers::render_value(char * result, const uint32_t value, const uint8_t 
 #ifndef EMSESP_STANDALONE
     if (!format) {
         strlcpy(result, ltoa(new_value, s, 10), sizeof(s)); // format is 0
-    } else {
+    } else if (format > 0) {
         strlcpy(result, ltoa(new_value / format, s, 10), sizeof(s));
         strlcat(result, ".", sizeof(s));
         strlcat(result, ltoa(new_value % format, s, 10), sizeof(s));
+    } else {
+        strlcpy(result, ltoa(new_value * format * -1, s, 10), sizeof(s));
     }
 
 #else
@@ -355,25 +361,31 @@ uint32_t Helpers::hextoint(const char * hex) {
 }
 
 // quick char to long
-uint16_t Helpers::atoint(const char * value) {
-    unsigned int x = 0;
+int Helpers::atoint(const char * value) {
+    int x = 0;
+    if (value[0] == '-') {
+        ++value;
+    }
     while (*value != '\0') {
         x = (x * 10) + (*value - '0');
         ++value;
+    }
+    if (value[0] == '-') {
+        return (-x);
     }
     return x;
 }
 
 // rounds a number to 2 decimal places
 // example: round2(3.14159) -> 3.14
-double Helpers::round2(double value, const uint8_t divider, uint8_t fahrenheit) {
-    uint8_t div = (divider ? divider : 1); // prevent div-by-zero
-    double  val = ((value / div) * 100 + 0.5);
-    if (divider == 15) { // mul15 for minutes
-        val = value * 1500;
+double Helpers::round2(double value, const int8_t divider, const uint8_t fahrenheit) {
+    double  val = (value * 100 + 0.5);
+    if (divider > 0) {
+        val = ((value / divider) * 100 + 0.5);
+    } else if (divider < 0) {
+        val = value * -100 * divider;
     }
-
-    if (value < 0) {
+    if (value < 0) { // negative rounding
         val = val - 1;
     }
     if (fahrenheit) {

@@ -91,9 +91,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     id_ = product_id; // note, must set the value after it has been initialized to have affect
 
     // first commands
-    // reset is a command, so uses a dummy variable which is unused. It will not be shown in MQTT, Web or Console
-    register_device_value(
-        TAG_BOILER_DATA, &dummy_, DeviceValueType::CMD, FL_(enum_reset), FL_(reset), DeviceValueUOM::LIST, MAKE_CF_CB(set_reset), 0, 1);
+    // reset is a command, so uses a dummy variable which is unused. The value will not be shown in MQTT, Web or Console
+    register_device_value(TAG_BOILER_DATA, &dummy_, DeviceValueType::CMD, FL_(enum_reset), FL_(reset), DeviceValueUOM::LIST, MAKE_CF_CB(set_reset));
 
     register_device_value(TAG_BOILER_DATA, &heatingActive_, DeviceValueType::BOOL, nullptr, FL_(heatingActive), DeviceValueUOM::BOOLEAN);
     register_device_value(TAG_BOILER_DATA, &tapwaterActive_, DeviceValueType::BOOL, nullptr, FL_(tapwaterActive), DeviceValueUOM::BOOLEAN);
