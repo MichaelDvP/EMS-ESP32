@@ -71,7 +71,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     // only EMS+
     if (model() != EMSdevice::EMS_DEVICE_FLAG_EMS && model() != EMSdevice::EMS_DEVICE_FLAG_HT3) {
         register_telegram_type(0xD1, F("UBAOutdoorTemp"), false, MAKE_PF_CB(process_UBAOutdoorTemp));
-        register_telegram_type(0xE3, F("UBAMonitorSlowPlus"), false, MAKE_PF_CB(process_UBAMonitorSlowPlus2));
+        register_telegram_type(0xE3, F("UBAMonitorSlowPlus2"), false, MAKE_PF_CB(process_UBAMonitorSlowPlus2));
         register_telegram_type(0xE4, F("UBAMonitorFastPlus"), false, MAKE_PF_CB(process_UBAMonitorFastPlus));
         register_telegram_type(0xE5, F("UBAMonitorSlowPlus"), false, MAKE_PF_CB(process_UBAMonitorSlowPlus));
         register_telegram_type(0xE6, F("UBAParametersPlus"), true, MAKE_PF_CB(process_UBAParametersPlus));
@@ -195,6 +195,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_DEVICE_DATA_WW, &wwSetTemp_, DeviceValueType::UINT, nullptr, FL_(wwSetTemp), DeviceValueUOM::DEGREES);
     register_device_value(TAG_DEVICE_DATA_WW, &wwSelTemp_, DeviceValueType::UINT, nullptr, FL_(wwSelTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp));
     register_device_value(TAG_DEVICE_DATA_WW, &wwSelTempLow_, DeviceValueType::UINT, nullptr, FL_(wwSelTempLow), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp_low));
+    register_device_value(TAG_DEVICE_DATA_WW, &wwSelTempOff_, DeviceValueType::UINT, nullptr, FL_(wwSelTempOff), DeviceValueUOM::DEGREES);
     register_device_value(TAG_DEVICE_DATA_WW, &wwSelTempSingle_, DeviceValueType::UINT, nullptr, FL_(wwSelTempSingle), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_warmwater_temp_single));
     register_device_value(TAG_DEVICE_DATA_WW, &wwType_, DeviceValueType::ENUM, FL_(enum_flow), FL_(wwType), DeviceValueUOM::NONE);
     register_device_value(
@@ -245,14 +246,10 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(TAG_DEVICE_DATA_WW, &wwWorkM_, DeviceValueType::TIME, nullptr, FL_(wwWorkM), DeviceValueUOM::MINUTES);
 
     // fetch some initial data
-    EMSESP::send_read_request(0x10,
-                              device_id); // read last errorcode on start (only published on errors)
-    EMSESP::send_read_request(0x11,
-                              device_id); // read last errorcode on start (only published on errors)
-    EMSESP::send_read_request(0x15,
-                              device_id); // read maintenace data on start (only published on change)
-    EMSESP::send_read_request(0x1C,
-                              device_id); // read maintenace status on start (only published on change)
+    EMSESP::send_read_request(0x10, device_id); // read last errorcode on start (only published on errors)
+    EMSESP::send_read_request(0x11, device_id); // read last errorcode on start (only published on errors)
+    EMSESP::send_read_request(0x15, device_id); // read maintenace data on start (only published on change)
+    EMSESP::send_read_request(0x1C, device_id); // read maintenace status on start (only published on change)
 }
 
 // publish HA config
@@ -574,13 +571,14 @@ void Boiler::process_UBAParametersPlus(std::shared_ptr<const Telegram> telegram)
 // 0xEA
 // Boiler(0x08) -> (0x0B), (0xEA), data: 00 00 00 00 00 00 3C FB 00 28 00 02 46 00 00 00 3C 3C 28
 void Boiler::process_UBAParameterWWPlus(std::shared_ptr<const Telegram> telegram) {
-    has_update(telegram, wwActivated_, 5); // 0x01 means on
-    has_update(telegram, wwCircPump_, 10); // 0x01 means yes
-    has_update(telegram, wwCircMode_, 11); // 1=1x3min... 6=6x3min, 7=continuous
-    has_update(telegram, wwDisinfectionTemp_, 12); // setting here, status in E9
-    has_update(telegram, wwSelTemp_, 6); // setting here, status in E9
+    has_update(telegram, wwSelTempOff_, 0); // confusing description in #96
+    has_update(telegram, wwActivated_, 5);  // 0x01 means on
+    has_update(telegram, wwSelTemp_, 6);    // setting here, status in E9
     has_update(telegram, wwHystOn_, 7);
     has_update(telegram, wwHystOff_, 8);
+    has_update(telegram, wwCircPump_, 10);         // 0x01 means yes
+    has_update(telegram, wwCircMode_, 11);         // 1=1x3min... 6=6x3min, 7=continuous
+    has_update(telegram, wwDisinfectionTemp_, 12); // setting here, status in E9
     has_update(telegram, wwSelTempSingle_, 16);
     has_update(telegram, wwSelTempLow_, 18);
 }
@@ -794,7 +792,7 @@ bool Boiler::set_warmwater_temp(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler warm water temperature to %d C"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 6, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
         // some boiler have it in 0x33, some in 0x35
@@ -839,7 +837,7 @@ bool Boiler::set_disinfect_temp(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler warm water disinfect temperature to %d C"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 12, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
         write_command(EMS_TYPE_UBAParameterWW, 8, v, EMS_TYPE_UBAParameterWW);
@@ -899,7 +897,7 @@ bool Boiler::set_heating_activated(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler heating %s"), v ? "on" : "off");
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 0, v ? 0x01 : 0, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 0, v ? 0xFF : 0, EMS_TYPE_UBAParameters);
@@ -917,7 +915,7 @@ bool Boiler::set_heating_temp(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler heating temperature to %d C"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 1, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 1, v, EMS_TYPE_UBAParameters);
@@ -935,7 +933,7 @@ bool Boiler::set_min_power(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler min power to %d %%"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 5, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 3, v, EMS_TYPE_UBAParameters);
@@ -953,7 +951,7 @@ bool Boiler::set_max_power(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler max power to %d %%"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 4, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 2, v, EMS_TYPE_UBAParameters);
@@ -971,7 +969,7 @@ bool Boiler::set_ww_hyst_on(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting ww on hysteresis on to %d C"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 7, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
         write_command(EMS_TYPE_UBAParameterWW, 3, v, EMS_TYPE_UBAParameterWW);
@@ -989,7 +987,7 @@ bool Boiler::set_ww_hyst_off(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting ww off hysteresis off to %d C"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 8, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
         write_command(EMS_TYPE_UBAParameterWW, 4, v, EMS_TYPE_UBAParameterWW);
@@ -1021,7 +1019,7 @@ bool Boiler::set_min_pump(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting pump min to %d %%"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 14, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 10, v, EMS_TYPE_UBAParameters);
@@ -1039,7 +1037,7 @@ bool Boiler::set_max_pump(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting pump max to %d %%"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 13, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 9, v, EMS_TYPE_UBAParameters);
@@ -1057,7 +1055,7 @@ bool Boiler::set_hyst_on(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler hysteresis on to %d C"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 9, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 5, v, EMS_TYPE_UBAParameters);
@@ -1075,7 +1073,7 @@ bool Boiler::set_hyst_off(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting boiler hysteresis off to %d C"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 8, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 4, v, EMS_TYPE_UBAParameters);
@@ -1093,7 +1091,7 @@ bool Boiler::set_burn_period(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting burner min period to %d min"), v);
-    if (get_toggle_fetch(EMS_TYPE_UBAParametersPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParametersPlus)) {
         write_command(EMS_TYPE_UBAParametersPlus, 10, v, EMS_TYPE_UBAParametersPlus);
     } else {
         write_command(EMS_TYPE_UBAParameters, 6, v, EMS_TYPE_UBAParameters);
@@ -1110,7 +1108,7 @@ bool Boiler::set_pump_delay(const char * value, const int8_t id) {
         return false;
     }
 
-    if (get_toggle_fetch(EMS_TYPE_UBAParameters)) {
+    if (is_fetch(EMS_TYPE_UBAParameters)) {
         LOG_INFO(F("Setting boiler pump delay to %d min"), v);
         write_command(EMS_TYPE_UBAParameters, 8, v, EMS_TYPE_UBAParameters);
         return true;
@@ -1128,7 +1126,7 @@ bool Boiler::set_warmwater_mode(const char * value, const int8_t id) {
         return false;
     }
 
-    if (!get_toggle_fetch(EMS_TYPE_UBAParameterWW)) {
+    if (!is_fetch(EMS_TYPE_UBAParameterWW)) {
         return false;
     }
 
@@ -1161,7 +1159,7 @@ bool Boiler::set_warmwater_activated(const char * value, const int8_t id) {
     // https://github.com/emsesp/EMS-ESP/issues/268
     // 08 for HT3 seems to be wrong, see https://github.com/emsesp/EMS-ESP32/issues/89
 
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 1, v ? 1 : 0, EMS_TYPE_UBAParameterWWPlus);
     } else {
         write_command(EMS_TYPE_UBAParameterWW, 1, v ? 0xFF : 0, EMS_TYPE_UBAParameterWW);
@@ -1222,11 +1220,10 @@ bool Boiler::set_warmwater_onetime(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting warm water OneTime loading %s"), v ? "on" : "off");
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
-        write_command(EMS_TYPE_UBAFlags, 0, (v ? 0x22 : 0x02),
-                      0xE9); // not sure if this is in flags
+    if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+        write_command(EMS_TYPE_UBAFlags, 0, (v ? 0x22 : 0x02), 0xE9); // not sure if this is in flags
     } else {
-        write_command(EMS_TYPE_UBAFlags, 0, (v ? 0x22 : 0x02), 0x34);
+        write_command(EMS_TYPE_UBAFlags, 0, (v ? 0x23 : 0x03), 0x34);
     }
 
     return true;
@@ -1242,7 +1239,7 @@ bool Boiler::set_warmwater_circulation(const char * value, const int8_t id) {
     }
 
     LOG_INFO(F("Setting warm water circulation %s"), v ? "on" : "off");
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
         write_command(EMS_TYPE_UBAFlags, 1, (v ? 0x22 : 0x02),
                       0xE9); // not sure if this is in flags
     } else {
@@ -1262,7 +1259,7 @@ bool Boiler::set_warmwater_circulation_pump(const char * value, const int8_t id)
 
     LOG_INFO(F("Setting warm water circulation pump %s"), v ? "on" : "off");
 
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 10, v ? 0x01 : 0x00, EMS_TYPE_UBAParameterWWPlus);
     } else {
         write_command(EMS_TYPE_UBAParameterWW, 6, v ? 0xFF : 0x00, EMS_TYPE_UBAParameterWW);
@@ -1289,7 +1286,7 @@ bool Boiler::set_warmwater_circulation_mode(const char * value, const int8_t id)
         return false;
     }
 
-    if (get_toggle_fetch(EMS_TYPE_UBAParameterWWPlus)) {
+    if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
         write_command(EMS_TYPE_UBAParameterWWPlus, 11, v, EMS_TYPE_UBAParameterWWPlus);
     } else {
         write_command(EMS_TYPE_UBAParameterWW, 7, v, EMS_TYPE_UBAParameterWW);

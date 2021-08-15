@@ -58,6 +58,7 @@ class Boiler : public EMSdevice {
     uint8_t  wwSetTemp_;          // Warm Water set temperature
     uint8_t  wwSelTemp_;          // Warm Water selected temperature
     uint8_t  wwSelTempLow_;       // Warm Water lower selected temperature
+    uint8_t  wwSelTempOff_;       // Warm Water selected temperature for off position
     uint8_t  wwSelTempSingle_;    // Warm Water single charge temperature
     uint8_t  wwType_;             // 0-off, 1-flow, 2-flowbuffer, 3-buffer, 4-layered buffer
     uint8_t  wwComfort_;          // WW comfort mode

@@ -173,6 +173,13 @@ class Thermostat : public EMSdevice {
     uint8_t wwSetTemp_;
     uint8_t wwSetTempLow_;
     uint8_t wwChargeDuration_;
+    uint8_t wwDisinfect_;
+    uint8_t wwDisinfectDay_;
+    uint8_t wwDisinfectHour_;
+    uint8_t wwMaxTemp_;
+    uint8_t wwOneTimeKey_;
+    uint8_t wwProgMode_;
+    uint8_t wwCircProg_;
 
     std::vector<std::shared_ptr<HeatingCircuit>> heating_circuits_; // each thermostat can have multiple heating circuits
 
@@ -343,6 +350,14 @@ class Thermostat : public EMSdevice {
     bool set_wwonetime(const char * value, const int8_t id);
     bool set_wwcircmode(const char * value, const int8_t id);
     bool set_wwchargeduration(const char * value, const int8_t id);
+    bool set_wwDisinfect(const char * value, const int8_t id);
+    bool set_wwDisinfectDay(const char * value, const int8_t id);
+    bool set_wwDisinfectHour(const char * value, const int8_t id);
+    bool set_wwMaxTemp(const char * value, const int8_t id);
+    bool set_wwOneTimeKey(const char * value, const int8_t id);
+    bool set_wwProgMode(const char * value, const int8_t id);
+    bool set_wwCircProg(const char * value, const int8_t id);
+
     bool set_datetime(const char * value, const int8_t id);
     bool set_minexttemp(const char * value, const int8_t id);
     bool set_clockoffset(const char * value, const int8_t id);

@@ -351,6 +351,9 @@ MAKE_PSTR_LIST(enum_controlmode2, F_(outdoor), F_(room))
 MAKE_PSTR_LIST(enum_controlmode3, F_(off), F_(room), F_(outdoor), F("room+outdoor"))
 MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
 
+MAKE_PSTR_LIST(enum_wwProgMode, F("std prog"), F_(own_prog))
+MAKE_PSTR_LIST(enum_wwDisinfectDay, F("mo"), F("tu"), F("we"), F("th"), F("fr"), F("sa"), F("so"), F("every day"))
+
 // solar list
 MAKE_PSTR_LIST(enum_solarmode, F_(constant), F("pwm"), F("analog"))
 MAKE_PSTR_LIST(enum_collectortype, F("flat"), F("vacuum"))
@@ -451,6 +454,7 @@ MAKE_PSTR_LIST(hpPh1, F("hpph1"), F("high pressure side temperature (PH1)"))
 // the following are warm water for the boiler and automatically tagged with 'ww'
 MAKE_PSTR_LIST(wwSelTemp, F("wwseltemp"), F("selected temperature"))
 MAKE_PSTR_LIST(wwSelTempLow, F("wwseltemplow"), F("selected lower temperature"))
+MAKE_PSTR_LIST(wwSelTempOff, F("wwseltempoff"), F("selected temperature for off"))
 MAKE_PSTR_LIST(wwSelTempSingle, F("wwseltempsingle"), F("single charge temperature"))
 MAKE_PSTR_LIST(wwSetTemp, F("wwsettemp"), F("set temperature"))
 MAKE_PSTR_LIST(wwType, F("wwtype"), F("type"))
@@ -483,6 +487,13 @@ MAKE_PSTR_LIST(wwStarts2, F("wwstarts2"), F("# control starts"))
 MAKE_PSTR_LIST(wwWorkM, F("wwworkm"), F("active time"))
 MAKE_PSTR_LIST(wwHystOn, F("wwhyston"), F("hysteresis on temperature"))
 MAKE_PSTR_LIST(wwHystOff, F("wwhystoff"), F("hysteresis off temperature"))
+MAKE_PSTR_LIST(wwProgMode, F("wwprogmode"), F("program mode"))
+MAKE_PSTR_LIST(wwCircProg, F("wwcircprog"), F("circulation program mode"))
+MAKE_PSTR_LIST(wwDisinfect, F("wwdisinfect"), F("disinfection"))
+MAKE_PSTR_LIST(wwDisinfectDay, F("wwdisinfectday"), F("disinfection day"))
+MAKE_PSTR_LIST(wwDisinfectHour, F("wwdisinfecthour"), F("disinfection hour"))
+MAKE_PSTR_LIST(wwMaxTemp, F("wwmaxtemp"), F("maximum temperature"))
+MAKE_PSTR_LIST(wwOneTimeKey, F("wwonetimekey"), F("one time key function"))
 
 // thermostat
 // extra commands
