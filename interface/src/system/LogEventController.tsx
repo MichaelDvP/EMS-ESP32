@@ -295,11 +295,12 @@ class LogEventController extends Component<
                 marks={[
                   { value: 25, label: '25' },
                   { value: 50, label: '50' },
-                  { value: 75, label: '75' }
+                  { value: 75, label: '75' },
+                  { value: 100, label: '100' }
                 ]}
                 step={25}
                 min={25}
-                max={75}
+                max={100}
                 onChange={this.changeMaxMessages}
               />
             </Grid>

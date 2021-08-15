@@ -122,26 +122,25 @@ void WebLogService::loop() {
         return;
     }
 
-    // put a small delay in
-    const uint64_t now = uuid::get_uptime_ms();
-    if (now - last_transmit_ < REFRESH_SYNC) {
-        return;
-    }
-
     // see if we've advanced
     if (log_messages_.back().id_ <= log_message_id_tail_) {
         return;
     }
 
+    // put a small delay in
+    if (uuid::get_uptime_ms() - last_transmit_ < REFRESH_SYNC) {
+        return;
+    }
+    last_transmit_ = uuid::get_uptime_ms();
+
     // flush
-    for (auto it = log_messages_.begin(); it != log_messages_.end(); it++) {
-        if (it->id_ > log_message_id_tail_) {
-            transmit(*it);
+    for (const auto & message : log_messages_) {
+        if (message.id_ > log_message_id_tail_) {
+            log_message_id_tail_ = message.id_;
+            transmit(message);
+            return;
         }
     }
-
-    log_message_id_tail_ = log_messages_.back().id_;
-    last_transmit_       = uuid::get_uptime_ms();
 }
 
 // convert time to real offset
@@ -158,9 +157,6 @@ char * WebLogService::messagetime(char * out, const uint64_t t) {
 
 // send to web eventsource
 void WebLogService::transmit(const QueuedLogMessage & message) {
-    // if (message.content_->level > log_level()) {
-    //     return;
-    // }
     DynamicJsonDocument jsonDocument = DynamicJsonDocument(EMSESP_JSON_SIZE_SMALL);
     JsonObject          logEvent     = jsonDocument.to<JsonObject>();
     char                time_string[25];
@@ -175,7 +171,7 @@ void WebLogService::transmit(const QueuedLogMessage & message) {
     char * buffer = new char[len + 1];
     if (buffer) {
         serializeJson(jsonDocument, buffer, len + 1);
-        events_.send(buffer, "message", millis());
+        events_.send(buffer, "message", message.id_);
     }
     delete[] buffer;
 }
@@ -184,24 +180,21 @@ void WebLogService::transmit(const QueuedLogMessage & message) {
 void WebLogService::fetchLog(AsyncWebServerRequest * request) {
     MsgpackAsyncJsonResponse * response = new MsgpackAsyncJsonResponse(false, EMSESP_JSON_SIZE_XXLARGE_DYN); // 8kb buffer
     JsonObject                 root     = response->getRoot();
-
-    JsonArray log = root.createNestedArray("events");
-
-    for (const auto & message : log_messages_) {
-        // if (message.content_->level <= log_level()) {
-            JsonObject logEvent = log.createNestedObject();
-            char       time_string[25];
-
-            logEvent["t"] = messagetime(time_string, message.content_->uptime_ms);
-            logEvent["l"] = message.content_->level;
-            logEvent["i"] = message.id_;
-            logEvent["n"] = message.content_->name;
-            logEvent["m"] = message.content_->text;
-        // }
-    }
+    JsonArray                  log      = root.createNestedArray("events");
 
     log_message_id_tail_ = log_messages_.back().id_;
+    last_transmit_       = uuid::get_uptime_ms();
+    for (const auto & message : log_messages_) {
+        JsonObject logEvent = log.createNestedObject();
+        char       time_string[25];
 
+        logEvent["t"] = messagetime(time_string, message.content_->uptime_ms);
+        logEvent["l"] = message.content_->level;
+        logEvent["i"] = message.id_;
+        logEvent["n"] = message.content_->name;
+        logEvent["m"] = message.content_->text;
+    }
+    log_message_id_tail_ = log_messages_.back().id_;
     response->setLength();
     request->send(response);
 }
