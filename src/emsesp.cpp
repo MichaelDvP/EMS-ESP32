@@ -832,9 +832,11 @@ bool EMSESP::process_telegram(std::shared_ptr<const Telegram> telegram) {
         process_version(telegram);
         return true;
     } else if (telegram->type_id == EMSdevice::EMS_TYPE_UBADevices) {
-        process_UBADevices(telegram);
-        if (telegram->dest == EMSbus::ems_bus_id()) {
+        if (telegram->dest == EMSbus::ems_bus_id() || uuid::get_uptime_ms() > (tx_delay_ + 10000)) {
             first_scan_done_ = true;
+        }
+        if (first_scan_done_) {
+            process_UBADevices(telegram);
         }
         return true;
     }
@@ -1230,10 +1232,10 @@ void EMSESP::start() {
     emsdevices.reserve(5); // reserve space for initially 5 devices to avoid mem frag issues
 
     LOG_INFO(F("EMS Device library loaded with %d records"), device_library_.size());
-
 #if defined(EMSESP_STANDALONE)
     Mqtt::on_connect(); // simulate an MQTT connection
 #endif
+    // LOG_INFO(F("Testing syslog with udf-8-chars: €öäüß€öäüß€öäüß"));
 }
 
 // main loop calling all services
