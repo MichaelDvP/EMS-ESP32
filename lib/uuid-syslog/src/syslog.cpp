@@ -436,25 +436,21 @@ bool SyslogService::transmit(const QueuedLogMessage & message) {
 
     udp_.printf_P(PSTR(" %s %s - - - "), hostname_.c_str(), uuid::read_flash_string(message.content_->name).c_str());
 
-    char msg[255];
-    snprintf_P(msg,
-               sizeof(msg),
-               PSTR("%s %c %lu: %s"),
-               uuid::log::format_timestamp_ms(message.content_->uptime_ms, 3).c_str(),
-               uuid::log::format_level_char(message.content_->level),
-               message.id_,
-               message.content_->text.c_str()
-    );
-    bool useBOM = false;
-    for (uint8_t i = 0; i < strlen(msg); i++) {
-        if (msg[i] & 0x80) {
-            useBOM = true;
+    char id_c_str[15];
+    snprintf_P(id_c_str, sizeof(id_c_str), PSTR(" %lu "), message.id_);
+    std::string msgstr = uuid::log::format_timestamp_ms(message.content_->uptime_ms, 3) +
+                         ' ' +
+                         uuid::log::format_level_char(message.content_->level) +
+                         id_c_str +
+                         message.content_->text;
+    for (uint16_t i = 0; i < msgstr.length(); i++) {
+        if (msgstr.at(i) & 0x80) {
+            udp_.print("\xEF\xBB\xBF");
+            // udp_.print("<BOM>"); // marker for testing if BOM is created for udf-8
+            break;
         }
     }
-    if (useBOM) {
-        udp_.print("\xEF\xBB\xBF");
-    }
-    udp_.print(msg);
+    udp_.print(msgstr.c_str());
     bool ok = (udp_.endPacket() == 1);
 
     last_transmit_ = uuid::get_uptime_ms();
