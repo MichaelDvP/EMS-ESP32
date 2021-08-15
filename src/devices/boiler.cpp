@@ -44,6 +44,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_device_value(TAG_HS1 + hs, &curBurnPow_, DeviceValueType::UINT, nullptr, FL_(curBurnPow), DeviceValueUOM::PERCENT);
         return;
     }
+
     // register values for master boiler/cascade module
     // reserve_telgram_functions(25); // reserve some space for the telegram registries, to avoid memory fragmentation
 
@@ -68,6 +69,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_telegram_type(0x26, F("UBASettingsWW"), true, MAKE_PF_CB(process_UBASettingsWW));
         register_telegram_type(0x2A, F("MC110Status"), false, MAKE_PF_CB(process_MC110Status));
     }
+
     // only EMS+
     if (model() != EMSdevice::EMS_DEVICE_FLAG_EMS && model() != EMSdevice::EMS_DEVICE_FLAG_HT3) {
         register_telegram_type(0xD1, F("UBAOutdoorTemp"), false, MAKE_PF_CB(process_UBAOutdoorTemp));
@@ -78,6 +80,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_telegram_type(0xE9, F("UBAMonitorWWPlus"), false, MAKE_PF_CB(process_UBAMonitorWWPlus));
         register_telegram_type(0xEA, F("UBAParameterWWPlus"), true, MAKE_PF_CB(process_UBAParameterWWPlus));
     }
+
     if (model() == EMSdevice::EMS_DEVICE_FLAG_HEATPUMP) {
         register_telegram_type(0x494, F("UBAEnergySupplied"), false, MAKE_PF_CB(process_UBAEnergySupplied));
         register_telegram_type(0x495, F("UBAInformation"), false, MAKE_PF_CB(process_UBAInformation));
@@ -512,8 +515,7 @@ void Boiler::process_UBAMonitorSlow(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, outdoorTemp_, 0);
     has_update(telegram, boilTemp_, 2);
     has_update(telegram, exhaustTemp_, 4);
-    has_update(telegram, switchTemp_,
-                                    25); // only if there is a mixer module present
+    has_update(telegram, switchTemp_, 25); // only if there is a mixer module present
     has_update(telegram, heatingPumpMod_, 9);
     has_update(telegram, burnStarts_, 10, 3);  // force to 3 bytes
     has_update(telegram, burnWorkMin_, 13, 3); // force to 3 bytes
@@ -759,9 +761,8 @@ void Boiler::process_UBAMaintenanceData(std::shared_ptr<const Telegram> telegram
     if (telegram->offset > 0 || telegram->message_length < 5) {
         return;
     }
-    // first byte: Maintenance messages (0 = none, 1 = by operating hours, 2 = by date)
 
-    has_update(telegram, maintenanceType_, 0);
+    has_update(telegram, maintenanceType_, 0); // 0 = none, 1 = by operating hours, 2 = by date
 
     uint8_t time = (maintenanceTime_ == EMS_VALUE_USHORT_NOTSET) ? EMS_VALUE_UINT_NOTSET : maintenanceTime_ / 100;
     telegram->read_value(time, 1);
@@ -1240,8 +1241,7 @@ bool Boiler::set_warmwater_circulation(const char * value, const int8_t id) {
 
     LOG_INFO(F("Setting warm water circulation %s"), v ? "on" : "off");
     if (is_fetch(EMS_TYPE_UBAParameterWWPlus)) {
-        write_command(EMS_TYPE_UBAFlags, 1, (v ? 0x22 : 0x02),
-                      0xE9); // not sure if this is in flags
+        write_command(EMS_TYPE_UBAFlags, 1, (v ? 0x22 : 0x02), 0xE9); // not sure if this is in flags
     } else {
         write_command(EMS_TYPE_UBAFlags, 1, (v ? 0x22 : 0x02), 0x34);
     }
