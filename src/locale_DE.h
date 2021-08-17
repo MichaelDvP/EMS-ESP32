@@ -354,7 +354,8 @@ MAKE_PSTR_LIST(enum_controlmode3, F_(off), F_(room), F_(outdoor), F("room+outdoo
 MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
 
 MAKE_PSTR_LIST(enum_wwProgMode, F("std prog"), F_(own_prog))
-MAKE_PSTR_LIST(enum_wwDisinfectDay, F("Mo"), F("Di"), F("Mi"), F("Do"), F("Fr"), F("Sa"), F("So"), F("täglich"))
+MAKE_PSTR_LIST(enum_wwDisinfectDay, F("Mo"), F("Di"), F("Mi"), F("Do"), F("Fr"), F("Sa"), F("So"), F("tï¿½glich"))
+MAKE_PSTR_LIST(enum_wwChargeDuration, F_(off), F("15min"), F("30min"), F("45min"), F("60min"), F("75min"), F("90min"), F("105min"), F("120min"))
 
 // solar list
 MAKE_PSTR_LIST(enum_solarmode, F_(constant), F("pwm"), F("analog"))
