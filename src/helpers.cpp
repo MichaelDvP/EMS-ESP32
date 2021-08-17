@@ -177,12 +177,19 @@ char * Helpers::render_value(char * result, uint8_t value, int8_t format, const 
     if (format == 2) {
         strlcpy(result, itoa(s2, new_value >> 1, 10), 5);
         strlcat(result, ".", 5);
-        strlcat(result, ((new_value & 0x01) ? "5" : "0"), 5);
+        strlcat(result, ((new_value & 0x01) ? "5" : "0"), 7);
         return result;
+    } else if (format == 4) {
+        strlcpy(result, itoa(s2, new_value >> 2, 10), 5);
+        strlcat(result, ".", 5);
+        new_value = (new_value & 0x03) * 25 ;
+        strlcat(result, itoa(s2, new_value, 10), 7);
+        return result;
+
     } else if (format > 0) {
         strlcpy(result, itoa(s2, new_value / format, 10), 5);
         strlcat(result, ".", 5);
-        strlcat(result, itoa(s2, new_value % format, 10), 5);
+        strlcat(result, itoa(s2, new_value % format, 10), 7);
     } else {
         strlcpy(result, itoa(s2, new_value * format * -1, 10), 5);
     }

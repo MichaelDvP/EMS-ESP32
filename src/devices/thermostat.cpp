@@ -2328,6 +2328,8 @@ void Thermostat::register_device_values() {
             TAG_DEVICE_DATA_WW, &wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwcircmode));
         register_device_value(
             TAG_DEVICE_DATA_WW, &wwChargeDuration_, DeviceValueType::UINT, FL_(mul15), FL_(wwChargeDuration), DeviceValueUOM::MINUTES, MAKE_CF_CB(set_wwchargeduration));
+            // TAG_DEVICE_DATA_WW, &wwChargeDuration_, DeviceValueType::UINT, FL_(div4), FL_(wwChargeDuration), DeviceValueUOM::HOURS, MAKE_CF_CB(set_wwchargeduration));
+            // TAG_DEVICE_DATA_WW, &wwChargeDuration_, DeviceValueType::ENUM, FL_(enum_wwchargeduration), FL_(wwChargeDuration), DeviceValueUOM::LIST, MAKE_CF_CB(set_wwchargeduration));
         register_device_value(TAG_DEVICE_DATA_WW, &wwExtra1_, DeviceValueType::UINT, nullptr, FL_(wwExtra1), DeviceValueUOM::DEGREES);
         register_device_value(TAG_DEVICE_DATA_WW, &wwExtra2_, DeviceValueType::UINT, nullptr, FL_(wwExtra2), DeviceValueUOM::DEGREES);
         break;

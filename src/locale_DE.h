@@ -101,7 +101,6 @@ MAKE_PSTR_WORD(unknown)
 MAKE_PSTR_WORD(Sensor)
 
 // format strings
-MAKE_PSTR(EMSESP, "EMS-ESP")
 MAKE_PSTR(master_thermostat_fmt, "Master Thermostat Device ID: %s")
 MAKE_PSTR(host_fmt, "Host: %s")
 MAKE_PSTR(port_fmt, "Port: %d")
@@ -115,8 +114,11 @@ MAKE_PSTR(tx_mode_fmt, "Tx mode: %d")
 MAKE_PSTR(bus_id_fmt, "Bus ID: %02X")
 MAKE_PSTR(log_level_fmt, "Log level: %s")
 
-//strings
+MAKE_STR(productid_fmt, "%s EMS Product ID")
+
+// strings
 MAKE_PSTR(show_optional, "[devices | users | ems | mqtt | system | commands]")
+MAKE_PSTR(EMSESP, "EMS-ESP")
 MAKE_PSTR(cmd_optional, "[cmd]")
 MAKE_PSTR(ha_optional, "[ha]")
 MAKE_PSTR(deep_optional, "[deep]")
@@ -151,17 +153,20 @@ MAKE_PSTR_WORD(enum)
 MAKE_PSTR_WORD(text)
 
 MAKE_PSTR_WORD(2)
+MAKE_PSTR_WORD(4)
 MAKE_PSTR_WORD(10)
 MAKE_PSTR_WORD(100)
 MAKE_PSTR_WORD(60)
 
 MAKE_PSTR_LIST(div2, F_(2))
+MAKE_PSTR_LIST(div4, F_(4))
 MAKE_PSTR_LIST(div10, F_(10))
 MAKE_PSTR_LIST(div100, F_(100))
 MAKE_PSTR_LIST(div60, F_(60))
+MAKE_PSTR_LIST(mul15, F("-15"))
 
 // Unit Of Measurement mapping - maps to DeviceValueUOM_s in emsdevice.cpp
-// uom - also used with HA
+// uom - also used with HA see https://github.com/home-assistant/core/blob/d7ac4bd65379e11461c7ce0893d3533d8d8b8cbf/homeassistant/const.py#L384
 MAKE_PSTR(percent, "%")
 MAKE_PSTR(degrees, "°C")
 MAKE_PSTR(kwh, "kWh")
@@ -176,8 +181,8 @@ MAKE_PSTR(w, "W")
 MAKE_PSTR(kb, "KB")
 MAKE_PSTR(seconds, "seconds")
 MAKE_PSTR(dbm, "dBm")
-MAKE_PSTR(num, " ")  // this is hack so HA renders numbers correctly
-MAKE_PSTR(bool, " ") // this is hack so HA renders numbers correctly
+MAKE_PSTR(num, " ")   // this is hack so HA renders numbers correctly
+MAKE_PSTR(bool, " ")  // this is hack so HA renders numbers correctly
 MAKE_PSTR(blank, " ") // this is hack so HA renders numbers correctly
 MAKE_PSTR(fahrenheit, "°F")
 MAKE_PSTR(mv, "mV")
@@ -250,6 +255,7 @@ MAKE_PSTR_LIST(enum_charge, F_(chargepump), F_(3wayvalve))
 MAKE_PSTR_LIST(enum_comfort, F_(hot), F_(eco), F_(intelligent))
 MAKE_PSTR_LIST(enum_flow, F_(off), F_(flow), F_(bufferedflow), F_(buffer), F_(layeredbuffer))
 MAKE_PSTR_LIST(enum_reset, F_(maintenance), F_(error))
+// MAKE_PSTR_LIST(enum_bool, F_(Aus), F_(Ein))
 
 // thermostat
 MAKE_PSTR(light, "Leicht")
@@ -343,9 +349,12 @@ MAKE_PSTR_LIST(enum_modetype5, F_(off), F_(on))
 MAKE_PSTR_LIST(enum_reducemode, F_(nofrost), F_(reduce), F_(room), F_(outdoor))
 
 MAKE_PSTR_LIST(enum_controlmode, F_(off), F_(optimized), F_(simple), F_(mpc), F_(room), F_(power), F_(constant))
-MAKE_PSTR_LIST(enum_controlmode3, F_(off), F_(room), F_(outdoor), F("room+outdoor"))
 MAKE_PSTR_LIST(enum_controlmode2, F_(outdoor), F_(room))
+MAKE_PSTR_LIST(enum_controlmode3, F_(off), F_(room), F_(outdoor), F("room+outdoor"))
 MAKE_PSTR_LIST(enum_control, F_(off), F_(rc20), F_(rc3x))
+
+MAKE_PSTR_LIST(enum_wwProgMode, F("std prog"), F_(own_prog))
+MAKE_PSTR_LIST(enum_wwDisinfectDay, F("Mo"), F("Di"), F("Mi"), F("Do"), F("Fr"), F("Sa"), F("So"), F("t�glich"))
 
 // solar list
 MAKE_PSTR_LIST(enum_solarmode, F_(constant), F("pwm"), F("analog"))
@@ -476,6 +485,17 @@ MAKE_PSTR_LIST(wWStarts2, F("wwstarts2"), F("Kreis 2 Anzahl Starts"))
 MAKE_PSTR_LIST(wWWorkM, F("wwworkm"), F("aktive Zeit"))
 MAKE_PSTR_LIST(wWHystOn, F("wwhyston"), F("Hysterese Einschalttemperatur"))
 MAKE_PSTR_LIST(wWHystOff, F("wwhystoff"), F("Hysterese Ausschalttemperatur"))
+MAKE_PSTR_LIST(wwStarts2, F("wwstarts2"), F("# control starts"))
+MAKE_PSTR_LIST(wwWorkM, F("wwworkm"), F("active time"))
+MAKE_PSTR_LIST(wwHystOn, F("wwhyston"), F("hysteresis on temperature"))
+MAKE_PSTR_LIST(wwHystOff, F("wwhystoff"), F("hysteresis off temperature"))
+MAKE_PSTR_LIST(wwProgMode, F("wwprogmode"), F("program mode"))
+MAKE_PSTR_LIST(wwCircProg, F("wwcircprog"), F("circulation program mode"))
+MAKE_PSTR_LIST(wwDisinfect, F("wwdisinfect"), F("disinfection"))
+MAKE_PSTR_LIST(wwDisinfectDay, F("wwdisinfectday"), F("disinfection day"))
+MAKE_PSTR_LIST(wwDisinfectHour, F("wwdisinfecthour"), F("disinfection hour"))
+MAKE_PSTR_LIST(wwMaxTemp, F("wwmaxtemp"), F("maximum temperature"))
+MAKE_PSTR_LIST(wwOneTimeKey, F("wwonetimekey"), F("one time key function"))
 
 // thermostat
 // extra commands
@@ -501,18 +521,14 @@ MAKE_PSTR_LIST(tempsensor1, F("inttemp1"), F("Temperatursensor 1"))
 MAKE_PSTR_LIST(tempsensor2, F("inttemp2"), F("Temperatursensor 2"))
 MAKE_PSTR_LIST(dampedoutdoortemp, F("dampedoutdoortemp"), F("gedämpfte Aussentemperatur"))
 MAKE_PSTR_LIST(floordrystatus, F("floordry"), F("Estrichtrocknung"))
-MAKE_PSTR_LIST(dampedoutdoortemp2, F("dampedoutdoortemp"), F("gedämpfte Aussentemperatur"))
 MAKE_PSTR_LIST(floordrytemp, F("floordrytemp"), F("Estrichtrocknungs Temperatur"))
-
 MAKE_PSTR_LIST(wwMode, F("wwmode"), F("modus"))
-MAKE_PSTR_LIST(wwSetTemp, F("wwsettemp"), F("Solltemperatur"))
 MAKE_PSTR_LIST(wwSetTempLow, F("wwsettemplow"), F("untere Solltemperatur"))
+MAKE_PSTR_LIST(wwChargeDuration, F("wwchargeduration"), F("charge duration"))
 MAKE_PSTR_LIST(wwExtra1, F("wwextra1"), F("Kreis 1 Extra"))
 MAKE_PSTR_LIST(wwExtra2, F("wwextra2"), F("Kreis 2 Extra"))
-
-MAKE_PSTR_LIST(selTemp, F("seltemp"), F("Sollwert Raumtemperatur"))
+MAKE_PSTR_LIST(selRoomTemp, F("seltemp"), F("Sollwert Raumtemperatur"))
 MAKE_PSTR_LIST(roomTemp, F("currtemp"), F("aktuelle Raumtemperatur"))
-
 MAKE_PSTR_LIST(mode, F("mode"), F("modus"))
 MAKE_PSTR_LIST(modetype, F("modetype"), F("modus Typ"))
 
@@ -538,6 +554,7 @@ MAKE_PSTR_LIST(control, F("control"), F("Fernsteuerung"))
 MAKE_PSTR_LIST(program, F("program"), F("Programm"))
 MAKE_PSTR_LIST(pause, F("pause"), F("Pausenzeit"))
 MAKE_PSTR_LIST(party, F("party"), F("Partyzeit"))
+MAKE_PSTR_LIST(wwprio, F("wwprio"), F("warm water priority"))
 
 MAKE_PSTR_LIST(holidaytemp, F("holidaytemp"), F("Urlaubstemperatur"))
 MAKE_PSTR_LIST(summermode, F("summermode"), F("Sommerbetrieb"))
@@ -585,14 +602,12 @@ MAKE_PSTR_LIST(pumpWorkTime, F("pumpworktime"), F("Pumpenlaufzeit"))
 MAKE_PSTR_LIST(energyLastHour, F("energylasthour"), F("Energie letzte Std"))
 MAKE_PSTR_LIST(energyTotal, F("energytotal"), F("Gesamtenergie"))
 MAKE_PSTR_LIST(energyToday, F("energytoday"), F("Energie heute"))
-
 MAKE_PSTR_LIST(wwTemp1, F("wwtemp1"), F("Temperatur 1"))
 MAKE_PSTR_LIST(wwTemp3, F("wwtemp3"), F("Temperatur 3"))
 MAKE_PSTR_LIST(wwTemp4, F("wwtemp4"), F("Temperatur 4"))
 MAKE_PSTR_LIST(wwTemp5, F("wwtemp5"), F("Temperatur 5"))
 MAKE_PSTR_LIST(wwTemp7, F("wwtemp7"), F("Temperatur 7"))
 MAKE_PSTR_LIST(wwPump, F("wwpump"), F("Pumpe"))
-
 MAKE_PSTR_LIST(wwMinTemp, F("wwmintemp"), F("minimale Temperatur"))
 MAKE_PSTR_LIST(pumpMinMod, F("minpumpmod"), F("minimale Pumpenmodulation"))
 MAKE_PSTR_LIST(maxFlow, F("maxflow"), F("maximaler Durchfluss"))
@@ -605,15 +620,15 @@ MAKE_PSTR_LIST(heatTransferSystem, F("heattransfersystem"), F("heattransfer syst
 MAKE_PSTR_LIST(externalTank, F("externaltank"), F("external tank"))
 MAKE_PSTR_LIST(thermalDisinfect, F("thermaldisinfect"), F("thermal disinfection"))
 MAKE_PSTR_LIST(heatMetering, F("heatmetering"), F("heatmetering"))
-// MAKE_PSTR_LIST(solarIsEnabled, F("solarenabled"), F(""))
+MAKE_PSTR_LIST(solarIsEnabled, F("solarenabled"), F("Solarmodul aktiviert"))
 
-        // telegram 0x035A
+// telegram 0x035A
 MAKE_PSTR_LIST(solarPumpMode, F("solarpumpmode"), F("solar pump mode"))
 MAKE_PSTR_LIST(solarPumpKick, F("pumpkick"), F("pumpkick"))
 MAKE_PSTR_LIST(plainWaterMode, F("plainwatermode"), F("plain water mode"))
 MAKE_PSTR_LIST(doubleMatchFlow, F("doublematchflow"), F("doublematchflow"))
 
-        // telegram 0x380
+// telegram 0x380
 MAKE_PSTR_LIST(climateZone, F("climatezone"), F("climate zone"))
 MAKE_PSTR_LIST(collector1Area, F("collector1area"), F("collector 1 area"))
 MAKE_PSTR_LIST(collector1Type, F("collector1type"), F("collector 1 type"))
@@ -627,3 +642,5 @@ MAKE_PSTR_LIST(data12, F("data12"), F("unknown datafield 12"))
 MAKE_PSTR_LIST(data8, F("data8"), F("unknown datafield 8"))
 MAKE_PSTR_LIST(data0, F("data0"), F("unknown datafield 0"))
 MAKE_PSTR_LIST(data1, F("data1"), F("unknown datafield 1"))
+MAKE_PSTR_LIST(setting3, F("setting3"), F("unknown setting 3"))
+MAKE_PSTR_LIST(setting4, F("setting4"), F("unknown setting 4"))
