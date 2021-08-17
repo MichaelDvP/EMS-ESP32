@@ -568,7 +568,7 @@ void EMSESP::publish_response(std::shared_ptr<const Telegram> telegram) {
     doc["dest"]   = Helpers::hextoa(buffer, telegram->dest);
     doc["type"]   = Helpers::hextoa(buffer, telegram->type_id);
     doc["offset"] = Helpers::hextoa(buffer, telegram->offset);
-    strcpy(buffer, Helpers::data_to_hex(telegram->message_data, telegram->message_length - 1).c_str()); // exclude CRC
+    strcpy(buffer, Helpers::data_to_hex(telegram->message_data, telegram->message_length).c_str()); //telegram is without crc
     doc["data"] = buffer;
 
     if (telegram->message_length <= 4) {
@@ -1122,7 +1122,7 @@ void EMSESP::incoming_telegram(uint8_t * data, const uint8_t length) {
                 txservice_.send_poll(); // close the bus
                 txservice_.reset_retry_count();
             }
-        } else if (tx_state == Telegram::Operation::TX_READ) {
+        } else if ((tx_state == Telegram::Operation::TX_READ) && (length > 1)) {
             // got a telegram with data in it. See if the src/dest matches that from the last one we sent and continue to process it
             uint8_t src  = data[0];
             uint8_t dest = data[1];
@@ -1143,6 +1143,7 @@ void EMSESP::incoming_telegram(uint8_t * data, const uint8_t length) {
 
         // if Tx wasn't successful, retry or just give up
         if (!tx_successful) {
+            // LOG_DEBUG(F("Last Tx not successful"));
             txservice_.retry_tx(tx_state, data, length);
             return;
         }
