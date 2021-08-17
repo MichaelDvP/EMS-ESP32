@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 const LogEventConsole: FC<LogEventConsoleProps> = (props) => {
   useWindowSize();
   const classes = useStyles({ topOffset, leftOffset });
-  const { events, compact, level } = props;
+  const { events, compact } = props;
 
   const styleLevel = (level: LogLevel) => {
     switch (level) {
