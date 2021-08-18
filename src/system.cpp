@@ -92,16 +92,16 @@ bool System::command_fetch(const char * value, const int8_t id) {
             LOG_INFO(F("Requesting data from EMS devices"));
             EMSESP::fetch_device_values();
             return true;
-        } else if (value_s == "boiler") {
+        } else if (value_s == read_flash_string(F_(boiler))) {
             EMSESP::fetch_device_values_type(EMSdevice::DeviceType::BOILER);
             return true;
-        } else if (value_s == "thermostat") {
+        } else if (value_s == read_flash_string(F_(thermostat))) {
             EMSESP::fetch_device_values_type(EMSdevice::DeviceType::THERMOSTAT);
             return true;
-        } else if (value_s == "solar") {
+        } else if (value_s == read_flash_string(F_(solar))) {
             EMSESP::fetch_device_values_type(EMSdevice::DeviceType::SOLAR);
             return true;
-        } else if (value_s == "mixer") {
+        } else if (value_s == read_flash_string(F_(mixer))) {
             EMSESP::fetch_device_values_type(EMSdevice::DeviceType::MIXER);
             return true;
         }
@@ -119,22 +119,22 @@ bool System::command_publish(const char * value, const int8_t id) {
             EMSESP::publish_all(true); // includes HA
             LOG_INFO(F("Publishing all data to MQTT, including HA configs"));
             return true;
-        } else if (value_s == "boiler") {
+        } else if (value_s == read_flash_string(F_(boiler))) {
             EMSESP::publish_device_values(EMSdevice::DeviceType::BOILER);
             return true;
-        } else if (value_s == "thermostat") {
+        } else if (value_s == read_flash_string(F_(thermostat))) {
             EMSESP::publish_device_values(EMSdevice::DeviceType::THERMOSTAT);
             return true;
-        } else if (value_s == "solar") {
+        } else if (value_s == read_flash_string(F_(solar))) {
             EMSESP::publish_device_values(EMSdevice::DeviceType::SOLAR);
             return true;
-        } else if (value_s == "mixer") {
+        } else if (value_s == read_flash_string(F_(mixer))) {
             EMSESP::publish_device_values(EMSdevice::DeviceType::MIXER);
             return true;
-        } else if (value_s == "other") {
+        } else if (value_s == read_flash_string(F_(other))) {
             EMSESP::publish_other_values();
             return true;
-        } else if (value_s == "sensor") {
+        } else if (value_s == read_flash_string(F_(sensor))) {
             EMSESP::publish_sensor_values(true);
             return true;
         }
@@ -143,6 +143,46 @@ bool System::command_publish(const char * value, const int8_t id) {
     EMSESP::publish_all(); // ignore value and id
     LOG_INFO(F("Publishing all data to MQTT"));
     return true;
+}
+
+// syslog
+bool System::command_syslog(const char * value, const int8_t id) {
+    uint8_t s = 0xff;
+    if (Helpers::value2enum(value, s, FL_(enum_syslog))) {
+        EMSESP::webSettingsService.update([&](WebSettings & settings) {
+            settings.syslog_level = (int8_t)s - 1;
+            return StateUpdateResult::CHANGED;
+        }, "local");
+        EMSESP::system_.syslog_start();
+        return true;
+    }
+    return false;
+}
+
+// watch
+bool System::command_watch(const char * value, const int8_t id) {
+    uint8_t w = 0xff;
+    if (Helpers::value2enum(value, w, FL_(enum_watch))) {
+        if (w == 0 || EMSESP::watch() == 0) {
+            EMSESP::watch_id(0);
+        }
+        EMSESP::watch(w);
+        Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[w]).c_str());
+        return true;
+    }
+    uint16_t i = Helpers::hextoint(value);
+    if (i) {
+        EMSESP::watch_id(i);
+        if (EMSESP::watch() == 0) {
+            EMSESP::watch(1);
+        }
+        // char s[10];
+        // snprintf_P(s, sizeof(s), PSTR("0x%04X"), i);
+        // Mqtt::publish(F("system/watch"), s);
+        Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[EMSESP::watch()]).c_str());
+        return true;
+    }
+    return false;
 }
 
 // restart EMS-ESP
@@ -209,6 +249,8 @@ void System::syslog_start() {
         syslog_.mark_interval(0);
         syslog_.destination("");
     }
+    Mqtt::publish(F("system/syslog"), syslog_enabled_ ? uuid::read_flash_string(FL_(enum_syslog)[syslog_level_ + 1]).c_str() : "off");
+    Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[EMSESP::watch()]).c_str());
 #endif
 }
 
@@ -688,6 +730,8 @@ void System::commands_init() {
 #if defined(EMSESP_DEBUG)
     Command::add(EMSdevice::DeviceType::SYSTEM, F("test"), System::command_test, F("run tests"));
 #endif
+    Command::add(EMSdevice::DeviceType::SYSTEM, F_(watch), System::command_watch, F_(watch), CommandFlag::ADMIN_ONLY);
+    Command::add(EMSdevice::DeviceType::SYSTEM, F_(syslog), System::command_syslog, F_(syslog), CommandFlag::ADMIN_ONLY);
 }
 
 // flashes the LED

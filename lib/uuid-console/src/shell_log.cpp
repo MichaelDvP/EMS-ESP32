@@ -39,6 +39,10 @@ Shell::QueuedLogMessage::QueuedLogMessage(unsigned long id, std::shared_ptr<uuid
 }
 
 void Shell::operator<<(std::shared_ptr<uuid::log::Message> message) {
+    // in trace level show only telegrams
+    if ((log_level() == uuid::log::Level::TRACE) && (message->level != uuid::log::Level::TRACE) && (message->level != uuid::log::Level::NOTICE)) {
+        return;
+    }
     if (log_messages_.size() >= maximum_log_messages_) {
         log_messages_.pop_front();
     }

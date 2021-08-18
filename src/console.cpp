@@ -79,13 +79,14 @@ void EMSESPShell::display_banner() {
     // load the list of commands
     add_console_commands();
 
-    // turn off watch, unless is test mode
+/*    // turn off watch, unless is test mode
     EMSESP::watch_id(WATCH_ID_NONE);
 #if defined(EMSESP_STANDALONE)
     EMSESP::watch(EMSESP::WATCH_ON);
 #else
     EMSESP::watch(EMSESP::WATCH_OFF);
 #endif
+*/
 }
 
 // pre-loads all the console commands into the MAIN context

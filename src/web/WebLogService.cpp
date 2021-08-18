@@ -99,6 +99,13 @@ WebLogService::QueuedLogMessage::QueuedLogMessage(unsigned long id, std::shared_
 }
 
 void WebLogService::operator<<(std::shared_ptr<uuid::log::Message> message) {
+    // special case for trace, show trace and notice messages only
+    if (log_level() == uuid::log::Level::TRACE &&
+        message->level != uuid::log::Level::TRACE &&
+        message->level != uuid::log::Level::NOTICE) {
+        return;
+    }
+
     if (log_messages_.size() >= maximum_log_messages_) {
         log_messages_.pop_front();
     }
@@ -157,7 +164,7 @@ char * WebLogService::messagetime(char * out, const uint64_t t) {
 
 // send to web eventsource
 void WebLogService::transmit(const QueuedLogMessage & message) {
-    DynamicJsonDocument jsonDocument = DynamicJsonDocument(EMSESP_JSON_SIZE_SMALL);
+    DynamicJsonDocument jsonDocument = DynamicJsonDocument(EMSESP_JSON_SIZE_MEDIUM);
     JsonObject          logEvent     = jsonDocument.to<JsonObject>();
     char                time_string[25];
 

@@ -46,6 +46,7 @@ MAKE_PSTR_WORD(restart)
 MAKE_PSTR_WORD(format)
 MAKE_PSTR_WORD(raw)
 MAKE_PSTR_WORD(watch)
+MAKE_PSTR_WORD(syslog)
 MAKE_PSTR_WORD(send)
 MAKE_PSTR_WORD(telegram)
 MAKE_PSTR_WORD(bus_id)
@@ -84,6 +85,7 @@ MAKE_PSTR_WORD(info)
 // MAKE_PSTR_WORD(info_short)
 MAKE_PSTR_WORD(settings)
 MAKE_PSTR_WORD(value)
+MAKE_PSTR_WORD(error)
 
 // devices
 MAKE_PSTR_WORD(boiler)
@@ -99,6 +101,7 @@ MAKE_PSTR_WORD(generic)
 MAKE_PSTR_WORD(sensor)
 MAKE_PSTR_WORD(unknown)
 MAKE_PSTR_WORD(Sensor)
+MAKE_PSTR_WORD(other)
 
 // format strings
 MAKE_PSTR(master_thermostat_fmt, "Master Thermostat Device ID: %s")
@@ -115,6 +118,9 @@ MAKE_PSTR(bus_id_fmt, "Bus ID: %02X")
 MAKE_PSTR(log_level_fmt, "Log level: %s")
 
 MAKE_STR(productid_fmt, "%s EMS Product ID")
+
+MAKE_PSTR_LIST(enum_syslog, F_(off), F("emerg"), F("alert"), F("crit"), F_(error), F("warn"), F("notice"), F_(info), F_(debug), F("trace"), F("all"))
+MAKE_PSTR_LIST(enum_watch, F_(off), F_(on), F_(raw), F_(unknown))
 
 // strings
 MAKE_PSTR(show_optional, "[devices | users | ems | mqtt | system | commands]")
@@ -245,7 +251,6 @@ MAKE_PSTR_WORD(buffer)
 MAKE_PSTR(bufferedflow, "buffered flow")
 MAKE_PSTR(layeredbuffer, "layered buffer")
 MAKE_PSTR_WORD(maintenance)
-MAKE_PSTR_WORD(error)
 
 // boiler lists
 MAKE_PSTR_LIST(tpl_date, F("Format: < dd.mm.yyyy >")) // template for text input

@@ -160,14 +160,14 @@ class EMSESP {
         enum_format_ = format;
     }
 
-    enum Watch : uint8_t { WATCH_OFF, WATCH_ON, WATCH_RAW, WATCH_UNKNOWN };
+    enum Watch : uint8_t { WATCH_OFF = 0, WATCH_ON, WATCH_RAW, WATCH_UNKNOWN };
     static void     watch_id(uint16_t id);
     static uint16_t watch_id() {
         return watch_id_;
     }
 
     static void watch(uint8_t watch) {
-        watch_ = watch; // 0=off, 1=on, 2=raw
+        watch_ = watch; // 0=off, 1=on, 2=raw, 3=unknown
         if (watch == WATCH_OFF) {
             watch_id_ = 0; // reset watch id if watch is disabled
         }

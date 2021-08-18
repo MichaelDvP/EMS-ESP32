@@ -231,6 +231,13 @@ SyslogService::QueuedLogMessage::QueuedLogMessage(unsigned long id, std::shared_
 }
 
 void SyslogService::operator<<(std::shared_ptr<uuid::log::Message> message) {
+    if (uuid::log::Logger::get_log_level(this) == uuid::log::Level::TRACE &&
+        (message->level != uuid::log::Level::NOTICE) &&
+        (message->level != uuid::log::Level::TRACE)
+       ) {
+        return;
+    }
+
     if (log_messages_.size() >= maximum_log_messages_) {
         log_messages_overflow_ = true;
         log_messages_.pop_front();

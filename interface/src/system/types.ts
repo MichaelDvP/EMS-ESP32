@@ -40,6 +40,7 @@ export interface OTASettings {
 }
 
 export enum LogLevel {
+  OFF = -1,
   ERROR = 3,
   WARNING = 4,
   NOTICE = 5,
