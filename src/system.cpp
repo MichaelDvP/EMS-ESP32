@@ -163,23 +163,27 @@ bool System::command_syslog(const char * value, const int8_t id) {
 bool System::command_watch(const char * value, const int8_t id) {
     uint8_t w = 0xff;
     if (Helpers::value2enum(value, w, FL_(enum_watch))) {
-        if (w == 0 || EMSESP::watch() == 0) {
+        if (w == 0 || EMSESP::watch() ==  EMSESP::Watch::WATCH_OFF) {
             EMSESP::watch_id(0);
         }
         EMSESP::watch(w);
-        Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[w]).c_str());
+        if (Mqtt::subscribe_format()) {
+            Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[w]).c_str());
+        }
         return true;
     }
     uint16_t i = Helpers::hextoint(value);
     if (i) {
         EMSESP::watch_id(i);
-        if (EMSESP::watch() == 0) {
-            EMSESP::watch(1);
+        if (EMSESP::watch() ==  EMSESP::Watch::WATCH_OFF) {
+            EMSESP::watch( EMSESP::Watch::WATCH_ON);
         }
-        // char s[10];
-        // snprintf_P(s, sizeof(s), PSTR("0x%04X"), i);
-        // Mqtt::publish(F("system/watch"), s);
-        Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[EMSESP::watch()]).c_str());
+        if (Mqtt::subscribe_format()) {
+            char s[10];
+            snprintf_P(s, sizeof(s), PSTR("0x%04X"), i);
+            Mqtt::publish(F("system/watch"), s);
+            // Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[EMSESP::watch()]).c_str());
+        }
         return true;
     }
     return false;
@@ -249,9 +253,11 @@ void System::syslog_start() {
         syslog_.mark_interval(0);
         syslog_.destination("");
     }
-    Mqtt::publish(F("system/syslog"), syslog_enabled_ ? uuid::read_flash_string(FL_(enum_syslog)[syslog_level_ + 1]).c_str() : "off");
-    Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[EMSESP::watch()]).c_str());
 #endif
+    if (Mqtt::subscribe_format()) {
+        Mqtt::publish(F("system/syslog"), syslog_enabled_ ? uuid::read_flash_string(FL_(enum_syslog)[syslog_level_ + 1]).c_str() : "off");
+        Mqtt::publish(F("system/watch"), uuid::read_flash_string(FL_(enum_watch)[EMSESP::watch()]).c_str());
+    }
 }
 
 // read all the settings except syslog from the config files and store locally
@@ -730,8 +736,8 @@ void System::commands_init() {
 #if defined(EMSESP_DEBUG)
     Command::add(EMSdevice::DeviceType::SYSTEM, F("test"), System::command_test, F("run tests"));
 #endif
-    Command::add(EMSdevice::DeviceType::SYSTEM, F_(watch), System::command_watch, F_(watch), CommandFlag::ADMIN_ONLY);
-    Command::add(EMSdevice::DeviceType::SYSTEM, F_(syslog), System::command_syslog, F_(syslog), CommandFlag::ADMIN_ONLY);
+    Command::add(EMSdevice::DeviceType::SYSTEM, F_(watch), System::command_watch, F("watching telegrams"), CommandFlag::ADMIN_ONLY);
+    Command::add(EMSdevice::DeviceType::SYSTEM, F_(syslog), System::command_syslog, F("set syslog level"), CommandFlag::ADMIN_ONLY);
 }
 
 // flashes the LED
