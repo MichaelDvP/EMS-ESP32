@@ -35,6 +35,11 @@ export interface Settings {
   eth_phy_addr: number;
   eth_clock_mode: number;
   platform: string;
+  knx_enabled: boolean;
+  knx_mc_ip: string;
+  knx_mc_port: number;
+  knx_ip: string;
+  knx_port: number;
 }
 
 export enum busConnectionStatus {

@@ -409,6 +409,10 @@ void AnalogSensor::publish_sensor(const Sensor & sensor) const {
         char payload[10];
         Mqtt::queue_publish(topic, Helpers::render_value(payload, sensor.value(), 2)); // always publish as doubles
     }
+    if (EMSESP::knx_) {
+        char payload[10];
+        EMSESP::knx_->onChange(F_(analogsensor), "", sensor.name().c_str(), Helpers::render_value(payload, sensor.value(), 2));
+    }
 }
 
 // send empty config topic to remove the entry from HA

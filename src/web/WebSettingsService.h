@@ -65,6 +65,11 @@ class WebSettings {
     uint8_t  weblog_buffer;
     bool     weblog_compact;
     bool     fahrenheit;
+    bool     knx_enabled;
+    uint16_t knx_port;
+    String   knx_ip;
+    uint16_t knx_multicast_port;
+    String   knx_multicast_ip;
 
     uint8_t phy_type;
     int8_t  eth_power; // -1 means disabled

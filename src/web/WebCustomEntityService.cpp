@@ -175,6 +175,9 @@ bool WebCustomEntityService::command_setvalue(const char * value, const std::str
             if (EMSESP::mqtt_.get_publish_onchange(0)) {
                 publish();
             }
+            if (EMSESP::knx_) {
+                EMSESP::knx_->onChange(F_(custom), "", entityItem.name.c_str(), value);
+            }
             return true;
         }
     }
@@ -591,7 +594,7 @@ void WebCustomEntityService::fetch() {
 bool WebCustomEntityService::get_value(std::shared_ptr<const Telegram> telegram) {
     bool has_change = false;
     EMSESP::webCustomEntityService.read([&](WebCustomEntity & webEntity) { customEntityItems = &webEntity.customEntityItems; });
-    // read-length of BOOL, INT, UINT, SHORT, USHORT, ULONG, TIME
+    // read-length of BOOL, INT8, UINT8, INT16, UINT16, UINT24, TIME, UINT32
     const uint8_t len[] = {1, 1, 1, 2, 2, 3, 3, 4};
     for (auto & entity : *customEntityItems) {
         if (entity.value_type == DeviceValueType::STRING && telegram->type_id == entity.type_id && telegram->src == entity.device_id
@@ -603,6 +606,9 @@ bool WebCustomEntityService::get_value(std::shared_ptr<const Telegram> telegram)
                     publish_single(entity);
                 } else if (EMSESP::mqtt_.get_publish_onchange(0)) {
                     has_change = true;
+                }
+                if (EMSESP::knx_) {
+                    EMSESP::knx_->onChange(F_(custom), "", entity.name.c_str(), entity.data.c_str());
                 }
             }
         } else if (entity.value_type != DeviceValueType::STRING && telegram->type_id == entity.type_id && telegram->src == entity.device_id
@@ -617,6 +623,12 @@ bool WebCustomEntityService::get_value(std::shared_ptr<const Telegram> telegram)
                     publish_single(entity);
                 } else if (EMSESP::mqtt_.get_publish_onchange(0)) {
                     has_change = true;
+                }
+                if (EMSESP::knx_) {
+                    JsonDocument doc;
+                    JsonObject   output = doc.to<JsonObject>();
+                    render_value(output, entity, true);
+                    EMSESP::knx_->onChange(F_(custom), "", entity.name.c_str(), output["value"].as<std::string>().c_str());
                 }
             }
             // EMSESP::logger().debug("custom entity %s received with value %d", entity.name.c_str(), (int)entity.val);

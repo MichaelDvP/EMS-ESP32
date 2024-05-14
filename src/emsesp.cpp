@@ -70,6 +70,7 @@ uuid::syslog::SyslogService System::syslog_;
 RxService         EMSESP::rxservice_;         // incoming Telegram Rx handler
 TxService         EMSESP::txservice_;         // outgoing Telegram Tx handler
 Mqtt              EMSESP::mqtt_;              // mqtt handler
+Knx *             EMSESP::knx_ = nullptr;     // knx handler
 System            EMSESP::system_;            // core system services
 TemperatureSensor EMSESP::temperaturesensor_; // Temperature sensors
 AnalogSensor      EMSESP::analogsensor_;      // Analog sensors
@@ -1627,6 +1628,15 @@ void EMSESP::start() {
 #endif
     }
 
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        if (settings.knx_enabled) {
+            knx_ = new Knx;
+            if (!knx_->start(settings.knx_multicast_ip.c_str(), settings.knx_multicast_port, settings.knx_port, settings.knx_ip.c_str())) {
+                delete knx_;
+                knx_ = nullptr;
+            }
+        }
+    });
     mqtt_.start();              // mqtt init
     system_.start();            // starts commands, led, adc, button, network (sets hostname), syslog & uart
     shower_.start();            // initialize shower timer and shower alert
@@ -1681,6 +1691,10 @@ void EMSESP::loop() {
 #endif
 
     Shell::loop_all();
+
+    if (knx_) {
+        knx_->loop();
+    }
 }
 
 } // namespace emsesp

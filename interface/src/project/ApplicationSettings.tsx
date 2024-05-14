@@ -768,6 +768,79 @@ const ApplicationSettings: FC = () => {
             </Grid>
           </Grid>
         )}
+        <Typography sx={{ pt: 2 }} variant="h6" color="primary">
+          KNX
+        </Typography>
+        <BlockFormControlLabel
+          control={
+            <Checkbox
+              checked={data.knx_enabled}
+              onChange={updateFormValue}
+              name="knx_enabled"
+            />
+          }
+          label={"Enable KNX"}
+        />
+        {data.knx_enabled && (
+          <Grid
+            container
+            spacing={1}
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="flex-start"
+          >
+            <Grid item xs={12} sm={6}>
+              <ValidatedTextField
+                fieldErrors={fieldErrors}
+                name="knx_mc_ip"
+                label="Multicast IP"
+                fullWidth
+                variant="outlined"
+                value={data.knx_mc_ip}
+                onChange={updateFormValue}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <ValidatedTextField
+                fieldErrors={fieldErrors}
+                name="knx_mc_port"
+                label="Multicast Port"
+                fullWidth
+                variant="outlined"
+                value={numberValue(data.knx_mc_port)}
+                type="number"
+                onChange={updateFormValue}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <ValidatedTextField
+                fieldErrors={fieldErrors}
+                name="knx_ip"
+                label="Unicast IP"
+                fullWidth
+                variant="outlined"
+                value={data.knx_ip}
+                onChange={updateFormValue}
+                margin="normal"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <ValidatedTextField
+                fieldErrors={fieldErrors}
+                name="knx_port"
+                label="Unicast Port"
+                fullWidth
+                variant="outlined"
+                value={numberValue(data.knx_port)}
+                type="number"
+                onChange={updateFormValue}
+                margin="normal"
+              />
+            </Grid>
+          </Grid>
+        )}
         {restartNeeded && (
           <MessageBox my={2} level="warning" message={LL.RESTART_TEXT(0)}>
             <Button

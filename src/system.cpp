@@ -1391,6 +1391,18 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
     }
 #endif
 
+    //KNX
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        node            = output["KNX Info"].to<JsonObject>();
+        node["enabled"] = settings.knx_enabled;
+        if (settings.knx_enabled) {
+            node["ip"] = settings.knx_ip;
+            node["port"] = settings.knx_port;
+            node["multicast ip"] = settings.knx_multicast_ip;
+            node["multicast port"] = settings.knx_multicast_port;
+        }
+    });
+
     // Sensor Status
     node = output["Sensor Info"].to<JsonObject>();
     if (EMSESP::sensor_enabled()) {

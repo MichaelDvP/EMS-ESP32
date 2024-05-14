@@ -752,7 +752,8 @@ void EMSdevice::set_minmax(const void * value_p, int16_t min, uint32_t max) {
 
 // publish a single value on change
 void EMSdevice::publish_value(void * value_p) const {
-    if (!Mqtt::publish_single() || value_p == nullptr) {
+    // if (!Mqtt::publish_single() || value_p == nullptr) {
+    if (value_p == nullptr) {
         return;
     }
 
@@ -820,8 +821,11 @@ void EMSdevice::publish_value(void * value_p) const {
                 break;
             }
 
-            if (payload[0] != '\0') {
+            if (Mqtt::publish_single() && payload[0] != '\0') {
                 Mqtt::queue_publish(topic, payload);
+            }
+            if (EMSESP::knx_) {
+                EMSESP::knx_->onChange(device_type_2_device_name(device_type_), tag_to_mqtt(dv.tag), dv.short_name, payload);
             }
         }
     }
