@@ -19,33 +19,56 @@
 #ifndef EMSESP_KNX_H_
 #define EMSESP_KNX_H_
 
-#include "helpers.h"
-#include "emsdevice.h"
-#include "emsdevicevalue.h"
+#include <WiFi.h>
+#include <WiFiUdp.h>
+#include <uuid/log.h>
 
-#include "AsyncUDP.h"
 
 namespace emsesp {
 
 class Knx {
   public:
-    bool start(const char * multiCastAddress, uint16_t multiCastPort, uint16_t Port, const char * remoteAddress = nullptr);
-    void loop();
+    bool start(const char * multiCastAddress, uint16_t multiCastPort);
     bool onChange(const char * device, const char * tag, const char * name, const char * value);
+    // ip stuff
+    uint32_t currentIpAddress();
+    uint32_t currentSubnetMask();
+    uint32_t currentDefaultGateway();
+    void     macAddress(uint8_t * addr);
+
+    // unique serial number
+    uint32_t uniqueSerialNumber();
+
+    // basic stuff
+    void restart();
+
+    //multicast
+    void setupMultiCast(uint32_t addr, uint16_t port);
+    void closeMultiCast();
+    bool sendBytesMultiCast(uint8_t * buffer, uint16_t len);
+    int  readBytesMultiCast(uint8_t * buffer, uint16_t maxLen);
+
+    //unicast
+    bool sendBytesUniCast(uint32_t addr, uint16_t port, uint8_t * buffer, uint16_t len);
+
+    //memory
+    uint8_t * getEepromBuffer(uint32_t size);
+    void      commitToEeprom();
 
   private:
+    WiFiUDP * _udp = nullptr;
+
     static const uint32_t    LOOP_TIME = 5; // 5 ms
     static uuid::log::Logger logger_;
 
-    static AsyncUDP * _multiCast;
-    static AsyncUDP * _uniCast;
+    static void knx_loop_task(void * pvParameters);
+    static void loop();
 
-    bool onMultiCast(AsyncUDPPacket packet);
-    bool onUniCast(AsyncUDPPacket packet);
     bool getValue(const char * device, const char * tag, const char * name, char * value, size_t len);
     bool setValue(const char * device, const char * tag, const char * name, const char * value);
-    bool writeFile();
-    bool readFile();
+
+    uint8_t * eepromBuf_  = nullptr;
+    size_t    eepromSize_ = 0;
 };
 
 } // namespace emsesp

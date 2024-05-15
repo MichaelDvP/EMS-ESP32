@@ -814,31 +814,6 @@ const ApplicationSettings: FC = () => {
                 margin="normal"
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <ValidatedTextField
-                fieldErrors={fieldErrors}
-                name="knx_ip"
-                label="Unicast IP"
-                fullWidth
-                variant="outlined"
-                value={data.knx_ip}
-                onChange={updateFormValue}
-                margin="normal"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <ValidatedTextField
-                fieldErrors={fieldErrors}
-                name="knx_port"
-                label="Unicast Port"
-                fullWidth
-                variant="outlined"
-                value={numberValue(data.knx_port)}
-                type="number"
-                onChange={updateFormValue}
-                margin="normal"
-              />
-            </Grid>
           </Grid>
         )}
         {restartNeeded && (

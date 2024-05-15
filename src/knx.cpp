@@ -18,84 +18,47 @@
  */
 
 #include "knx.h"
-#include "LittleFS.h"
-
+#include "emsesp.h"
 
 namespace emsesp {
 
 uuid::log::Logger Knx::logger_{"KNX", uuid::log::Facility::DAEMON};
-// use AsyncUDP, see:
-// https://github.com/espressif/arduino-esp32/tree/master/libraries/AsyncUDP
-AsyncUDP * Knx::_multiCast = nullptr;
-AsyncUDP * Knx::_uniCast   = nullptr;
 
 /*
 * start knx, create a multicast and unicast udp server, listen to packets
 */
-bool Knx::start(const char * multicastaddress, uint16_t multiCastPort, uint16_t Port, const char * remoteaddress) {
+bool Knx::start(const char * multicastaddress, uint16_t multiCastPort) {
     IPAddress multiCastAddress;
     multiCastAddress.fromString(multicastaddress);
-    if (_multiCast != nullptr || _uniCast != nullptr) {
-        delete _multiCast;
-        delete _uniCast;
-    }
-    _multiCast = new AsyncUDP;
-    if (!_multiCast->listenMulticast(multiCastAddress, multiCastPort)) {
-        LOG_ERROR("Start KNX failed");
+    _udp = new WiFiUDP;
+    if (_udp == nullptr) {
+        LOG_ERROR("KNX failed");
         return false;
     }
-    _multiCast->onPacket([this](AsyncUDPPacket packet) { onMultiCast(packet); });
-
-    _uniCast = new AsyncUDP;
-    if (remoteaddress) { // handle client
-        IPAddress uniCastAddress;
-        uniCastAddress.fromString(remoteaddress);
-        if (!_uniCast->connect(uniCastAddress, Port)) {
-            LOG_ERROR("KNX failed to connect to server");
-            return false;
-        }
-
-    } else {                           // server
-        if (!_uniCast->listen(Port)) { // for server
-            LOG_ERROR("KNX Start failed");
-            return false;
-        }
-    }
-    _uniCast->onPacket([this](AsyncUDPPacket packet) { onUniCast(packet); });
+    _udp->beginMulticast(multiCastAddress, multiCastPort);
+    xTaskCreatePinnedToCore(knx_loop_task, "knxlooptask", 4096, NULL, 2, NULL, portNUM_PROCESSORS - 1);
     LOG_INFO("KNX started");
     return true;
 }
 
+void Knx::knx_loop_task(void * pvParameters) {
+    while (1) {
+        static uint32_t last_loop = 0;
+        if (millis() - last_loop >= LOOP_TIME) {
+            last_loop = millis();
+            // loop();
+        } else {
+            delay(1);
+        }
+    }
+    vTaskDelete(NULL);
+}
+
 /*
-* knx loop do something every 5 ms in main loop, not async.
+* knx loop do something every 5 ms async.
 */
 void Knx::loop() {
-    static uint32_t last_loop = 0;
-    if ((uuid::get_uptime() - last_loop < LOOP_TIME)) {
-        return;
-    }
-    last_loop = uuid::get_uptime();
     // do loop
-}
-
-/*
-* we get a multicast packet
-*/
-bool Knx::onMultiCast(AsyncUDPPacket packet) {
-    if (packet.length()) {
-        LOG_DEBUG("KNX packet received: %s", Helpers::data_to_hex(packet.data(), packet.length()).c_str());
-    }
-    return true;
-}
-
-/*
-* we get a unicast packet
-*/
-bool Knx::onUniCast(AsyncUDPPacket packet) {
-    if (packet.length()) {
-        LOG_DEBUG("KNX packet received: %s", Helpers::data_to_hex(packet.data(), packet.length()).c_str());
-    }
-    return true;
 }
 
 /*
@@ -104,10 +67,8 @@ bool Knx::onUniCast(AsyncUDPPacket packet) {
 bool Knx::onChange(const char * device, const char * tag, const char * name, const char * value) {
     if (tag[0] != '\0') {
         LOG_DEBUG("KNX publish: %s/%s/%s = %s", device, tag, name, value);
-        // _multiCast->printf("%s/%s/%s=%s", device, tag, name, value);
     } else {
         LOG_DEBUG("KNX publish: %s/%s = %s", device, name, value);
-        // _multiCast->printf("%s/%s=%s", device, name, value);
     }
     return true;
 }
@@ -155,30 +116,93 @@ bool Knx::setValue(const char * device, const char * tag, const char * name, con
     return true;
 }
 
-/*
-* write knx config to file system
-*/
-bool Knx::writeFile() {
-    File file = LittleFS.open("/knx_data", "w");
-    if (!file) {
-        return false;
-    }
-    // write your data here
-    file.close();
+uint32_t Knx::currentIpAddress() {
+    return WiFi.localIP();
+}
+
+uint32_t Knx::currentSubnetMask() {
+    return WiFi.subnetMask();
+}
+
+uint32_t Knx::currentDefaultGateway() {
+    return WiFi.gatewayIP();
+}
+
+void Knx::macAddress(uint8_t * addr) {
+    esp_wifi_get_mac(WIFI_IF_STA, addr);
+}
+
+uint32_t Knx::uniqueSerialNumber() {
+    uint64_t chipid  = ESP.getEfuseMac();
+    uint32_t upperId = (chipid >> 32) & 0xFFFFFFFF;
+    uint32_t lowerId = (chipid & 0xFFFFFFFF);
+    return (upperId ^ lowerId);
+}
+
+void Knx::restart() {
+    ESP.restart();
+}
+
+void Knx::setupMultiCast(uint32_t addr, uint16_t port) {
+    IPAddress mcastaddr(htonl(addr));
+
+    LOG_DEBUG("setup multicast addr: %s port: %d ip: %s\n", mcastaddr.toString().c_str(), port, WiFi.localIP().toString().c_str());
+    uint8_t result = _udp->beginMulticast(mcastaddr, port);
+    LOG_DEBUG("result %d\n", result);
+}
+
+void Knx::closeMultiCast() {
+    _udp->stop();
+}
+
+bool Knx::sendBytesMultiCast(uint8_t * buffer, uint16_t len) {
+    //printHex("<- ",buffer, len);
+    _udp->beginMulticastPacket();
+    _udp->write(buffer, len);
+    _udp->endPacket();
     return true;
 }
 
-/*
-* read knx config to file system
-*/
-bool Knx::readFile() {
-    File file = LittleFS.open("/knx_data");
-    if (!file) {
-        return false;
+int Knx::readBytesMultiCast(uint8_t * buffer, uint16_t maxLen) {
+    int len = _udp->parsePacket();
+    if (len == 0)
+        return 0;
+
+    if (len > maxLen) {
+        LOG_DEBUG("udp buffer to small. was %d, needed %d\n", maxLen, len);
+        return 0; // fatalError();
     }
-    // read your data here
-    file.close();
+
+    _udp->read(buffer, len);
+    return len;
+}
+
+bool Knx::sendBytesUniCast(uint32_t addr, uint16_t port, uint8_t * buffer, uint16_t len) {
+    IPAddress ucastaddr(htonl(addr));
+    LOG_DEBUG("sendBytesUniCast endPacket fail");
+    if (_udp->beginPacket(ucastaddr, port) == 1) {
+        _udp->write(buffer, len);
+        if (_udp->endPacket() == 0)
+            LOG_DEBUG("sendBytesUniCast endPacket fail");
+    } else
+        LOG_DEBUG("sendBytesUniCast beginPacket fail");
     return true;
 }
+
+
+uint8_t * Knx::getEepromBuffer(size_t size) {
+    if (eepromBuf_ != nullptr) {
+        delete[] eepromBuf_;
+    }
+    eepromBuf_  = new uint8_t[size];
+    eepromSize_ = size;
+    EMSESP::nvs_.getBytes("knx", eepromBuf_, size);
+    return eepromBuf_;
+}
+
+void Knx::commitToEeprom() {
+    EMSESP::nvs_.putBytes("knx", eepromBuf_, eepromSize_);
+}
+
 
 } // namespace emsesp

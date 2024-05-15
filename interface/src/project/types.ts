@@ -38,8 +38,6 @@ export interface Settings {
   knx_enabled: boolean;
   knx_mc_ip: string;
   knx_mc_port: number;
-  knx_ip: string;
-  knx_port: number;
 }
 
 export enum busConnectionStatus {

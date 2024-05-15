@@ -66,8 +66,6 @@ class WebSettings {
     bool     weblog_compact;
     bool     fahrenheit;
     bool     knx_enabled;
-    uint16_t knx_port;
-    String   knx_ip;
     uint16_t knx_multicast_port;
     String   knx_multicast_ip;
 

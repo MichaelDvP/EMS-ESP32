@@ -1628,15 +1628,12 @@ void EMSESP::start() {
 #endif
     }
 
-    EMSESP::webSettingsService.read([&](WebSettings & settings) {
-        if (settings.knx_enabled) {
-            knx_ = new Knx;
-            if (!knx_->start(settings.knx_multicast_ip.c_str(), settings.knx_multicast_port, settings.knx_port, settings.knx_ip.c_str())) {
-                delete knx_;
-                knx_ = nullptr;
-            }
-        }
-    });
+    if (system_.knx_enabled()) {
+        LOG_INFO("Starting KNX");
+        knx_ = new Knx;
+        knx_->start(system_.knx_multicast_ip().c_str(), system_.knx_multicast_port());
+    }
+
     mqtt_.start();              // mqtt init
     system_.start();            // starts commands, led, adc, button, network (sets hostname), syslog & uart
     shower_.start();            // initialize shower timer and shower alert
@@ -1692,9 +1689,7 @@ void EMSESP::loop() {
 
     Shell::loop_all();
 
-    if (knx_) {
-        knx_->loop();
-    }
+
 }
 
 } // namespace emsesp

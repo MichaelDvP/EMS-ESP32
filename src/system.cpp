@@ -391,6 +391,10 @@ void System::reload_settings() {
         board_profile_  = settings.board_profile;
         telnet_enabled_ = settings.telnet_enabled;
 
+        knx_enabled_           = settings.knx_enabled;
+        knx_multicast_port_    = settings.knx_multicast_port;
+        knx_multicast_ip_      = settings.knx_multicast_ip;
+
         rx_gpio_     = settings.rx_gpio;
         tx_gpio_     = settings.tx_gpio;
         dallas_gpio_ = settings.dallas_gpio;
@@ -1396,8 +1400,6 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
         node            = output["KNX Info"].to<JsonObject>();
         node["enabled"] = settings.knx_enabled;
         if (settings.knx_enabled) {
-            node["ip"] = settings.knx_ip;
-            node["port"] = settings.knx_port;
             node["multicast ip"] = settings.knx_multicast_ip;
             node["multicast port"] = settings.knx_multicast_port;
         }

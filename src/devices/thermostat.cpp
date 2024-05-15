@@ -1553,7 +1553,7 @@ void Thermostat::process_RC30Vacation(std::shared_ptr<const Telegram> telegram) 
                  vacation_telegram[4 + 7 * index],
                  vacation_telegram[5 + 7 * index],
                  vacation_telegram[6 + 7 * index] + 2000);
-        if (data[1] > '0') {
+        if (vacation_telegram[1 + 7 * index]) {
             has_update(vacation[index], data, sizeof(vacation[0]));
         }
     }
