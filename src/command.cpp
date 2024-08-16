@@ -181,7 +181,11 @@ uint8_t Command::process(const char * path, const bool is_admin, const JsonObjec
 
     // call the command based on the type
     uint8_t return_code = CommandRet::ERROR;
-    if (data.is<const char *>()) {
+    if (data.is<JsonObject>() || data.is<JsonArray>()) {
+        char jsondata[measureJson(data) + 1];
+        serializeJson(data, jsondata, sizeof(jsondata));
+        return_code = Command::call(device_type, command_p, jsondata, is_admin, id_n, output);
+    } else if (data.is<const char *>()) {
         return_code = Command::call(device_type, command_p, data.as<const char *>(), is_admin, id_n, output);
     } else if (data.is<int>()) {
         char data_str[10];

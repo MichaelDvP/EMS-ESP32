@@ -42,7 +42,8 @@ class DeviceValue {
         UINT32,
         ENUM,
         STRING,
-        CMD // special for commands only
+        CMD,   // special for commands only
+        JSON
     };
 
     // Unit Of Measurement mapping - maps to DeviceValueUOM_s in emsdevicevalue.cpp. Sequence is important!!

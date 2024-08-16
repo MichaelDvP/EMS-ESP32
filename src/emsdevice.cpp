@@ -1590,6 +1590,58 @@ void EMSdevice::get_value_json(JsonObject json, DeviceValue & dv) {
         }
         break;
 
+    case DeviceValueType::JSON:
+        json[type] = ("json");
+        if (!strcmp(dv.options_single[0], "RC35")) {
+            // Jauto json_val = json[value].to<JsonObject>();
+            auto json_val = json[value].to<JsonArray>();
+            for (uint8_t i = 0; i < 42; i++) {
+                uint8_t * v_p = (uint8_t *)dv.value_p + 2 * i;
+                if (((*v_p) >> 5) != 7 && ((*v_p) & 0x07) != 7 && ((*v_p) & 0x18) == 0 && (*(v_p + 1) < 0x90)) {
+                    // char n[3];
+                    // auto data = json_val[Helpers::smallitoa(n, i)].to<JsonObject>();
+                    auto data   = json_val.add<JsonObject>();
+                    data["id"]  = i;
+                    data["day"] = Helpers::translated_word(FL_(enum_dayOfWeek[(*v_p) >> 5]));
+                    char time[6];
+                    data["time"] = Helpers::render_clock(time, *(v_p + 1), DeviceValue::DV_NUMOP_MUL10);
+                    if (EMSESP::system_.bool_format() == BOOL_FORMAT_10) {
+                        data["mode"] = (*(v_p) & 1) ? 1 : 0;
+                    } else if (EMSESP::system_.enum_format() == BOOL_FORMAT_TRUEFALSE) {
+                        data["mode"] = (*(v_p) & 1) ? true : false;
+                    } else { // if (dv.tag == DeviceValueTAG::TAG_DHW1) {
+                        char b[12];
+                        data["mode"] = Helpers::render_boolean(b, *(v_p) & 1);
+                        // } else {
+                        //     data["mode"] = (*(v_p) & 1) ? Helpers::translated_word(FL_(day)) : Helpers::translated_word(FL_(night));
+                    }
+                }
+            }
+        } else if (!strcmp(dv.options_single[0], "RC300")) {
+            auto json_val = json[value].to<JsonObject>();
+            for (uint8_t i = 0; i < 7; i++) {
+                auto dow = json_val[Helpers::translated_word(FL_(enum_dayOfWeek[i]))].to<JsonArray>();
+                for (uint8_t j = 0; j < 6; j++) {
+                    auto      data = dow.add<JsonObject>();
+                    uint8_t * v_p  = (uint8_t *)dv.value_p + 12 * i + 2 * j;
+                    if (*v_p != 0xFF) {
+                        data["id"]  = j;
+                        data["day"] = Helpers::translated_word(FL_(enum_dayOfWeek[i]));
+                        char time[6];
+                        data["time"]         = Helpers::render_clock(time, *(v_p), DeviceValue::DV_NUMOP_MUL15);
+                        uint8_t      mode    = *(v_p + 1) + 1; // sets 0xFF to index 0
+                        const char * modes[] = {"on", "off", "eco/low", "high", "comfort"};
+                        if (mode < 5) {
+                            data["mode"] = modes[mode];
+                        } else {
+                            data["temp"] = (*(v_p + 1)) / 2;
+                        }
+                    }
+                }
+            }
+        }
+        break;
+
     default:
         json[type] = Helpers::translated_word(FL_(unknown));
         break;

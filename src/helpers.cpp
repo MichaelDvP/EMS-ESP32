@@ -373,6 +373,17 @@ char * Helpers::render_value(char * result, const uint32_t value, const int8_t f
     return result;
 }
 
+char * Helpers::render_clock(char * result, const uint8_t value, const int8_t format) {
+    if (!hasValue(value)) {
+        return nullptr;
+    }
+    uint16_t t = format < 0 ? -1 * value * format : format == 0 ? value : value / format;
+    uint8_t  m = t % 60;
+    uint8_t  h = t / 60;
+    snprintf(result, 6, "%02d:%02d", h, m);
+    return result;
+}
+
 // creates string of hex values from an arrray of bytes
 std::string Helpers::data_to_hex(const uint8_t * data, const uint8_t length) {
     if (length == 0) {

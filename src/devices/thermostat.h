@@ -81,8 +81,8 @@ class Thermostat : public EMSdevice {
         uint8_t fastHeatup;
         char    holiday[22];
         char    vacation[22];
-        char    switchtime1[16];
-        char    switchtime2[16];
+        uint8_t switchtime1[84];
+        uint8_t switchtime2[84];
         uint8_t climate;
         uint8_t switchonoptimization;
         uint8_t statusbyte; // from RC300monitor
@@ -193,8 +193,8 @@ class Thermostat : public EMSdevice {
         uint8_t wwOneTimeKey_;
         uint8_t wwProgMode_;
         uint8_t wwCircProg_;
-        char    wwSwitchTime_[20];
-        char    wwCircSwitchTime_[20];
+        uint8_t switchtime[84];
+        uint8_t circswitchtime[84];
         uint8_t wwDailyHeating_;
         uint8_t wwDailyHeatTime_;
         uint8_t wwWhenModeOff_;
@@ -216,6 +216,12 @@ class Thermostat : public EMSdevice {
   private:
     static uuid::log::Logger logger_;
 
+    static void init_switchtime(uint8_t * st, uint8_t len) {
+        for (uint8_t i = 0; i < len; i++) {
+            st[i] = 0xFF;
+        }
+    }
+
     void register_device_values();
     void register_device_values(uint8_t hc_num);
 
@@ -226,8 +232,7 @@ class Thermostat : public EMSdevice {
 
     // check to see if the thermostat is a hybrid of the R300
     inline bool isRC300() const {
-        return ((model() == EMSdevice::EMS_DEVICE_FLAG_RC300) || (model() == EMSdevice::EMS_DEVICE_FLAG_R3000) || (model() == EMSdevice::EMS_DEVICE_FLAG_BC400)
-                || (model() == EMSdevice::EMS_DEVICE_FLAG_CR120));
+        return (flags() & 32);
     }
 
     inline uint8_t id2dhw(const int8_t id) const {
@@ -240,6 +245,8 @@ class Thermostat : public EMSdevice {
     std::vector<uint16_t> set2_typeids;
     std::vector<uint16_t> timer_typeids;
     std::vector<uint16_t> timer2_typeids;
+    std::vector<uint16_t> timer3_typeids;
+    std::vector<uint16_t> timer4_typeids;
     std::vector<uint16_t> summer_typeids;
     std::vector<uint16_t> summer2_typeids;
     std::vector<uint16_t> curve_typeids;
@@ -278,7 +285,8 @@ class Thermostat : public EMSdevice {
     uint8_t humidity_;
     uint8_t battery_;
 
-    char vacation[8][22]; // RC30, R3000 only, only one hc
+    char    vacation[8][22]; // RC30, R3000 only, only one hc
+    uint8_t holidaytemp_;
 
     // HybridHP
     uint8_t hybridStrategy_;  // co2 = 1, cost = 2, temperature = 3, mix = 4
@@ -438,6 +446,7 @@ class Thermostat : public EMSdevice {
     void process_RC300OutdoorTemp(std::shared_ptr<const Telegram> telegram);
     void process_RC300Settings(std::shared_ptr<const Telegram> telegram);
     void process_RC300Floordry(std::shared_ptr<const Telegram> telegram);
+    void process_RC300Timer(std::shared_ptr<const Telegram> telegram);
     void process_RC300Holiday(std::shared_ptr<const Telegram> telegram);
     void process_RC300Curve(std::shared_ptr<const Telegram> telegram);
     void process_JunkersMonitor(std::shared_ptr<const Telegram> telegram);
@@ -445,6 +454,7 @@ class Thermostat : public EMSdevice {
     void process_JunkersSet2(std::shared_ptr<const Telegram> telegram);
     void process_EasyMonitor(std::shared_ptr<const Telegram> telegram);
     void process_JunkersRemoteMonitor(std::shared_ptr<const Telegram> telegram);
+    void process_JunkersTimer(std::shared_ptr<const Telegram> telegram);
     void process_HybridSettings(std::shared_ptr<const Telegram> telegram);
     void process_PVSettings(std::shared_ptr<const Telegram> telegram);
     void process_JunkersSetMixer(std::shared_ptr<const Telegram> telegram);

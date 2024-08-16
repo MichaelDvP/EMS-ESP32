@@ -1037,6 +1037,9 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
 
         nrgHeatF_ = EMSESP::nvs_.getDouble(FL_(nrgHeat)[0], 0);
         nrgWwF_   = EMSESP::nvs_.getDouble(FL_(nrgWw)[0], 0);
+        if (nrgWwF_ == 0) { // convert values form 3.6.5
+            nrgWwF_ = EMSESP::nvs_.getDouble("nrgww", 0);
+        }
         nomPower_ = EMSESP::nvs_.getUChar(FL_(nomPower)[0], 0);
         if (nrgHeatF_ < 0 || nrgHeatF_ >= EMS_VALUE_UINT32_NOTSET) {
             nrgHeatF_ = 0;
