@@ -166,7 +166,11 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
         for (uint8_t i = 0; i < set2_typeids.size(); i++) {
             register_telegram_type(set2_typeids[i], "RC300Set2", false, MAKE_PF_CB(process_RC300Set2));
             register_telegram_type(hp_typeids[i], "HPSet", false, MAKE_PF_CB(process_HPSet));
-            register_telegram_type(hpmode_typeids[i], "HPMode", true, MAKE_PF_CB(process_HPMode));
+            register_telegram_type(hpmode_typeids[i], "HPMode", false, MAKE_PF_CB(process_HPMode));
+            register_telegram_type(timer_typeids[i], "RC300Timer1", false, MAKE_PF_CB(process_RC300Timer));
+            register_telegram_type(timer2_typeids[i], "RC300Timer2", false, MAKE_PF_CB(process_RC300Timer));
+            register_telegram_type(timer3_typeids[i], "RC300Timer3", false, MAKE_PF_CB(process_RC300Timer));
+            register_telegram_type(timer4_typeids[i], "RC300Timer4", false, MAKE_PF_CB(process_RC300Timer));
         }
         register_telegram_type(0x2F5, "RC300WWmode", true, MAKE_PF_CB(process_RC300WWmode));
         register_telegram_type(0x2F6, "RC300WW2mode", true, MAKE_PF_CB(process_RC300WWmode));
@@ -464,6 +468,21 @@ std::shared_ptr<Thermostat::HeatingCircuit> Thermostat::heating_circuit(std::sha
     }
     if (hp_typeids.size()) {
         toggle_fetch(hp_typeids[hc_num - 1], toggle_);
+    }
+    if (hpmode_typeids.size()) {
+        toggle_fetch(hpmode_typeids[hc_num - 1], toggle_);
+    }
+    if (timer_typeids.size()) {
+        toggle_fetch(timer_typeids[hc_num - 1], toggle_);
+    }
+    if (timer2_typeids.size()) {
+        toggle_fetch(timer_typeids[hc_num - 1], toggle_);
+    }
+    if (timer3_typeids.size()) {
+        toggle_fetch(timer_typeids[hc_num - 1], toggle_);
+    }
+    if (timer4_typeids.size()) {
+        toggle_fetch(timer_typeids[hc_num - 1], toggle_);
     }
 
     return new_hc; // return back point to new HC object
