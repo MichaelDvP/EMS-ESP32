@@ -1538,7 +1538,9 @@ EMSESP::EMSESP()
 // start all the core services
 // the services must be loaded in the correct order
 void EMSESP::start() {
+#ifndef EMSESP_STANDALONE
     system_.PSram(ESP.getPsramSize());
+#endif
 // don't need shell if running unit tests
 #ifndef EMSESP_UNITY
     // Serial console's shell
@@ -1554,8 +1556,6 @@ void EMSESP::start() {
 #if defined(EMSESP_STANDALONE)
     shell_->add_flags(CommandFlags::ADMIN); // always start in su/admin mode when running tests
 #endif
-#else
-#warning "Shell is disabled when running Unity tests."
 #endif
 
 // start the file system
