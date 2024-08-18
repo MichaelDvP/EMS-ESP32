@@ -3273,7 +3273,7 @@ bool Thermostat::set_reducehours(const char * value, const int8_t id) {
 }
 
 // sets a single switchtime in the thermostat program for RC35, ww, circ, hc..
-bool Thermostat::set_switchtime(const char * value, const uint16_t type_id, char * out, size_t len) {
+bool Thermostat::set_switchtime(const char * value, const uint16_t type_id) {
     if (value == nullptr) {
         return false;
     }
@@ -3348,9 +3348,10 @@ bool Thermostat::set_switchtime1(const char * value, const int8_t id) {
     if (hc == nullptr) {
         return false;
     }
-    char out[20] = {'\0'};
-    if (set_switchtime(value, timer_typeids[hc->hc()], out, sizeof(out))) {
-        return true;
+    if (isRC300() && hc->switchProgMode == 1) {
+        return set_switchtime(value, timer3_typeids[hc->hc()]);
+    } else {
+        return set_switchtime(value, timer_typeids[hc->hc()]);
     }
     return false;
 }
@@ -3361,10 +3362,10 @@ bool Thermostat::set_switchtime2(const char * value, const int8_t id) {
     if (hc == nullptr) {
         return false;
     }
-    char out[20] = {'\0'};
-
-    if (set_switchtime(value, timer2_typeids[hc->hc()], out, sizeof(out))) {
-        return true;
+    if (isRC300() && hc->switchProgMode == 1) {
+        return set_switchtime(value, timer4_typeids[hc->hc()]);
+    } else {
+        return set_switchtime(value, timer2_typeids[hc->hc()]);
     }
     return false;
 }
@@ -3374,18 +3375,17 @@ bool Thermostat::set_wwCircSwitchTime(const char * value, const int8_t id) {
     if (dhw == nullptr) {
         return false;
     }
-    char out[20] = {'\0'};
 
     if (isRC300() || model() == EMSdevice::EMS_DEVICE_FLAG_RC100) {
-        if (set_switchtime(value, 0x0309 + dhw->offset(), out, sizeof(out))) {
+        if (set_switchtime(value, 0x0309 + dhw->offset())) {
             return true;
         }
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
-        if (set_switchtime(value, 0x020F, out, sizeof(out))) {
+        if (set_switchtime(value, 0x020F)) {
             return true;
         }
     } else { // RC35
-        if (set_switchtime(value, 0x39, out, sizeof(out))) {
+        if (set_switchtime(value, 0x39)) {
             return true;
         }
     }
@@ -3398,18 +3398,17 @@ bool Thermostat::set_wwSwitchTime(const char * value, const int8_t id) {
     if (dhw != nullptr) {
         return false;
     }
-    char out[20] = {'\0'};
 
     if (isRC300() || model() == EMSdevice::EMS_DEVICE_FLAG_RC100) {
-        if (set_switchtime(value, 0x02FF + dhw->offset(), out, sizeof(out))) {
+        if (set_switchtime(value, 0x02FF + dhw->offset())) {
             return true;
         }
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
-        if (set_switchtime(value, 0x01FB, out, sizeof(out))) {
+        if (set_switchtime(value, 0x01FB)) {
             return true;
         }
     } else { // RC35
-        if (set_switchtime(value, 0x38, out, sizeof(out))) {
+        if (set_switchtime(value, 0x38)) {
             return true;
         }
     }

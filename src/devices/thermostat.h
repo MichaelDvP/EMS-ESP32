@@ -469,7 +469,7 @@ class Thermostat : public EMSdevice {
 
     bool set_temperature_value(const char * value, const int8_t id, const uint8_t mode, bool relative = false);
     bool set_temperature(const float temperature, const uint8_t mode, const int8_t id);
-    bool set_switchtime(const char * value, const uint16_t type_id, char * out, size_t len);
+    bool set_switchtime(const char * value, const uint16_t type_id);
 
     // set functions - these use the id/hc
     bool        set_mode(const char * value, const int8_t id);
