@@ -209,6 +209,7 @@ MAKE_NOTRANSLATION(progd, "prog d")
 MAKE_NOTRANSLATION(proge, "prog e")
 MAKE_NOTRANSLATION(progf, "prog f")
 MAKE_NOTRANSLATION(rc35, "RC35")
+MAKE_NOTRANSLATION(rc30, "RC30")
 MAKE_NOTRANSLATION(rc300, "RC300")
 MAKE_NOTRANSLATION(0kW, "0 kW")
 MAKE_NOTRANSLATION(2kW, "2 kW")
@@ -354,7 +355,7 @@ MAKE_ENUM(enum_control1, FL_(rc310), FL_(rc200), FL_(rc100), FL_(rc100h), FL_(tc
 MAKE_ENUM(enum_control2, FL_(off), FL_(dash), FL_(rc100), FL_(rc100h), FL_(dash), FL_(rc120rf), FL_(rc220), FL_(single)) // BC400
 MAKE_ENUM(enum_control3, FL_(off), FL_(dash), FL_(cr10), FL_(cr10h), FL_(dash), FL_(cr20rf), FL_(rt800), FL_(single)) // UI800
 
-MAKE_ENUM(enum_switchmode, FL_(off), FL_(eco), FL_(comfort), FL_(heat))
+MAKE_ENUM(enum_switchmode, FL_(on), FL_(off), FL_(eco), FL_(high), FL_(comfort))
 MAKE_ENUM(enum_switchProgMode, FL_(level), FL_(absolute))
 
 MAKE_ENUM(enum_dayOfWeek, FL_(day_mo), FL_(day_tu), FL_(day_we), FL_(day_th), FL_(day_fr), FL_(day_sa), FL_(day_su), FL_(all))

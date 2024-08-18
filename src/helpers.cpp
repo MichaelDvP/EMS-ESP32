@@ -391,7 +391,7 @@ std::string Helpers::data_to_hex(const uint8_t * data, const uint8_t length) {
     }
 
     char str[length * 3];
-    memset(str, 0, length * sizeof(char));
+    memset(str, 0, sizeof(str));
 
     char   buffer[4];
     char * p = &str[0];
@@ -848,6 +848,8 @@ uint16_t Helpers::string2minutes(const std::string & str) {
 
     if (state == 1 && tmp < 60) {
         return res + tmp;
+    } else if (state == 0) { // only on number in minutes
+        return tmp;
     } else {
         return 0; // Or if we were not, something is wrong in the given string
     }

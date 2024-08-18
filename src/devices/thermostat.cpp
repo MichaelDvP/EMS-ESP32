@@ -1209,10 +1209,10 @@ void Thermostat::process_RC300WWtemp(std::shared_ptr<const Telegram> telegram) {
 void Thermostat::process_RC300WWmode(std::shared_ptr<const Telegram> telegram) {
     uint8_t circuit = 0;
     telegram->read_value(circuit, 0);
-    if (!circuit) {
+    auto dhw = dhw_circuit(telegram->type_id - 0x2F5, circuit, circuit != 0);
+    if (dhw == nullptr) {
         return;
     }
-    auto dhw = dhw_circuit(telegram->type_id - 0x2F5, circuit, true);
     // circulation pump see: https://github.com/Th3M3/buderus_ems-wiki/blob/master/Einstellungen%20der%20Bedieneinheit%20RC310.md
     has_update(telegram, dhw->wwCircPump_, 1); // FF=off, 0=on ?
 
@@ -3277,57 +3277,54 @@ bool Thermostat::set_switchtime(const char * value, const uint16_t type_id, char
     if (value == nullptr) {
         return false;
     }
-    JsonDocument         doc;
-    DeserializationError error = deserializeJson(doc, value);
-    if (error) {
+    JsonDocument doc;
+    if (deserializeJson(doc, value) != DeserializationError::Ok) {
         return false;
     }
-    uint8_t      no    = doc["id"] | 0;
-    const char * s_day = doc["day"];
-    uint8_t day;
-    if (!Helpers::value2enum(s_day, day, FL_(enum_dayOfWeek))) {
+    uint8_t     no    = doc["id"] | 0;
+    std::string s_day = doc["day"] | "";
+    uint8_t     day;
+    if (!Helpers::value2enum(s_day.c_str(), day, FL_(enum_dayOfWeek))) {
         return false;
     }
-    const char * s_mode = doc["mode"];
-    const char * s_time = doc["time"];
-    uint8_t      temp   = doc["temp"];
-    uint16_t     time   = Helpers::string2minutes(s_time);
-    uint8_t on  = 8; // invalid
+    std::string s_mode = doc["mode"] | "";
+    std::string s_time = doc["time"] | "";
+    uint8_t     temp   = doc["temp"] | 0;
+    uint16_t    time   = Helpers::string2minutes(s_time);
 
     if (model() == EMSdevice::EMS_DEVICE_FLAG_RC35 || model() == EMSdevice::EMS_DEVICE_FLAG_RC30_N) {
         bool b;
-        if (Helpers::value2bool(s_mode, b)) {
+        if (Helpers::value2bool(s_mode.c_str(), b)) {
             temp = b ? 1 : 0;
         }
         time /= 6;
     } else if ((model() == EMSdevice::EMS_DEVICE_FLAG_RC20) || (model() == EMSdevice::EMS_DEVICE_FLAG_RC30)) {
-        if (s_mode[0] == 'T') {
-            temp = s_mode[1] - '0';
-        } else {
-            temp = s_mode[0] - '0';
-        }
+        temp = s_mode[0] - '0'; // temp level as mode
         time /= 6;
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
         time /= 4;
     } else { // RC300
-       if (temp == 0 && !Helpers::value2enum(s_mode, temp, FL_(enum_switchmode))) {
-            return false;
-        } 
+        if (temp == 0) {
+            if (!Helpers::value2enum(s_mode.c_str(), temp, FL_(enum_switchmode))) {
+                return false;
+            }
+            temp--; // set on->0xFF, off to 0x00
+        }
         time /= 4;
     }
-    if (strncmp(s_mode, "not_set", 7) == 0) {
+    if (s_mode == "not_set") {
         day  = 7;
-        on   = 7;
+        temp = 7;
         time = 0xFF;
     }
 
     if (model() == EMSdevice::EMS_DEVICE_FLAG_RC35 || model() == EMSdevice::EMS_DEVICE_FLAG_RC30 || model() == EMSdevice::EMS_DEVICE_FLAG_RC20) {
         uint8_t data[2] = {0xE7, 0x90}; // unset switchtime
-        if (day != 7 && on != 7 && time != 0xFF) {
-            data[0] = (day << 5) + on;
+        if (day != 7 && temp != 7 && time != 0xFF) {
+            data[0] = (day << 5) + temp;
             data[1] = time;
         }
-        if (no > 41 || day > 7 || on > 1) {
+        if (no > 41 || day > 7 || temp > 1) {
             return false;
         }
         write_command(type_id, no * 2, &data[0], 2, 0);
@@ -4561,7 +4558,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(
             tag, &hc->nighttemp, DeviceValueType::UINT8, DeviceValueNumOp::DV_NUMOP_DIV2, FL_(nighttemp2), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nighttemp));
         init_switchtime(hc->switchtime1, 84);
-        register_device_value(tag, &hc->switchtime1, DeviceValueType::JSON, FL_(rc35), FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime1));
+        register_device_value(tag, &hc->switchtime1, DeviceValueType::JSON, FL_(rc30), FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime1));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_RC20_N:
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode3), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
@@ -4622,7 +4619,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &vacation[6], DeviceValueType::STRING, FL_(tpl_holidays), FL_(vacations7), DeviceValueUOM::NONE, MAKE_CF_CB(set_RC30Vacation7));
         register_device_value(tag, &hc->program, DeviceValueType::ENUM, FL_(enum_progMode2), FL_(program), DeviceValueUOM::NONE, MAKE_CF_CB(set_program));
         init_switchtime(hc->switchtime1, 84);
-        register_device_value(tag, &hc->switchtime1, DeviceValueType::JSON, FL_(rc35), FL_(switchtime1), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime1));
+        register_device_value(tag, &hc->switchtime1, DeviceValueType::JSON, FL_(rc30), FL_(switchtime1), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime1));
         register_device_value(
             tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE, MAKE_CF_CB(set_heatingtype));
         register_device_value(
