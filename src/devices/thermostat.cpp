@@ -144,12 +144,12 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
 
         // RC300/RC100 variants
     } else if (isRC300() || (model == EMSdevice::EMS_DEVICE_FLAG_RC100)) {
-        monitor_typeids = {0x02A5, 0x02A6, 0x02A7, 0x02A8, 0x02A9, 0x02AA, 0x02AB, 0x02AC};
-        set_typeids     = {0x02B9, 0x02BA, 0x02BB, 0x02BC, 0x02BD, 0x02BE, 0x02BF, 0x02C0};
+        monitor_typeids = {0x02A5, 0x02A6, 0x02A7, 0x02A8}; //, 0x02A9, 0x02AA, 0x02AB, 0x02AC};
+        set_typeids     = {0x02B9, 0x02BA, 0x02BB, 0x02BC}; //, 0x02BD, 0x02BE, 0x02BF, 0x02C0};
         set2_typeids    = {0x02CC, 0x02CE, 0x02D0, 0x02D2}; // max. 4 heating circuits supported ny RC310
-        summer_typeids  = {0x02AF, 0x02B0, 0x02B1, 0x02B2, 0x02B3, 0x02B4, 0x02B5, 0x02B6};
-        curve_typeids   = {0x029B, 0x029C, 0x029D, 0x029E, 0x029F, 0x02A0, 0x02A1, 0x02A2};
-        summer2_typeids = {0x0471, 0x0472, 0x0473, 0x0474, 0x0475, 0x0476, 0x0477, 0x0478};
+        summer_typeids  = {0x02AF, 0x02B0, 0x02B1, 0x02B2}; //, 0x02B3, 0x02B4, 0x02B5, 0x02B6};
+        curve_typeids   = {0x029B, 0x029C, 0x029D, 0x029E}; //, 0x029F, 0x02A0, 0x02A1, 0x02A2};
+        summer2_typeids = {0x0471, 0x0472, 0x0473, 0x0474}; //, 0x0475, 0x0476, 0x0477, 0x0478};
         timer_typeids   = {0x02C3, 0x02C4, 0x02C5, 0x02C6}; // , 0x02C7, 0x02C8, 0x02C9, 0x02CA}; // program A
         timer2_typeids  = {0x0449, 0x044A, 0x044B, 0x044C}; // , 0x044D, 0x044E, 0x044F, 0x0450}; // program B
         timer3_typeids  = {0x0683, 0x0684, 0x0685, 0x0686}; // program A with temperature
@@ -201,9 +201,11 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
 
         if (model == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
             // FR120, FR100
-            set_typeids = {0x0179, 0x017A, 0x017B, 0x017C};
+            set_typeids   = {0x0179, 0x017A, 0x017B, 0x017C};
+            timer_typeids = {0x0230, 0x0236, 0x023C, 0x0242}; // prog A=0x230, B=0x231, C=0x232  for hc1, hc2-4 nknown
             for (uint8_t i = 0; i < monitor_typeids.size(); i++) {
                 register_telegram_type(set_typeids[i], "JunkersSet", false, MAKE_PF_CB(process_JunkersSet2));
+                register_telegram_type(timer_typeids[i], "JunkersTimer", false, MAKE_PF_CB(process_JunkersTimer));
             }
         } else {
             set_typeids   = {0x0165, 0x0166, 0x0167, 0x0168};
@@ -855,6 +857,11 @@ void Thermostat::process_JunkersRemoteMonitor(std::shared_ptr<const Telegram> te
 // 0x1FB for ww
 void Thermostat::process_JunkersTimer(std::shared_ptr<const Telegram> telegram) {
     auto hc = heating_circuit(telegram);
+    if (hc == nullptr || telegram->offset > 83) {
+        return;
+    }
+    auto length = ((telegram->offset + telegram->message_length) > 84) ? 84 - telegram->offset : telegram->message_length;
+    memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
 }
 
 // type 0xA3 - for external temp settings from the the RC* thermostats (e.g. RC35)
