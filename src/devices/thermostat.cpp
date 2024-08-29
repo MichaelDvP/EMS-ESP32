@@ -4790,6 +4790,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &hc->switchtime2, DeviceValueType::JSON, FL_(rc35), FL_(switchtime2), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime2));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_JUNKERS:
+    case EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD:
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode4), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
         register_device_value(tag, &hc->modetype, DeviceValueType::ENUM, FL_(enum_modetype4), FL_(modetype), DeviceValueUOM::NONE);
         register_device_value(
@@ -4835,6 +4836,10 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
             tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype1), FL_(heatingtype), DeviceValueUOM::NONE, MAKE_CF_CB(set_heatingtype));
         register_device_value(
             tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode3), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
+        init_switchtime(hc->switchtime1, 84);
+        register_device_value(tag, &hc->switchtime1, DeviceValueType::JSON, FL_(junkers), FL_(switchtime1), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime1));
+        init_switchtime(hc->switchtime2, 84);
+        register_device_value(tag, &hc->switchtime2, DeviceValueType::JSON, FL_(junkers), FL_(switchtime2), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchtime2));
         break;
     default:
         break;
@@ -4957,7 +4962,13 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
         register_device_value(tag, &dhw->wwVacation_, DeviceValueType::STRING, FL_(tpl_holidays), FL_(wwVacations), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwVacation));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_JUNKERS:
+    case EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD:
         register_device_value(tag, &dhw->wwCharge_, DeviceValueType::BOOL, FL_(wwCharge), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcharge));
+        init_switchtime(dhw->switchtime, 84);
+        register_device_value(tag, &dhw->switchtime, DeviceValueType::JSON, FL_(junkers), FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchTime));
+        init_switchtime(dhw->circswitchtime, 84);
+        register_device_value(
+            tag, &dhw->circswitchtime, DeviceValueType::JSON, FL_(junkers), FL_(circswitchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchTime));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_EASY:
     case EMSdevice::EMS_DEVICE_FLAG_CRF:

@@ -675,6 +675,39 @@ void EMSESP::publish_device_values(uint8_t device_type) {
     }
 }
 
+// publish the timer json value
+void EMSESP::publish_thermostat_timer() {
+    JsonDocument output;
+    for (int8_t tag = DeviceValueTAG::TAG_HC1; tag <= DeviceValueTAG::TAG_DHW2; tag++) {
+        JsonObject circuit;
+        for (const auto & emsdevice : emsdevices) {
+            if (emsdevice->device_type() == DeviceType::THERMOSTAT) {
+                JsonDocument doc;
+                JsonObject   json   = doc.to<JsonObject>();
+                const char * name[] = {"switchprog1", "switchprog2", "switchprog", "circswitchprog"};
+                for (uint8_t i = 0; i < sizeof(name) / sizeof(char *); i++) {
+                    if (emsdevice->get_value_info(json, name[i], tag)) {
+                        if (json.containsKey("value")) {
+                            if ((Mqtt::is_nested())) {
+                                if (circuit.isNull()) {
+                                    circuit = output[EMSdevice::tag_to_mqtt(tag)].to<JsonObject>();
+                                }
+                                circuit[name[i]] = json["value"];
+                            } else {
+                                std::string topic = "thermostat_" + std::string(name[i]) + "_" + std::string(EMSdevice::tag_to_mqtt(tag));
+                                Mqtt::queue_publish(topic, json["value"].as<std::string>());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (output.size()) {
+        Mqtt::queue_publish("thermostat_switchprog", output.as<JsonObject>());
+    }
+}
+
 // call the devices that don't need special attention
 void EMSESP::publish_other_values() {
     publish_device_values(EMSdevice::DeviceType::SWITCH);
@@ -691,6 +724,7 @@ void EMSESP::publish_other_values() {
 
     webSchedulerService.publish();
     webCustomEntityService.publish();
+    publish_thermostat_timer();
 }
 
 // publish both the temperature and analog sensor values
