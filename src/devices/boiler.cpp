@@ -89,6 +89,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_telegram_type(0x4AF, "HPMeters", true, MAKE_PF_CB(process_HpMeters));
         register_telegram_type(0x2CC, "HPPressure", true, MAKE_PF_CB(process_HpPressure));
         register_telegram_type(0x4A5, "HPFan", true, MAKE_PF_CB(process_HpFan));
+        register_telegram_type(0x4AA, "HPPower2", true, MAKE_PF_CB(process_HpPower2));
+        register_telegram_type(0x4A7, "HPPowerLimit", true, MAKE_PF_CB(process_HpPowerLimit));
     }
 
     // some gas boilers, see #1701
@@ -827,6 +829,14 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
                               FL_(hpShutdown),
                               DeviceValueUOM::NONE,
                               MAKE_CF_CB(set_shutdown));
+        register_device_value(DeviceValueTAG::TAG_DEVICE_DATA, &hpCurrPower_, DeviceValueType::UINT16, FL_(hpCurrPower), DeviceValueUOM::W);
+        register_device_value(DeviceValueTAG::TAG_DEVICE_DATA,
+                              &hpPowerLimit_,
+                              DeviceValueType::UINT16,
+                              FL_(hpPowerLimit),
+                              DeviceValueUOM::W,
+                              MAKE_CF_CB(set_hpPowerLimit));
+
         // heatpump DHW settings
         register_device_value(DeviceValueTAG::TAG_DHW1,
                               &wwAlternatingOper_,
@@ -2006,6 +2016,16 @@ void Boiler::process_HpFan(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, fan_, 9);
 }
 
+// 0x4AA
+void Boiler::process_HpPower2(std::shared_ptr<const Telegram> telegram) {
+    has_update(telegram, hpCurrPower_, 0);
+}
+
+// 0x4A7
+void Boiler::process_HpPowerLimit(std::shared_ptr<const Telegram> telegram) {
+    has_update(telegram, hpPowerLimit_, 0);
+}
+
 // Boiler(0x08) -B-> All(0x00), ?(0x2E), data: 00 00 1C CE 00 00 05 E8 00 00 00 18 00 00 00 02
 void Boiler::process_Meters(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, gasMeterHeat_, 0);
@@ -2439,9 +2459,16 @@ bool Boiler::set_max_pump(const char * value, const int8_t id) {
 
 bool Boiler::set_pumpMode(const char * value, const int8_t id) {
     uint8_t v;
-    if (Helpers::value2enum(value, v, FL_(enum_pumpMode))) {
-        write_command(EMS_TYPE_UBAParameters, 11, v, EMS_TYPE_UBAParameters);
-        return true;
+    if (is_received(EMS_TYPE_UBAParametersPlus)) {
+        if (Helpers::value2enum(value, v, FL_(enum_pumpCharacter))) {
+            write_command(EMS_TYPE_UBAParametersPlus, 15, v, EMS_TYPE_UBAParametersPlus);
+            return true;
+        }
+    } else {
+        if (Helpers::value2enum(value, v, FL_(enum_pumpMode))) {
+            write_command(EMS_TYPE_UBAParameters, 11, v, EMS_TYPE_UBAParameters);
+            return true;
+        }
     }
     return false;
 }
@@ -3067,6 +3094,16 @@ bool Boiler::set_hpDiffPress(const char * value, const int8_t id) {
     int v;
     if (Helpers::value2number(value, v)) {
         write_command(0x2CC, 9, (uint8_t)(v / 50), 0x2CC);
+        return true;
+    }
+    return false;
+}
+
+bool Boiler::set_hpPowerLimit(const char * value, const int8_t id) {
+    int v;
+    if (Helpers::value2number(value, v)) {
+        uint8_t data[2] = {v >> 8, v & 0xFF};
+        write_command(0x4A7, 0, data, 2, 0x4A7);
         return true;
     }
     return false;

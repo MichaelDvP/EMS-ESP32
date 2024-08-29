@@ -567,6 +567,8 @@ MAKE_TRANSLATION(meterCool, "metercool", "meter cooling", "Messung Kühlen", "",
 MAKE_TRANSLATION(meterWw, "meter", "meter", "Messung", "", "", "licznik", "", "", "", "", "") // TODO translate
 MAKE_TRANSLATION(gasMeterHeat, "gasmeterheat", "gas meter heating", "Gas Messung Heizen", "", "", "licznik gazu na ogrzewanie", "", "", "", "", "") // TODO translate
 MAKE_TRANSLATION(gasMeterWw, "gasmeter", "gas meter", "Gas Messung", "", "", "licznik gazu", "", "", "", "", "") // TODO translate
+MAKE_TRANSLATION(hpCurrPower, "hpcurrpower", "compressor current power", "akt. Kompressorleistung", "", "", "", "", "", "", "", "") // TODO translate
+MAKE_TRANSLATION(hpPowerLimit, "hppowerlimit", "power limit", "Leistungsgrenze", "", "", "", "", "", "", "", "") // TODO translate
 
 // HIU
 MAKE_TRANSLATION(netFlowTemp, "netflowtemp", "heat network flow temp", "System Vorlauftemperatur", "Netto aanvoertemperatuur", "", "temp. zasilania sieci cieplnej", "", "", "ısıtma şebekesi akış derecesi", "temperatura di mandata della rete di riscaldamento", "teplota prívodu tepelnej siete") // TODO translate

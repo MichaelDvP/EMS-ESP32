@@ -297,6 +297,8 @@ class Boiler : public EMSdevice {
     uint8_t elHeatStep1_;
     uint8_t elHeatStep2_;
     uint8_t elHeatStep3_;
+    uint16_t hpPowerLimit_;
+    uint16_t hpCurrPower_;
 
     // HIU
     // uint16_t cwFlowRate_;  // cold water flow rate *10
@@ -371,6 +373,8 @@ class Boiler : public EMSdevice {
     void process_HpMeters(std::shared_ptr<const Telegram> telegram);
     void process_WeatherComp(std::shared_ptr<const Telegram> telegram);
     void process_HpFan(std::shared_ptr<const Telegram> telegram);
+    void process_HpPower2(std::shared_ptr<const Telegram> telegram);
+    void process_HpPowerLimit(std::shared_ptr<const Telegram> telegram);
 
     void process_Meters(std::shared_ptr<const Telegram> telegram);
     void process_Energy(std::shared_ptr<const Telegram> telegram);
@@ -468,6 +472,7 @@ class Boiler : public EMSdevice {
     bool set_hpPumpMode(const char * value, const int8_t id);
     bool set_hpMaxPower(const char * value, const int8_t id);
     bool set_hpDiffPress(const char * value, const int8_t id);
+    bool set_hpPowerLimit(const char * value, const int8_t id);
 
     bool        set_auxLimit(const char * value, const int8_t id);
     inline bool set_auxMaxLimit(const char * value, const int8_t id) {
