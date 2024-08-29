@@ -344,7 +344,7 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(daylowtemp), 100, 1), // daytemp2
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(daymidtemp), 101, 1), // daytemp3
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(dayhightemp), 102, 1), // daytemp4
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(wwswitchtime), 103, 8), // switchtime
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(switchtime), 103, 8), // switchtime
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(vacations1), 111, 11), // vacations1
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(vacations2), 122, 11), // vacations2
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(vacations3), 133, 11), // vacations3
@@ -374,8 +374,8 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwDisinfectHour), 14, 1), // disinfecthour
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwMaxTemp), 15, 1), // maxtemp
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwOneTimeKey), 16, 1), // onetimekey
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwswitchtime), 17, 8), // switchtime
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwcircswitchtime), 25, 8), // circswitchtime
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(switchtime), 17, 8), // switchtime
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(circswitchtime), 25, 8), // circswitchtime
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(holidays), 33, 13), // holidays
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(vacations), 46, 13), // vacations
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwWhenModeOff), 59, 1), // whenmodeoff

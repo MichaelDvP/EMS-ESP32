@@ -139,7 +139,7 @@ bool Test::test(const std::string & cmd, int8_t id1, int8_t id2) {
                        0x80, 0x00, 0x01, 0xE1, 0x01, 0x76, 0x0E, 0x3D, 0x48, 0x00, 0xC9, 0x44, 0x02, 0x00});
 
         // Boiler -> Thermostat, UBAParameterWW(0x33), telegram: 08 97 33 00 23 24 (#data=2)
-        uart_telegram({0x08, 0x90, 0x33, 0x00, 0x23, 0x24});
+        // uart_telegram({0x08, 0x90, 0x33, 0x00, 0x23, 0x24});
 
         // Boiler -> Me, UBAParameterWW(0x33), telegram: 08 0B 33 00 08 FF 34 FB 00 28 00 00 46 00 FF FF 00 (#data=13)
         uart_telegram({0x08, 0x0B, 0x33, 0x00, 0x08, 0xFF, 0x34, 0xFB, 0x00, 0x28, 0x00, 0x00, 0x46, 0x00, 0xFF, 0xFF, 0x00});
@@ -149,7 +149,41 @@ bool Test::test(const std::string & cmd, int8_t id1, int8_t id2) {
                        03,   03, 01,   01, 0x54, 02,   0xA8, 00, 00, 0x11, 01,   03, 0xFF, 0xFF, 00});
 
         // RC300WWmode2(0x31D), data: 00 00 09 07
-        uart_telegram({0x10, 00, 0xFF, 00, 02, 0x1D, 00, 00, 0x09, 0x07});
+        // uart_telegram({0x10, 00, 0xFF, 00, 02, 0x1D, 00, 00, 0x09, 0x07});
+
+        // RC300 2B9 settings             0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 
+        uart_telegram("10 00 FF 00 01 B9 00 00 2C 23 00 00 00 00 FF 00 00 01 00 00 00 00 00 00 00 02");
+
+/**/
+        // ww switch program 2FF
+        uart_telegram("10 00 FF 00 01 FF 02 0C 01 12 02 30 01 3C 02 FF 02 FF 02 0C 01 12 02 30 01 3C 02 FF 02 FF 02");
+        uart_telegram("10 00 FF 19 01 FF 0C 01 12 02 30 01 3C 02 FF 02 FF 02 0C 01 12 02 30 01 3C 02 FF 02 FF 02 0C");
+        uart_telegram("10 00 FF 32 01 FF 01 12 02 30 01 3C 02 FF 02 FF 02 0C 01 12 02 30 01 3C 02 FF 02 FF 02 0C 01");
+        uart_telegram("10 00 FF 4B 01 FF 12 02 30 01 3C 02 FF 02 FF");
+
+        // ww circ switch progam  309
+        uart_telegram("10 00 FF 00 02 09 FF 12 00 5A FF FF FF FF FF FF FF FF FF 12 00 5A FF FF FF FF FF FF FF FF FF");
+        uart_telegram("10 00 FF 19 02 09 12 00 5A FF FF FF FF FF FF FF FF FF 12 00 5A FF FF FF FF FF FF FF FF FF 12");
+        uart_telegram("10 00 FF 32 02 09 00 5A FF FF FF FF FF FF FF FF FF 18 00 5C FF FF FF FF FF FF FF FF FF 1C 00");
+        uart_telegram("10 00 FF 4B 02 09 5C FF FF FF FF FF FF FF FF");
+/**/
+        // hc1 switch progam1  683
+        uart_telegram("10 00 FF 00 05 83 2A 18 29 5C 1E FF 1E FF 2A FF 2A FF 2A 18 29 5C 1E FF 1E FF 2A FF 2A FF 2A");
+        uart_telegram("10 00 FF 19 05 83 18 29 5C 1E FF 1E FF 2A FF 2A FF 2A 18 29 5C 1E FF 1E FF 2A FF 2A FF 2A 18");
+        uart_telegram("10 00 FF 32 05 83 29 5C 1E FF 1E FF 2A FF 2A FF 2A 1C 29 5C 1E FF 1E FF 2A FF 2A FF 2A 20 29");
+        uart_telegram("10 00 FF 4B 05 83 5C 1E FF 1E FF 2A FF 2A FF");
+
+        // hc1 switch progam2  68D
+        uart_telegram("10 00 FF 00 05 8D 2A 18 1E 20 2A 40 1E 5C 1E FF 2A FF 2A 18 1E 20 2A 40 1E 5C 1E FF 2A FF 2A");
+        uart_telegram("10 00 FF 19 05 0D 18 1E 20 2A 40 1E 5C 1E FF 2A FF 2A 18 1E 20 2A 40 1E 5C 1E FF 2A FF 2A 18");
+        uart_telegram("10 00 FF 32 05 8D 1E 20 2A 40 1E 5C 1E FF 2A FF 2A 20 1E 5C 2A FF 1E FF 2A FF 1E FF 2A 20 1E");
+        uart_telegram("10 00 FF 4B 05 8D 5C 2A FF 1E FF 2A FF 1E FF");
+
+        // hc1 switch progam1  2C3
+        uart_telegram("10 00 FF 00 01 C3 03 18 01 5C 01 FF 01 FF 01 FF 01 FF 03 18 01 5C 1E FF 1E FF 2A FF 2A FF 03");
+        uart_telegram("10 00 FF 19 01 C3 18 01 5C 1E FF 1E FF 2A FF 2A FF 03 18 01 5C 1E FF 1E FF 2A FF 2A FF 03 18");
+        uart_telegram("10 00 FF 32 01 C3 01 5C 1E FF 1E FF 2A FF 2A FF 01 1C 03 5C 1E FF 1E FF 2A FF 2A FF 03 20 01");
+        uart_telegram("10 00 FF 4B 01 C3 5C 1E FF 1E FF 2A FF 2A FF");
 
         return true;
     }

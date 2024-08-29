@@ -1623,23 +1623,22 @@ void EMSdevice::get_value_json(JsonObject json, DeviceValue & dv) {
                 }
             }
         } else if (!strcmp(dv.options_single[0], "RC300")) {
-            auto json_val = json[value].to<JsonObject>();
+            auto json_val = json[value].to<JsonArray>();
             for (uint8_t day = 0; day < 7; day++) {
-                auto json_dow = json_val[Helpers::translated_word(FL_(enum_dayOfWeek[day]))].to<JsonArray>();
                 for (uint8_t id = 0; id < 6; id++) {
-                    auto      data = json_dow.add<JsonObject>();
-                    uint8_t * v_p  = (uint8_t *)dv.value_p + 12 * day + 2 * id;
-                    if (*v_p != 0xFF) {
-                        data["id"]  = id;
+                    uint8_t * v_p = ((uint8_t *)dv.value_p) + 12 * day + 2 * id;
+                    if (*(v_p + 1) != 0xFF) {
+                        auto data   = json_val.add<JsonObject>();
                         data["day"] = Helpers::translated_word(FL_(enum_dayOfWeek[day]));
                         char time[6];
-                        data["time"] = Helpers::render_clock(time, *(v_p), DeviceValue::DV_NUMOP_MUL15);
-                        uint8_t mode = *(v_p + 1) + 1; // sets 0xFF to index 0
+                        data["time"] = Helpers::render_clock(time, *(v_p + 1), DeviceValue::DV_NUMOP_MUL15);
+                        uint8_t mode = *(v_p) + 1; // sets 0xFF to index 0
                         if (mode < 5) {
                             data["mode"] = Helpers::translated_word(FL_(enum_switchmode[mode]));
                         } else {
-                            data["temp"] = (*(v_p + 1)) / 2;
+                            data["temp"] = (*(v_p)) / 2;
                         }
+                        data["id"]  = id;
                     }
                 }
             }
