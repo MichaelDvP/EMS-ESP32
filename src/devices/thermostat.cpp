@@ -864,7 +864,6 @@ void Thermostat::process_JunkersTimer(std::shared_ptr<const Telegram> telegram) 
         auto dhw = dhw_circuit(0, 1, true);
         memcpy(&dhw->circswitchtime[telegram->offset], telegram->message_data, length);
     }
-
 }
 
 // type 0xA3 - for external temp settings from the the RC* thermostats (e.g. RC35)
@@ -3307,12 +3306,14 @@ bool Thermostat::set_switchtime(const char * value, const uint16_t type_id) {
     }
     JsonDocument doc;
     if (deserializeJson(doc, value) != DeserializationError::Ok) {
+        LOG_ERROR("json error");
         return false;
     }
-    uint8_t     no    = doc["id"] | 0;
+    uint8_t     no    = doc["no"] | 0;
     std::string s_day = doc["day"] | "";
     uint8_t     day;
     if (!Helpers::value2enum(s_day.c_str(), day, FL_(enum_dayOfWeek))) {
+        // LOG_ERROR("wrong day of week");
         return false;
     }
     std::string s_mode = doc["mode"] | "";
@@ -3325,24 +3326,26 @@ bool Thermostat::set_switchtime(const char * value, const uint16_t type_id) {
         if (Helpers::value2bool(s_mode.c_str(), b)) {
             temp = b ? 1 : 0;
         }
-        time /= 6;
+        time /= 10;
     } else if ((model() == EMSdevice::EMS_DEVICE_FLAG_RC20) || (model() == EMSdevice::EMS_DEVICE_FLAG_RC30)) {
         temp = s_mode[0] - '0'; // temp level as mode
-        time /= 6;
+        time /= 10;
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
-        time /= 4;
+        time /= 15;
+        temp = EMSESP::system_.fahrenheit() ? (temp - 32.0) / 1.8 : temp;
     } else { // RC300
         if (temp == 0) {
             if (!Helpers::value2enum(s_mode.c_str(), temp, FL_(enum_switchmode))) {
+                LOG_ERROR("wrong switchmode");
                 return false;
             }
             temp--; // set on->0xFF, off to 0x00
+        } else {
+            temp = 2 * (EMSESP::system_.fahrenheit() ? (temp - 32.0) / 1.8 : temp);
         }
-        time /= 4;
+        time /= 15;
     }
     if (s_mode == "not_set") {
-        day  = 7;
-        temp = 7;
         time = 0xFF;
     }
 
@@ -3357,10 +3360,19 @@ bool Thermostat::set_switchtime(const char * value, const uint16_t type_id) {
         }
         write_command(type_id, no * 2, &data[0], 2, 0);
         return true;
-    }
-    if (isRC300() || model() == EMSdevice::EMS_DEVICE_FLAG_RC100) {
-        uint8_t data[2] = {(uint8_t)time, temp};
+    } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
+        uint8_t data[2] = {temp, (uint8_t)time};
         if (day > 6 || no > 5) {
+            LOG_ERROR("day or no out of range");
+            return false;
+        }
+        write_command(type_id, day * 12 + no * 2, &data[0], 2, 0);
+        return true;
+
+    } else if (isRC300() || model() == EMSdevice::EMS_DEVICE_FLAG_RC100) {
+        uint8_t data[2] = {temp, (uint8_t)time};
+        if (day > 6 || no > 5) {
+            LOG_ERROR("day or no out of range");
             return false;
         }
         write_command(type_id, day * 12 + no * 2, &data[0], 2, 0);
@@ -3376,10 +3388,10 @@ bool Thermostat::set_switchtime1(const char * value, const int8_t id) {
     if (hc == nullptr) {
         return false;
     }
-    if (isRC300() && hc->switchProgMode == 0) {
-        return set_switchtime(value, timer_typeids[hc->hc()]);
-    } else {
+    if (isRC300() && hc->switchProgMode == 1) {
         return set_switchtime(value, timer3_typeids[hc->hc()]);
+    } else { // all other thermostats
+        return set_switchtime(value, timer_typeids[hc->hc()]);
     }
     return false;
 }
@@ -3390,10 +3402,10 @@ bool Thermostat::set_switchtime2(const char * value, const int8_t id) {
     if (hc == nullptr) {
         return false;
     }
-    if (isRC300() && hc->switchProgMode == 0) {
-        return set_switchtime(value, timer2_typeids[hc->hc()]);
-    } else {
+    if (isRC300() && hc->switchProgMode == 1) {
         return set_switchtime(value, timer4_typeids[hc->hc()]);
+    } else { // all other thermostats
+        return set_switchtime(value, timer2_typeids[hc->hc()]);
     }
     return false;
 }
