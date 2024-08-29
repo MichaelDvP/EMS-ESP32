@@ -857,11 +857,20 @@ void Thermostat::process_JunkersRemoteMonitor(std::shared_ptr<const Telegram> te
 // 0x1FB for ww
 void Thermostat::process_JunkersTimer(std::shared_ptr<const Telegram> telegram) {
     auto hc = heating_circuit(telegram);
-    if (hc == nullptr || telegram->offset > 83) {
+    if (telegram->offset > 83) {
         return;
     }
     auto length = ((telegram->offset + telegram->message_length) > 84) ? 84 - telegram->offset : telegram->message_length;
-    memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
+    if (hc) {
+        memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
+    } else if (telegram->type_id == 0x1FB) { // dhw
+        auto dhw = dhw_circuit(0, 1, true);
+        memcpy(&dhw->switchtime[telegram->offset], telegram->message_data, length);
+    } else if (telegram->type_id == 0x20F) { // dhw
+        auto dhw = dhw_circuit(0, 1, true);
+        memcpy(&dhw->circswitchtime[telegram->offset], telegram->message_data, length);
+    }
+
 }
 
 // type 0xA3 - for external temp settings from the the RC* thermostats (e.g. RC35)
@@ -4880,6 +4889,11 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
                               MAKE_CF_CB(set_wwDailyHeatTime),
                               0,
                               1431);
+        init_switchtime(dhw->switchtime, 84);
+        register_device_value(tag, &dhw->switchtime, DeviceValueType::JSON, FL_(rc35), FL_(switchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchTime));
+        init_switchtime(dhw->circswitchtime, 84);
+        register_device_value(
+            tag, &dhw->circswitchtime, DeviceValueType::JSON, FL_(rc35), FL_(circswitchtime), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchTime));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_RC10:
         register_device_value(tag, &dhw->wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode3), FL_(wwMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwmode));
