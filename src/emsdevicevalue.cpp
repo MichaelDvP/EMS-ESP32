@@ -233,6 +233,7 @@ bool DeviceValue::hasValue() const {
     case DeviceValueType::UINT32:
         has_value = Helpers::hasValue(*(uint32_t *)(value_p));
         break;
+    case DeviceValueType::JSON:
     case DeviceValueType::CMD:
         has_value = true; // we count command as an actual entity
         break;

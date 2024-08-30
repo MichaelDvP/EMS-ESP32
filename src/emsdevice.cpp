@@ -1838,6 +1838,12 @@ bool EMSdevice::generate_values(JsonObject output, const int8_t tag_filter, cons
                     }
                 }
 
+                // show empty json only in api
+                else if (dv.type == DeviceValueType::JSON && output_target != EMSdevice::OUTPUT_TARGET::CONSOLE
+                         && output_target != EMSdevice::OUTPUT_TARGET::MQTT) {
+                    json[name] = "{}";
+                }
+
                 // check for value outside min/max range and adapt the limits to avoid HA complains
                 // Should this also check for api output?
                 if ((output_target == OUTPUT_TARGET::MQTT) && (dv.min != 0 || dv.max != 0)) {

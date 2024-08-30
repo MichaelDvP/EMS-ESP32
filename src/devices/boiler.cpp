@@ -3102,7 +3102,7 @@ bool Boiler::set_hpDiffPress(const char * value, const int8_t id) {
 bool Boiler::set_hpPowerLimit(const char * value, const int8_t id) {
     int v;
     if (Helpers::value2number(value, v)) {
-        uint8_t data[2] = {v >> 8, v & 0xFF};
+        uint8_t data[2] = {(uint8_t)(v >> 8), (uint8_t)v};
         write_command(0x4A7, 0, data, 2, 0x4A7);
         return true;
     }
