@@ -68,6 +68,8 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     }
 
     if (model() == EMSdevice::EMS_DEVICE_FLAG_HEATPUMP) {
+        register_telegram_type(0xC6, "UBAErrorMessage3", false, MAKE_PF_CB(process_UBAErrorMessage2));
+        register_telegram_type(0xC7, "UBAErrorMessage3", false, MAKE_PF_CB(process_UBAErrorMessage2));
         register_telegram_type(0x494, "UBAEnergySupplied", false, MAKE_PF_CB(process_UBAEnergySupplied));
         register_telegram_type(0x495, "UBAInformation", false, MAKE_PF_CB(process_UBAInformation));
         register_telegram_type(0x48D, "HpPower", true, MAKE_PF_CB(process_HpPower));
@@ -1022,13 +1024,16 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
     register_device_value(DeviceValueTAG::TAG_DHW1, &wwWorkM_, DeviceValueType::TIME, FL_(wwWorkM), DeviceValueUOM::MINUTES);
 
     // fetch some initial data
-    EMSESP::send_read_request(0x10, device_id); // read last errorcode on start (only published on errors)
-    EMSESP::send_read_request(0x11, device_id); // read last errorcode on start (only published on errors)
     EMSESP::send_read_request(0x15, device_id); // read maintenance data on start (only published on change)
     EMSESP::send_read_request(0x1C, device_id); // read maintenance status on start (only published on change)
-    EMSESP::send_read_request(0xC2, device_id); // read last errorcode on start (only published on errors)
-
-
+    if (model() != EMSdevice::EMS_DEVICE_FLAG_HEATPUMP && model() != EMSdevice::EMS_DEVICE_FLAG_HIU) {
+        EMSESP::send_read_request(0x10, device_id); // read last errorcode on start (only published on errors)
+        EMSESP::send_read_request(0x11, device_id); // read last errorcode on start (only published on errors)
+        EMSESP::send_read_request(0xC2, device_id); // read last errorcode on start (only published on errors)
+    } else {
+        EMSESP::send_read_request(0xC6, device_id); // read last errorcode on start (only published on errors)
+        EMSESP::send_read_request(0xC7, device_id); // read last errorcode on start (only published on errors)
+    }
     if (model() != EMSdevice::EMS_DEVICE_FLAG_HEATPUMP && model() != EMSdevice::EMS_DEVICE_FLAG_HIU) {
         register_telegram_type(0x04, "UBAFactory", true, MAKE_PF_CB(process_UBAFactory));
         register_device_value(DeviceValueTAG::TAG_DEVICE_DATA, &nomPower_, DeviceValueType::UINT8, FL_(nomPower), DeviceValueUOM::KW, MAKE_CF_CB(set_nomPower));
@@ -1784,6 +1789,8 @@ void Boiler::process_UBAMaintenanceStatus(std::shared_ptr<const Telegram> telegr
 // 0xBF
 void Boiler::process_ErrorMessage(std::shared_ptr<const Telegram> telegram) {
     EMSESP::send_read_request(0xC2, device_id()); // read last errorcode
+    EMSESP::send_read_request(0xC6, device_id()); // read last errorcode
+    EMSESP::send_read_request(0xC7, device_id()); // read last errorcode
 }
 
 // 0x10, 0x11
@@ -1815,35 +1822,37 @@ void Boiler::process_UBAErrorMessage(std::shared_ptr<const Telegram> telegram) {
 // 0xC2, without clock in system it stores 3 bytes uptime in 11 and 16, with clock date in 10-14, and 15-19
 // date is marked with 0x80 to year-field
 // also C6, C7 https://github.com/emsesp/EMS-ESP32/issues/938#issuecomment-1425813815
+// ?(0xC6), data: 0B 08 08 00 0E 29 20 2D 2D 18 56 98 08 07 1B 29 00 00 00 00 00
+// from https://github.com/emsesp/EMS-ESP32/issues/1963#issuecomment-2311768265
 void Boiler::process_UBAErrorMessage2(std::shared_ptr<const Telegram> telegram) {
     if (telegram->offset > 0 || telegram->message_length < 20) {
         return;
     }
-
+    uint8_t         ofs                     = telegram->type_id == 0xC2 ? 0 : 1;
     static uint32_t lastCodeDate_           = 0; // last code date
     uint32_t        date                    = 0;
     char            code[sizeof(lastCode_)] = {0};
     uint16_t        codeNo                  = EMS_VALUE_INT16_NOTSET;
-    code[0]                                 = telegram->message_data[5];
-    code[1]                                 = telegram->message_data[6];
-    code[2]                                 = telegram->message_data[7];
+    code[0]                                 = telegram->message_data[5 + ofs];
+    code[1]                                 = telegram->message_data[6 + ofs];
+    code[2]                                 = telegram->message_data[7 + ofs];
     code[3]                                 = 0;
-    telegram->read_value(codeNo, 8);
+    telegram->read_value(codeNo, 8 + ofs);
 
     // check for valid date, https://github.com/emsesp/EMS-ESP32/issues/204
-    if (telegram->message_data[10] & 0x80) {
-        uint16_t start_year  = (telegram->message_data[10] & 0x7F) + 2000;
-        uint8_t  start_month = telegram->message_data[11];
-        uint8_t  start_day   = telegram->message_data[13];
-        uint8_t  start_hour  = telegram->message_data[12];
-        uint8_t  start_min   = telegram->message_data[14];
-        uint16_t end_year    = (telegram->message_data[15] & 0x7F) + 2000;
-        uint8_t  end_month   = telegram->message_data[16];
-        uint8_t  end_day     = telegram->message_data[18];
-        uint8_t  end_hour    = telegram->message_data[17];
-        uint8_t  end_min     = telegram->message_data[19];
+    if (telegram->message_data[10 + ofs] & 0x80) {
+        uint16_t start_year  = (telegram->message_data[10 + ofs] & 0x7F) + 2000;
+        uint8_t  start_month = telegram->message_data[11 + ofs];
+        uint8_t  start_day   = telegram->message_data[13 + ofs];
+        uint8_t  start_hour  = telegram->message_data[12 + ofs];
+        uint8_t  start_min   = telegram->message_data[14 + ofs];
+        uint16_t end_year    = (telegram->message_data[15 + ofs] & 0x7F) + 2000;
+        uint8_t  end_month   = telegram->message_data[16 + ofs];
+        uint8_t  end_day     = telegram->message_data[18 + ofs];
+        uint8_t  end_hour    = telegram->message_data[17 + ofs];
+        uint8_t  end_min     = telegram->message_data[19 + ofs];
 
-        if (telegram->message_data[15] & 0x80) { //valid end date
+        if (telegram->message_data[15 + ofs] & 0x80) { //valid end date
             date = (end_year - 2000) * 535680UL + end_month * 44640UL + end_day * 1440UL + end_hour * 60 + end_min;
             snprintf(&code[3],
                      sizeof(code) - 3,
