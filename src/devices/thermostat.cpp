@@ -856,7 +856,9 @@ void Thermostat::process_JunkersTimer(std::shared_ptr<const Telegram> telegram) 
     }
     auto length = ((telegram->offset + telegram->message_length) > 84) ? 84 - telegram->offset : telegram->message_length;
     if (hc) {
-        memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
+        if (hc->program == telegram->type_id - 0x230) {
+            memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
+        }
     } else if (telegram->type_id == 0x1FB) { // dhw
         auto dhw = dhw_circuit(0, 1, true);
         memcpy(&dhw->switchtime[telegram->offset], telegram->message_data, length);
@@ -1355,15 +1357,15 @@ void Thermostat::process_RC300Timer(std::shared_ptr<const Telegram> telegram) {
     auto length = ((telegram->offset + telegram->message_length) > 84) ? 84 - telegram->offset : telegram->message_length;
     if (hc) {
         if (hc->switchProgMode == 0) {
-            if (telegram->type_id == 0x2C3 + hc->hc()) {
+            if (hc->program == 0 && telegram->type_id == 0x2C3 + hc->hc()) {
                 memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
-            } else if (telegram->type_id == 0x449 + hc->hc()) {
+            } else if (hc->program == 1 && telegram->type_id == 0x449 + hc->hc()) {
                 memcpy(&hc->switchtime2[telegram->offset], telegram->message_data, length);
             }
         } else {
-            if (telegram->type_id == 0x683 + hc->hc()) {
+            if (hc->program == 0 && telegram->type_id == 0x683 + hc->hc()) {
                 memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
-            } else if (telegram->type_id == 0x68D + hc->hc()) {
+            } else if (hc->program == 1 && telegram->type_id == 0x68D + hc->hc()) {
                 memcpy(&hc->switchtime2[telegram->offset], telegram->message_data, length);
             }
         }
@@ -1539,15 +1541,17 @@ void Thermostat::process_RC35Timer(std::shared_ptr<const Telegram> telegram) {
         return;
     }
 
+    has_update(telegram, hc->program, 84); // 0 .. 10, 0-userprogram 1, 10-userprogram 2
     if (telegram->offset < 0x84) {
         auto length = ((telegram->offset + telegram->message_length) > 84) ? 84 - telegram->offset : telegram->message_length;
-        if (telegram->type_id == timer_typeids[hc->hc()]) {
+        if (hc->program == 0 && telegram->type_id == timer_typeids[hc->hc()]) {
             memcpy(&hc->switchtime1[telegram->offset], telegram->message_data, length);
-        } else {
+        } else if (hc->program == 10 && telegram->type_id == timer_typeids[hc->hc()]) {
             memcpy(&hc->switchtime2[telegram->offset], telegram->message_data, length);
+        } else if (hc->program >0 && hc->program <10) {
+            init_switchtime(hc->switchprog, 84);
         }
     }
-    has_update(telegram, hc->program, 84); // 0 .. 10, 0-userprogram 1, 10-userprogram 2
     has_update(telegram, hc->pause, 85);   // time in hours
     has_update(telegram, hc->party, 86);   // time in hours
 

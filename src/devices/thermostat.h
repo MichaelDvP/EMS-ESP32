@@ -81,6 +81,7 @@ class Thermostat : public EMSdevice {
         uint8_t fastHeatup;
         char    holiday[22];
         char    vacation[22];
+        uint8_t switchprog[84];
         uint8_t switchtime1[84];
         uint8_t switchtime2[84];
         uint8_t climate;
