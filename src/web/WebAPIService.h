@@ -1,6 +1,6 @@
 /*
  * EMS-ESP - https://github.com/emsesp/EMS-ESP
- * Copyright 2020-2024  Paul Derbyshire
+ * Copyright 2020-2024  emsesp.org - proddy, MichaelDvP
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,11 +20,6 @@
 #define WebAPIService_h
 
 #define EMSESP_API_SERVICE_PATH "/api"
-
-#define GET_SETTINGS_PATH "/rest/getSettings"
-#define GET_CUSTOMIZATIONS_PATH "/rest/getCustomizations"
-#define GET_SCHEDULE_PATH "/rest/getSchedule"
-#define GET_ENTITIES_PATH "/rest/getEntities"
 
 namespace emsesp {
 
@@ -56,10 +51,6 @@ class WebAPIService {
     static uint16_t api_fails_;
 
     void parse(AsyncWebServerRequest * request, JsonObject input);
-    void getSettings(AsyncWebServerRequest * request);
-    void getCustomizations(AsyncWebServerRequest * request);
-    void getSchedule(AsyncWebServerRequest * request);
-    void getEntities(AsyncWebServerRequest * request);
 };
 
 } // namespace emsesp

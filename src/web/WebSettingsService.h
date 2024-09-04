@@ -1,6 +1,6 @@
 /*
  * EMS-ESP - https://github.com/emsesp/EMS-ESP
- * Copyright 2020-2024  Paul Derbyshire
+ * Copyright 2020-2024  emsesp.org - proddy, MichaelDvP
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,10 @@
 #include "../default_settings.h"
 
 #define EMSESP_SETTINGS_FILE "/config/emsespSettings.json"
+
 #define EMSESP_SETTINGS_SERVICE_PATH "/rest/settings"
 #define EMSESP_BOARD_PROFILE_SERVICE_PATH "/rest/boardProfile"
+#define EMSESP_GET_SETTINGS_PATH "/rest/getSettings"
 
 namespace emsesp {
 
@@ -134,6 +136,7 @@ class WebSettingsService : public StatefulService<WebSettings> {
     FSPersistence<WebSettings> _fsPersistence;
 
     void board_profile(AsyncWebServerRequest * request);
+    void getSettings(AsyncWebServerRequest * request);
 
     void onUpdate();
 };

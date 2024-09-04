@@ -1,6 +1,6 @@
 /*
  * EMS-ESP - https://github.com/emsesp/EMS-ESP
- * Copyright 2020-2024  Paul Derbyshire
+ * Copyright 2020-2024  emsesp.org - proddy, MichaelDvP
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,14 +20,14 @@
 #define WebDataService_h
 
 // GET
-#define CORE_DATA_SERVICE_PATH "/rest/coreData"
-#define DEVICE_DATA_SERVICE_PATH "/rest/deviceData"
-#define SENSOR_DATA_SERVICE_PATH "/rest/sensorData"
+#define EMSESP_CORE_DATA_SERVICE_PATH "/rest/coreData"
+#define EMSESP_DEVICE_DATA_SERVICE_PATH "/rest/deviceData"
+#define EMSESP_SENSOR_DATA_SERVICE_PATH "/rest/sensorData"
 
 // POST
-#define WRITE_DEVICE_VALUE_SERVICE_PATH "/rest/writeDeviceValue"
-#define WRITE_TEMPERATURE_SENSOR_SERVICE_PATH "/rest/writeTemperatureSensor"
-#define WRITE_ANALOG_SENSOR_SERVICE_PATH "/rest/writeAnalogSensor"
+#define EMSESP_WRITE_DEVICE_VALUE_SERVICE_PATH "/rest/writeDeviceValue"
+#define EMSESP_WRITE_TEMPERATURE_SENSOR_SERVICE_PATH "/rest/writeTemperatureSensor"
+#define EMSESP_WRITE_ANALOG_SENSOR_SERVICE_PATH "/rest/writeAnalogSensor"
 
 namespace emsesp {
 

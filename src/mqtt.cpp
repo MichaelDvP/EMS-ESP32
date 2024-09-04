@@ -1,6 +1,6 @@
 /*
  * EMS-ESP - https://github.com/emsesp/EMS-ESP
- * Copyright 2020-2024  Paul Derbyshire
+ * Copyright 2020-2024  emsesp.org - proddy, MichaelDvP
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -393,6 +393,10 @@ void Mqtt::start() {
     }
 
     EMSESP::esp8266React.setWill(will_topic); // with qos 1, retain true
+
+#if defined(EMSESP_STANDALONE)
+    Mqtt::on_connect(); // simulate an MQTT connection
+#endif
 }
 
 void Mqtt::set_publish_time_boiler(uint16_t publish_time) {
