@@ -684,7 +684,7 @@ void EMSESP::publish_thermostat_timer() {
             if (emsdevice->device_type() == DeviceType::THERMOSTAT) {
                 JsonDocument doc;
                 JsonObject   json   = doc.to<JsonObject>();
-                const char * name[] = {"switchprog1", "switchprog2", "switchprog", "circswitchprog"};
+                const char * name[] = {FL_(switchprog)[0], FL_(circswitchprog)[0]};
                 for (uint8_t i = 0; i < sizeof(name) / sizeof(char *); i++) {
                     if (emsdevice->get_value_info(json, name[i], tag)) {
                         if (json.containsKey("value")) {

@@ -82,8 +82,6 @@ class Thermostat : public EMSdevice {
         char    holiday[22];
         char    vacation[22];
         uint8_t switchprog[84];
-        uint8_t switchtime1[84];
-        uint8_t switchtime2[84];
         uint8_t climate;
         uint8_t switchonoptimization;
         uint8_t statusbyte; // from RC300monitor
@@ -194,8 +192,8 @@ class Thermostat : public EMSdevice {
         uint8_t wwOneTimeKey_;
         uint8_t wwProgMode_;
         uint8_t wwCircProg_;
-        uint8_t switchtime[84];
-        uint8_t circswitchtime[84];
+        uint8_t switchprog[84];
+        uint8_t circswitchprog[84];
         uint8_t wwDailyHeating_;
         uint8_t wwDailyHeatTime_;
         uint8_t wwWhenModeOff_;
@@ -217,7 +215,7 @@ class Thermostat : public EMSdevice {
   private:
     static uuid::log::Logger logger_;
 
-    static void init_switchtime(uint8_t * st, uint8_t len) {
+    static void init_switchprog(uint8_t * st, uint8_t len) {
         memset(st, 0xFF, len);
     }
 
@@ -246,6 +244,8 @@ class Thermostat : public EMSdevice {
     std::vector<uint16_t> timer2_typeids;
     std::vector<uint16_t> timer3_typeids;
     std::vector<uint16_t> timer4_typeids;
+    std::vector<uint16_t> timer5_typeids;
+    std::vector<uint16_t> timer6_typeids;
     std::vector<uint16_t> summer_typeids;
     std::vector<uint16_t> summer2_typeids;
     std::vector<uint16_t> curve_typeids;
@@ -470,7 +470,8 @@ class Thermostat : public EMSdevice {
 
     bool set_temperature_value(const char * value, const int8_t id, const uint8_t mode, bool relative = false);
     bool set_temperature(const float temperature, const uint8_t mode, const int8_t id);
-    bool set_switchtime(const char * value, const uint16_t type_id);
+    bool set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * data);
+    bool set_switchtimes(const char * value, const uint16_t type_id, uint8_t * switchtimes);
 
     // set functions - these use the id/hc
     bool        set_mode(const char * value, const int8_t id);
@@ -491,8 +492,7 @@ class Thermostat : public EMSdevice {
     bool set_roominfl_factor(const char * value, const int8_t id);
     bool set_roominfl_mode(const char * value, const int8_t id);
     bool set_reducemode(const char * value, const int8_t id);
-    bool set_switchtime1(const char * value, const int8_t id);
-    bool set_switchtime2(const char * value, const int8_t id);
+    bool set_switchprog(const char * value, const int8_t id);
     bool set_program(const char * value, const int8_t id);
     bool set_controlmode(const char * value, const int8_t id);
     bool set_wwprio(const char * value, const int8_t id);
@@ -594,8 +594,8 @@ class Thermostat : public EMSdevice {
     bool        set_wwOneTimeKey(const char * value, const int8_t id);
     bool        set_wwProgMode(const char * value, const int8_t id);
     bool        set_wwCircProg(const char * value, const int8_t id);
-    bool        set_wwSwitchTime(const char * value, const int8_t id);
-    bool        set_wwCircSwitchTime(const char * value, const int8_t id);
+    bool        set_wwSwitchProg(const char * value, const int8_t id);
+    bool        set_wwCircSwitchProg(const char * value, const int8_t id);
     bool        set_wwDailyHeating(const char * value, const int8_t id);
     bool        set_wwDailyHeatTime(const char * value, const int8_t id);
     bool        set_wwwhenmodeoff(const char * value, const int8_t id);

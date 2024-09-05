@@ -1345,20 +1345,6 @@ const emsesp_devicedata_1 = {
       id: '00hc2 dhw priority',
       c: 'hc2/wwprio',
       l: ['off', 'on']
-    },
-    {
-      v: '00 mo 05:50 on',
-      u: 0,
-      id: '00hc2 own1 program switchtime',
-      c: 'hc2/switchtime1',
-      h: '<nn> [ not_set | day hh:mm on|off ]'
-    },
-    {
-      v: '00 mo 06:30 on',
-      u: 0,
-      id: '00hc2 own2 program switchtime',
-      c: 'hc2/switchtime2',
-      h: '<nn> [ not_set | day hh:mm on|off ]'
     }
   ]
 };
