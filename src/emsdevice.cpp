@@ -1845,7 +1845,7 @@ bool EMSdevice::generate_values(JsonObject output, const int8_t tag_filter, cons
                     JsonDocument doc;
                     get_value_json(doc.to<JsonObject>(), dv);
                     if (doc["value"].size()) {
-                        json[name] = doc["value"];
+                        json[name] = doc["value"].as<std::string>();
                     }
                     // } else {
                     // json[name] = "{}";
