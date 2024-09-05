@@ -1407,7 +1407,7 @@ void Thermostat::process_RC300Timer(std::shared_ptr<const Telegram> telegram) {
                 memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);
             }
         } else {
-            if (hc->program == 0 && telegram->type_id == timer4_typeids[hc->hc()]) {
+            if (hc->program == 0 && telegram->type_id == timer3_typeids[hc->hc()]) {
                 memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);
             } else if (hc->program == 1 && telegram->type_id == timer4_typeids[hc->hc()]) {
                 memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);

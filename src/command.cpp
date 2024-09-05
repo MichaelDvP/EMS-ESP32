@@ -329,7 +329,7 @@ uint8_t Command::call(const uint8_t device_type, const char * command, const cha
         return CommandRet::NOT_FOUND;
     }
     char cmd[COMMAND_MAX_LENGTH];
-    strcpy(cmd, Helpers::toLower(command).c_str());
+    strlcpy(cmd, Helpers::toLower(command).c_str(), sizeof(cmd));
 
     auto dname = EMSdevice::device_type_2_device_name(device_type); // device name, not translated
 
