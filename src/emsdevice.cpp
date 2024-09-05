@@ -1841,7 +1841,15 @@ bool EMSdevice::generate_values(JsonObject output, const int8_t tag_filter, cons
                 // show empty json only in api
                 else if (dv.type == DeviceValueType::JSON && output_target != EMSdevice::OUTPUT_TARGET::CONSOLE
                          && output_target != EMSdevice::OUTPUT_TARGET::MQTT) {
-                    json[name] = "{}";
+                    // if (EMSESP::system_.PSram()) {
+                    JsonDocument doc;
+                    get_value_json(doc.to<JsonObject>(), dv);
+                    if (doc["value"].size()) {
+                        json[name] = doc["value"];
+                    }
+                    // } else {
+                    // json[name] = "{}";
+                    // }
                 }
 
                 // check for value outside min/max range and adapt the limits to avoid HA complains
