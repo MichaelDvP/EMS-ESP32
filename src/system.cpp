@@ -993,6 +993,7 @@ void System::show_system(uuid::console::Shell & shell) {
     shell.println("System:");
     shell.printfln(" Version: %s", EMSESP_APP_VERSION);
     shell.printfln(" Platform: %s", EMSESP_PLATFORM);
+    shell.printfln(" NVS device information: %s", getBBQKeesGatewayDetails().c_str());
     shell.printfln(" Language: %s", locale().c_str());
     shell.printfln(" Board profile: %s", board_profile().c_str());
     shell.printfln(" Uptime: %s", uuid::log::format_timestamp_ms(uuid::get_uptime_ms(), 3).c_str());
@@ -1225,6 +1226,12 @@ bool System::check_upgrade(bool factory_settings) {
                 return StateUpdateResult::UNCHANGED;
             });
         }
+
+        // force WiFi sleep to off (was default on < 3.7.0-dev-33)
+        EMSESP::esp8266React.getNetworkSettingsService()->update([&](NetworkSettings & networkSettings) {
+            networkSettings.nosleep = true;
+            return StateUpdateResult::CHANGED;
+        });
 
         // Network Settings Wifi tx_power is now using the value * 4.
         EMSESP::esp8266React.getNetworkSettingsService()->update([&](NetworkSettings & networkSettings) {
