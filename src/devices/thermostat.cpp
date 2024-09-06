@@ -1400,23 +1400,16 @@ void Thermostat::process_RC300Timer(std::shared_ptr<const Telegram> telegram) {
     auto hc     = heating_circuit(telegram);
     auto length = ((telegram->offset + telegram->message_length) > 84) ? 84 - telegram->offset : telegram->message_length;
     if (hc) {
-        if (hc->switchProgMode == 0) {
-            if (hc->program == 0 && telegram->type_id == timer_typeids[hc->hc()]) {
-                memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);
-            } else if (hc->program == 1 && telegram->type_id == timer2_typeids[hc->hc()]) {
-                memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);
-            }
-        } else {
-            if (hc->program == 0 && telegram->type_id == timer3_typeids[hc->hc()]) {
-                memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);
-            } else if (hc->program == 1 && telegram->type_id == timer4_typeids[hc->hc()]) {
-                memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);
-            }
+        if ((hc->switchProgMode == 0 && hc->program == 0 && telegram->type_id == timer_typeids[hc->hc()])
+            || (hc->switchProgMode == 0 && hc->program == 1 && telegram->type_id == timer2_typeids[hc->hc()])
+            || (hc->switchProgMode == 1 && hc->program == 0 && telegram->type_id == timer3_typeids[hc->hc()])
+            || (hc->switchProgMode == 1 && hc->program == 1 && telegram->type_id == timer4_typeids[hc->hc()])) {
+            memcpy(&hc->switchprog[telegram->offset], telegram->message_data, length);
         }
     } else if (telegram->type_id == 0x2FF || telegram->type_id == 0x300) {
         auto dhw = dhw_circuit(telegram->type_id - 0x2FF);
         memcpy(&dhw->switchprog[telegram->offset], telegram->message_data, length);
-    } else {
+    } else if (telegram->type_id == 0x309 || telegram->type_id == 0x30A) {
         auto dhw = dhw_circuit(telegram->type_id - 0x309);
         memcpy(&dhw->circswitchprog[telegram->offset], telegram->message_data, length);
     }
@@ -2167,6 +2160,20 @@ bool Thermostat::set_control(const char * value, const int8_t id) {
                 } else if (ctrl == 3) {
                     Roomctrl::set_remotetemp(Roomctrl::RC100H, hc->hc(), hc->remotetemp);
                 } else if (ctrl == 6) {
+                    Roomctrl::set_remotetemp(Roomctrl::RT800, hc->hc(), hc->remotetemp); // RC220
+                } else {
+                    hc->remotetemp = EMS_VALUE_INT16_NOTSET;
+                    Roomctrl::set_remotetemp(0, hc->hc(), hc->remotetemp);
+                }
+            }
+            return true;
+        }
+    } else if (model() == EMSdevice::EMS_DEVICE_FLAG_UI800) {
+        if (Helpers::value2enum(value, ctrl, FL_(enum_control3))) {
+            write_command(hpmode_typeids[hc->hc()], 3, ctrl);
+            hc->control = ctrl; // set in advance, dont wait for verify
+            if (hc->remotetemp != EMS_VALUE_INT16_NOTSET && ctrl > 0) {
+                if (ctrl == 6) {
                     Roomctrl::set_remotetemp(Roomctrl::RT800, hc->hc(), hc->remotetemp);
                 } else {
                     hc->remotetemp = EMS_VALUE_INT16_NOTSET;
@@ -3444,6 +3451,7 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
     if (!set_switchpoint(doc.as<JsonObject>(), offset, data)) {
         return false;
     }
+    memcpy(&switchtimes[offset], data, 2); // update buffer
     write_command(type_id, offset, data, 2, type_id);
     return true;
 }
@@ -4618,7 +4626,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
                               MAKE_CF_CB(set_switchProgMode));
 
         init_switchprog(hc->switchprog, 84);
-        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(rc300), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
+        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_CRF:
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode5), FL_(mode), DeviceValueUOM::NONE);
@@ -4655,7 +4663,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(
             tag, &hc->nighttemp, DeviceValueType::UINT8, DeviceValueNumOp::DV_NUMOP_DIV2, FL_(nighttemp2), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_nighttemp));
         init_switchprog(hc->switchprog, 84);
-        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(rc30), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
+        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_RC20_N:
         register_device_value(tag, &hc->mode, DeviceValueType::ENUM, FL_(enum_mode3), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
@@ -4716,7 +4724,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(tag, &vacation[6], DeviceValueType::STRING, FL_(tpl_holidays), FL_(vacations7), DeviceValueUOM::NONE, MAKE_CF_CB(set_RC30Vacation7));
         register_device_value(tag, &hc->program, DeviceValueType::ENUM, FL_(enum_progMode2), FL_(program), DeviceValueUOM::NONE, MAKE_CF_CB(set_program));
         init_switchprog(hc->switchprog, 84);
-        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(rc30), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
+        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
         register_device_value(
             tag, &hc->heatingtype, DeviceValueType::ENUM, FL_(enum_heatingtype), FL_(heatingtype), DeviceValueUOM::NONE, MAKE_CF_CB(set_heatingtype));
         register_device_value(
@@ -4843,7 +4851,8 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
                               DeviceValueUOM::NONE,
                               MAKE_CF_CB(set_switchonoptimization));
         init_switchprog(hc->switchprog, 84);
-        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(rc35), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
+        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
+
         break;
     case EMSdevice::EMS_DEVICE_FLAG_JUNKERS:
     case EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD:
@@ -4893,7 +4902,8 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
         register_device_value(
             tag, &hc->controlmode, DeviceValueType::ENUM, FL_(enum_controlmode3), FL_(controlmode), DeviceValueUOM::NONE, MAKE_CF_CB(set_controlmode));
         init_switchprog(hc->switchprog, 84);
-        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(junkers), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
+        register_device_value(tag, &hc->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_switchprog));
+
         break;
     default:
         break;
@@ -4954,10 +4964,11 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
                               0,
                               1431);
         init_switchprog(dhw->switchprog, 84);
-        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(rc300), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
+        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
         init_switchprog(dhw->circswitchprog, 84);
         register_device_value(
-            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(rc300), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
+            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
+
         break;
     case EMSdevice::EMS_DEVICE_FLAG_RC10:
         register_device_value(tag, &dhw->wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode3), FL_(wwMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwmode));
@@ -4989,10 +5000,10 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
         register_device_value(tag, &dhw->wwMaxTemp_, DeviceValueType::UINT8, FL_(wwMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwMaxTemp));
         register_device_value(tag, &dhw->wwOneTimeKey_, DeviceValueType::BOOL, FL_(wwOneTimeKey), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwOneTimeKey));
         init_switchprog(dhw->switchprog, 84);
-        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(rc35), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
+        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
         init_switchprog(dhw->circswitchprog, 84);
         register_device_value(
-            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(rc35), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
+            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
         register_device_value(tag, &dhw->wwHoliday_, DeviceValueType::STRING, FL_(tpl_holidays), FL_(wwHolidays), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwHoliday));
         register_device_value(tag, &dhw->wwVacation_, DeviceValueType::STRING, FL_(tpl_holidays), FL_(wwVacations), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwVacation));
         break;
@@ -5008,10 +5019,11 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
         register_device_value(tag, &dhw->wwMaxTemp_, DeviceValueType::UINT8, FL_(wwMaxTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwMaxTemp), 60, 80);
         register_device_value(tag, &dhw->wwOneTimeKey_, DeviceValueType::BOOL, FL_(wwOneTimeKey), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwOneTimeKey));
         init_switchprog(dhw->switchprog, 84);
-        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(rc35), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
+        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
         init_switchprog(dhw->circswitchprog, 84);
         register_device_value(
-            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(rc35), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
+            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
+
         register_device_value(tag, &dhw->wwHoliday_, DeviceValueType::STRING, FL_(tpl_holidays), FL_(wwHolidays), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwHoliday));
         register_device_value(tag, &dhw->wwVacation_, DeviceValueType::STRING, FL_(tpl_holidays), FL_(wwVacations), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwVacation));
         break;
@@ -5019,10 +5031,10 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
     case EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD:
         register_device_value(tag, &dhw->wwCharge_, DeviceValueType::BOOL, FL_(wwCharge), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcharge));
         init_switchprog(dhw->switchprog, 84);
-        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(junkers), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
+        register_device_value(tag, &dhw->switchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(switchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwSwitchProg));
         init_switchprog(dhw->circswitchprog, 84);
         register_device_value(
-            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(junkers), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
+            tag, &dhw->circswitchprog, DeviceValueType::JSON, FL_(tpl_switchprog), FL_(circswitchprog), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwCircSwitchProg));
         break;
     case EMSdevice::EMS_DEVICE_FLAG_EASY:
     case EMSdevice::EMS_DEVICE_FLAG_CRF:

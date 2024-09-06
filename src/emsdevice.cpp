@@ -998,7 +998,7 @@ void EMSdevice::generate_values_web(JsonObject output) {
                     l.add(Helpers::render_boolean(result, true, true));
                 }
                 // add command help template
-                else if (dv.type == DeviceValueType::STRING || (dv.type == DeviceValueType::CMD && dv.uom == DeviceValueUOM::NONE)) {
+                else if (dv.type == DeviceValueType::STRING || dv.type == DeviceValueType::CMD) {
                     if (dv.options_size == 1) {
                         obj["h"] = dv.options_single[0]; // NOT translated
                     }
@@ -1592,67 +1592,60 @@ void EMSdevice::get_value_json(JsonObject json, DeviceValue & dv) {
 
     case DeviceValueType::JSON:
         json[type] = ("json");
-        if (!strcmp(dv.options_single[0], "RC35") || !strcmp(dv.options_single[0], "RC30")) {
-            auto json_val = json[value].to<JsonArray>();
-            for (uint8_t no = 0; no < 42; no++) {
-                uint8_t * v_p = (uint8_t *)dv.value_p + 2 * no;
-                if (((*v_p) >> 5) != 7 && ((*v_p) & 0x07) != 7 && ((*v_p) & 0x18) == 0 && (*(v_p + 1) < 0x90)) {
-                    auto data   = json_val.add<JsonObject>();
-                    data["no"]  = no;
-                    data["day"] = FL_(enum_dayOfWeek[(*v_p) >> 5])[0]; // always en
-                    // data["day"] = Helpers::translated_word(FL_(enum_dayOfWeek[(*v_p) >> 5]));
-                    char time[6];
-                    data["time"] = Helpers::render_clock(time, *(v_p + 1), DeviceValue::DV_NUMOP_MUL10);
-                    if (!strcmp(dv.options_single[0], "RC35")) {
-                        if (EMSESP::system_.bool_format() == BOOL_FORMAT_10) {
-                            data["mode"] = (*(v_p) & 1) ? 1 : 0;
-                        } else if (EMSESP::system_.enum_format() == BOOL_FORMAT_TRUEFALSE) {
-                            data["mode"] = (*(v_p) & 1) ? true : false;
-                        } else {
-                            char b[12];
-                            data["mode"] = Helpers::render_boolean(b, *(v_p) & 1);
-                            // } else {
-                            //     data["mode"] = (*(v_p) & 1) ? Helpers::translated_word(FL_(day)) : Helpers::translated_word(FL_(night));
-                        }
-
-                    } else {
-                        data["mode"] = (*(v_p) & 7); // RC20/RC30 level, RC35 off/on
-                    }
-                }
-            }
-        } else if (!strcmp(dv.options_single[0], "RC300")) {
-            auto json_val = json[value].to<JsonArray>();
-            for (uint8_t day = 0; day < 7; day++) {
-                for (uint8_t no = 0; no < 6; no++) {
-                    uint8_t * v_p = ((uint8_t *)dv.value_p) + 12 * day + 2 * no;
-                    if (*(v_p + 1) != 0xFF) {
-                        auto data   = json_val.add<JsonObject>();
-                        data["day"] = FL_(enum_dayOfWeek[day])[0]; // always en
-                        // data["day"] = Helpers::translated_word(FL_(enum_dayOfWeek[day]));
-                        data["time"] = Helpers::render_clock(val, *(v_p + 1), DeviceValue::DV_NUMOP_MUL15);
-                        uint8_t mode = (*v_p) + 1; // sets 0xFF to index 0
-                        if (mode < 5) {
-                            data["mode"] = FL_(enum_switchmode[mode])[0]; // always en
-                            // data["mode"] = Helpers::translated_word(FL_(enum_switchmode[mode]));
-                        } else {
-                            data["temp"] = serialized(Helpers::render_value(val, *v_p, 2, fahrenheit));
-                            // data["temp"] = Helpers::transformNumFloat(*(v_p), 2, fahrenheit);
-                        }
-                        data["no"] = no;
-                    }
-                }
-            }
-        } else if (!strcmp(dv.options_single[0], "Junkers")) {
-            auto json_val = json[value].to<JsonArray>();
-            for (uint8_t day = 0; day < 7; day++) {
-                for (uint8_t no = 0; no < 6; no++) {
-                    uint8_t * v_p = ((uint8_t *)dv.value_p) + 12 * day + 2 * no;
-                    if (*(v_p + 1) != 0xFF) {
+        if (strcmp(dv.short_name, FL_(switchprog)[0]) || strcmp(dv.short_name, FL_(circswitchprog)[0])) {
+            uint8_t model    = flags() & 0x3F;
+            auto    json_val = json[value].to<JsonArray>();
+            if (model == EMS_DEVICE_FLAG_RC35 || model == EMS_DEVICE_FLAG_RC30_N || model == EMS_DEVICE_FLAG_RC20) {
+                for (uint8_t no = 0; no < 42; no++) {
+                    uint8_t * v_p = (uint8_t *)dv.value_p + 2 * no;
+                    if (((*v_p) >> 5) != 7 && ((*v_p) & 0x07) != 7 && ((*v_p) & 0x18) == 0 && (*(v_p + 1) < 0x90)) {
                         auto data    = json_val.add<JsonObject>();
-                        data["day"]  = FL_(enum_dayOfWeek[day])[0]; // always en
-                        data["time"] = Helpers::render_clock(val, *(v_p + 1), DeviceValue::DV_NUMOP_MUL15);
-                        data["temp"] = serialized(Helpers::render_value(val, *v_p, 1, fahrenheit));
                         data["no"]   = no;
+                        data["day"]  = FL_(enum_dayOfWeek[(*v_p) >> 5])[0]; // always en
+                        data["time"] = Helpers::render_clock(val, *(v_p + 1), DeviceValue::DV_NUMOP_MUL10);
+                        if (model == EMS_DEVICE_FLAG_RC35) {
+                            if (EMSESP::system_.bool_format() == BOOL_FORMAT_10) {
+                                data["mode"] = (*(v_p) & 1) ? 1 : 0;
+                            } else if (EMSESP::system_.enum_format() == BOOL_FORMAT_TRUEFALSE) {
+                                data["mode"] = (*(v_p) & 1) ? true : false;
+                            } else {
+                                char s[12];
+                                data["mode"] = Helpers::render_boolean(s, *(v_p) & 1);
+                            }
+                        } else {
+                            data["mode"] = (*(v_p) & 7); // RC20/RC30 level, RC35 off/on
+                        }
+                    }
+                }
+            } else if ((flags() & EMS_DEVICE_FLAG_RC300) || model == EMS_DEVICE_FLAG_RC100) {
+                for (uint8_t day = 0; day < 7; day++) {
+                    for (uint8_t no = 0; no < 6; no++) {
+                        uint8_t * v_p = ((uint8_t *)dv.value_p) + 12 * day + 2 * no;
+                        if (*(v_p + 1) != 0xFF) {
+                            auto data    = json_val.add<JsonObject>();
+                            data["day"]  = FL_(enum_dayOfWeek[day])[0]; // always en
+                            data["time"] = Helpers::render_clock(val, *(v_p + 1), DeviceValue::DV_NUMOP_MUL15);
+                            uint8_t mode = (*v_p) + 1; // sets 0xFF to index 0
+                            if (mode < 5) {
+                                data["mode"] = FL_(enum_switchmode[mode])[0]; // always en
+                            } else {
+                                data["temp"] = serialized(Helpers::render_value(val, *v_p, 2, fahrenheit));
+                            }
+                            data["no"] = no;
+                        }
+                    }
+                }
+            } else if (model == EMS_DEVICE_FLAG_JUNKERS || model == EMS_DEVICE_FLAG_JUNKERS_OLD) {
+                for (uint8_t day = 0; day < 7; day++) {
+                    for (uint8_t no = 0; no < 6; no++) {
+                        uint8_t * v_p = ((uint8_t *)dv.value_p) + 12 * day + 2 * no;
+                        if (*(v_p + 1) != 0xFF) {
+                            auto data    = json_val.add<JsonObject>();
+                            data["day"]  = FL_(enum_dayOfWeek[day])[0]; // always en
+                            data["time"] = Helpers::render_clock(val, *(v_p + 1), DeviceValue::DV_NUMOP_MUL15);
+                            data["temp"] = serialized(Helpers::render_value(val, *v_p, 1, fahrenheit));
+                            data["no"]   = no;
+                        }
                     }
                 }
             }
@@ -1841,6 +1834,7 @@ bool EMSdevice::generate_values(JsonObject output, const int8_t tag_filter, cons
                 // show empty json only in api
                 else if (dv.type == DeviceValueType::JSON && output_target != EMSdevice::OUTPUT_TARGET::CONSOLE
                          && output_target != EMSdevice::OUTPUT_TARGET::MQTT) {
+                    // check PSRAM, json for low ram systems may get too large
                     // if (EMSESP::system_.PSram()) {
                     JsonDocument doc;
                     get_value_json(doc.to<JsonObject>(), dv);
