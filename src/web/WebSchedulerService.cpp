@@ -302,18 +302,15 @@ void WebSchedulerService::publish(const bool force) {
     }
 }
 
-bool WebSchedulerService::has_commands() {
-    if (scheduleItems_->size() == 0) {
-        return false;
-    }
-
+// count number of entries, default: only named items
+uint8_t WebSchedulerService::count_entities(bool cmd_only) {
+    uint8_t count = 0;
     for (const ScheduleItem & scheduleItem : *scheduleItems_) {
-        if (!scheduleItem.name.empty()) {
-            return true;
+        if (!scheduleItem.name.empty() || !cmd_only) {
+            count++;
         }
     }
-
-    return false;
+    return count;
 }
 
 #include "shuntingYard.hpp"

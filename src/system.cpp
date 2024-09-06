@@ -1631,6 +1631,14 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
         node["modbusEnabled"] = settings.modbus_enabled;
     });
 
+    // Custom entities
+    node = output["custom"].to<JsonObject>();
+    node["entities"] = EMSESP::webCustomEntityService.count_entities();
+
+    // Scheduler
+    node = output["scheduler"].to<JsonObject>();
+    node["entities"] = EMSESP::webSchedulerService.count_entities();
+
     // Devices - show EMS devices if we have any
     if (!EMSESP::emsdevices.empty()) {
         JsonArray devices = output["devices"].to<JsonArray>();
