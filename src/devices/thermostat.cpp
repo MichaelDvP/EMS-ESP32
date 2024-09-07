@@ -3443,10 +3443,10 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
             memcpy(&switchtimes[offset], data, 2);
         }
         // write all 84 bytes, split even to have the 2 bytes switchpoint in on telegram
-        write_command(type_id, 0, switchtimes, 22, 0);
-        write_command(type_id, 22, &switchtimes[22], 22, 0);
-        write_command(type_id, 44, &switchtimes[44], 22, 0);
         write_command(type_id, 66, &switchtimes[66], 18, 0);
+        write_command(type_id, 44, &switchtimes[44], 22, 0);
+        write_command(type_id, 22, &switchtimes[22], 22, 0);
+        write_command(type_id, 0, switchtimes, 22, 0);
         return true;
     }
     // JsonObject obj = doc.as<JsonObject>();
