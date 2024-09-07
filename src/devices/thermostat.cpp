@@ -3415,9 +3415,12 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
         offset  = day * 12 + no * 2;
         data[0] = temp;
         data[1] = time / 15;
-        if (s_mode == "not_set" || s_mode == "clear" || day >= 7 || time >= 1440) {
+        if (s_mode == "not_set" || s_mode == "clear" || time >= 1440) {
             data[1] = 0xFF;
         }
+    }
+    if (offset > 82) {
+        return false;
     }
     return true;
 }
