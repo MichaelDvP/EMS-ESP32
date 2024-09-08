@@ -1902,14 +1902,9 @@ void EMSdevice::mqtt_ha_entity_config_create() {
                 dv.add_state(DeviceValueState::DV_HA_CONFIG_CREATED);
                 create_device_config = false; // only create the main config once
                 count++;
-            }
-#ifndef EMSESP_STANDALONE
-            // always create minimum one config
-            // if (count && (heap_caps_get_free_size(MALLOC_CAP_8BIT) < 41 * 1024)) { // checks free Heap+PSRAM
-            if (ESP.getMaxAllocHeap() < (6 * 1024) || (!EMSESP::system_.PSram() && ESP.getFreeHeap() < (65 * 1024))) {
+            } else {
                 break;
             }
-#endif
         }
     }
 #if defined(EMSESP_DEBUG) || defined(EMSESP_STANDALONE)
