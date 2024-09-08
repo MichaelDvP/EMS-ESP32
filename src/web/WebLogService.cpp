@@ -40,7 +40,7 @@ void WebLogService::begin() {
 // apply the user settings
 void WebLogService::start() {
     EMSESP::webSettingsService.read([&](WebSettings & settings) {
-        maximum_log_messages_ = settings.weblog_buffer;
+        maximum_log_messages_ = EMSESP::system_.PSram() ? settings.weblog_buffer : 20;
         limit_log_messages_   = maximum_log_messages_;
         compact_              = settings.weblog_compact;
         uuid::log::Logger::register_handler(this, (uuid::log::Level)settings.weblog_level);
@@ -106,11 +106,15 @@ WebLogService::QueuedLogMessage::QueuedLogMessage(unsigned long id, std::shared_
 
 void WebLogService::operator<<(std::shared_ptr<uuid::log::Message> message) {
 #ifndef EMSESP_STANDALONE
-    size_t maxAlloc = ESP.getMaxAllocHeap();
-    if (limit_log_messages_ > 5 && maxAlloc < 46080) {
-        --limit_log_messages_;
-    } else if (limit_log_messages_ < maximum_log_messages_ && maxAlloc > 51200) {
-        ++limit_log_messages_;
+    if (emsesp::EMSESP::system_.PSram()) {
+        limit_log_messages_ = maximum_log_messages_;
+    } else {
+        uint32_t maxAlloc = ESP.getMaxAllocHeap();
+        if (limit_log_messages_ > 5 && maxAlloc < (50 * 1024)) { // 50k
+            --limit_log_messages_;
+        } else if (limit_log_messages_ < maximum_log_messages_ && maxAlloc > (60 * 1024)) { //  60k
+            ++limit_log_messages_;
+        }
     }
 #endif
     while (log_messages_.size() >= limit_log_messages_) {
