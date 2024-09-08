@@ -613,13 +613,13 @@ bool Mqtt::queue_message(const uint8_t operation, const std::string & topic, con
 // check free mem
 #ifndef EMSESP_STANDALONE
     // if (ESP.getFreeHeap() < 60 * 1024 || ESP.getMaxAllocHeap() < 40 * 1024) {
-    // if (!EMSESP::system_.PSram() && (ESP.getFreeHeap() < 60 * 1024 || ESP.getMaxAllocHeap() < 40 * 1024)) {
-    if (heap_caps_get_free_size(MALLOC_CAP_8BIT) < 40 * 1024) { // checks free Heap+PSRAM
+    if (!EMSESP::system_.PSram() && (ESP.getFreeHeap() < 60 * 1024 || ESP.getMaxAllocHeap() < 40 * 1024)) {
+    // if (heap_caps_get_free_size(MALLOC_CAP_8BIT) < 40 * 1024) { // checks free Heap+PSRAM
         if (operation == Operation::PUBLISH) {
             mqtt_message_id_++;
             mqtt_publish_fails_++;
         }
-        LOG_WARNING("%s failed: low memory", operation == Operation::PUBLISH ? "Publish" : operation == Operation::SUBSCRIBE ? "Subscribe" : "Unsubscribe");
+        LOG_WARNING("%s %s failed: low memory", operation == Operation::PUBLISH ? "Publish" : operation == Operation::SUBSCRIBE ? "Subscribe" : "Unsubscribe", topic.c_str());
         return false; // quit
     }
     if (queuecount_ >= MQTT_QUEUE_MAX_SIZE) {
