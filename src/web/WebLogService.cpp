@@ -40,7 +40,7 @@ void WebLogService::begin() {
 // apply the user settings
 void WebLogService::start() {
     EMSESP::webSettingsService.read([&](WebSettings & settings) {
-        maximum_log_messages_ = EMSESP::system_.PSram() ? settings.weblog_buffer : 20;
+        maximum_log_messages_ = settings.weblog_buffer;
         limit_log_messages_   = maximum_log_messages_;
         compact_              = settings.weblog_compact;
         uuid::log::Logger::register_handler(this, (uuid::log::Level)settings.weblog_level);

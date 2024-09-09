@@ -190,25 +190,23 @@ const SystemLog = () => {
               <MenuItem value={9}>ALL</MenuItem>
             </TextField>
           </Grid>
-          {data.max_messages > 20 && (
-            <Grid size={2}>
-              <TextField
-                name="max_messages"
-                label={LL.BUFFER_SIZE()}
-                value={data.max_messages}
-                fullWidth
-                variant="outlined"
-                onChange={updateFormValue}
-                margin="normal"
-                select
-              >
-                <MenuItem value={25}>25</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-                <MenuItem value={75}>75</MenuItem>
-                <MenuItem value={100}>100</MenuItem>
-              </TextField>
-            </Grid>
-          )}
+          <Grid size={2}>
+            <TextField
+              name="max_messages"
+              label={LL.BUFFER_SIZE()}
+              value={data.max_messages}
+              fullWidth
+              variant="outlined"
+              onChange={updateFormValue}
+              margin="normal"
+              select
+            >
+              <MenuItem value={25}>25</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={75}>75</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+            </TextField>
+          </Grid>
           <Grid>
             <BlockFormControlLabel
               control={
