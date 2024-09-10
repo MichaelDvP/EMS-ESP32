@@ -540,6 +540,7 @@ void System::button_init(bool refresh) {
         reload_settings();
     }
 
+#ifndef EMSESP_STANDALONE
     if (!is_valid_gpio(pbutton_gpio_)) {
         LOG_WARNING("Invalid button GPIO. Check config.");
         myPButton_.init(255, HIGH); // disable
@@ -555,6 +556,7 @@ void System::button_init(bool refresh) {
     myPButton_.onDblClick(BUTTON_DblClickDelay, button_OnDblClick);
     myPButton_.onLongPress(BUTTON_LongPressDelay, button_OnLongPress);
     myPButton_.onVLongPress(BUTTON_VLongPressDelay, button_OnVLongPress);
+#endif
 }
 
 // set the LED to on or off when in normal operating mode
@@ -1208,8 +1210,20 @@ bool System::check_upgrade(bool factory_settings) {
 
     // compare versions
     if (this_version > settings_version) {
-        // need upgrade
-        LOG_NOTICE("Upgrading to version %d.%d.%d-%s", this_version.major(), this_version.minor(), this_version.patch(), this_version.prerelease().c_str());
+        // we need to do an upgrade
+        if (missing_version) {
+            LOG_NOTICE("Upgrading to version %d.%d.%d-%s", this_version.major(), this_version.minor(), this_version.patch(), this_version.prerelease().c_str());
+        } else {
+            LOG_NOTICE("Upgrading from version %d.%d.%d-%s to %d.%d.%d-%s",
+                       settings_version.major(),
+                       settings_version.minor(),
+                       settings_version.patch(),
+                       settings_version.prerelease().c_str(),
+                       this_version.major(),
+                       this_version.minor(),
+                       this_version.patch(),
+                       this_version.prerelease().c_str());
+        }
 
         // if we're coming from 3.4.4 or 3.5.0b14 which had no version stored then we need to apply new settings
         if (missing_version) {
@@ -1233,21 +1247,31 @@ bool System::check_upgrade(bool factory_settings) {
             });
         }
 
-        // force WiFi sleep to off (was default on < 3.7.0-dev-33)
+        // changes to Network
         EMSESP::esp8266React.getNetworkSettingsService()->update([&](NetworkSettings & networkSettings) {
-            networkSettings.nosleep = true;
-            return StateUpdateResult::CHANGED;
-        });
-
-        // Network Settings Wifi tx_power is now using the value * 4.
-        EMSESP::esp8266React.getNetworkSettingsService()->update([&](NetworkSettings & networkSettings) {
+            // Network Settings Wifi tx_power is now using the value * 4.
             if (networkSettings.tx_power == 20) {
                 networkSettings.tx_power = WIFI_POWER_19_5dBm; // use 19.5 as we don't have 20 anymore
                 LOG_INFO("Upgrade: Setting WiFi TX Power to Auto");
+            }
+
+            // force WiFi sleep to off (was default on < 3.7.0-dev-33)
+            networkSettings.nosleep = true;
+            LOG_INFO("Upgrade: Disabling WiFi nosleep");
+
+            return StateUpdateResult::CHANGED;
+        });
+
+        // changes to application settings
+        EMSESP::webSettingsService.update([&](WebSettings & settings) {
+            // force web buffer to 25 for those boards without psram
+            if (EMSESP::system_.PSram() == 0) {
+                settings.weblog_buffer = 25;
                 return StateUpdateResult::CHANGED;
             }
             return StateUpdateResult::UNCHANGED;
         });
+
 
     } else if (this_version < settings_version) {
         // need downgrade
@@ -1263,7 +1287,7 @@ bool System::check_upgrade(bool factory_settings) {
             settings.version = EMSESP_APP_VERSION;
             return StateUpdateResult::CHANGED;
         });
-        LOG_INFO("Upgrade: Setting version to %s", EMSESP_APP_VERSION);
+        // LOG_INFO("Upgrade: Setting version to %s", EMSESP_APP_VERSION);
         return true; // need reboot
     }
 
@@ -1434,7 +1458,7 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
 #endif
     node["resetReason"] = EMSESP::system_.reset_reason(0) + " / " + EMSESP::system_.reset_reason(1);
 #ifndef EMSESP_STANDALONE
-    node["psram"] = (EMSESP::system_.PSram() > 0); // boolean
+    node["psram"] = (EMSESP::system_.PSram() > 0); // make boolean
     if (EMSESP::system_.PSram()) {
         node["psramSize"] = EMSESP::system_.PSram();
         node["freePsram"] = ESP.getFreePsram() / 1024;
