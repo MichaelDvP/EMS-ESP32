@@ -3447,9 +3447,12 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
         }
         // write all 84 bytes, split even to have the 2 bytes switchpoint in on telegram
         write_command(type_id, 72, &switchtimes[72], 12, 0);
-        write_command(type_id, 48, &switchtimes[48], 24, 0);
-        write_command(type_id, 24, &switchtimes[24], 24, 0);
-        write_command(type_id, 0, switchtimes, 24, 0);
+        write_command(type_id, 60, &switchtimes[60], 12, 0);
+        write_command(type_id, 48, &switchtimes[48], 12, 0);
+        write_command(type_id, 36, &switchtimes[36], 12, 0);
+        write_command(type_id, 24, &switchtimes[24], 12, 0);
+        write_command(type_id, 12, &switchtimes[12], 12, 0);
+        write_command(type_id, 0, switchtimes, 12, 0);
         return true;
     }
     // set a single switchpoint
