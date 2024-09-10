@@ -3369,7 +3369,7 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
     std::string s_mode = doc["mode"].as<std::string>();
     std::string s_time = doc["time"].as<std::string>();
     uint8_t     day;
-    LOG_INFO("id: %d, day: %s, mode: %s, time: %s", no, s_day.c_str(), s_mode.c_str(), s_time.c_str());
+    // LOG_DEBUG("id: %d, day: %s, mode: %s, time: %s", no, s_day.c_str(), s_mode.c_str(), s_time.c_str());
     if (!Helpers::value2enum(s_day.c_str(), day, FL_(enum_dayOfWeek))) {
         day = 7;
     }
@@ -3438,7 +3438,6 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
     uint8_t offset = 0;
     uint8_t data[] = {0, 0xFF};
     if (doc.is<JsonArray>()) {
-        LOG_INFO("Reading jsonArray");
         for (JsonObject obj : doc.as<JsonArray>()) {
             if (!set_switchpoint(obj, offset, data)) {
                 return false;
@@ -3447,12 +3446,17 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
         }
         // write all 84 bytes, split even to have the 2 bytes switchpoint in on telegram
         write_command(type_id, 72, &switchtimes[72], 12, 0);
-        write_command(type_id, 60, &switchtimes[60], 12, 0);
-        write_command(type_id, 48, &switchtimes[48], 12, 0);
-        write_command(type_id, 36, &switchtimes[36], 12, 0);
-        write_command(type_id, 24, &switchtimes[24], 12, 0);
-        write_command(type_id, 12, &switchtimes[12], 12, 0);
-        write_command(type_id, 0, switchtimes, 12, 0);
+        write_command(type_id, 48, &switchtimes[48], 24, 0);
+        write_command(type_id, 24, &switchtimes[24], 24, 0);
+        write_command(type_id, 0, switchtimes, 24, 0);
+
+        // write_command(type_id, 72, &switchtimes[72], 12, 0);
+        // write_command(type_id, 60, &switchtimes[60], 12, 0);
+        // write_command(type_id, 48, &switchtimes[48], 12, 0);
+        // write_command(type_id, 36, &switchtimes[36], 12, 0);
+        // write_command(type_id, 24, &switchtimes[24], 12, 0);
+        // write_command(type_id, 12, &switchtimes[12], 12, 0);
+        // write_command(type_id, 0, switchtimes, 12, 0);
         return true;
     }
     // set a single switchpoint
