@@ -3363,7 +3363,7 @@ bool Thermostat::set_reducehours(const char * value, const int8_t id) {
 }
 
 bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * data) {
-    uint8_t     no     = doc["no"] | 0;
+    uint8_t     no     = doc["no"] | 0xFF;
     uint8_t     temp   = doc["temp"] | 0;
     std::string s_day  = doc["day"].as<std::string>();
     std::string s_mode = doc["mode"].as<std::string>();
@@ -3379,7 +3379,9 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
         if (Helpers::value2bool(s_mode.c_str(), b)) {
             temp = b ? 1 : 0;
         }
-        offset  = no * 2;
+        if (no != 0xFF) {
+            offset  = no * 2;
+        }
         data[0] = (day << 5) + temp;
         data[1] = time / 10;
         if (s_mode == "not_set" || s_mode == "clear" || day >= 7 || temp > 1 || time >= 1440) {
@@ -3388,7 +3390,9 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
         }
     } else if ((model() == EMSdevice::EMS_DEVICE_FLAG_RC20) || (model() == EMSdevice::EMS_DEVICE_FLAG_RC30)) {
         temp    = s_mode[0] - '0'; // temp level as mode
-        offset  = no * 2;
+        if (no != 0xFF) {
+            offset  = no * 2;
+        }
         data[0] = (day << 5) + temp;
         data[1] = time / 10;
         if (s_mode == "not_set" || s_mode == "clear" || day >= 7 || temp >= 7 || time >= 1440) {
@@ -3396,7 +3400,11 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
             data[1] = 0x90;
         }
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
-        offset  = day * 12 + no * 2;
+        if (no != 0xFF) {
+            offset  = day * 12 + (no * 2) % 12;
+        } else if (offset < day * 12) {
+            offset  = day * 12;
+        }
         data[0] = temp;
         data[1] = time / 15;
         if (s_mode == "not_set" || s_mode == "clear" || day >= 7 || time >= 1440) {
@@ -3412,7 +3420,11 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
         } else {
             temp = 2 * (EMSESP::system_.fahrenheit() ? (temp - 32.0) / 1.8 : temp);
         }
-        offset  = day * 12 + no * 2;
+        if (no != 0xFF) {
+            offset  = day * 12 + (no * 2) % 12;
+        } else if (offset < day * 12 || offset >= (day + 1) * 12 ) {
+            offset  = day * 12;
+        }
         data[0] = temp;
         data[1] = time / 15;
         if (s_mode == "not_set" || s_mode == "clear" || time >= 1440) {
@@ -3443,20 +3455,13 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
                 return false;
             }
             memcpy(&switchtimes[offset], data, 2);
+            offset += 2;
         }
-        // write all 84 bytes, split even to have the 2 bytes switchpoint in on telegram
+        // write all 84 bytes, split even to have the 2 bytes switchpoint in one telegram part
         write_command(type_id, 72, &switchtimes[72], 12, 0);
         write_command(type_id, 48, &switchtimes[48], 24, 0);
         write_command(type_id, 24, &switchtimes[24], 24, 0);
         write_command(type_id, 0, switchtimes, 24, 0);
-
-        // write_command(type_id, 72, &switchtimes[72], 12, 0);
-        // write_command(type_id, 60, &switchtimes[60], 12, 0);
-        // write_command(type_id, 48, &switchtimes[48], 12, 0);
-        // write_command(type_id, 36, &switchtimes[36], 12, 0);
-        // write_command(type_id, 24, &switchtimes[24], 12, 0);
-        // write_command(type_id, 12, &switchtimes[12], 12, 0);
-        // write_command(type_id, 0, switchtimes, 12, 0);
         return true;
     }
     // set a single switchpoint
@@ -3467,7 +3472,6 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
     write_command(type_id, offset, data, 2, type_id);
     return true;
 }
-
 
 // set switchtimes for own1 program
 bool Thermostat::set_switchprog(const char * value, const int8_t id) {
@@ -3486,6 +3490,9 @@ bool Thermostat::set_switchprog(const char * value, const int8_t id) {
             return set_switchtimes(value, timer4_typeids[hc->hc()], hc->switchprog);
         }
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
+        if (hc->program > 5) {
+            return set_switchtimes(value, timer_typeids[hc->hc()], hc->switchprog);
+        }
         uint16_t typeids[] = {timer_typeids[hc->hc()],
                               timer2_typeids[hc->hc()],
                               timer3_typeids[hc->hc()],
@@ -3493,9 +3500,9 @@ bool Thermostat::set_switchprog(const char * value, const int8_t id) {
                               timer5_typeids[hc->hc()],
                               timer6_typeids[hc->hc()]};
         return set_switchtimes(value, typeids[hc->program], hc->switchprog);
-    } else if (hc->program == 10) {
+    } else if (hc->program == 10) { // RC35/30 own program 2
         return set_switchtimes(value, timer2_typeids[hc->hc()], hc->switchprog);
-    } else {
+    } else { // RC20/30/35 program 1
         return set_switchtimes(value, timer_typeids[hc->hc()], hc->switchprog);
     }
     return false;
