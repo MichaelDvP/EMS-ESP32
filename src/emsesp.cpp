@@ -849,9 +849,9 @@ bool EMSESP::return_not_found(JsonObject output, const char * msg, const char * 
 // search for recognized device_ids : Me, All, otherwise print hex value
 std::string EMSESP::device_tostring(const uint8_t device_id) {
     if ((device_id & 0x7F) == EMSbus::ems_bus_id()) {
-        return "Me";
+        return "me";
     } else if (device_id == 0x00) {
-        return "All";
+        return "all";
     } else {
         char buffer[5];
         return Helpers::hextoa(buffer, device_id);
@@ -1613,7 +1613,10 @@ void EMSESP::start() {
     esp8266React.begin();
 
 #ifndef EMSESP_STANDALONE
-    LOG_INFO("Booting EMS-ESP version %s from %s partition", EMSESP_APP_VERSION, esp_ota_get_running_partition()->label); // welcome message
+    LOG_INFO("Booting EMS-ESP version %s from %s/%s partition",
+             EMSESP_APP_VERSION,
+             esp_ota_get_boot_partition()->label,
+             esp_ota_get_running_partition()->label); // welcome message
 #else
     LOG_INFO("Booting EMS-ESP version %s", EMSESP_APP_VERSION); // welcome message
 #endif
@@ -1631,9 +1634,10 @@ void EMSESP::start() {
     if (!nvs_.begin("ems-esp", false, "nvs1")) { // try bigger nvs partition on 16M flash first
         nvs_.begin("ems-esp", false, "nvs");     // fallback to small nvs
     }
-    LOG_DEBUG("NVS device information: %s", system_.getBBQKeesGatewayDetails().c_str());
 
-    webSettingsService.begin(); // load EMS-ESP Application settings...
+    LOG_DEBUG("NVS device information: %s", system_.getBBQKeesGatewayDetails().isEmpty() ? "not set" : system_.getBBQKeesGatewayDetails().c_str());
+
+    webSettingsService.begin(); // load EMS-ESP Application settings
 
     // do any system upgrades
     if (system_.check_upgrade(factory_settings)) {
@@ -1765,7 +1769,7 @@ void EMSESP::start_serial_console() {
 void EMSESP::shell_prompt() {
 #ifndef EMSESP_STANDALONE
     serial_console_.println();
-    serial_console_.println("Press ^C to activate this serial console");
+    serial_console_.println("Press CTRL-C to activate this serial console");
 #endif
 }
 

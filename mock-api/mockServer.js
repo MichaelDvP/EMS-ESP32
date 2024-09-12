@@ -84,7 +84,7 @@ export default () => {
                 })
               );
             } else {
-              res.statusCode = 400;
+              res.statusCode = 406;
               console.log('Invalid file extension!');
             }
           }
@@ -116,7 +116,7 @@ export default () => {
             };
             count++;
             res.write(`data: ${JSON.stringify(data)}\n\n`);
-          }, 800);
+          }, 500);
 
           // if client closes connection
           res.on('close', () => {
