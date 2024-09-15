@@ -216,7 +216,7 @@ class Thermostat : public EMSdevice {
     static uuid::log::Logger logger_;
 
     static void init_switchprog(uint8_t * st, uint8_t len) {
-        memset(st, 0xFF, len);
+        memset(st, 0xFE, len);
     }
 
     void register_device_values();

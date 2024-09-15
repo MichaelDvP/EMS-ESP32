@@ -3450,6 +3450,9 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
     uint8_t offset = 0;
     uint8_t data[] = {0, 0xFF};
     if (doc.is<JsonArray>()) {
+        if (switchtimes[83] == 0xFE) { // not yet completly read
+            return false;
+        }
         for (JsonObject obj : doc.as<JsonArray>()) {
             if (!set_switchpoint(obj, offset, data)) {
                 return false;

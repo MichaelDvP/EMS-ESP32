@@ -1621,7 +1621,7 @@ void EMSdevice::get_value_json(JsonObject json, DeviceValue & dv) {
                 for (uint8_t day = 0; day < 7; day++) {
                     for (uint8_t no = 0; no < 6; no++) {
                         uint8_t * v_p = ((uint8_t *)dv.value_p) + 12 * day + 2 * no;
-                        if (*(v_p + 1) != 0xFF) {
+                        if (*(v_p + 1) < 0x60) {
                             auto data    = json_val.add<JsonObject>();
                             data["day"]  = FL_(enum_dayOfWeek[day])[0]; // always en
                             data["time"] = Helpers::render_clock(val, *(v_p + 1), DeviceValue::DV_NUMOP_MUL15);
@@ -1639,7 +1639,7 @@ void EMSdevice::get_value_json(JsonObject json, DeviceValue & dv) {
                 for (uint8_t day = 0; day < 7; day++) {
                     for (uint8_t no = 0; no < 6; no++) {
                         uint8_t * v_p = ((uint8_t *)dv.value_p) + 12 * day + 2 * no;
-                        if (*(v_p + 1) != 0xFF) {
+                        if (*(v_p + 1) < 0x60) {
                             auto data    = json_val.add<JsonObject>();
                             data["day"]  = FL_(enum_dayOfWeek[day])[0]; // always en
                             data["time"] = Helpers::render_clock(val, *(v_p + 1), DeviceValue::DV_NUMOP_MUL15);
