@@ -44,7 +44,6 @@ string_sizes = {
     "thermostat/vacations7": 22,
     "thermostat/holidays": 26,
     "thermostat/vacations": 26,
-    "thermostat/switchprog": 84,
     "controller/datetime": 25
 }
 

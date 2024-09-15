@@ -357,7 +357,6 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(coolondelay), 194, 1), // coolondelay
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(cooloffdelay), 195, 1), // cooloffdelay
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(switchProgMode), 196, 1), // switchprogmode
-    // REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(switchprog), 197, 84), // switchprog
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(mode), 0, 1), // mode
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwSetTemp), 1, 1), // settemp
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwSetTempLow), 2, 1), // settemplow
@@ -375,11 +374,9 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwDisinfectHour), 14, 1), // disinfecthour
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwMaxTemp), 15, 1), // maxtemp
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwOneTimeKey), 16, 1), // onetimekey
-    // REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(switchprog), 17, 8), // switchprog 84
-    // REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(circswitchprog), 25, 8), // circswitchprog 84 
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(holidays), 33, 13), // holidays
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(vacations), 46, 13), // vacations
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwWhenModeOff), 59, 1), // whenmodeoff
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(holidays), 17, 13), // holidays
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(vacations), 30, 13), // vacations
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DHW, FL_(wwWhenModeOff), 43, 1), // whenmodeoff
     REGISTER_MAPPING(dt::MIXER, TAG_TYPE_HC, FL_(flowTempHc), 0, 1), // flowtemphc
     REGISTER_MAPPING(dt::MIXER, TAG_TYPE_HC, FL_(valveStatus), 1, 1), // valvestatus
     REGISTER_MAPPING(dt::MIXER, TAG_TYPE_HC, FL_(flowSetTemp), 2, 1), // flowsettemp
