@@ -3380,7 +3380,7 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
             temp = b ? 1 : 0;
         }
         if (no != 0xFF) {
-            offset  = no * 2;
+            offset = no * 2;
         }
         data[0] = (day << 5) + temp;
         data[1] = time / 10;
@@ -3389,9 +3389,9 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
             data[1] = 0x90;
         }
     } else if ((model() == EMSdevice::EMS_DEVICE_FLAG_RC20) || (model() == EMSdevice::EMS_DEVICE_FLAG_RC30)) {
-        temp    = s_mode[0] - '0'; // temp level as mode
+        temp = s_mode[0] - '0'; // temp level as mode
         if (no != 0xFF) {
-            offset  = no * 2;
+            offset = no * 2;
         }
         data[0] = (day << 5) + temp;
         data[1] = time / 10;
@@ -3401,9 +3401,9 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
         }
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS || model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS_OLD) {
         if (no != 0xFF) {
-            offset  = day * 12 + (no * 2) % 12;
+            offset = day * 12 + (no * 2) % 12;
         } else if (offset < day * 12) {
-            offset  = day * 12;
+            offset = day * 12;
         }
         data[0] = temp;
         data[1] = time / 15;
@@ -3421,9 +3421,9 @@ bool Thermostat::set_switchpoint(JsonObject doc, uint8_t & offset, uint8_t * dat
             temp = 2 * (EMSESP::system_.fahrenheit() ? (temp - 32.0) / 1.8 : temp);
         }
         if (no != 0xFF) {
-            offset  = day * 12 + (no * 2) % 12;
-        } else if (offset < day * 12 || offset >= (day + 1) * 12 ) {
-            offset  = day * 12;
+            offset = day * 12 + (no * 2) % 12;
+        } else if (offset < day * 12 || offset >= (day + 1) * 12) {
+            offset = day * 12;
         }
         data[0] = temp;
         data[1] = time / 15;
@@ -3450,8 +3450,10 @@ bool Thermostat::set_switchtimes(const char * value, const uint16_t type_id, uin
     uint8_t offset = 0;
     uint8_t data[] = {0, 0xFF};
     if (doc.is<JsonArray>()) {
-        if (switchtimes[83] == 0xFE) { // not yet completly read
-            return false;
+        for (uint8_t i = 0; i < 84; i++) {
+            if (switchtimes[i] == 0xFE) { // not yet completly read
+                return false;
+            }
         }
         for (JsonObject obj : doc.as<JsonArray>()) {
             if (!set_switchpoint(obj, offset, data)) {
