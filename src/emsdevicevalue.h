@@ -74,7 +74,8 @@ class DeviceValue {
         K,           // 22 - K
         VOLTS,       // 23 - V
         MBAR,        // 24 - mbar
-        CONNECTIVITY // 25 - used in HA
+        LH,          // 25 - l/h
+        CONNECTIVITY // 26 - used in HA
     };
 
     // TAG mapping - maps to DeviceValueTAG_s in emsdevice.cpp
@@ -189,7 +190,7 @@ class DeviceValue {
     bool               get_custom_max(uint32_t & val);
     std::string        get_custom_fullname() const;
     std::string        get_fullname() const;
-    static std::string get_name(std::string & entity);
+    static std::string get_name(const std::string & entity);
 
     // dv state flags
     void add_state(uint8_t s) {

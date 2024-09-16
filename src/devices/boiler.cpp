@@ -93,6 +93,7 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
         register_telegram_type(0x4A5, "HPFan", true, MAKE_PF_CB(process_HpFan));
         register_telegram_type(0x4AA, "HPPower2", true, MAKE_PF_CB(process_HpPower2));
         register_telegram_type(0x4A7, "HPPowerLimit", true, MAKE_PF_CB(process_HpPowerLimit));
+        register_telegram_type(0x2D6, "HPPump2", true, MAKE_PF_CB(process_HpPump2));
     }
 
     // some gas boilers, see #1701
@@ -838,6 +839,10 @@ Boiler::Boiler(uint8_t device_type, int8_t device_id, uint8_t product_id, const 
                               FL_(hpPowerLimit),
                               DeviceValueUOM::W,
                               MAKE_CF_CB(set_hpPowerLimit));
+        register_device_value(DeviceValueTAG::TAG_DEVICE_DATA, &pc0Flow_, DeviceValueType::INT16, FL_(pc0Flow), DeviceValueUOM::LH);
+        register_device_value(DeviceValueTAG::TAG_DEVICE_DATA, &pc1Flow_, DeviceValueType::INT16, FL_(pc1Flow), DeviceValueUOM::LH);
+        register_device_value(DeviceValueTAG::TAG_DEVICE_DATA, &pc1On_, DeviceValueType::BOOL, FL_(pc1On), DeviceValueUOM::NONE);
+        register_device_value(DeviceValueTAG::TAG_DEVICE_DATA, &pc1Rate_, DeviceValueType::UINT8, FL_(pc1Rate), DeviceValueUOM::PERCENT);
 
         // heatpump DHW settings
         register_device_value(DeviceValueTAG::TAG_DHW1,
@@ -1397,6 +1402,8 @@ void Boiler::process_UBAMonitorFastPlus(std::shared_ptr<const Telegram> telegram
     if (Helpers::hasValue(exhaustTemp1_)) {
         has_update(exhaustTemp_, exhaustTemp1_);
     }
+    has_update(telegram, pc0Flow_, 36); // see https://github.com/emsesp/EMS-ESP32/issues/2001
+
     // read 3 char service code / installation status as appears on the display
     if ((telegram->message_length > 3) && (telegram->offset == 0)) {
         char serviceCode[4] = {0};
@@ -1938,6 +1945,7 @@ void Boiler::process_HpSilentMode(std::shared_ptr<const Telegram> telegram) {
 void Boiler::process_HpValve(std::shared_ptr<const Telegram> telegram) {
     // has_bitupdate(telegram, auxHeaterStatus_, 0, 2);
     has_update(telegram, auxHeatMixValve_, 7);
+    has_update(telegram, pc1Rate_, 13); // percent
 }
 
 // Boiler(0x08) -B-> All(0x00), ?(0x048B), data: 00 00 0A 1E 4E 00 1E 01 2C 00 01 64 55 05 12 50 50 50 00 00 1E 01 2C 00
@@ -1946,6 +1954,12 @@ void Boiler::process_HpPumps(std::shared_ptr<const Telegram> telegram) {
     has_update(telegram, tempDiffHeat_, 4); // is * 10
     has_update(telegram, tempDiffCool_, 3); // is * 10
     has_update(telegram, hpPumpMode_, 18);
+}
+
+// 0x02D6, https://github.com/emsesp/EMS-ESP32/issues/2001
+void Boiler::process_HpPump2(std::shared_ptr<const Telegram> telegram) {
+    has_update(telegram, pc1On_, 0);
+    has_update(telegram, pc1Flow_, 9);
 }
 
 // Boiler(0x08) -> All(0x00), ?(0x0491), data: 03 01 00 00 00 02 64 00 00 14 01 2C 00 0A 00 1E 00 1E 00 00 1E 0A 1E 05 05
