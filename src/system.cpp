@@ -788,6 +788,15 @@ void System::network_init(bool refresh) {
     //  ETH_CLOCK_GPIO17_OUT = 3  RMII clock output from GPIO17, for 50hz inverted clock
     auto clock_mode = (eth_clock_mode_t)eth_clock_mode_;
 
+    // reset power and add a delay as ETH doesn't not always start up correctly after a warm boot
+    // TODO still experimental
+    if (eth_power_ >= 0) {
+        pinMode(eth_power_, OUTPUT);
+        digitalWrite(eth_power_, LOW);
+        delay(1000);
+        digitalWrite(eth_power_, HIGH);
+    }
+
 #if ESP_IDF_VERSION_MAJOR < 5
     eth_present_ = ETH.begin(phy_addr, power, mdc, mdio, type, clock_mode);
 #else
@@ -1683,11 +1692,11 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
     });
 
     // Custom entities
-    node = output["custom"].to<JsonObject>();
+    node             = output["custom"].to<JsonObject>();
     node["entities"] = EMSESP::webCustomEntityService.count_entities();
 
     // Scheduler
-    node = output["scheduler"].to<JsonObject>();
+    node             = output["scheduler"].to<JsonObject>();
     node["entities"] = EMSESP::webSchedulerService.count_entities();
 
     // Devices - show EMS devices if we have any
@@ -1799,7 +1808,7 @@ bool System::load_board_profile(std::vector<int8_t> & data, const std::string & 
 bool System::command_format(const char * value, const int8_t id) {
     LOG_INFO("Removing all config files");
 #ifndef EMSESP_STANDALONE
-    // TODO To replaced with fs.rmdir(FS_CONFIG_DIRECTORY) now we're using IDF 4.2+
+    // TODO To replaced with LittleFS.rmdir(FS_CONFIG_DIRECTORY) now we're using IDF 4.2+
     File root = LittleFS.open(EMSESP_FS_CONFIG_DIRECTORY);
     File file;
     while ((file = root.openNextFile())) {

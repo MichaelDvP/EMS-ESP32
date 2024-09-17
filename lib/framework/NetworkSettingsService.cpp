@@ -8,6 +8,7 @@ NetworkSettingsService::NetworkSettingsService(AsyncWebServer * server, FS * fs,
     , _lastConnectionAttempt(0)
     , _stopping(false) {
     addUpdateHandler([this] { reconfigureWiFiConnection(); }, false);
+    // Eth is also bound to the WifiGeneric event handler
     WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info) { WiFiEvent(event, info); });
 }
 
@@ -180,9 +181,8 @@ void NetworkSettingsService::setWiFiPowerOnRSSI() {
     else if (min_tx_pwr > 20)
         p = WIFI_POWER_5dBm;
 
-#ifdef EMSESP_DEBUG
-    uint8_t set_power = min_tx_pwr / 10; // this is the recommended power setting to use
-    emsesp::EMSESP::logger().debug("Recommended WiFi Tx Power (set_power %d, new power %d, rssi %d, threshold %d)", set_power, p, rssi, threshold);
+#if defined(EMSESP_DEBUG)
+        // emsesp::EMSESP::logger().debug("Recommended WiFi Tx Power (set_power %d, new power %d, rssi %d, threshold %d)", min_tx_pwr / 10, p, rssi, threshold);
 #endif
 
     if (!WiFi.setTxPower(p)) {
@@ -312,7 +312,7 @@ void NetworkSettingsService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) 
 
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
         char result[10];
-        emsesp::EMSESP::logger().info("WiFi connected (IP=%s, hostname=%s, TxPower=%s dBm)",
+        emsesp::EMSESP::logger().info("WiFi connected (Local IP=%s, hostname=%s, TxPower=%s dBm)",
                                       WiFi.localIP().toString().c_str(),
                                       WiFi.getHostname(),
                                       emsesp::Helpers::render_value(result, ((double)(WiFi.getTxPower()) / 4), 1));
@@ -328,16 +328,18 @@ void NetworkSettingsService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) 
         break;
 
     case ARDUINO_EVENT_ETH_GOT_IP:
-        // prevent double calls
+        // prevent double calls to mDNS
         if (!emsesp::EMSESP::system_.ethernet_connected()) {
-            emsesp::EMSESP::logger().info("Ethernet connected (IP=%s, speed %d Mbps)", ETH.localIP().toString().c_str(), ETH.linkSpeed());
+            emsesp::EMSESP::logger().info("Ethernet connected (Local IP=%s, speed %d Mbps)", ETH.localIP().toString().c_str(), ETH.linkSpeed());
             emsesp::EMSESP::system_.ethernet_connected(true);
             mDNS_start();
         }
         break;
 
     case ARDUINO_EVENT_ETH_DISCONNECTED:
-        emsesp::EMSESP::logger().warning("Ethernet disconnected");
+        emsesp::EMSESP::logger().warning("Ethernet disconnected. Reason: %s (%d)",
+                                         disconnectReason(info.wifi_sta_disconnected.reason),
+                                         info.wifi_sta_disconnected.reason);
         emsesp::EMSESP::system_.ethernet_connected(false);
         emsesp::EMSESP::system_.has_ipv6(false);
         break;
@@ -366,26 +368,21 @@ void NetworkSettingsService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) 
 
         // IPv6 specific
     case ARDUINO_EVENT_WIFI_STA_GOT_IP6:
+    case ARDUINO_EVENT_ETH_GOT_IP6: {
 #if !TASMOTA_SDK && ESP_IDF_VERSION_MAJOR < 5
-        emsesp::EMSESP::logger().info("Local IPv6 (WiFi)=%s", WiFi.localIPv6().toString().c_str());
+        auto ip6 = IPv6Address((uint8_t *)info.got_ip6.ip6_info.ip.addr).toString();
 #else
-        emsesp::EMSESP::logger().info("Local IPv6=%s", IPAddress(IPv6, (uint8_t *)info.got_ip6.ip6_info.ip.addr, 0).toString().c_str());
+        auto ip6 = IPAddress(IPv6, (uint8_t *)info.got_ip6.ip6_info.ip.addr, 0).toString();
 #endif
-        emsesp::EMSESP::system_.has_ipv6(true);
-        break;
-
-        // IPv6 specific
-        // This a bug in arduino where this is triggered twice, so we prevent it
-    case ARDUINO_EVENT_ETH_GOT_IP6:
-        if (!emsesp::EMSESP::system_.has_ipv6()) {
-#if !TASMOTA_SDK && ESP_IDF_VERSION_MAJOR < 5
-            emsesp::EMSESP::logger().info("Local IPv6 (Eth)=%s", ETH.localIPv6().toString().c_str());
-#else
-            emsesp::EMSESP::logger().info("Local IPv6=%s", IPAddress(IPv6, (uint8_t *)info.got_ip6.ip6_info.ip.addr, 0).toString().c_str());
-#endif
-            emsesp::EMSESP::system_.has_ipv6(true);
+        if (ip6.startsWith("fe80")) {
+            emsesp::EMSESP::logger().info("IPv6 local: %s", ip6.c_str());
+        } else if (ip6.startsWith("fd")) {
+            emsesp::EMSESP::logger().info("IPv6 ULA: %s", ip6.c_str());
+        } else {
+            emsesp::EMSESP::logger().info("IPv6 global: %s", ip6.c_str());
         }
-        break;
+        emsesp::EMSESP::system_.has_ipv6(true);
+    } break;
 
     default:
         break;
