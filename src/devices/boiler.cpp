@@ -1840,10 +1840,11 @@ void Boiler::process_UBAErrorMessage2(std::shared_ptr<const Telegram> telegram) 
     uint32_t        date                    = 0;
     char            code[sizeof(lastCode_)] = {0};
     uint16_t        codeNo                  = EMS_VALUE_INT16_NOTSET;
-    code[0]                                 = telegram->message_data[5 + ofs];
-    code[1]                                 = telegram->message_data[6 + ofs];
-    code[2]                                 = telegram->message_data[7 + ofs];
-    code[3]                                 = 0;
+    code[0]                                 = telegram->message_data[5];
+    code[1]                                 = telegram->message_data[6];
+    code[2]                                 = telegram->message_data[7];
+    code[3]                                 = ofs ? telegram->message_data[8] : 0;
+    code[4]                                 = 0;
     telegram->read_value(codeNo, 8 + ofs);
 
     // check for valid date, https://github.com/emsesp/EMS-ESP32/issues/204
@@ -1861,8 +1862,8 @@ void Boiler::process_UBAErrorMessage2(std::shared_ptr<const Telegram> telegram) 
 
         if (telegram->message_data[15 + ofs] & 0x80) { //valid end date
             date = (end_year - 2000) * 535680UL + end_month * 44640UL + end_day * 1440UL + end_hour * 60 + end_min;
-            snprintf(&code[3],
-                     sizeof(code) - 3,
+            snprintf(&code[3 + ofs],
+                     sizeof(code) - 3 - ofs,
                      "(%d) %02d.%02d.%04d %02d:%02d - %02d.%02d.%04d %02d:%02d",
                      codeNo,
                      start_day,
@@ -1877,14 +1878,14 @@ void Boiler::process_UBAErrorMessage2(std::shared_ptr<const Telegram> telegram) 
                      end_min);
         } else { // no valid end date means error still persists
             date = (start_year - 2000) * 535680UL + start_month * 44640UL + start_day * 1440UL + start_hour * 60 + start_min;
-            snprintf(&code[3], sizeof(code) - 3, "(%d) %02d.%02d.%04d %02d:%02d - now", codeNo, start_day, start_month, start_year, start_hour, start_min);
+            snprintf(&code[3 + ofs], sizeof(code) - 3 - ofs, "(%d) %02d.%02d.%04d %02d:%02d - now", codeNo, start_day, start_month, start_year, start_hour, start_min);
         }
     } else { // no clock, the uptime is stored https://github.com/emsesp/EMS-ESP32/issues/121
         uint32_t starttime = 0;
         uint32_t endtime   = 0;
         telegram->read_value(starttime, 11, 3);
         telegram->read_value(endtime, 16, 3);
-        snprintf(&code[3], sizeof(code) - 3, "(%d) @uptime %lu - %lu min", codeNo, starttime, endtime);
+        snprintf(&code[3 + ofs], sizeof(code) - 3 - ofs, "(%d) @uptime %lu - %lu min", codeNo, starttime, endtime);
         date = starttime;
     }
     if (date > lastCodeDate_ && lastCodeDate_) {
