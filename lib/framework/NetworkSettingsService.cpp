@@ -374,12 +374,13 @@ void NetworkSettingsService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) 
 #else
         auto ip6 = IPAddress(IPv6, (uint8_t *)info.got_ip6.ip6_info.ip.addr, 0).toString();
 #endif
+        const char * link = event == ARDUINO_EVENT_ETH_GOT_IP6 ? "Eth" : "WiFi";
         if (ip6.startsWith("fe80")) {
-            emsesp::EMSESP::logger().info("IPv6 local: %s", ip6.c_str());
-        } else if (ip6.startsWith("fd")) {
-            emsesp::EMSESP::logger().info("IPv6 ULA: %s", ip6.c_str());
+            emsesp::EMSESP::logger().info("IPv6 (%s) local: %s", link, ip6.c_str());
+        } else if (ip6.startsWith("fd") || ip6.startsWith("fc")) {
+            emsesp::EMSESP::logger().info("IPv6 (%s) ULA: %s", link, ip6.c_str());
         } else {
-            emsesp::EMSESP::logger().info("IPv6 global: %s", ip6.c_str());
+            emsesp::EMSESP::logger().info("IPv6 (%s) global: %s", link, ip6.c_str());
         }
         emsesp::EMSESP::system_.has_ipv6(true);
     } break;

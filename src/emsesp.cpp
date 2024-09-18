@@ -378,7 +378,7 @@ void EMSESP::dump_all_telegrams(uuid::console::Shell & shell) {
 
     Serial.println("---- CSV START ----"); // marker use by py script
     // add header for CSV
-    Serial.println("telegram_type_id,name,is_fetched,is_cmd");
+    Serial.println("telegram_type_id,name,is_fetched");
 
     for (const auto & device_class : EMSFactory::device_handlers()) {
         // go through each device type so they are sorted
@@ -429,8 +429,6 @@ void EMSESP::dump_all_telegrams(uuid::console::Shell & shell) {
         Serial.print(tf.name_);
         Serial.print(',');
         Serial.print(tf.fetch_ ? "fetched" : " ");
-        Serial.print(',');
-        Serial.print(tf.cmd_ ? "cmd" : " ");
         Serial.println();
     }
 
@@ -1728,14 +1726,13 @@ void EMSESP::loop() {
     static bool show_prompt = true;
 
     // user has to ctrl-c to create a serial console stream, exit command will close it
-    // this is to save around 2kb of heap memory
+    // this saves around 2kb of heap memory
     if (shell_) {
         if (!shell_->running()) {
             shell_.reset();
 #ifdef EMSESP_STANDALONE
             ::exit(0); // kill session
 #endif
-            shell_prompt();
         }
     } else {
         if (show_prompt) {
