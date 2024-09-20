@@ -366,7 +366,7 @@ void NetworkSettingsService::WiFiEvent(WiFiEvent_t event, WiFiEventInfo_t info) 
 #endif
         break;
 
-        // IPv6 specific
+        // IPv6 specific - WiFi/Eth
     case ARDUINO_EVENT_WIFI_STA_GOT_IP6:
     case ARDUINO_EVENT_ETH_GOT_IP6: {
 #if !TASMOTA_SDK && ESP_IDF_VERSION_MAJOR < 5

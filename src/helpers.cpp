@@ -848,7 +848,7 @@ uint16_t Helpers::string2minutes(const std::string & str) {
 
     if (state == 1 && tmp < 60) {
         return res + tmp;
-    } else if (state == 0) { // only on number in minutes
+    } else if (state == 0) { // without : it's only minutes
         return tmp;
     } else {
         return 0; // Or if we were not, something is wrong in the given string
