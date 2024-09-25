@@ -178,8 +178,9 @@ bool WebSchedulerService::get_value_info(JsonObject output, const char * cmd) {
 
 // build the json for specific entity
 void WebSchedulerService::get_value_json(JsonObject output, const ScheduleItem & scheduleItem) {
-    output["name"] = scheduleItem.name;
-    output["type"] = "boolean";
+    output["name"]     = scheduleItem.name;
+    output["fullname"] = scheduleItem.name;
+    output["type"]     = "boolean";
     if (EMSESP::system_.bool_format() == BOOL_FORMAT_TRUEFALSE) {
         output["value"] = scheduleItem.active;
     } else if (EMSESP::system_.bool_format() == BOOL_FORMAT_10) {
