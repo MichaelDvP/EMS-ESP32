@@ -1593,12 +1593,12 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
     // Sensor Status
     node = output["sensor"].to<JsonObject>();
     if (EMSESP::sensor_enabled()) {
-        node["temperatureSensors"]     = EMSESP::temperaturesensor_.no_sensors();
+        node["temperatureSensors"]     = EMSESP::temperaturesensor_.count_entities();
         node["temperatureSensorReads"] = EMSESP::temperaturesensor_.reads();
         node["temperatureSensorFails"] = EMSESP::temperaturesensor_.fails();
     }
     if (EMSESP::analog_enabled()) {
-        node["analogSensors"]     = EMSESP::analogsensor_.no_sensors();
+        node["analogSensors"]     = EMSESP::analogsensor_.count_entities();
         node["analogSensorReads"] = EMSESP::analogsensor_.reads();
         node["analogSensorFails"] = EMSESP::analogsensor_.fails();
     }
@@ -1690,17 +1690,9 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
         node["forceHeatingOff"] = settings.boiler_heatingoff;
     });
 
-    // Custom entities
-    node             = output["custom"].to<JsonObject>();
-    node["entities"] = EMSESP::webCustomEntityService.count_entities();
-
-    // Scheduler
-    node             = output["scheduler"].to<JsonObject>();
-    node["entities"] = EMSESP::webSchedulerService.count_entities();
-
     // Devices - show EMS devices if we have any
+    JsonArray devices = output["devices"].to<JsonArray>();
     if (!EMSESP::emsdevices.empty()) {
-        JsonArray devices = output["devices"].to<JsonArray>();
         for (const auto & device_class : EMSFactory::device_handlers()) {
             for (const auto & emsdevice : EMSESP::emsdevices) {
                 if (emsdevice && (emsdevice->device_type() == device_class.first)) {
@@ -1732,6 +1724,31 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
                 }
             }
         }
+    }
+    // Also show EMSESP devices if we have any
+    if (EMSESP::temperaturesensor_.count_entities()) {
+        JsonObject obj  = devices.add<JsonObject>();
+        obj["type"]     = F_(temperaturesensor);
+        obj["name"]     = F_(temperaturesensor);
+        obj["entities"] = EMSESP::temperaturesensor_.count_entities();
+    }
+    if (EMSESP::analogsensor_.count_entities()) {
+        JsonObject obj  = devices.add<JsonObject>();
+        obj["type"]     = F_(analogsensor);
+        obj["name"]     = F_(analogsensor);
+        obj["entities"] = EMSESP::analogsensor_.count_entities();
+    }
+    if (EMSESP::webSchedulerService.count_entities(false)) {
+        JsonObject obj  = devices.add<JsonObject>();
+        obj["type"]     = F_(scheduler);
+        obj["name"]     = F_(scheduler);
+        obj["entities"] = EMSESP::webSchedulerService.count_entities(false);
+    }
+    if (EMSESP::webCustomEntityService.count_entities()) {
+        JsonObject obj  = devices.add<JsonObject>();
+        obj["type"]     = F_(custom);
+        obj["name"]     = F_(custom);
+        obj["entities"] = EMSESP::webCustomEntityService.count_entities();
     }
 
     return true; // this function always returns true!
