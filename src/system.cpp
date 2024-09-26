@@ -1738,11 +1738,11 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
         obj["name"]     = F_(analogsensor);
         obj["entities"] = EMSESP::analogsensor_.count_entities();
     }
-    if (EMSESP::webSchedulerService.count_entities(false)) {
+    if (EMSESP::webSchedulerService.count_entities()) {
         JsonObject obj  = devices.add<JsonObject>();
         obj["type"]     = F_(scheduler);
         obj["name"]     = F_(scheduler);
-        obj["entities"] = EMSESP::webSchedulerService.count_entities(false);
+        obj["entities"] = EMSESP::webSchedulerService.count_entities();
     }
     if (EMSESP::webCustomEntityService.count_entities()) {
         JsonObject obj  = devices.add<JsonObject>();

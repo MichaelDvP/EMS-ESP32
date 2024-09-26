@@ -472,15 +472,6 @@ uint8_t WebCustomEntityService::count_entities() {
     return count;
 }
 
-uint8_t WebCustomEntityService::has_commands() {
-    uint8_t count = 0;
-    for (const CustomEntityItem & entity : *customEntityItems_) {
-        count += entity.writeable ? 1 : 0;
-    }
-
-    return count;
-}
-
 // send to dashboard, msgpack don't like serialized, use number
 void WebCustomEntityService::generate_value_web(JsonObject output) {
     JsonArray data  = output["data"].to<JsonArray>();
