@@ -56,8 +56,8 @@ WebLogService      EMSESP::webLogService      = WebLogService(&webServer, EMSESP
 using DeviceFlags = EMSdevice;
 using DeviceType  = EMSdevice::DeviceType;
 
-std::vector<std::unique_ptr<EMSdevice>> EMSESP::emsdevices;      // array of all the detected EMS devices
-std::vector<EMSESP::Device_record>      EMSESP::device_library_; // library of all our known EMS devices, in heap
+std::deque<std::unique_ptr<EMSdevice>> EMSESP::emsdevices;      // array of all the detected EMS devices
+std::vector<EMSESP::Device_record>     EMSESP::device_library_; // library of all our known EMS devices, in heap
 
 uuid::log::Logger EMSESP::logger_{F_(emsesp), uuid::log::Facility::KERN};
 uuid::log::Logger EMSESP::logger() {
@@ -1732,7 +1732,7 @@ void EMSESP::loop() {
 
     static bool show_prompt = true;
 
-    // user has to ctrl-c to create a serial console stream, exit command will close it
+    // user has to CTRL-D to create a serial console stream, exit command will close it
     // this saves around 2kb of heap memory
     if (shell_) {
         if (!shell_->running()) {
@@ -1749,9 +1749,11 @@ void EMSESP::loop() {
         int c = serial_console_.read();
         if (c != -1) {
             show_prompt = true;
+            Serial.println(c);
         }
         // https://daleswanson.org/ascii.htm#:~:text=0
-        if (c == '\x03') {
+        // CTRL-D to open
+        if (c == '\x04') {
             start_serial_console();
         }
     }
@@ -1772,7 +1774,7 @@ void EMSESP::start_serial_console() {
 void EMSESP::shell_prompt() {
 #ifndef EMSESP_STANDALONE
     serial_console_.println();
-    serial_console_.printf("EMS-ESP %s: press CTRL-C to activate this serial console", EMSESP_APP_VERSION);
+    serial_console_.printf("EMS-ESP %s: press CTRL-D to activate this serial console", EMSESP_APP_VERSION);
     serial_console_.println();
 #endif
 }
