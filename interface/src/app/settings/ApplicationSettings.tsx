@@ -324,6 +324,52 @@ const ApplicationSettings = () => {
             </Grid>
           </Grid>
         )}
+        <Typography color="secondary">KNX</Typography>
+        <BlockFormControlLabel
+          control={
+            <Checkbox
+              checked={data.knx_enabled}
+              onChange={updateFormValue}
+              name="knx_enabled"
+            />
+          }
+          label={'Enable KNX'}
+        />
+        {data.knx_enabled && (
+          <Grid
+            container
+            spacing={1}
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="flex-start"
+          >
+            <Grid>
+              <ValidatedTextField
+                fieldErrors={fieldErrors}
+                name="knx_mc_ip"
+                label="Multicast IP"
+                fullWidth
+                variant="outlined"
+                value={data.knx_mc_ip}
+                onChange={updateFormValue}
+                margin="normal"
+              />
+            </Grid>
+            <Grid>
+              <ValidatedTextField
+                fieldErrors={fieldErrors}
+                name="knx_mc_port"
+                label="Multicast Port"
+                fullWidth
+                variant="outlined"
+                value={numberValue(data.knx_mc_port)}
+                type="number"
+                onChange={updateFormValue}
+                margin="normal"
+              />
+            </Grid>
+          </Grid>
+        )}
         <Typography sx={{ pb: 1, pt: 2 }} variant="h6" color="primary">
           {LL.SENSORS()}
         </Typography>
@@ -801,7 +847,6 @@ const ApplicationSettings = () => {
             </>
           )}
         </Grid>
-
         {restartNeeded && (
           <MessageBox my={2} level="warning" message={LL.RESTART_TEXT(0)}>
             <Button

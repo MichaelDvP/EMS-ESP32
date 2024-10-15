@@ -411,6 +411,13 @@ void TemperatureSensor::publish_sensor(const Sensor & sensor) {
     char cmd[COMMAND_MAX_LENGTH];
     snprintf(cmd, sizeof(cmd), "%s/%s", F_(temperaturesensor), sensor.name().c_str());
     EMSESP::webSchedulerService.onChange(cmd);
+    if (EMSESP::knx_) {
+        char payload[10];
+        EMSESP::knx_->onChange(F_(temperaturesensor),
+                               "",
+                               sensor.name().c_str(),
+                               Helpers::render_value(payload, sensor.temperature_c, 10, EMSESP::system_.fahrenheit() ? 2 : 0));
+    }
 }
 
 // send empty config topic to remove the entry from HA

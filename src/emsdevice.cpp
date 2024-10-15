@@ -864,6 +864,9 @@ void EMSdevice::publish_value(void * value_p) const {
                 snprintf(cmd, sizeof(cmd), "%s/%s", device_type_2_device_name(device_type_), (dv.short_name));
             }
             EMSESP::webSchedulerService.onChange(cmd);
+            if (EMSESP::knx_) {
+                EMSESP::knx_->onChange(device_type_2_device_name(device_type_), tag_to_mqtt(dv.tag), dv.short_name, payload);
+            }
         }
     }
 }

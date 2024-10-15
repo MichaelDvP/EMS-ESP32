@@ -80,6 +80,9 @@ void WebSettings::read(WebSettings & settings, JsonObject root) {
     root["modbus_port"]           = settings.modbus_port;
     root["modbus_max_clients"]    = settings.modbus_max_clients;
     root["modbus_timeout"]        = settings.modbus_timeout;
+    root["knx_enabled"]           = settings.knx_enabled;
+    root["knx_mc_ip"]             = settings.knx_multicast_ip;
+    root["knx_mc_port"]           = settings.knx_multicast_port;
 }
 
 // call on initialization and also when settings are updated via web or console
@@ -301,6 +304,20 @@ StateUpdateResult WebSettings::update(JsonObject root, WebSettings & settings) {
     prev               = settings.low_clock;
     settings.low_clock = root["low_clock"];
     check_flag(prev, settings.low_clock, ChangeFlags::RESTART);
+    // KNX settings
+    prev                 = settings.knx_enabled;
+    settings.knx_enabled = root["knx_enabled"] | true;
+    check_flag(prev, settings.knx_enabled, ChangeFlags::RESTART);
+
+    String old_knx_multicast_ip = settings.knx_multicast_ip;
+    settings.knx_multicast_ip   = root["knx_mc_ip"] | "224.0.23.12";
+    if (old_knx_multicast_ip != settings.knx_multicast_ip) {
+        add_flags(ChangeFlags::RESTART);
+    }
+
+    prev                        = settings.knx_multicast_port;
+    settings.knx_multicast_port = root["knx_mc_port"] | 3671;
+    check_flag(prev, settings.knx_multicast_port, ChangeFlags::RESTART);
 
     prev                    = settings.modbus_enabled;
     settings.modbus_enabled = root["modbus_enabled"] | EMSESP_DEFAULT_MODBUS_ENABLED;

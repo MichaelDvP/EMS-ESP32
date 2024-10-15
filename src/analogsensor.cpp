@@ -418,6 +418,12 @@ bool AnalogSensor::updated_values() {
 
 // publish a single sensor to MQTT
 void AnalogSensor::publish_sensor(const Sensor & sensor) const {
+    char result[12];
+    if (sensor.type() == AnalogType::DIGITAL_IN || sensor.type() == AnalogType::DIGITAL_OUT) {
+        Helpers::render_boolean(result, sensor.value() != 0);
+    } else {
+        Helpers::render_value(result, sensor.value(), 2); // double
+    }
     if (Mqtt::publish_single()) {
         char topic[Mqtt::MQTT_TOPIC_MAX_SIZE];
         if (Mqtt::publish_single2cmd()) {
@@ -425,12 +431,14 @@ void AnalogSensor::publish_sensor(const Sensor & sensor) const {
         } else {
             snprintf(topic, sizeof(topic), "%s%s/%s", F_(analogsensor), "_data", sensor.name().c_str());
         }
-        char payload[10];
-        Mqtt::queue_publish(topic, Helpers::render_value(payload, sensor.value(), 2)); // always publish as doubles
+        Mqtt::queue_publish(topic, result); // always publish as doubles
     }
     char cmd[COMMAND_MAX_LENGTH];
     snprintf(cmd, sizeof(cmd), "%s/%s", F_(analogsensor), sensor.name().c_str());
     EMSESP::webSchedulerService.onChange(cmd);
+    if (EMSESP::knx_) {
+        EMSESP::knx_->onChange(F_(analogsensor), "", sensor.name().c_str(), result);
+    }
 }
 
 // send empty config topic to remove the entry from HA

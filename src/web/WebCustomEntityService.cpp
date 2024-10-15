@@ -205,6 +205,9 @@ bool WebCustomEntityService::command_setvalue(const char * value, const int8_t i
             char cmd[COMMAND_MAX_LENGTH];
             snprintf(cmd, sizeof(cmd), "%s/%s", F_(custom), entityItem.name.c_str());
             EMSESP::webSchedulerService.onChange(cmd);
+            if (EMSESP::knx_) {
+                EMSESP::knx_->onChange(F_(custom), "", entityItem.name.c_str(), value);
+            }
             return true;
         }
     }
@@ -623,6 +626,9 @@ bool WebCustomEntityService::get_value(std::shared_ptr<const Telegram> telegram)
                     snprintf(cmd, sizeof(cmd), "%s/%s", F_(custom), entity.name.c_str());
                     EMSESP::webSchedulerService.onChange(cmd);
                 }
+                if (EMSESP::knx_) {
+                    EMSESP::knx_->onChange(F_(custom), "", entity.name.c_str(), entity.data.c_str());
+                }
             }
         } else if (entity.value_type != DeviceValueType::STRING && telegram->type_id == entity.type_id && telegram->src == entity.device_id
                    && telegram->offset <= entity.offset && (telegram->offset + telegram->message_length) >= (entity.offset + len[entity.value_type])) {
@@ -640,6 +646,12 @@ bool WebCustomEntityService::get_value(std::shared_ptr<const Telegram> telegram)
                 char cmd[COMMAND_MAX_LENGTH];
                 snprintf(cmd, sizeof(cmd), "%s/%s", F_(custom), entity.name.c_str());
                 EMSESP::webSchedulerService.onChange(cmd);
+                if (EMSESP::knx_) {
+                    JsonDocument doc;
+                    JsonObject   output = doc.to<JsonObject>();
+                    render_value(output, entity, true);
+                    EMSESP::knx_->onChange(F_(custom), "", entity.name.c_str(), output["value"].as<std::string>().c_str());
+                }
             }
             // EMSESP::logger().debug("custom entity %s received with value %d", entity.name.c_str(), (int)entity.val);
         }

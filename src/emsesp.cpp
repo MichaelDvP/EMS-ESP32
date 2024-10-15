@@ -73,6 +73,7 @@ RxService         EMSESP::rxservice_;         // incoming Telegram Rx handler
 TxService         EMSESP::txservice_;         // outgoing Telegram Tx handler
 Mqtt              EMSESP::mqtt_;              // mqtt handler
 Modbus *          EMSESP::modbus_;            // modbus handler
+Knx *             EMSESP::knx_ = nullptr;     // knx handler
 System            EMSESP::system_;            // core system services
 TemperatureSensor EMSESP::temperaturesensor_; // Temperature sensors
 AnalogSensor      EMSESP::analogsensor_;      // Analog sensors
@@ -1642,6 +1643,12 @@ void EMSESP::start() {
         modbus_ = new Modbus;
         modbus_->start(1, system_.modbus_port(), system_.modbus_max_clients(), system_.modbus_timeout());
     }
+    if (system_.knx_enabled()) {
+        LOG_INFO("Starting KNX");
+        knx_ = new Knx;
+        knx_->start(system_.knx_multicast_ip().c_str(), system_.knx_multicast_port());
+    }
+
     mqtt_.start();              // mqtt init
     system_.start();            // starts commands, led, adc, button, network (sets hostname), syslog & uart
     shower_.start();            // initialize shower timer and shower alert

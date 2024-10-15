@@ -387,6 +387,9 @@ void System::reload_settings() {
         modbus_port_        = settings.modbus_port;
         modbus_max_clients_ = settings.modbus_max_clients;
         modbus_timeout_     = settings.modbus_timeout;
+        knx_enabled_           = settings.knx_enabled;
+        knx_multicast_port_    = settings.knx_multicast_port;
+        knx_multicast_ip_      = settings.knx_multicast_ip;
 
         rx_gpio_     = settings.rx_gpio;
         tx_gpio_     = settings.tx_gpio;
@@ -1592,6 +1595,16 @@ bool System::command_info(const char * value, const int8_t id, JsonObject output
         node["syslogQueue"]   = syslog_.queued();
     }
 #endif
+
+    //KNX
+    EMSESP::webSettingsService.read([&](WebSettings & settings) {
+        node            = output["KNX Info"].to<JsonObject>();
+        node["enabled"] = settings.knx_enabled;
+        if (settings.knx_enabled) {
+            node["multicast ip"] = settings.knx_multicast_ip;
+            node["multicast port"] = settings.knx_multicast_port;
+        }
+    });
 
     // Sensor Status
     node = output["sensor"].to<JsonObject>();
