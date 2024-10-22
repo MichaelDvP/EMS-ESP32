@@ -355,6 +355,7 @@ void WebDataService::dashboard_data(AsyncWebServerRequest * request) {
     JsonArray root = response->getRoot();
 #endif
 
+    // first do all the recognized devices
     for (const auto & emsdevice : EMSESP::emsdevices) {
         if (emsdevice->count_entities_fav()) {
             JsonObject obj = root.add<JsonObject>();
@@ -432,7 +433,7 @@ void WebDataService::dashboard_data(AsyncWebServerRequest * request) {
     }
 
     // show scheduler, with name, on/off
-    if (EMSESP::webSchedulerService.count_entities()) {
+    if (EMSESP::webSchedulerService.count_entities(true)) {
         JsonObject obj  = root.add<JsonObject>();
         obj["id"]       = EMSdevice::DeviceTypeUniqueID::SCHEDULER_UID; // it's unique id
         obj["t"]        = EMSdevice::DeviceType::SCHEDULER;             // device type number
