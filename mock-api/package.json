@@ -2,6 +2,7 @@
   "name": "mock-api",
   "version": "3.8.2",
   "description": "mock api for EMS-ESP",
+  "type": "module",
   "author": "proddy, emsesp.org",
   "license": "MIT",
   "scripts": {
