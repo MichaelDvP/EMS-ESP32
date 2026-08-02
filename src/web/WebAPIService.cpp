@@ -35,6 +35,11 @@ WebAPIService::WebAPIService(AsyncWebServer * server, SecurityManager * security
 // POST|GET api/{device}
 // POST|GET api/{device}/{entity}
 void WebAPIService::webAPIService(AsyncWebServerRequest * request, JsonVariant json) {
+    static uint64_t lastcall = 0;
+    if (uuid::get_uptime_ms() - lastcall < 50 && request->method() == HTTP_GET) {
+        request->send(429); //too many requests
+        return;
+    }
     JsonDocument input_doc; // has no body JSON so create dummy as empty input object
     JsonObject   input;
     // if no body then treat it as a secure GET
@@ -49,6 +54,7 @@ void WebAPIService::webAPIService(AsyncWebServerRequest * request, JsonVariant j
         input["data"] = json.as<std::string>();
     }
     parse(request, input);
+    lastcall = uuid::get_uptime_ms();
 }
 
 // for POSTS accepting plain text data

@@ -39,17 +39,8 @@ std::deque<Token> exprToTokens(const std::string & expr) {
                 i += (*p == '{') ? 1 : (*p == '}') ? -1 : 0;
                 ++p;
             }
-            if (*p) {
-                ++p;
-            }
-            // Use string_view to avoid unnecessary string copies
-            std::string_view s(b, p - b);
-            auto             n = s.find("\"\"");
-            while (n != std::string_view::npos) {
-                s.remove_prefix(n + 2);
-                n = s.find("\"\"");
-            }
-            tokens.emplace_back(Token::Type::String, std::string(s), -3);
+            const auto s = std::string(b, p);
+            tokens.emplace_back(Token::Type::String, s, -3);
             if (*p == '\0') {
                 --p;
             }
@@ -333,7 +324,10 @@ std::deque<Token> shuntingYard(const std::deque<Token> & tokens) {
 
 // check if string is a number
 bool isnum(const std::string & s) {
-    if (!s.empty() && (s.find_first_not_of("0123456789.") == std::string::npos || (s[0] == '-' && s.find_first_not_of("0123456789.", 1) == std::string::npos))) {
+    if (s.empty() || s.find_first_of("0123456789") == std::string::npos) {
+        return false;
+    }
+    if (s.find_first_not_of("0123456789.") == std::string::npos || (s[0] == '-' && s.find_first_not_of("0123456789.", 1) == std::string::npos)) {
         return true;
     }
     return false;
@@ -636,6 +630,10 @@ std::string calculate(const std::string & expr) {
                 stack.push_back(lhs + rhs);
                 break;
             }
+            if (!isnum(rhs) || !isnum(lhs)) {
+                stack.push_back(lhs + token.str + rhs);
+                break;
+            }
             auto lhd = std::stod(lhs);
             auto rhd = std::stod(rhs);
             switch (token.str[0]) {
@@ -700,8 +698,7 @@ std::string compute(const std::string & expr) {
         std::string  cmd = expr_new.substr(f, e - f).c_str();
         JsonDocument doc;
         if (DeserializationError::Ok == deserializeJson(doc, cmd)) {
-            HTTPClient * http = new HTTPClient;
-            std::string  url, header_s, value_s, method_s, key_s, keys_s;
+            std::string url, header_s, value_s, method_s, key_s, keys_s;
             // search keys lower case
             for (JsonPair p : doc.as<JsonObject>()) {
                 if (Helpers::toLower(p.key().c_str()) == "url") {
@@ -720,56 +717,63 @@ std::string compute(const std::string & expr) {
                     keys_s = p.key().c_str();
                 }
             }
-            if (http->begin(url.c_str())) {
-                int httpResult = 0;
-                for (JsonPair p : doc[header_s].as<JsonObject>()) {
-                    http->addHeader(p.key().c_str(), p.value().as<std::string>().c_str());
-                }
-                std::string value  = doc[value_s] | "";
-                std::string method = doc[method_s] | "get";
-
-                // if there is data, force a POST
-                if (value.length() || Helpers::toLower(method) == "post") {
-                    if (value.find_first_of('{') != std::string::npos) {
-                        http->addHeader(asyncsrv::T_Content_Type, asyncsrv::T_application_json, false); // auto-set to JSON
+            if (url.substr(0, 4) == "http") { // match http and https
+                HTTPClient * http = new HTTPClient;
+#ifndef EMSESP_STANDALONE
+                http->setConnectTimeout(10000);
+                http->setTimeout(10000);
+#endif
+                if (http->begin(url.c_str())) {
+                    int httpResult = 0;
+                    for (JsonPair p : doc[header_s].as<JsonObject>()) {
+                        http->addHeader(p.key().c_str(), p.value().as<std::string>().c_str());
                     }
-                    httpResult = http->POST(value.c_str());
-                } else {
-                    httpResult = http->GET(); // normal GET
-                }
+                    std::string value  = doc[value_s] | "";
+                    std::string method = doc[method_s] | "get";
 
-                if (httpResult > 0) {
-                    std::string  result = http->getString().c_str();
-                    std::string  key    = doc[key_s] | "";
-                    JsonDocument keys_doc; // JsonDocument to hold "keys" after doc is parsed with HTTP body
-                    if (doc[keys_s].is<JsonArray>()) {
-                        keys_doc.set(doc[keys_s].as<JsonArray>());
+                    // if there is data, force a POST
+                    if (value.length() || Helpers::toLower(method) == "post") {
+                        if (value.find_first_of('{') != std::string::npos) {
+                            http->addHeader(asyncsrv::T_Content_Type, asyncsrv::T_application_json, false); // auto-set to JSON
+                        }
+                        httpResult = http->POST(value.c_str());
+                    } else {
+                        httpResult = http->GET(); // normal GET
                     }
-                    JsonArray keys = keys_doc.as<JsonArray>();
 
-                    if (key.length() || !keys.isNull()) {
-                        doc.clear();
-                        if (DeserializationError::Ok == deserializeJson(doc, result)) {
-                            if (key.length()) {
-                                result = doc[key.c_str()].as<std::string>();
-                            } else {
-                                JsonVariant json = doc.as<JsonVariant>();
-                                for (JsonVariant keys_key : keys) {
-                                    if (keys_key.is<std::string>() && json.is<JsonObject>()) {
-                                        json = json[keys_key.as<std::string>()].as<JsonVariant>();
-                                    } else if (keys_key.is<int>() && json.is<JsonArray>()) {
-                                        json = json[keys_key.as<int>()].as<JsonVariant>();
-                                    } else {
-                                        break; // type mismatch
+                    if (httpResult > 0) {
+                        std::string  result = http->getString().c_str();
+                        std::string  key    = doc[key_s] | "";
+                        JsonDocument keys_doc; // JsonDocument to hold "keys" after doc is parsed with HTTP body
+                        if (doc[keys_s].is<JsonArray>()) {
+                            keys_doc.set(doc[keys_s].as<JsonArray>());
+                        }
+                        JsonArray keys = keys_doc.as<JsonArray>();
+
+                        if (key.length() || !keys.isNull()) {
+                            doc.clear();
+                            if (DeserializationError::Ok == deserializeJson(doc, result)) {
+                                if (key.length()) {
+                                    result = doc[key.c_str()].as<std::string>();
+                                } else {
+                                    JsonVariant json = doc.as<JsonVariant>();
+                                    for (JsonVariant keys_key : keys) {
+                                        if (keys_key.is<std::string>() && json.is<JsonObject>()) {
+                                            json = json[keys_key.as<std::string>()].as<JsonVariant>();
+                                        } else if (keys_key.is<int>() && json.is<JsonArray>()) {
+                                            json = json[keys_key.as<int>()].as<JsonVariant>();
+                                        } else {
+                                            break; // type mismatch
+                                        }
                                     }
+                                    result = json.as<std::string>();
                                 }
-                                result = json.as<std::string>();
                             }
                         }
+                        expr_new.replace(f, e - f, result.c_str());
                     }
-                    expr_new.replace(f, e - f, result.c_str());
+                    http->end();
                 }
-                http->end();
                 delete http;
             }
         }

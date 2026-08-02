@@ -79,8 +79,12 @@ class DummySettings {
     uint8_t provisionMode = 0;
 
     // NTP
-    String server  = "pool.ntp.org";
-    String tzLabel = "Europe/London";
+    String  server          = "pool.ntp.org";
+    String  tzLabel         = "Europe/London";
+    String  tzFormat        = "GMT0BST,M3.5.0/1,M10.5.0";
+    String  tzLabelT        = "Europe/Berlin";
+    String  tzFormatT       = "CET-1CEST,M3.5.0,M10.5.0/3";
+    uint8_t thermostat_sync = 0;
 
     static void read(DummySettings & settings, JsonObject root) {};
     static void read(DummySettings & settings) {};

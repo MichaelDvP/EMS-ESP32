@@ -84,6 +84,7 @@ class Helpers {
     static uint8_t count_items(const char * const * list);
 
     static const char * translated_word(const char * const * strings, const bool force_en = false);
+    static int16_t      calc_dew(int16_t temp, uint8_t hum);
 
 #ifdef EMSESP_STANDALONE
     static char * ultostr(char * ptr, uint32_t value, const uint8_t base);

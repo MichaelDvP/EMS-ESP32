@@ -300,6 +300,14 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatingPID), 74, 1), // heatingpid
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(preheating), 75, 1), // preheating
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(vacations), 76, 13), // vacations
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(hpoperatingmode), 89, 1), // hpoperatingmode
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(summertemp), 90, 1), // summertemp
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(instantstart), 91, 1), // instantstart
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(coolstart), 92, 1), // coolstart
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatondelay), 93, 1), // heatondelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatoffdelay), 94, 1), // heatoffdelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(coolondelay), 95, 1), // coolondelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(cooloffdelay), 96, 1), // cooloffdelay
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(selRoomTemp), 0, 1), // seltemp
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(roomTemp), 1, 1), // currtemp
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(haclimate), 2, 1), // haclimate
@@ -349,12 +357,12 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(remotehum), 46, 1), // remotehum
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(heatondelay), 47, 1), // heatondelay
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(heatoffdelay), 48, 1), // heatoffdelay
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(instantstart), 49, 1), // instantstart
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(boost), 50, 1), // boost
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(boosttime), 51, 1), // boosttime
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(coolondelay), 49, 1), // coolondelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(cooloffdelay), 50, 1), // cooloffdelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(instantstart), 51, 1), // instantstart
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(coolstart), 52, 1), // coolstart
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(coolondelay), 53, 1), // coolondelay
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(cooloffdelay), 54, 1), // cooloffdelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(boost), 53, 1), // boost
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(boosttime), 54, 1), // boosttime
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(switchProgMode), 55, 1), // switchprogmode
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(redthreshold), 56, 1), // redthreshold
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(solarinfl), 57, 1), // solarinfl
@@ -629,20 +637,6 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwDiffTemp), 13, 1), // difftemp
     REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwRedTemp), 14, 1), // redtemp
     REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwRequiredTemp), 15, 1), // requiredtemp
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwStorageTemp1), 16, 1), // storagetemp1
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwColdTemp), 17, 1), // coldtemp
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwTemp5), 18, 1), // temp5
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(retTemp), 19, 1), // rettemp
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwHotTemp), 20, 1), // hottemp
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwDailyTemp), 21, 1), // dailytemp
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwCircTc), 22, 1), // circtc
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwKeepWarm), 23, 1), // keepwarm
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwStatus2), 24, 1), // status2
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwPumpMod), 25, 1), // pumpmod
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(wwFlow), 26, 1), // flow
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(valveReturn), 27, 1), // valvereturn
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(deltaTRet), 28, 1), // deltatret
-    REGISTER_MAPPING(dt::WATER, TAG_TYPE_DHW, FL_(errorDisp), 29, 1), // errordisp
 };
 
 } // namespace emsesp

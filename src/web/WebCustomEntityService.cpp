@@ -77,7 +77,9 @@ StateUpdateResult WebCustomEntity::update(JsonObject root, WebCustomEntity & web
         if (entityItem.ram == 2) { // NVS
             char key[sizeof(entityItem.name) + 2];
             snprintf(key, sizeof(key), "c:%s", entityItem.name);
-            EMSESP::nvs_.remove(key);
+            if (EMSESP::nvs_.isKey(key)) {
+                EMSESP::nvs_.remove(key);
+            }
         }
         if (entityItem.ram) { // save name/value pairs for change checking
             doc[entityItem.name] = entityItem.value;

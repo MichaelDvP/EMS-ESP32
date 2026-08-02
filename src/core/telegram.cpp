@@ -161,9 +161,9 @@ void RxService::add(uint8_t * data, uint8_t length) {
         }
         if (data[0] != EMSuart::last_tx_src()) { // do not count echos as errors
             telegram_error_count_++;
-            LOG_WARNING("Incomplete Rx: %s", Helpers::data_to_hex(data, length).c_str()); // include CRC
+            LOG_WARNING("Incomplete Rx: %s (crc: %02X)", Helpers::data_to_hex(data, length).c_str(), crc); // include CRC
         } else {
-            LOG_TRACE("Incomplete Rx: %s", Helpers::data_to_hex(data, length).c_str()); // include CRC
+            LOG_TRACE("Incomplete Rx: %s (crc: %02X)", Helpers::data_to_hex(data, length).c_str(), crc); // include CRC
         }
         return;
     }
@@ -276,6 +276,7 @@ void TxService::start() {
 // sends a 1 byte poll which is our own deviceID
 void TxService::send_poll() const {
     // LOG_DEBUG("Ack %02X",ems_bus_id() ^ ems_mask());
+    // if (tx_mode() != EMS_TXMODE_OFF && ems_bus_id() != 0x0D) { // use 0x0D for tests without poll-Ack
     if (tx_mode() != EMS_TXMODE_OFF) {
         EMSuart::send_poll(ems_bus_id() ^ ems_mask());
     }
@@ -572,12 +573,11 @@ bool TxService::send_raw(const char * telegram_data) {
         return false;
     }
 
-    // since the telegram data is a const, make a copy. add 1 to grab the \0 EOS
-    char telegram[strlen(telegram_data) + 1];
-    strlcpy(telegram, telegram_data, sizeof(telegram));
+    // since the telegram data is a const, make a copy
+    char * telegram = strdup(telegram_data);
 
     uint8_t count = 0;
-    uint8_t data[2 + strlen(telegram) / 3];
+    uint8_t data[256]; // max raw telegram length
 
     // get values
     char * p = strtok(telegram, " ,"); // delimiter
@@ -585,7 +585,7 @@ bool TxService::send_raw(const char * telegram_data) {
         data[count++] = (uint8_t)strtol(p, 0, 16);
         p             = strtok(nullptr, " ,");
     }
-
+    free(telegram);
     // check valid length
     if (count < 4) {
         return false;

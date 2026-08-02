@@ -1800,8 +1800,8 @@ void EMSESP::start() {
     LOG_INFO("Library loaded: %d EMS devices, %d device entities, %s", device_library_.size(), EMSESP_TRANSLATION_COUNT, system_.languages_string().c_str());
 
     webCustomizationService.begin(); // load the customizations
-    webSchedulerService.begin();     // load the scheduler events
     webCustomEntityService.begin();  // load the custom telegram reads
+    webSchedulerService.begin();     // load the scheduler events
 
     // start telnet service if it's enabled
     // default idle is 10 minutes, default write timeout is 0 (automatic)
@@ -1864,16 +1864,9 @@ void EMSESP::loop() {
     webLogService.loop(); // log in Web UI
 
     // run the loop, unless we're in the middle of an OTA upload
-    if (EMSESP::system_.systemStatus() == SYSTEM_STATUS::SYSTEM_STATUS_NORMAL || EMSESP::system_.systemStatus() == SYSTEM_STATUS::SYSTEM_STATUS_INVALID_GPIO) {
-        // check for GPIO Errors - this is called once when booting
-        if (EMSESP::system_.systemStatus() == SYSTEM_STATUS::SYSTEM_STATUS_INVALID_GPIO) {
-            static bool only_once = false;
-            if (!only_once) {
-                LOG_ERROR("Invalid GPIOs used. Please check your settings and the system log");
-                only_once = true;
-            }
-        }
-
+    // if (EMSESP::system_.systemStatus() == SYSTEM_STATUS::SYSTEM_STATUS_NORMAL || EMSESP::system_.systemStatus() == SYSTEM_STATUS::SYSTEM_STATUS_INVALID_GPIO) {
+    if (EMSESP::system_.systemStatus() != SYSTEM_STATUS::SYSTEM_STATUS_PENDING_UPLOAD
+        && EMSESP::system_.systemStatus() != SYSTEM_STATUS::SYSTEM_STATUS_UPLOADING) {
         // loop through the services
         rxservice_.loop();          // process any incoming Rx telegrams
         shower_.loop();             // check for shower on/off
@@ -1887,6 +1880,14 @@ void EMSESP::loop() {
         }
         scheduled_fetch_values(); // force a query on the EMS devices to fetch latest data at a set interval (1 min)
     }
+    // check for GPIO Errors - this is called once when booting
+    if (EMSESP::system_.systemStatus() == SYSTEM_STATUS::SYSTEM_STATUS_INVALID_GPIO) {
+        static bool only_once = false;
+        if (!only_once) {
+            LOG_ERROR("Invalid GPIOs used. Please check your settings and the system log");
+            only_once = true;
+        }
+    }
 
     if (EMSESP::system_.systemStatus() == SYSTEM_STATUS::SYSTEM_STATUS_PENDING_UPLOAD) {
         // start an upload from a URL, assuming the URL exists and set from a previous pass
@@ -1896,6 +1897,17 @@ void EMSESP::loop() {
             Shell::loop_all(); // flush log buffers so latest error message are shown in console
             system_.uploadFirmwareURL("reset");
             EMSESP::system_.systemStatus(SYSTEM_STATUS::SYSTEM_STATUS_ERROR_UPLOAD);
+        }
+    }
+
+    // reset status after 5 Minutes
+    if (EMSESP::system_.systemStatus() != SYSTEM_STATUS::SYSTEM_STATUS_NORMAL) {
+        static uint32_t starttime = 0;
+        if (starttime == 0) {
+            starttime = uuid::get_uptime_ms();
+        } else if (uuid::get_uptime_ms() - starttime > 300000) {
+            starttime = 0;
+            EMSESP::system_.systemStatus(SYSTEM_STATUS::SYSTEM_STATUS_NORMAL);
         }
     }
 

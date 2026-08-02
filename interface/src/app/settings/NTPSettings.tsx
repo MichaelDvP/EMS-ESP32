@@ -12,6 +12,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Grid,
   MenuItem,
   TextField,
   Typography
@@ -39,7 +40,12 @@ import { formatLocalDateTime, updateValueDirty, useRest } from 'utils';
 import { ValidationError, validate } from 'validators';
 import { NTP_SETTINGS_VALIDATOR } from 'validators/ntp';
 
-import { TIME_ZONES, selectedTimeZone, useTimeZoneSelectItems } from './TZ';
+import {
+  TIME_ZONES,
+  selectedTimeZone,
+  timeZoneSelectItemsT,
+  useTimeZoneSelectItems
+} from './TZ';
 
 const NTPSettings = () => {
   const {
@@ -63,13 +69,17 @@ const NTPSettings = () => {
 
   // Memoized timezone select items for better performance
   const timeZoneItems = useTimeZoneSelectItems();
+  const timeZoneItemsT = timeZoneSelectItemsT();
 
   // Memoized selected timezone value
   const selectedTzValue = useMemo(
     () => (data ? selectedTimeZone(data.tz_label, data.tz_format) : undefined),
     [data?.tz_label, data?.tz_format]
   );
-
+  const selectedTzValueT = useMemo(
+    () => (data ? selectedTimeZone(data.tz_label_t, data.tz_format_t) : undefined),
+    [data?.tz_label_t, data?.tz_format_t]
+  );
   const [localTime, setLocalTime] = useState<string>('');
   const [settingTime, setSettingTime] = useState<boolean>(false);
   const [processing, setProcessing] = useState<boolean>(false);
@@ -150,6 +160,18 @@ const NTPSettings = () => {
     [updateFormValue]
   );
 
+  const changeTimeZoneT = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      void updateState(readNTPSettings(), (settings: NTPSettingsType) => ({
+        ...settings,
+        tz_label_t: event.target.value,
+        tz_format_t: TIME_ZONES[event.target.value]
+      }));
+      updateFormValue(event);
+    },
+    [updateFormValue]
+  );
+
   // Memoize render content to prevent unnecessary re-renders
   const renderContent = useMemo(() => {
     if (!data) {
@@ -174,6 +196,7 @@ const NTPSettings = () => {
           label={LL.NTP_SERVER()}
           fullWidth
           variant="outlined"
+          disabled={!data.enabled}
           value={data.server}
           onChange={updateFormValue}
           margin="normal"
@@ -192,7 +215,47 @@ const NTPSettings = () => {
           <MenuItem disabled>{LL.TIME_ZONE()}...</MenuItem>
           {timeZoneItems}
         </ValidatedTextField>
-
+        {data.enabled && (
+          <Grid container spacing={2} rowSpacing={0}>
+            <Grid>
+              <ValidatedTextField
+                fieldErrors={fieldErrors || {}}
+                name="thermostat_sync"
+                label="Sync EMS-Thermostat"
+                variant="outlined"
+                sx={{ width: '30ch' }}
+                value={data.thermostat_sync}
+                onChange={updateFormValue}
+                margin="normal"
+                select
+              >
+                <MenuItem value={0}>{LL.OFF()}</MenuItem>
+                <MenuItem value={1}>{LL.ON()}</MenuItem>
+                <MenuItem value={2}>
+                  {LL.USE()} {LL.TIME_ZONE()}
+                </MenuItem>
+              </ValidatedTextField>
+            </Grid>
+            <Grid>
+              {data.thermostat_sync === 2 && (
+                <ValidatedTextField
+                  fieldErrors={fieldErrors || {}}
+                  name="tz_label_t"
+                  label={LL.TIME_ZONE() + ' Thermostat'}
+                  sx={{ width: '30ch' }}
+                  variant="outlined"
+                  value={selectedTzValueT}
+                  onChange={changeTimeZoneT}
+                  margin="normal"
+                  select
+                >
+                  <MenuItem disabled>{LL.TIME_ZONE()}...</MenuItem>
+                  {timeZoneItemsT}
+                </ValidatedTextField>
+              )}
+            </Grid>
+          </Grid>
+        )}
         <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
           {!data.enabled && !dirtyFlags.length && (
             <Box sx={{ flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
@@ -243,6 +306,7 @@ const NTPSettings = () => {
     updateFormValue,
     fieldErrors,
     selectedTzValue,
+    selectedTzValueT,
     changeTimeZone,
     timeZoneItems,
     dirtyFlags,

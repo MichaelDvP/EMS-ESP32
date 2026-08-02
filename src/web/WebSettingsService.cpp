@@ -267,6 +267,9 @@ StateUpdateResult WebSettings::update(JsonObject root, WebSettings & settings) {
     }
 
     settings.locale = root["locale"] | EMSESP_DEFAULT_LOCALE;
+    if (settings.locale == "cz") { // convert from older settings file
+        settings.locale = "cs";
+    }
     EMSESP::system_.locale(settings.locale);
     if (Mqtt::ha_enabled() && original_settings.locale != settings.locale) {
         add_flags(ChangeFlags::MQTT);

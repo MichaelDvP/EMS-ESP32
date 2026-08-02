@@ -141,8 +141,8 @@ let system_status = {
 let DEV_VERSION_IS_UPGRADEABLE: boolean;
 let STABLE_VERSION_IS_UPGRADEABLE: boolean;
 let THIS_VERSION: string;
-let LATEST_STABLE_VERSION = '3.8.2';
-let LATEST_DEV_VERSION = '3.8.3-dev.2';
+let LATEST_STABLE_VERSION = '3.8.3';
+let LATEST_DEV_VERSION = '3.9.0-dev.0';
 
 // scenarios for testing versioning
 let version_test = 0; // on latest stable, or switch to dev
@@ -4139,7 +4139,7 @@ let emsesp_schedule = {
       id: 5,
       active: false,
       flags: 130,
-      time: 'system/network info/rssi < -70',
+      time: 'system/network/rssi < -70',
       cmd: 'system/restart',
       value: '',
       name: 'bad_wifi'

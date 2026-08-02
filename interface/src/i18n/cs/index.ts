@@ -1,6 +1,6 @@
 import type { Translation } from '../i18n-types';
 
-const cz: Translation = {
+const cs: Translation = {
   LANGUAGE: 'Jazyk',
   RETRY: 'Zkusit znovu',
   LOADING: 'Načítání',
@@ -368,4 +368,4 @@ const cz: Translation = {
 
 };
 
-export default cz;
+export default cs;

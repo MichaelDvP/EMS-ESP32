@@ -30,9 +30,9 @@
 #define EMSESP_LOCALE_TR "tr"
 #define EMSESP_LOCALE_IT "it"
 #define EMSESP_LOCALE_SK "sk"
-#define EMSESP_LOCALE_CZ "cz"
+#define EMSESP_LOCALE_CS "cs"
 
-// IMPORTANT! translations are in the order: en, de, nl, sv, pl, no, fr, tr, it, sk, cz
+// IMPORTANT! translations are in the order: en, de, nl, sv, pl, no, fr, tr, it, sk, cs
 //
 // if there is no translation, it will default to en
 
@@ -292,7 +292,7 @@ MAKE_WORD_TRANSLATION(curve, "heatingcurve", "Heizkurve", "stookkromme", "värme
 MAKE_WORD_TRANSLATION(radiator, "radiator", "Heizkörper", "radiator", "Radiator", "grzejniki", "radiator", "radiateur", "radyatör", "radiatore", "radiátor", "radiátor")
 MAKE_WORD_TRANSLATION(convector, "convector", "Konvektor", "convector", "Konvektor", "konwektory", "konvektor", "convecteur", "convector", "convettore", "konvektor", "konvektor")
 MAKE_WORD_TRANSLATION(floor, "floor", "Fussboden", "vloer", "Golv", "podłoga", "gulv", "sol", "yer", "pavimento", "podlaha", "podlaha")
-MAKE_WORD_TRANSLATION(roomflow, "roomflow", "Raum Fluß", "kamer doorstroming", "Rumsflöde", "przepływ w pomieszczeniu", "romstrøm", "flux de la pièce", "oda akışı", "flusso della stanza", "prúdenie miestnosti", "průtok mistnosti")
+MAKE_WORD_TRANSLATION(roomflow, "roomflow", "Raum Fluss", "kamer doorstroming", "Rumsflöde", "przepływ w pomieszczeniu", "romstrøm", "flux de la pièce", "oda akışı", "flusso della stanza", "prúdenie miestnosti", "průtok mistnosti")
 MAKE_WORD_TRANSLATION(roomload, "roomload", "Raum Bedarf", "kamer behoefte", "Rumsbehov", "zapotrzebowanie pomieszczenia", "rombelastning", "charge de la pièce", "oda yükü", "carico della stanza", "izbová zaťaž", "zatížení místnosti")
 MAKE_WORD_TRANSLATION(summer, "summer", "Sommer", "zomer", "Sommar", "lato", "sommer", "été", "yaz", "estate", "leto", "léto")
 MAKE_WORD_TRANSLATION(winter, "winter", "Winter", "winter", "Vinter", "zima", "vinter", "hiver", "kış", "inverno", "zima", "zima")
@@ -367,7 +367,7 @@ MAKE_WORD_TRANSLATION(bookshelf, "mdi:bookshelf", "mdi:bookshelf")
 // MQTT Discovery - this is special device entity for 'climate'
 MAKE_TRANSLATION(haclimate, "haclimate", "mqtt discovery current room temperature", "Discovery aktuelle Raumtemperatur", "Discovery huidige kamertemperatuur", "MQTT Discovery för aktuell rumstemperatur", "termostat w HA", "HA Avlest temp", "découverte mqtt température actuelle", "Güncel osa sıcaklığı", "verifica temperatura ambiente attuale", "mqtt discovery aktuálna teplota v miestnosti", "mqtt discovery aktuální pokojová teplota")
 
-// Entity translations: tag, mqtt, en, de, nl, sv, pl, no, fr, tr, it, sk, cz
+// Entity translations: tag, mqtt, en, de, nl, sv, pl, no, fr, tr, it, sk, cs
 // Boiler
 MAKE_TRANSLATION(chimneysweeper, "chimneysweeper", "chimney sweeper", "Schornsteinfeger", "schoorsteenveger", "Sotare", "tryb kominiarza", "feier", "ramoneur", "baca temizleyici", "spazzacamino", "kominár", "kominík")
 MAKE_TRANSLATION(reset, "reset", "reset", "Reset", "Reset", "Återställ", "kasowanie komunikatu", "nullstill", "reset", "Sıfırla", "Reset", "reset", "reset")
@@ -826,8 +826,8 @@ MAKE_TRANSLATION(vacations7, "vacations7", "vacation dates 7", "Urlaubstage 7", 
 MAKE_TRANSLATION(vacations8, "vacations8", "vacation dates 8", "Urlaubstage 8", "Vakantiedagen 8", "Semesterdatum 8", "urlop 8", "feriedager 8", "dates vacances 8", "izin günleri 8", "date vacanze 8", "termíny dovolenky 8", "data prázdnin 8")
 MAKE_TRANSLATION(absent, "absent", "absent", "Abwesend", "", "Frånvarande", "", "", "", "", "", "chýbajúci", "chybějící") 
 MAKE_TRANSLATION(redthreshold, "redthreshold", "reduction threshold", "Absenkschwelle", "", "Tröskel för sänkning", "", "", "", "", "", "zníženie tresholdu", "práh snížení") 
-MAKE_TRANSLATION(solarinfl, "solarinfl", "solar influence", "Solareinfluß", "", "", "", "", "", "", "", "slnečný vplyv", "sluneční vliv") 
-MAKE_TRANSLATION(currsolarinfl, "currsolarinfl", "current solar influence", "akt. Solareinfluß", "", "", "", "", "", "", "", "aktuálny slnečný vplyv", "aktuální sluneční vliv") 
+MAKE_TRANSLATION(solarinfl, "solarinfl", "solar influence", "Solareinfluss", "", "", "", "", "", "", "", "slnečný vplyv", "sluneční vliv") 
+MAKE_TRANSLATION(currsolarinfl, "currsolarinfl", "current solar influence", "akt. Solareinfluss", "", "", "", "", "", "", "", "aktuálny slnečný vplyv", "aktuální sluneční vliv") 
 MAKE_TRANSLATION(hpmode, "hpmode", "HP Mode", "WP-Modus", "Modus warmtepomp", "Värmepumpsläge", "tryb pracy pompy ciepła", "", "", "yüksek güç modu", "Modalità Termopompa", "Režim TČ", "režim tepelného čerpadla") 
 MAKE_TRANSLATION(dewoffset, "dewoffset", "dew point offset", "Taupunktdifferenz", "Offset dauwpunt", "Daggpunktsförskjutning", "przesunięcie punktu rosy", "", "", "çiğ noktası göreli", "differenza del punto di rugiada", "posun rosného bodu", "offset rosného bodu") 
 MAKE_TRANSLATION(roomtempdiff, "roomtempdiff", "room temp difference", "Raumtemperaturdifferenz", "Verschiltemperatuur kamertemp", "Rumstemperaturskillnad", "różnica temp. pomieszczenia", "", "", "oda sıcaklığı farkı", "differenza temperatura ambiente", "rozdiel izbovej teploty", "rozdíl teploty místnosti") 

@@ -90,9 +90,6 @@ class WebSchedulerService : public StatefulService<WebScheduler> {
 
     std::string get_metrics_prometheus();
 
-    std::string raw_value;
-    std::string computed_value;
-
 #if defined(EMSESP_TEST)
     void load_test_data();
 #endif

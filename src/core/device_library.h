@@ -105,7 +105,7 @@
 {215, DeviceType::THERMOSTAT, "Comfort RF", DeviceFlags::EMS_DEVICE_FLAG_CRF | DeviceFlags::EMS_DEVICE_FLAG_NO_WRITE}, // 0x18
 {216, DeviceType::THERMOSTAT, "CRF200S", DeviceFlags::EMS_DEVICE_FLAG_CRF | DeviceFlags::EMS_DEVICE_FLAG_NO_WRITE}, // 0x18
 {246, DeviceType::THERMOSTAT, "Comfort+2RF", DeviceFlags::EMS_DEVICE_FLAG_CRF | DeviceFlags::EMS_DEVICE_FLAG_NO_WRITE}, // 0x18
-{253, DeviceType::THERMOSTAT, "Rego 3000, UI800, Logamatic BC400", DeviceFlags::EMS_DEVICE_FLAG_BC400}, // 0x10
+{253, DeviceType::THERMOSTAT, "Rego 3000, UI800, Logamatic BC400", DeviceFlags::EMS_DEVICE_FLAG_UI800}, // 0x10
 
 // Thermostat - Sieger - 0x10 / 0x17
 { 66, DeviceType::THERMOSTAT, "ES72, RC20", DeviceFlags::EMS_DEVICE_FLAG_RC20_N}, // 0x17 or remote
@@ -187,8 +187,9 @@
 { 74, DeviceType::ALERT, "EM10", DeviceFlags::EMS_DEVICE_FLAG_NONE},
 
 // Gateways - 0x48
-{17, DeviceType::GATEWAY, "MX400", DeviceFlags::EMS_DEVICE_FLAG_NONE}, // 0x48 and 0x4B
-{189, DeviceType::GATEWAY, "KM200, MB LAN 2", DeviceFlags::EMS_DEVICE_FLAG_NONE},
+{17, DeviceType::GATEWAY, "MX400", DeviceFlags::EMS_DEVICE_FLAG_NONE}, // 0x48, 0x4B, or 0x50 as wireless base
+{189, DeviceType::GATEWAY, "KM200, MB LAN 2", DeviceFlags::EMS_DEVICE_FLAG_NONE}, // 0x48
+{222, DeviceType::GATEWAY, "KM300", DeviceFlags::EMS_DEVICE_FLAG_NONE}, // 0x4A
 {252, DeviceType::GATEWAY, "K30RF, MX300", DeviceFlags::EMS_DEVICE_FLAG_NONE},
 
 // Generic - 0x40 or other with no product-id and no version

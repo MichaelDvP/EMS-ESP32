@@ -34,15 +34,18 @@ class Connect : public EMSdevice {
         }
         ~RoomCircuit() = default;
         int16_t temp_;
-        int8_t  humidity_;
+        uint8_t humidity_;
         uint8_t seltemp_;
         uint8_t mode_;
         char    name_[51];
         int16_t dewtemp_;
         uint8_t childlock_;
         uint8_t icon_;
+        uint8_t coolmode_;
         // uint8_t tempautotemp_;
         // uint8_t manualtemp_;
+        // uint8_t coolautotemp_;
+        // uint8_t cooltemp_;
 
         uint8_t room() {
             return room_;
@@ -62,9 +65,11 @@ class Connect : public EMSdevice {
     void process_roomThermostatParam(std::shared_ptr<const Telegram> telegram);
     void process_roomThermostatData(std::shared_ptr<const Telegram> telegram);
     void process_roomSchedule(std::shared_ptr<const Telegram> telegram);
+    void process_roomConfig(std::shared_ptr<const Telegram> telegram);
     bool set_mode(const char * value, const int8_t id);
     bool set_seltemp(const char * value, const int8_t id);
     bool set_name(const char * value, const int8_t id);
+    bool set_coolmode(const char * value, const int8_t id);
     bool set_childlock(const char * value, const int8_t id);
     bool set_icon(const char * value, const int8_t id);
 

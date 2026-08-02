@@ -158,6 +158,7 @@ class DeviceValue {
     enum DeviceValueNumOp : int8_t {
         DV_NUMOP_NONE   = 0, // default
         DV_NUMOP_DIV2   = 2,
+        DV_NUMOP_DIV4   = 4,
         DV_NUMOP_DIV10  = 10,
         DV_NUMOP_DIV60  = 60,
         DV_NUMOP_DIV100 = 100,

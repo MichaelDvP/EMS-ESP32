@@ -817,7 +817,7 @@ std::string Helpers::toUpper(std::string const & s) {
 
 // capitalizes one UTF-8 character in char array
 // works with Latin1 (1 byte), Polish and other (2 bytes) characters
-// supports special characters for all 11 supported languages: EN, DE, NL, SV, PL, NO, FR, TR, IT, SK, CZ
+// supports special characters for all 11 supported languages: EN, DE, NL, SV, PL, NO, FR, TR, IT, SK, CS
 #if defined(EMSESP_STANDALONE)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
@@ -1032,5 +1032,18 @@ float Helpers::numericoperator2scalefactor(int8_t numeric_operator) {
     else
         return -numeric_operator;
 }
+
+int16_t Helpers::calc_dew(int16_t temp, uint8_t humi) {
+    if (humi == EMS_VALUE_UINT8_NOTSET || temp == EMS_VALUE_INT16_NOTSET) {
+        return EMS_VALUE_INT16_NOTSET;
+    }
+    const float k2 = 17.62;
+    const float k3 = 243.12;
+    const float t  = (float)temp / 10;
+    const float h  = (float)humi / 100;
+    int16_t     dt = (10 * k3 * (((k2 * t) / (k3 + t)) + log(h)) / (((k2 * k3) / (k3 + t)) - log(h)));
+    return dt;
+}
+
 
 } // namespace emsesp

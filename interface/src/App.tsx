@@ -19,7 +19,7 @@ const AVAILABLE_LOCALES = [
   'sk',
   'sv',
   'tr',
-  'cz'
+  'cs'
 ] as Locales[];
 
 // Static toast configuration - no need to recreate on every render

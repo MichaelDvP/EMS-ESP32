@@ -241,7 +241,7 @@ class Thermostat : public EMSdevice {
     // check to see if the thermostat is a hybrid of the R300
     inline bool isRC300() const {
         return (model() == EMSdevice::EMS_DEVICE_FLAG_RC300 || model() == EMSdevice::EMS_DEVICE_FLAG_R3000 || model() == EMSdevice::EMS_DEVICE_FLAG_BC400
-                || model() == EMSdevice::EMS_DEVICE_FLAG_CR120 || model() == EMSdevice::EMS_DEVICE_FLAG_HMC310);
+                || model() == EMSdevice::EMS_DEVICE_FLAG_CR120 || model() == EMSdevice::EMS_DEVICE_FLAG_HMC310 || model() == EMSdevice::EMS_DEVICE_FLAG_UI800);
     }
 
     inline uint8_t id2dhw(const int8_t id) const { // returns telegram offset for TAG(id)
@@ -295,6 +295,16 @@ class Thermostat : public EMSdevice {
     char    vacation[8][22]; // RC30, R3000 only, only one hc
     uint8_t absent_;
     uint8_t hasSolar_;
+
+    // BC400/UI800 telegram 0x470
+    uint8_t hpoperatingmode;
+    uint8_t summertemp;
+    uint8_t heatondelay;
+    uint8_t heatoffdelay;
+    uint8_t instantstart;
+    uint8_t coolstart;
+    uint8_t coolondelay;
+    uint8_t cooloffdelay;
 
     // HybridHP
     uint8_t hybridStrategy_;  // co2 = 1, cost = 2, temperature = 3, mix = 4
@@ -451,6 +461,7 @@ class Thermostat : public EMSdevice {
     void process_RC300Set2(std::shared_ptr<const Telegram> telegram);
     void process_RC300Summer(std::shared_ptr<const Telegram> telegram);
     void process_RC300Summer2(std::shared_ptr<const Telegram> telegram);
+    void process_RC300Summer3(std::shared_ptr<const Telegram> telegram);
     void process_RC300WWmode(std::shared_ptr<const Telegram> telegram);
     void process_RC300WWmode2(std::shared_ptr<const Telegram> telegram);
     void process_RC300WWtemp(std::shared_ptr<const Telegram> telegram);

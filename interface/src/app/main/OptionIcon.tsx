@@ -13,11 +13,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import type { SvgIconProps } from '@mui/material';
 
 export type OptionType =
-  | 'deleted'
-  | 'readonly'
-  | 'web_exclude'
-  | 'api_mqtt_exclude'
-  | 'favorite';
+  'deleted' | 'readonly' | 'web_exclude' | 'api_mqtt_exclude' | 'favorite';
 
 type IconPair = [
   React.ComponentType<SvgIconProps>,

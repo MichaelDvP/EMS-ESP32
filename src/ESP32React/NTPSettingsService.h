@@ -19,6 +19,10 @@
 #define FACTORY_NTP_TIME_ZONE_FORMAT "GMT0BST,M3.5.0/1,M10.5.0"
 #endif
 
+#ifndef FACTORY_NTP_THERMOSTAT_SYNC
+#define FACTORY_NTP_THERMOSTAT_SYNC 1
+#endif
+
 #ifndef FACTORY_NTP_SERVER
 #define FACTORY_NTP_SERVER "time.google.com"
 #endif
@@ -30,10 +34,13 @@
 
 class NTPSettings {
   public:
-    bool   enabled  = FACTORY_NTP_ENABLED;
-    String tzLabel  = FACTORY_NTP_TIME_ZONE_LABEL;
-    String tzFormat = FACTORY_NTP_TIME_ZONE_FORMAT;
-    String server   = FACTORY_NTP_SERVER;
+    bool    enabled         = FACTORY_NTP_ENABLED;
+    String  tzLabel         = FACTORY_NTP_TIME_ZONE_LABEL;
+    String  tzFormat        = FACTORY_NTP_TIME_ZONE_FORMAT;
+    String  server          = FACTORY_NTP_SERVER;
+    uint8_t thermostat_sync = FACTORY_NTP_THERMOSTAT_SYNC;
+    String  tzLabelT        = FACTORY_NTP_TIME_ZONE_LABEL;
+    String  tzFormatT       = FACTORY_NTP_TIME_ZONE_FORMAT;
 
     static void              read(NTPSettings & settings, JsonObject root);
     static StateUpdateResult update(JsonObject root, NTPSettings & settings);

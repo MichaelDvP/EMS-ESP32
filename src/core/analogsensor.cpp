@@ -546,11 +546,13 @@ bool AnalogSensor::update(uint8_t gpio, const char * org_name, double offset, do
                 if (deleted) {
                     LOG_DEBUG("Removing analog sensor GPIO %02d", gpio);
                     EMSESP::system_.remove_gpio(gpio); // remove from used list only
-                    EMSESP::nvs_.remove(AnalogCustomization.name);
+                    if (EMSESP::nvs_.isKey(AnalogCustomization.name)) {
+                        EMSESP::nvs_.remove(AnalogCustomization.name);
+                    }
                     settings.analogCustomizations.remove(AnalogCustomization);
                 } else {
                     // update existing record
-                    if (!strcmp(name, AnalogCustomization.name)) {
+                    if (!strcmp(name, AnalogCustomization.name) && EMSESP::nvs_.isKey(AnalogCustomization.name)) {
                         EMSESP::nvs_.remove(AnalogCustomization.name);
                     }
                     strlcpy(AnalogCustomization.name, name, sizeof(AnalogCustomization.name));

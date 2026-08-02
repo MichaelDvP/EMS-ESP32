@@ -495,3 +495,7 @@ const precomputedTimeZoneItems = TIME_ZONE_LABELS.map((label) => (
 export function timeZoneSelectItems() {
   return precomputedTimeZoneItems;
 }
+
+export function timeZoneSelectItemsT() {
+  return precomputedTimeZoneItems;
+}

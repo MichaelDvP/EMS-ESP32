@@ -28,7 +28,7 @@ interface LanguageOption {
 }
 
 const LANGUAGE_OPTIONS: LanguageOption[] = [
-  { key: 'cz', flag: CZflag, label: 'CZ' },
+  { key: 'cs', flag: CZflag, label: 'CS' },
   { key: 'de', flag: DEflag, label: 'DE' },
   { key: 'en', flag: GBflag, label: 'EN' },
   { key: 'fr', flag: FRflag, label: 'FR' },

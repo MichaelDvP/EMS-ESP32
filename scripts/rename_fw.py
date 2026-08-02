@@ -88,34 +88,6 @@ def bin_copy(source, target, env):
     print(f"MD5: {md5_hash}")
     md5_file.write_text(md5_hash)
 
-    # Make a copy using the old 3.6.x filename format for backwards compatibility
-    # Note: there is a chance newer E32V2s (which use the 16MB partition table and PSRAM) 
-    # are running a custom build of the 3.6.5 firmware as 3.6.5 was released before 
-    # production of the gateway board. Updating via the WebUI will break the system 
-    # and require a manual update.
-    
-    pio_env = env.get('PIOENV', '')
-    extra_variant = None
-    
-    if pio_env == "s3_16M_P":
-        extra_variant = f"EMS-ESP-{app_version.replace('.', '_')}-ESP32_S3"
-    elif pio_env == "s_4M":
-        extra_variant = f"EMS-ESP-{app_version.replace('.', '_')}-ESP32"
-
-    if extra_variant:
-        extra_bin_file = firmware_dir / f"{extra_variant}.bin"
-        extra_md5_file = firmware_dir / f"{extra_variant}.md5"
-        
-        # Remove existing files if they exist
-        for file_path in [extra_bin_file, extra_md5_file]:
-            if file_path.exists():
-                file_path.unlink()
-        
-        # Copy files
-        shutil.copy2(str(bin_file), str(extra_bin_file))
-        shutil.copy2(str(md5_file), str(extra_md5_file))
-        print(f"Filename copy for 3.6.x: {extra_bin_file}")
-
     print("=" * 90)
 
 

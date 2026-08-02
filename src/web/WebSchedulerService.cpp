@@ -76,7 +76,9 @@ StateUpdateResult WebScheduler::update(JsonObject root, WebScheduler & webSchedu
     for (ScheduleItem & scheduleItem : webScheduler.scheduleItems) {
         char key[sizeof(scheduleItem.name) + 2];
         snprintf(key, sizeof(key), "s:%s", scheduleItem.name);
-        EMSESP::nvs_.remove(key);
+        if (EMSESP::nvs_.isKey(key)) {
+            EMSESP::nvs_.remove(key);
+        }
     }
     webScheduler.scheduleItems.clear();
     EMSESP::webSchedulerService.ha_reset();
@@ -345,7 +347,11 @@ uint8_t WebSchedulerService::count_entities(bool cmd_only) {
 // execute scheduled command
 bool WebSchedulerService::command(const char * name, const std::string & command, const std::string & data) {
     std::string cmd = Helpers::toLower(command);
-
+    if (cmd == "system/message") {
+        EMSESP::logger().info("Message: %s", data.c_str()); // send to log
+        Mqtt::queue_publish(F_(message), data);             // send to MQTT if enabled
+        return true;
+    }
     // check http commands. e.g.
     // tasmota(get): http://<tasmotaIP>/cm?cmnd=power%20ON
     // shelly(get): http://<shellyIP>/relais/0?turn=on
@@ -353,7 +359,11 @@ bool WebSchedulerService::command(const char * name, const std::string & command
     JsonDocument doc;
     if (deserializeJson(doc, cmd) == DeserializationError::Ok) {
         HTTPClient * http = new HTTPClient;
-        std::string  url  = doc["url"] | "";
+#ifndef EMSESP_STANDALONE
+        http->setConnectTimeout(10000);
+        http->setTimeout(10000);
+#endif
+        std::string url = doc["url"] | "";
         // for a GET with parameters replace commands with values
         // don't search the complete url, it may contain a devicename in path
         auto q = url.find_first_of('?');
@@ -401,6 +411,7 @@ bool WebSchedulerService::command(const char * name, const std::string & command
             return true;
         }
         // we can add other json tests here
+        delete http;
     }
 
     doc.clear();
@@ -443,8 +454,7 @@ bool WebSchedulerService::command(const char * name, const std::string & command
 // queue schedules to be handled executed in scheduler-loop
 bool WebSchedulerService::onChange(const char * cmd) {
     for (ScheduleItem & scheduleItem : *scheduleItems_) {
-        if (scheduleItem.active && scheduleItem.flags == SCHEDULEFLAG_SCHEDULE_ONCHANGE
-            && Helpers::toLower(scheduleItem.time.c_str()).find(Helpers::toLower(cmd)) != std::string::npos) {
+        if (scheduleItem.active && scheduleItem.flags == SCHEDULEFLAG_SCHEDULE_ONCHANGE && Helpers::toLower(scheduleItem.time.c_str()) == Helpers::toLower(cmd)) {
             cmd_changed_.push_back(&scheduleItem);
             return true;
         }
@@ -480,13 +490,12 @@ void WebSchedulerService::loop() {
     static uint32_t last_uptime_min = 0;
     static uint32_t last_uptime_sec = 0;
 
-    if (!raw_value.empty()) { // process a value from system/message command
-        computed_value = compute(raw_value);
-        raw_value.clear();
-    }
-
     // get list of scheduler events and exit if it's empty
     if (scheduleItems_->empty()) {
+        return;
+    }
+    // do not execute any command in the first 60 secondes
+    if (uuid::get_uptime_sec() < 60) {
         return;
     }
 
@@ -532,7 +541,8 @@ void WebSchedulerService::loop() {
             // retry startup commands not yet executed
             if (scheduleItem.active && scheduleItem.flags == SCHEDULEFLAG_SCHEDULE_TIMER && scheduleItem.elapsed_min == 0
                 && scheduleItem.retry_cnt < MAX_STARTUP_RETRIES) {
-                scheduleItem.retry_cnt = command(scheduleItem.name, scheduleItem.cmd.c_str(), scheduleItem.value.c_str()) ? 0xFF : scheduleItem.retry_cnt + 1;
+                scheduleItem.retry_cnt =
+                    command(scheduleItem.name, scheduleItem.cmd.c_str(), compute(scheduleItem.value.c_str())) ? 0xFF : scheduleItem.retry_cnt + 1;
             }
             // scheduled timer commands
             if (scheduleItem.active && scheduleItem.flags == SCHEDULEFLAG_SCHEDULE_TIMER && scheduleItem.elapsed_min > 0
@@ -543,10 +553,10 @@ void WebSchedulerService::loop() {
         last_uptime_min = uptime_min;
     }
 
-    // check calender, sync to RTC, only execute if year is valid
+    // check calender, sync to RTC, only execute if year is valid and uptime more than a minute
     time_t now = time(nullptr);
     tm *   tm  = localtime(&now);
-    if (tm->tm_min != last_tm_min && tm->tm_year > 120) {
+    if (tm->tm_min != last_tm_min && tm->tm_year > 120 && uuid::get_uptime_sec() > 60) {
         // find the real dow and minute from RTC
         uint8_t  real_dow = 1 << tm->tm_wday; // 1 is Sunday
         uint16_t real_min = tm->tm_hour * 60 + tm->tm_min;
