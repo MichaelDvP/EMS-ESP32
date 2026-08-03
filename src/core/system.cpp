@@ -3024,18 +3024,24 @@ bool System::uploadFirmwareURL(const char * url) {
         return false; // error
     }
 
+    // the Content-Length from the response header, -1 if the server didn't send one.
     int firmware_size = http.getSize();
+    if (firmware_size <= 0) {
+        LOG_ERROR("Firmware upload failed - unknown size");
+        http.end();
+        return false; // error
+    }
 
-    // check we have a valid size
-    if (firmware_size < 2097152) { // 2MB or greater is required
-        LOG_ERROR("Firmware upload failed - invalid size");
+    // catch a wrong URL early, before streaming. Smallest shipped image is ~1.9MB
+    if (firmware_size < 1677721) { // 1.6MB
+        LOG_ERROR("Firmware upload failed - too small (%d KB)", firmware_size / 1024);
         http.end();
         return false; // error
     }
 
     // check we have enough space for the upload in the ota partition
     if (!Update.begin(firmware_size)) {
-        LOG_ERROR("Firmware upload failed - no space");
+        LOG_ERROR("Firmware upload failed - %s", Update.errorString());
         http.end();
         return false; // error
     }
@@ -3052,7 +3058,7 @@ bool System::uploadFirmwareURL(const char * url) {
 
     // get tcp stream and send it to Updater
     WiFiClient * stream = http.getStreamPtr();
-    if (Update.writeStream(*stream) != firmware_size) {
+    if (Update.writeStream(*stream) != (size_t)firmware_size) {
         LOG_ERROR("Firmware upload failed - size differences");
         http.end();
         EMSESP::system_.systemStatus(SYSTEM_STATUS::SYSTEM_STATUS_ERROR_UPLOAD);
