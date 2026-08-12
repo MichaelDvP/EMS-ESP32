@@ -2390,7 +2390,7 @@ bool Thermostat::set_control(const char * value, const int8_t id) {
         // BC400
         // 1-RC100, 2-RC100H, 3-RC200
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_BC400 || model() == EMSdevice::EMS_DEVICE_FLAG_UI800) {
-        if (Helpers::value2enum(value, ctrl, FL_(enum_control2))) {
+        if (Helpers::value2enum(value, ctrl, model() == EMSdevice::EMS_DEVICE_FLAG_UI800 ? FL_(enum_control3) : FL_(enum_control2))) {
             write_command(hpmode_typeids[hc->hc()], 3, ctrl);
             hc->control = ctrl; // set in advance, dont wait for verify
             if (hc->remotetemp != EMS_VALUE_INT16_NOTSET && ctrl > 0) {
