@@ -60,5 +60,5 @@
     "vite": "^8.3.4",
     "vite-plugin-imagemin": "^0.6.1"
   },
-  "packageManager": "pnpm@12.11.2"
+  "packageManager": "pnpm@12.14.0"
 }
