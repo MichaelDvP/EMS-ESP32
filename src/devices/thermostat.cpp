@@ -2864,7 +2864,11 @@ bool Thermostat::set_wwcircmode(const char * value, const int8_t id) {
     uint8_t set;
 
     if (isRC300() || (model() == EMSdevice::EMS_DEVICE_FLAG_RC100)) {
-        if (!Helpers::value2enum(value, set, FL_(enum_wwCircMode))) {
+        if (model() == EMSdevice::EMS_DEVICE_FLAG_BC400 || model() == EMSdevice::EMS_DEVICE_FLAG_UI800 || model() == EMSdevice::EMS_DEVICE_FLAG_HMC310) {
+            if (!Helpers::value2enum(value, set, FL_(enum_wwCircMode1))) {
+                return false;
+            }
+        } else if (!Helpers::value2enum(value, set, FL_(enum_wwCircMode))) {
             return false;
         }
 
@@ -5866,7 +5870,13 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
         register_device_value(tag, &dhw->wwModeType_, DeviceValueType::ENUM, FL_(enum_wwModeType), FL_(modetype), DeviceValueUOM::NONE);
         register_device_value(tag, &dhw->wwSetTemp_, DeviceValueType::UINT8, FL_(wwSetTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemp));
         register_device_value(tag, &dhw->wwSetTempLow_, DeviceValueType::UINT8, FL_(wwSetTempLow), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemplow));
-        register_device_value(tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+        if (model() == EMSdevice::EMS_DEVICE_FLAG_BC400 || model() == EMSdevice::EMS_DEVICE_FLAG_UI800 || model() == EMSdevice::EMS_DEVICE_FLAG_HMC310) {
+            register_device_value(
+                tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode1), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+        } else {
+            register_device_value(
+                tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+        }
         register_device_value(tag,
                               &dhw->wwChargeDuration_,
                               DeviceValueType::UINT8,
