@@ -3285,7 +3285,7 @@ bool Thermostat::set_solarinfl(const char * value, const int8_t id) {
 bool Thermostat::set_auxHeaterMode(const char * value, const int8_t) {
     uint8_t v;
     if (Helpers::value2enum(value, v, FL_(enum_wwMode2))) {
-        write_command(0x614, 0, v, 0x614);
+        write_command(0x614, 2, v, 0x614);
         return true;
     }
 
