@@ -324,7 +324,7 @@ class Thermostat : public EMSdevice {
 
     // auxheater
     uint8_t auxHeaterMode_;
- 
+
     std::vector<std::shared_ptr<HeatingCircuit>, AllocatorPSRAM<std::shared_ptr<HeatingCircuit>>> heating_circuits_; // each thermostat can have multiple heating circuits
     std::vector<std::shared_ptr<DhwCircuit>, AllocatorPSRAM<std::shared_ptr<DhwCircuit>>> dhw_circuits_; // each thermostat can have multiple dhw circuits
 

@@ -1554,7 +1554,7 @@ void Thermostat::process_HPMode(const std::shared_ptr<const Telegram> & telegram
 
 // 0x416, see #3315
 void Thermostat::process_auxHeaterMode(const std::shared_ptr<const Telegram> & telegram) {
-    has_update(telegram, auxHeaterMode_, 2);  // 0-off, 1-on, 2-auto
+    has_update(telegram, auxHeaterMode_, 2); // 0-off, 1-on, 2-auto
 }
 
 // 0x467 ff HP settings
