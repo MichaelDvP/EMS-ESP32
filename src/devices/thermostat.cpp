@@ -226,6 +226,7 @@ Thermostat::Thermostat(uint8_t device_type, uint8_t device_id, uint8_t product_i
         if (model == EMSdevice::EMS_DEVICE_FLAG_UI800) {
             register_telegram_type(0x470, "RC300Summer3", true, MAKE_PF_CB(process_RC300Summer3), 8);
         }
+        register_telegram_type(0x614, "RCauxHeaterMode", true, MAKE_PF_CB(process_auxHeaterMode));
 
         EMSESP::send_read_request(0xC0, device_id, 0, 20); // read last errorcode on start (only published on errors)
 
@@ -1549,6 +1550,11 @@ void Thermostat::process_HPMode(const std::shared_ptr<const Telegram> & telegram
 
     has_update(telegram, hc->control, 3);
     has_update(telegram, hc->hpmode, 5);
+}
+
+// 0x416, see #3315
+void Thermostat::process_auxHeaterMode(const std::shared_ptr<const Telegram> & telegram) {
+    has_update(telegram, auxHeaterMode_, 2);  // 0-off, 1-on, 2-auto
 }
 
 // 0x467 ff HP settings
@@ -3270,6 +3276,16 @@ bool Thermostat::set_solarinfl(const char * value, const int8_t id) {
     float t;
     if (Helpers::value2temperature(value, t)) {
         write_command(summer_typeids[hc->hc()], 3, (int8_t)t, summer_typeids[hc->hc()]);
+        return true;
+    }
+
+    return false;
+}
+
+bool Thermostat::set_auxHeaterMode(const char * value, const int8_t) {
+    uint8_t v;
+    if (Helpers::value2enum(value, v, FL_(enum_wwMode2))) {
+        write_command(0x614, 0, v, 0x614);
         return true;
     }
 
@@ -5040,6 +5056,13 @@ void Thermostat::register_device_values() {
                                   1,
                                   48);
         }
+        register_device_value(DeviceValueTAG::TAG_DEVICE_DATA,
+                              &auxHeaterMode_,
+                              DeviceValueType::ENUM,
+                              FL_(enum_wwMode2),
+                              FL_(auxHeaterMode),
+                              DeviceValueUOM::NONE,
+                              MAKE_CF_CB(set_auxHeaterMode));
 
         break;
     case EMSdevice::EMS_DEVICE_FLAG_RC10:
@@ -5871,9 +5894,11 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
         register_device_value(tag, &dhw->wwSetTemp_, DeviceValueType::UINT8, FL_(wwSetTemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemp));
         register_device_value(tag, &dhw->wwSetTempLow_, DeviceValueType::UINT8, FL_(wwSetTempLow), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_wwtemplow));
         if (model() == EMSdevice::EMS_DEVICE_FLAG_BC400 || model() == EMSdevice::EMS_DEVICE_FLAG_UI800 || model() == EMSdevice::EMS_DEVICE_FLAG_HMC310) {
-            register_device_value(tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode2), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+            register_device_value(
+                tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode2), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
         } else {
-            register_device_value(tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
+            register_device_value(
+                tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
         }
         register_device_value(tag,
                               &dhw->wwChargeDuration_,

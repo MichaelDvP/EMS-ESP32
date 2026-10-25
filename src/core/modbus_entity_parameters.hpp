@@ -175,36 +175,37 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(hpShutdown), 253, 1), // shutdown
     REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(hpCurrPower), 254, 1), // hpcurrpower
     REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(hpPowerLimit), 255, 1), // hppowerlimit
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(exhaustTemp), 256, 1), // exhausttemp
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnGas), 257, 1), // burngas
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnGas2), 258, 1), // burngas2
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(flameCurr), 259, 1), // flamecurr
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(fanWork), 260, 1), // fanwork
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(ignWork), 261, 1), // ignwork
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(oilPreHeat), 262, 1), // oilpreheat
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnMinPower), 263, 1), // burnminpower
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnMaxPower), 264, 1), // burnmaxpower
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnMinPeriod), 265, 1), // burnminperiod
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(absBurnPow), 266, 1), // absburnpow
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(heatblock), 267, 1), // heatblock
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boilHystOn), 268, 1), // boilhyston
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boilHystOff), 269, 1), // boilhystoff
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boil2HystOn), 270, 1), // boil2hyston
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boil2HystOff), 271, 1), // boil2hystoff
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(curveOn), 272, 1), // curveon
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(curveBase), 273, 1), // curvebase
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(curveEnd), 274, 1), // curveend
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(summertemp), 275, 1), // summertemp
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nofrostmode), 276, 1), // nofrostmode
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nofrosttemp), 277, 1), // nofrosttemp
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(gasMeterHeat), 278, 2), // gasmeterheat
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nrgHeat2), 280, 2), // nrgheat2
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nomPower), 282, 1), // nompower
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(netFlowTemp), 283, 1), // netflowtemp
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(heatValve), 284, 1), // heatvalve
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(keepWarmTemp), 285, 1), // keepwarmtemp
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(setReturnTemp), 286, 1), // setreturntemp
-    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(heatingOn), 287, 1), // heating
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(auxHeater), 256, 1), // auxheater
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(exhaustTemp), 257, 1), // exhausttemp
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnGas), 258, 1), // burngas
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnGas2), 259, 1), // burngas2
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(flameCurr), 260, 1), // flamecurr
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(fanWork), 261, 1), // fanwork
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(ignWork), 262, 1), // ignwork
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(oilPreHeat), 263, 1), // oilpreheat
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnMinPower), 264, 1), // burnminpower
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnMaxPower), 265, 1), // burnmaxpower
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(burnMinPeriod), 266, 1), // burnminperiod
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(absBurnPow), 267, 1), // absburnpow
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(heatblock), 268, 1), // heatblock
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boilHystOn), 269, 1), // boilhyston
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boilHystOff), 270, 1), // boilhystoff
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boil2HystOn), 271, 1), // boil2hyston
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(boil2HystOff), 272, 1), // boil2hystoff
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(curveOn), 273, 1), // curveon
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(curveBase), 274, 1), // curvebase
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(curveEnd), 275, 1), // curveend
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(summertemp), 276, 1), // summertemp
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nofrostmode), 277, 1), // nofrostmode
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nofrosttemp), 278, 1), // nofrosttemp
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(gasMeterHeat), 279, 2), // gasmeterheat
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nrgHeat2), 281, 2), // nrgheat2
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(nomPower), 283, 1), // nompower
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(netFlowTemp), 284, 1), // netflowtemp
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(heatValve), 285, 1), // heatvalve
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(keepWarmTemp), 286, 1), // keepwarmtemp
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(setReturnTemp), 287, 1), // setreturntemp
+    REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DEVICE_DATA, FL_(heatingOn), 288, 1), // heating
     REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DHW, FL_(nrgWw), 0, 2), // nrg
     REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DHW, FL_(meterWw), 2, 2), // meter
     REGISTER_MAPPING(dt::BOILER, TAG_TYPE_DHW, FL_(upTimeCompWw), 4, 2), // uptimecomp
@@ -293,26 +294,27 @@ const std::initializer_list<Modbus::EntityModbusInfo> Modbus::modbus_register_ma
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(pvRaiseHeat), 62, 1), // pvraiseheat
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(pvLowerCool), 63, 1), // pvlowercool
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(absent), 64, 1), // absent
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(ibaMainDisplay), 65, 1), // display
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(ibaLanguage), 66, 1), // language
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(ibaClockOffset), 67, 1), // clockoffset
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(tempsensor1), 68, 1), // inttemp1
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(tempsensor2), 69, 1), // inttemp2
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(autodst), 70, 1), // autodst
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(backlight), 71, 1), // backlight
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(brightness), 72, 1), // brightness
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(mixingvalves), 73, 1), // mixingvalves
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatingPID), 74, 1), // heatingpid
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(preheating), 75, 1), // preheating
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(vacations), 76, 13), // vacations
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(hpoperatingmode), 89, 1), // hpoperatingmode
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(summertemp), 90, 1), // summertemp
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(instantstart), 91, 1), // instantstart
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(coolstart), 92, 1), // coolstart
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatondelay), 93, 1), // heatondelay
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatoffdelay), 94, 1), // heatoffdelay
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(coolondelay), 95, 1), // coolondelay
-    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(cooloffdelay), 96, 1), // cooloffdelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(auxHeaterMode), 65, 1), // auxheatermode
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(ibaMainDisplay), 66, 1), // display
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(ibaLanguage), 67, 1), // language
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(ibaClockOffset), 68, 1), // clockoffset
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(tempsensor1), 69, 1), // inttemp1
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(tempsensor2), 70, 1), // inttemp2
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(autodst), 71, 1), // autodst
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(backlight), 72, 1), // backlight
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(brightness), 73, 1), // brightness
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(mixingvalves), 74, 1), // mixingvalves
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatingPID), 75, 1), // heatingpid
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(preheating), 76, 1), // preheating
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(vacations), 77, 13), // vacations
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(hpoperatingmode), 90, 1), // hpoperatingmode
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(summertemp), 91, 1), // summertemp
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(instantstart), 92, 1), // instantstart
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(coolstart), 93, 1), // coolstart
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatondelay), 94, 1), // heatondelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(heatoffdelay), 95, 1), // heatoffdelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(coolondelay), 96, 1), // coolondelay
+    REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_DEVICE_DATA, FL_(cooloffdelay), 97, 1), // cooloffdelay
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(selRoomTemp), 0, 1), // seltemp
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(roomTemp), 1, 1), // currtemp
     REGISTER_MAPPING(dt::THERMOSTAT, TAG_TYPE_HC, FL_(haclimate), 2, 1), // haclimate

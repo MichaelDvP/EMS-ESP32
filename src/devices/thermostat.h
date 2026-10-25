@@ -322,6 +322,9 @@ class Thermostat : public EMSdevice {
     uint8_t pvRaiseHeat_;
     uint8_t pvLowerCool_;
 
+    // auxheater
+    uint8_t auxHeaterMode_;
+ 
     std::vector<std::shared_ptr<HeatingCircuit>, AllocatorPSRAM<std::shared_ptr<HeatingCircuit>>> heating_circuits_; // each thermostat can have multiple heating circuits
     std::vector<std::shared_ptr<DhwCircuit>, AllocatorPSRAM<std::shared_ptr<DhwCircuit>>> dhw_circuits_; // each thermostat can have multiple dhw circuits
 
@@ -494,6 +497,7 @@ class Thermostat : public EMSdevice {
     void process_HPSet(const std::shared_ptr<const Telegram> & telegram);
     void process_HPMode(const std::shared_ptr<const Telegram> & telegram);
     void process_PID(const std::shared_ptr<const Telegram> & telegram);
+    void process_auxHeaterMode(const std::shared_ptr<const Telegram> & telegram);
 
     // internal helper functions
     bool set_mode_n(const uint8_t mode, const int8_t id);
@@ -743,6 +747,7 @@ class Thermostat : public EMSdevice {
     bool set_absent(const char * value, const int8_t id);
     bool set_redthreshold(const char * value, const int8_t id);
     bool set_solarinfl(const char * value, const int8_t id);
+    bool set_auxHeaterMode(const char * value, const int8_t id);
 };
 
 } // namespace emsesp
