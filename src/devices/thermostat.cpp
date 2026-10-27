@@ -583,7 +583,7 @@ uint8_t Thermostat::HeatingCircuit::get_mode() const {
             return HeatingCircuit::Mode::AUTO;
         }
     } else if (model == EMSdevice::EMS_DEVICE_FLAG_RC300 || model == EMSdevice::EMS_DEVICE_FLAG_R3000 || model == EMSdevice::EMS_DEVICE_FLAG_RC100
-               || model == EMSdevice::EMS_DEVICE_FLAG_HMC310) {
+               || model == EMSdevice::EMS_DEVICE_FLAG_HMC310 || EMS_DEVICE_FLAG_RC300V11) {
         if (mode == 0) {
             return HeatingCircuit::Mode::MANUAL;
         } else if (mode == 1) {
@@ -638,7 +638,7 @@ uint8_t Thermostat::HeatingCircuit::get_mode_type() const {
             return HeatingCircuit::Mode::ON;
         }
     } else if (model == EMSdevice::EMS_DEVICE_FLAG_RC300 || model == EMSdevice::EMS_DEVICE_FLAG_R3000 || model == EMSdevice::EMS_DEVICE_FLAG_BC400
-               || model == EMSdevice::EMS_DEVICE_FLAG_UI800 || model == EMSdevice::EMS_DEVICE_FLAG_HMC310) {
+               || model == EMSdevice::EMS_DEVICE_FLAG_UI800 || model == EMSdevice::EMS_DEVICE_FLAG_HMC310 || EMS_DEVICE_FLAG_RC300V11) {
         if (modetype == 0) {
             return HeatingCircuit::Mode::ECO;
         } else if (modetype == 1) {
@@ -2663,7 +2663,7 @@ bool Thermostat::set_wwmode(const char * value, const int8_t id) {
         }
 
         write_command(0x02F5 + dhw->offset(), 2, set, 0x02F5 + dhw->offset());
-    } else if (model() == EMSdevice::EMS_DEVICE_FLAG_RC300) {
+    } else if (model() == EMSdevice::EMS_DEVICE_FLAG_RC300 || EMS_DEVICE_FLAG_RC300V11) {
         if (!Helpers::value2enum(value, set, FL_(enum_wwMode))) {
             return false;
         }
@@ -2761,7 +2761,9 @@ bool Thermostat::set_wwchargeduration(const char * value, const int8_t id) {
         return false;
     }
 
-    t = (t + 8) / 15;
+    if (model() != EMS_DEVICE_FLAG_RC300V11) { // V11 is one minute, all other 15 minutes step
+        t = (t + 8) / 15;
+    }
 
     write_command(0x2F5 + dhw->offset(), 10, t, 0x02F5 + dhw->offset());
     return true;
@@ -3458,6 +3460,7 @@ bool Thermostat::set_mode(const char * value, const int8_t id) {
     case EMSdevice::EMS_DEVICE_FLAG_RC100:
     case EMSdevice::EMS_DEVICE_FLAG_R3000:
     case EMSdevice::EMS_DEVICE_FLAG_HMC310:
+    case EMSdevice::EMS_DEVICE_FLAG_RC300V11:
         mode_list = FL_(enum_mode);
         break;
     case EMSdevice::EMS_DEVICE_FLAG_JUNKERS:
@@ -3608,6 +3611,7 @@ bool Thermostat::set_mode_n(const uint8_t mode, const int8_t id) {
     case EMSdevice::EMS_DEVICE_FLAG_RC100:
     case EMSdevice::EMS_DEVICE_FLAG_R3000:
     case EMSdevice::EMS_DEVICE_FLAG_HMC310:
+    case EMSdevice::EMS_DEVICE_FLAG_RC300V11:
         offset         = EMS_OFFSET_RCPLUSSet_mode;
         set_mode_value = set_mode_value == 2 ? 0xFF : 0;
         break;
@@ -3645,7 +3649,7 @@ bool Thermostat::set_mode_n(const uint8_t mode, const int8_t id) {
     } else if (model_ == EMSdevice::EMS_DEVICE_FLAG_BC400 || model_ == EMSdevice::EMS_DEVICE_FLAG_UI800 || model_ == EMSdevice::EMS_DEVICE_FLAG_CR120) {
         hc->mode_new = set_mode_value;
     } else if (model_ == EMSdevice::EMS_DEVICE_FLAG_RC300 || model_ == EMSdevice::EMS_DEVICE_FLAG_R3000 || model_ == EMSdevice::EMS_DEVICE_FLAG_HMC310
-               || model_ == EMSdevice::EMS_DEVICE_FLAG_RC100) {
+               || model_ == EMSdevice::EMS_DEVICE_FLAG_RC100 || EMS_DEVICE_FLAG_RC300V11) {
         hc->mode = set_mode_value == 0xFF ? 1 : 0;
     } else if (model_ == EMSdevice::EMS_DEVICE_FLAG_JUNKERS) {
         hc->mode = set_mode_value - 1;
@@ -4881,6 +4885,7 @@ void Thermostat::register_device_values() {
     case EMSdevice::EMS_DEVICE_FLAG_UI800:
     case EMSdevice::EMS_DEVICE_FLAG_CR120:
     case EMSdevice::EMS_DEVICE_FLAG_HMC310:
+    case EMSdevice::EMS_DEVICE_FLAG_RC300V11:
         register_device_value(DeviceValueTAG::TAG_DEVICE_DATA,
                               &dateTime_,
                               DeviceValueType::STRING,
@@ -5415,6 +5420,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
     case EMSdevice::EMS_DEVICE_FLAG_UI800:
     case EMSdevice::EMS_DEVICE_FLAG_CR120:
     case EMSdevice::EMS_DEVICE_FLAG_HMC310:
+    case EMSdevice::EMS_DEVICE_FLAG_RC300V11:
         if (model == EMSdevice::EMS_DEVICE_FLAG_BC400 || model == EMSdevice::EMS_DEVICE_FLAG_UI800 || model == EMSdevice::EMS_DEVICE_FLAG_CR120) {
             register_device_value(tag, &hc->mode_new, DeviceValueType::ENUM, FL_(enum_mode2), FL_(mode), DeviceValueUOM::NONE, MAKE_CF_CB(set_mode));
         } else {
@@ -5882,6 +5888,7 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
     case EMSdevice::EMS_DEVICE_FLAG_UI800:
     case EMSdevice::EMS_DEVICE_FLAG_CR120:
     case EMSdevice::EMS_DEVICE_FLAG_HMC310:
+    case EMSdevice::EMS_DEVICE_FLAG_RC300V11:
         if (model() == EMSdevice::EMS_DEVICE_FLAG_BC400 || model() == EMSdevice::EMS_DEVICE_FLAG_UI800 || model() == EMSdevice::EMS_DEVICE_FLAG_HMC310) {
             register_device_value(tag, &dhw->wwMode_, DeviceValueType::ENUM, FL_(enum_wwMode4), FL_(wwMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwmode));
         } else if (model() == EMSdevice::EMS_DEVICE_FLAG_R3000) {
@@ -5904,13 +5911,22 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
             register_device_value(
                 tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
         }
-        register_device_value(tag,
-                              &dhw->wwChargeDuration_,
-                              DeviceValueType::UINT8,
-                              DeviceValueNumOp::DV_NUMOP_MUL15,
-                              FL_(wwChargeDuration),
-                              DeviceValueUOM::MINUTES,
-                              MAKE_CF_CB(set_wwchargeduration));
+        if (model() == EMS_DEVICE_FLAG_RC300V11) {
+            register_device_value(tag,
+                                  &dhw->wwChargeDuration_,
+                                  DeviceValueType::UINT8,
+                                  FL_(wwChargeDuration),
+                                  DeviceValueUOM::MINUTES,
+                                  MAKE_CF_CB(set_wwchargeduration));
+        } else {
+            register_device_value(tag,
+                                  &dhw->wwChargeDuration_,
+                                  DeviceValueType::UINT8,
+                                  DeviceValueNumOp::DV_NUMOP_MUL15,
+                                  FL_(wwChargeDuration),
+                                  DeviceValueUOM::MINUTES,
+                                  MAKE_CF_CB(set_wwchargeduration));
+        }
         register_device_value(tag, &dhw->wwCharge_, DeviceValueType::BOOL, FL_(wwCharge), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcharge));
         register_device_value(tag, &dhw->wwExtra_, DeviceValueType::BOOL, FL_(wwExtra), DeviceValueUOM::NONE);
         register_device_value(tag, &dhw->wwDisinfecting_, DeviceValueType::BOOL, FL_(wwDisinfecting), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwDisinfect));
