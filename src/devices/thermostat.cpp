@@ -4808,7 +4808,11 @@ bool Thermostat::set_temperature(const float temperature, const uint8_t mode, co
 
         // update selTemp now, readback from monitor telegram takes a while
         if (mode == HeatingCircuit::Mode::AUTO) {
-            has_update(hc->selTemp, (int16_t)(temperature * factor));
+            if (model == EMSdevice::EMS_DEVICE_FLAG_JUNKERS) {
+                has_update(hc->selTemp, (int16_t)(temperature * 10));
+            } else {
+                has_update(hc->selTemp, (int16_t)(temperature * factor));
+            }
             // read_command(0x08, 0x18); // UBAMonitorFast
         }
 
