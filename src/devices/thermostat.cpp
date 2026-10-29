@@ -1148,7 +1148,7 @@ void Thermostat::process_JunkersWW(const std::shared_ptr<const Telegram> & teleg
 
 // 0x11E
 void Thermostat::process_JunkersDisp(const std::shared_ptr<const Telegram> & telegram) {
-    has_update(telegram, ibaContrast_, 0);          // raw 10..30, factor 2.5 => 25..75 %
+    has_update(telegram, ibaContrast_, 0);           // raw 10..30, factor 2.5 => 25..75 %
     has_enumupdate(telegram, ibaMainDisplay_, 1, 1); // 1=ww temp, 2=date, 3=ext temp, 6=set room temp
     has_update(telegram, ibaLanguage_, 3);
     has_enumupdate(telegram, ibaDateFormat_, 5, 1); // 1=DD.MM.YYYY, 2=MM/DD/YYYY
@@ -5920,13 +5920,7 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
                               -1,
                               101);
         register_device_value(tag, &hc->targetflowtemp, DeviceValueType::UINT8, FL_(targetflowtemp), DeviceValueUOM::DEGREES);
-        register_device_value(tag,
-                              &hc->holidaymode,
-                              DeviceValueType::ENUM,
-                              FL_(enum_mode4),
-                              FL_(holidaymode),
-                              DeviceValueUOM::NONE,
-                              MAKE_CF_CB(set_holidaymode));
+        register_device_value(tag, &hc->holidaymode, DeviceValueType::ENUM, FL_(enum_mode4), FL_(holidaymode), DeviceValueUOM::NONE, MAKE_CF_CB(set_holidaymode));
         register_device_value(tag,
                               &hc->switchonoptimization,
                               DeviceValueType::BOOL,
@@ -5966,13 +5960,8 @@ void Thermostat::register_device_values_hc(std::shared_ptr<Thermostat::HeatingCi
                                   MAKE_CF_CB(set_summertemp),
                                   9,
                                   25);
-            register_device_value(tag,
-                                  &hc->roomsensor,
-                                  DeviceValueType::ENUM,
-                                  FL_(enum_roomsensor),
-                                  FL_(roomsensor),
-                                  DeviceValueUOM::NONE,
-                                  MAKE_CF_CB(set_roomsensor));
+            register_device_value(
+                tag, &hc->roomsensor, DeviceValueType::ENUM, FL_(enum_roomsensor), FL_(roomsensor), DeviceValueUOM::NONE, MAKE_CF_CB(set_roomsensor));
             register_device_value(tag, &hc->fastHeatup, DeviceValueType::ENUM, FL_(enum_heatup), FL_(heatup), DeviceValueUOM::NONE, MAKE_CF_CB(set_heatup));
             register_device_value(tag, &hc->minflowtemp, DeviceValueType::UINT8, FL_(minflowtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_minflowtemp), 5, 70);
             register_device_value(tag, &hc->designtemp, DeviceValueType::UINT8, FL_(designtemp), DeviceValueUOM::DEGREES, MAKE_CF_CB(set_designtemp), 30, 90);
@@ -6040,7 +6029,9 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
                               DeviceValueNumOp::DV_NUMOP_MUL15,
                               FL_(wwChargeDuration),
                               DeviceValueUOM::MINUTES,
-                              MAKE_CF_CB(set_wwchargeduration));
+                              MAKE_CF_CB(set_wwchargeduration),
+                              15,
+                              2880);
         register_device_value(tag, &dhw->wwCharge_, DeviceValueType::BOOL, FL_(wwCharge), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcharge));
         register_device_value(tag, &dhw->wwExtra_, DeviceValueType::BOOL, FL_(wwExtra), DeviceValueUOM::NONE);
         register_device_value(tag, &dhw->wwDisinfecting_, DeviceValueType::BOOL, FL_(wwDisinfecting), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwDisinfect));
