@@ -6923,23 +6923,23 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
+| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
+| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
+uint8
+| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
+| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 uint8
 | hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
 | hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
-| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
-| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
 | hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
 uint8
 | hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
-uint8
-| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
 uint8
 | hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
 | hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
 uint8
 | hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
 | hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
-| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FW200
@@ -6983,23 +6983,23 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
+| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
+| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
+uint8
+| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
+| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 uint8
 | hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
 | hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
-| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
-| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
 | hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
 uint8
 | hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
-uint8
-| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
 uint8
 | hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
 | hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
 uint8
 | hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
 | hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
-| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FR100
@@ -7041,23 +7041,15 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
-uint8
-| hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
-| hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
 | hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
 | hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
-| hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
-uint8
-| hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
 uint8
 | hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
-uint8
-| hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
-| hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
-uint8
-| hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
-| hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
 | hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
+uint8
+| hc1.adaptfactor | adaptation factor | uint8 (&gt;=0&lt;=100) | % | true | HC | 208 | 1 | 5 |
+uint8
+| hc1.gainfactor | gain factor | uint8 (&gt;=40&lt;=100) | % | true | HC | 209 | 1 | 5 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FR110
@@ -7099,23 +7091,15 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
-uint8
-| hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
-| hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
 | hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
 | hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
-| hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
-uint8
-| hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
 uint8
 | hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
-uint8
-| hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
-| hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
-uint8
-| hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
-| hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
 | hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
+uint8
+| hc1.adaptfactor | adaptation factor | uint8 (&gt;=0&lt;=100) | % | true | HC | 208 | 1 | 5 |
+uint8
+| hc1.gainfactor | gain factor | uint8 (&gt;=40&lt;=100) | % | true | HC | 209 | 1 | 5 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FB10
@@ -7159,23 +7143,23 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
+| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
+| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
+uint8
+| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
+| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 uint8
 | hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
 | hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
-| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
-| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
 | hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
 uint8
 | hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
-uint8
-| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
 uint8
 | hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
 | hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
 uint8
 | hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
 | hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
-| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FB100
@@ -7219,23 +7203,23 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
+| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
+| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
+uint8
+| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
+| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 uint8
 | hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
 | hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
-| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
-| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
 | hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
 uint8
 | hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
-uint8
-| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
 uint8
 | hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
 | hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
 uint8
 | hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
 | hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
-| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FR10
@@ -7277,23 +7261,15 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
-uint8
-| hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
-| hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
 | hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
 | hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
-| hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
-uint8
-| hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
 uint8
 | hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
-uint8
-| hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
-| hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
-uint8
-| hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
-| hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
 | hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
+uint8
+| hc1.adaptfactor | adaptation factor | uint8 (&gt;=0&lt;=100) | % | true | HC | 208 | 1 | 5 |
+uint8
+| hc1.gainfactor | gain factor | uint8 (&gt;=40&lt;=100) | % | true | HC | 209 | 1 | 5 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FW500
@@ -7337,23 +7313,23 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
+| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
+| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
+uint8
+| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
+| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 uint8
 | hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
 | hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
-| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
-| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
 | hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
 uint8
 | hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
-uint8
-| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
 uint8
 | hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
 | hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
 uint8
 | hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
 | hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
-| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FR50
@@ -7395,23 +7371,15 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
-uint8
-| hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
-| hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
 | hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
 | hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
-| hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
-uint8
-| hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
 uint8
 | hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
-uint8
-| hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
-| hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
-uint8
-| hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
-| hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
 | hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
+uint8
+| hc1.adaptfactor | adaptation factor | uint8 (&gt;=0&lt;=100) | % | true | HC | 208 | 1 | 5 |
+uint8
+| hc1.gainfactor | gain factor | uint8 (&gt;=40&lt;=100) | % | true | HC | 209 | 1 | 5 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FR120
@@ -7453,23 +7421,15 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
-uint8
-| hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
-| hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
 | hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
 | hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
-| hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
-uint8
-| hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
 uint8
 | hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
-uint8
-| hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
-| hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
-uint8
-| hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
-| hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
 | hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
+uint8
+| hc1.adaptfactor | adaptation factor | uint8 (&gt;=0&lt;=100) | % | true | HC | 208 | 1 | 5 |
+uint8
+| hc1.gainfactor | gain factor | uint8 (&gt;=40&lt;=100) | % | true | HC | 209 | 1 | 5 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### FW120
@@ -7513,23 +7473,23 @@ int8
 | hc1.program | program | enum |   | true | HC | 27 | 1 | 1 |
 | hc1.remotetemp | room temperature from remote | cmd | C | true | HC | 45 | 1 | 1/10 |
 | hc1.targetflowtemp | target flow temperature | uint8 | C | false | HC | 19 | 1 | 1 |
+| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
+| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
+uint8
+| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
+| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 uint8
 | hc1.summertemp | summer temperature | uint8 (&gt;=9&lt;=25) | C | true | HC | 8 | 1 | 1/2 |
 | hc1.roomsensor | room sensor | enum |   | true | HC | 206 | 1 | 1 |
-| hc1.holidaymode | holiday mode | enum |   | true | HC | 66 | 1 | 1 |
-| hc1.switchonoptimization | switch-on optimization | boolean |   | true | HC | 33 | 1 | 1 |
 | hc1.heatup | heatup | enum |   | true | HC | 207 | 1 | 1 |
 uint8
 | hc1.minflowtemp | min flow temperature | uint8 (&gt;=5&lt;=70) | C | true | HC | 12 | 1 | 1 |
-uint8
-| hc1.maxflowtemp | max flow temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 13 | 1 | 1 |
 uint8
 | hc1.designtemp | design temperature | uint8 (&gt;=30&lt;=90) | C | true | HC | 9 | 1 | 1 |
 | hc1.roominfluence | room influence | enum |   | true | HC | 14 | 1 | 1 |
 uint8
 | hc1.roominflfactor | room influence factor | uint8 (&gt;=0&lt;=0) | % | true | HC | 15 | 1 | 10 |
 | hc1.heatingtype | heating type | enum |   | true | HC | 20 | 1 | 1 |
-| hc1.controlmode | control mode | enum |   | true | HC | 26 | 1 | 1 |
 | dhw.charge | charge | boolean |   | true | DHW | 6 | 1 | 1 |
 
 ### RT800, RC220
