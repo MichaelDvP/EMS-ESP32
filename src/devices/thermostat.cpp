@@ -1438,14 +1438,21 @@ void Thermostat::process_RC300WWmode(const std::shared_ptr<const Telegram> & tel
         has_update(telegram, dhw->wwMode_, 2); // 0=off, 1=low, 2=high, 3=auto, 4=own prog
     }
 
-    has_update(telegram, dhw->wwCircMode_, 3);        // 0=off, 1=on, 2=dhw prog (BC400+) / auto, 3=auto (BC400+) / own prog
-    has_update(telegram, dhw->wwChargeDuration_, 10); // value in steps of 15 min
-    has_update(telegram, dhw->wwCharge_, 11);         // 0=off, 0xFF=on
-    has_update(telegram, dhw->wwDisinfecting_, 5);    // 0=off, 0xFF=on
-    has_update(telegram, dhw->wwDisinfectHour_, 6);   // value in steps of 15 min
-    has_update(telegram, dhw->wwDisinfectDay_, 7);    // 0-6 Day of week, 7 every day
-    has_update(telegram, dhw->wwDailyHeating_, 8);    // 0=off, 0xFF=on
-    has_update(telegram, dhw->wwDailyHeatTime_, 9);   // value in steps of 15 min
+    has_update(telegram, dhw->wwCircMode_, 3); // 0=off, 1=on, 2=dhw prog (BC400+) / auto, 3=auto (BC400+) / own prog
+    if (model() == EMSdevice::EMS_DEVICE_FLAG_RC300V11) {
+        uint8_t wwcd = (15 * dhw->wwChargeDuration_) % 256;
+        if (telegram->read_value(wwcd, 10)) {
+            has_update(dhw->wwChargeDuration_, (wwcd * 239) % 256);
+        }
+    } else {
+        has_update(telegram, dhw->wwChargeDuration_, 10); // value in steps of 15 min
+    }
+    has_update(telegram, dhw->wwCharge_, 11);       // 0=off, 0xFF=on
+    has_update(telegram, dhw->wwDisinfecting_, 5);  // 0=off, 0xFF=on
+    has_update(telegram, dhw->wwDisinfectHour_, 6); // value in steps of 15 min
+    has_update(telegram, dhw->wwDisinfectDay_, 7);  // 0-6 Day of week, 7 every day
+    has_update(telegram, dhw->wwDailyHeating_, 8);  // 0=off, 0xFF=on
+    has_update(telegram, dhw->wwDailyHeatTime_, 9); // value in steps of 15 min
 }
 
 // types 0x31D and 0x31E
@@ -1461,7 +1468,7 @@ void Thermostat::process_RC300WWmode2(const std::shared_ptr<const Telegram> & te
     // pos 2 = current status of DHW setpoint
     // pos 3 = current status of DHW circulation pump
     has_update(telegram, dhw->wwExtra_, 0);    // 0=no, 1=yes
-    has_update(telegram, dhw->wwModeType_, 8); //  0-off, 1-eco, 2-comfort, 3-eco+
+    has_update(telegram, dhw->wwModeType_, 8); // 0-off, 1-eco, 2-comfort, 3-eco+
 }
 
 // 0x23A damped outdoor temp
@@ -2761,8 +2768,9 @@ bool Thermostat::set_wwchargeduration(const char * value, const int8_t id) {
         return false;
     }
 
-    if (model() != EMS_DEVICE_FLAG_RC300V11) { // V11 is one minute, all other 15 minutes step
-        t = (t + 8) / 15;
+    t = (t + 8) / 15;
+    if (model() != EMS_DEVICE_FLAG_RC300V11) { // V11 see #3318
+        t = (15 * t) % 256;
     }
 
     write_command(0x2F5 + dhw->offset(), 10, t, 0x02F5 + dhw->offset());
@@ -5911,22 +5919,13 @@ void Thermostat::register_device_values_dhw(std::shared_ptr<Thermostat::DhwCircu
             register_device_value(
                 tag, &dhw->wwCircMode_, DeviceValueType::ENUM, FL_(enum_wwCircMode), FL_(wwCircMode), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcircmode));
         }
-        if (model() == EMS_DEVICE_FLAG_RC300V11) {
-            register_device_value(tag,
-                                  &dhw->wwChargeDuration_,
-                                  DeviceValueType::UINT8,
-                                  FL_(wwChargeDuration),
-                                  DeviceValueUOM::MINUTES,
-                                  MAKE_CF_CB(set_wwchargeduration));
-        } else {
-            register_device_value(tag,
-                                  &dhw->wwChargeDuration_,
-                                  DeviceValueType::UINT8,
-                                  DeviceValueNumOp::DV_NUMOP_MUL15,
-                                  FL_(wwChargeDuration),
-                                  DeviceValueUOM::MINUTES,
-                                  MAKE_CF_CB(set_wwchargeduration));
-        }
+        register_device_value(tag,
+                              &dhw->wwChargeDuration_,
+                              DeviceValueType::UINT8,
+                              DeviceValueNumOp::DV_NUMOP_MUL15,
+                              FL_(wwChargeDuration),
+                              DeviceValueUOM::MINUTES,
+                              MAKE_CF_CB(set_wwchargeduration));
         register_device_value(tag, &dhw->wwCharge_, DeviceValueType::BOOL, FL_(wwCharge), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwcharge));
         register_device_value(tag, &dhw->wwExtra_, DeviceValueType::BOOL, FL_(wwExtra), DeviceValueUOM::NONE);
         register_device_value(tag, &dhw->wwDisinfecting_, DeviceValueType::BOOL, FL_(wwDisinfecting), DeviceValueUOM::NONE, MAKE_CF_CB(set_wwDisinfect));
