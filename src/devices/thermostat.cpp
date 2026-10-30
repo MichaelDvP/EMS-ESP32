@@ -2211,7 +2211,7 @@ bool Thermostat::set_minexttemp(const char * value, const int8_t id) {
     } else if (isRC300()) {
         write_command(0x240, 10, mt, 0x240);
     } else if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS) {
-        write_command(0x110, 16, mt, 0x110);
+        write_command(0x11E, 16, mt, 0x11E);
     } else {
         write_command(EMS_TYPE_IBASettings, 5, mt, EMS_TYPE_IBASettings);
     }
@@ -2395,7 +2395,7 @@ bool Thermostat::set_building(const char * value, const int8_t id) {
     if (model() == EMSdevice::EMS_DEVICE_FLAG_JUNKERS) {
         int i;
         if (Helpers::value2number(value, i, 0, 100)) {
-            write_command(0x110, 17, i / 10, 0x110);
+            write_command(0x11E, 17, i / 10, 0x11E);
             return true;
         }
 
