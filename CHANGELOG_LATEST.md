@@ -28,7 +28,9 @@ This release is based on the latest Espressif/Arduino core version 3. It brings 
 - 16MB builds use EMS-ESP's own Arduino/IDF libs from [esp32-arduino-lib-builder](https://github.com/emsesp/esp32-arduino-lib-builder) instead of Tasmota's prebuilt cores
 - optional `ccache` wrapping when it is installed (`scripts/enable_ccache.py`) to speed up CI
 - heat pump `dhw/disinfectduration`, the time allowed to reach the thermal disinfection temperature (0xEA offset 15, 120-240 min) [#3278](https://github.com/emsesp/EMS-ESP32/issues/3278)
+- Junkers FW/FR thermostat display settings (main display, language, date format, contrast) are now also shown on older models like the FR120, plus the room temperature sensor calibration `intoffset` (0x11E offset 8, -3.0 to 3.0 K) [#3329](https://github.com/emsesp/EMS-ESP32/issues/3329)
 - Hungarian language (HU) 
+- heat pump backup heater energy per mode in 0.01 kWh: `metereheatheat` and `dhw/metereheat` (0x4AF offsets 28 and 36) [#3325](https://github.com/emsesp/EMS-ESP32/issues/3325)
 
 ## Fixed
 
@@ -73,6 +75,7 @@ This release is based on the latest Espressif/Arduino core version 3. It brings 
 - a second boiler monitor `0xE4` carrying `0xFFFF` cleared a valid `pc0Flow`. That empty value is now ignored [#3224](https://github.com/emsesp/EMS-ESP32/issues/3224)
 - writing a negative custom entity value was always 1 too high because float-to-int rounding always added +0.5. Negative values now round the same way as positive ones [#3297](https://github.com/emsesp/EMS-ESP32/issues/3297)
 - after a cold boot, SoftAP fallback no longer abandons STA forever. If a home WiFi SSID is configured, EMS-ESP keeps retrying STA while the captive portal is up so a late-booting router (e.g. after a power outage) can still be joined; SoftAP stops once STA gets an IP
+- MQTT with "Enable TLS" on a port that isn't one of a few well-known TLS ports (8883 is, 8884 or 18883 are not) connected without TLS, sending the MQTT username and password in clear text
 - NTP time zone strings updated to IANA tz 2026e. About 32 zones had the wrong UTC offset now or within the next year (Mexico no longer uses DST, Egypt does again, Morocco is permanent UTC+0, Kazakhstan, and from 1 November 2026 western Canada stays on permanent offsets). On boot EMS-ESP rewrites the stored POSIX string from the saved IANA label so existing installs pick up the new rules without re-selecting the zone [#3308](https://github.com/emsesp/EMS-ESP32/pull/3308)
 - MQTT with TLS and a CA certificate crashed on every connect (a boot loop) on boards with PSRAM when the broker's certificate chain is EC, such as Let's Encrypt ISRG Root X2: verifying it needs about 6 KB of stack and the MQTT task only had 5120 bytes. The MQTT task now gets an 8 KB stack when TLS verifies a CA certificate, and keeps 5120 bytes for insecure TLS and plain MQTT
 - `auxHeaterMode` mode for thermostat [#3315](https://github.com/emsesp/EMS-ESP32/issues/3315)
