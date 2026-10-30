@@ -2793,7 +2793,7 @@ bool Thermostat::set_wwchargeduration(const char * value, const int8_t id) {
     }
 
     t = (t + 8) / 15;
-    if (model() != EMS_DEVICE_FLAG_RC300V11) { // V11 see #3318
+    if (model() == EMS_DEVICE_FLAG_RC300V11) { // V11 see #3318
         t = (15 * t) % 256;
     }
 
